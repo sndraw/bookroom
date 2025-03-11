@@ -1,0 +1,17 @@
+node_modules/
+storage/privkeys/*
+
+# Logs
+logs
+*.log*
+
+# jetbrains
+.idea
+
+dist
+.husky
+mock
+.env.local
+.umi
+.umi-production
+.git

@@ -1,0 +1,105 @@
+services:
+  # The lightrag.
+  work_lightrag:
+    image: sndraw/lightrag-multi:1.0.6-beta-5
+    restart: always
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      DEBUG: ${LIGHTRAG_DEBUG:-false}
+      MULTI_MODE: ${LIGHTRAG_MULTI_MODE:-false}
+      WORKERS: ${LIGHTRAG_WORKERS:-2}
+      LIGHTRAG_API_KEY: ${LIGHTRAG_API_KEY:-prd-LIGHTRAG_API_KEY}
+      # LightRAG llm configuration
+      LLM_BINDING: ${LIGHTRAG_LLM_BINDING:-ollama}
+      LLM_BINDING_HOST: ${LIGHTRAG_LLM_BINDING_HOST:-http://127.0.0.1:11434}
+      LLM_MODEL: ${LIGHTRAG_LLM_MODEL:-deepseek-r1:14b}
+      LLM_BINDING_API_KEY: ${LIGHTRAG_LLM_BINDING_API_KEY:-}
+      MAX_TOKENS: ${LIGHTRAG_MAX_TOKENS:-8192}
+      # LightRAG embedding configuration
+      EMBEDDING_BINDING: ${LIGHTRAG_EMBEDDING_BINDING:-ollama}
+      EMBEDDING_BINDING_HOST: ${LIGHTRAG_EMBEDDING_BINDING_HOST:-http://127.0.0.1:11434}
+      EMBEDDING_MODEL: ${LIGHTRAG_EMBEDDING_MODEL:-bge-m3:latest}
+      EMBEDDING_BINDING_API_KEY: ${LIGHTRAG_EMBEDDING_BINDING_API_KEY:-}
+      EMBEDDING_DIM: ${LIGHTRAG_EMBEDDING_DIM:-1024}
+      MAX_EMBED_TOKENS: ${LIGHTRAG_MAX_EMBED_TOKENS:-8192}
+      # LightRAG storage configuration
+      DOC_STATUS_STORAGE: ${LIGHTRAG_DOC_STATUS_STORAGE:-JsonDocStatusStorage}
+      KV_STORAGE: ${LIGHTRAG_KV_STORAGE:-JsonKVStorage}
+      GRAPH_STORAGE: ${LIGHTRAG_GRAPH_STORAGE:-NetworkXStorage}
+      VECTOR_STORAGE: ${LIGHTRAG_VECTOR_STORAGE:-NanoVectorDBStorage}
+      # LightRAG addon params configuration
+      EXAMPLE_NUMBER: ${LIGHTRAG_EXAMPLE_NUMBER:-2}
+      SUMMARY_LANGUAGE: ${LIGHTRAG_SUMMARY_LANGUAGE:-Simplified Chinese}
+      ENABLE_LLM_CACHE_FOR_ENTITY_EXTRACT: ${LIGHTRAG_ENABLE_LLM_CACHE_FOR_ENTITY_EXTRACT:-false}
+      ENABLE_LLM_CACHE: ${LIGHTRAG_ENABLE_LLM_CACHE:-true}
+    volumes:
+      # - ./volumes/lightrag/entrypoint.sh:/entrypoint.sh
+      - ./volumes/lightrag/data/rag_storage:/app/rag_storage
+      - ./volumes/lightrag/data/inputs:/app/inputs
+    ports:
+      - "${EXPOSE_LIGHTRAG_PORT:-9621}:${LIGHTRAG_PORT:-9621}"
+    healthcheck:
+      test: [ "CMD", "curl", "-s", "http://localhost:${LIGHTRAG_PORT:-9621}/health" ]
+      interval: 30s
+      timeout: 20s
+      retries: 5
+    networks:
+      - work_shared_network
+      - default
+
+  work_minio:
+    image: minio/minio:RELEASE.2025-01-20T14-49-07Z
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    ports:
+      - "${EXPOSE_MINIO_PORT:-9000}:${MINIO_PORT:-9000}"
+      - "${EXPOSE_MINIO_WEBUI_PORT:-9001}:${MINIO_WEBUI_PORT:-9001}"
+    volumes:
+      - ./volumes/minio:/minio_data
+    command: minio server /minio_data --console-address ":${MINIO_WEBUI_PORT:-9001}"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${MINIO_PORT:-9000}/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - work_shared_network
+      - default
+
+  work_ollama:
+      image: 'ollama/ollama:latest'
+      pull_policy: if_not_present
+      tty: true
+      restart: always
+      environment:
+        TZ: ${TZ:-Asia/Shanghai}
+        OLLAMA_HOST: ${OLLAMA_HTTP_HOST:-0.0.0.0}:${OLLAMA_HTTP_PORT:-11434}
+        OLLAMA_ORIGINS: ${OLLAMA_ORIGINS:-*}
+        OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-4}
+        OLLAMA_MAX_LOADED_MODELS: ${OLLAMA_MAX_LOADED_MODELS:-4}
+        OLLAMA_KEEPALIVE: ${OLLAMA_KEEPALIVE:-5m}
+      networks:
+        - work_shared_network
+        - default
+      volumes:
+        - ./volumes/ollama/.ollama:/root/.ollama
+      ports:
+        - '${EXPOSE_OLLAMA_HTTP_PORT:-11434}:${OLLAMA_HTTP_PORT:-11434}'
+        # - '443:443'
+        # - '22:22'
+      # GPU support
+      deploy:
+        resources:
+          reservations:
+            devices:
+              - driver: nvidia
+                count: 1
+                capabilities:
+                  - gpu
+# 指定共享网络
+networks:
+  work_shared_network:
+    driver: bridge
+    internal: true

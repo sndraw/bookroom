@@ -1,0 +1,17 @@
+/node_modules
+/.env.local
+/config/config.local.ts
+/src/.umi
+/src/.umi-production
+/src/.umi-test
+/.umi
+/.umi-production
+/.umi-test
+/dist
+/.mfsu
+.swc
+/pnpm-lock.yaml
+/public/upload
+/public/data
+/package-lock.json
+/docker/nginx/logs

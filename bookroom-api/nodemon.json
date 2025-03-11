@@ -1,0 +1,7 @@
+{
+    "watch": [
+        "api"
+    ],
+    "ext": "ts",
+    "exec": "ts-node --files api/index.ts"
+}

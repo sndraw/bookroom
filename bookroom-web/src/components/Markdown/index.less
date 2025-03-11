@@ -1,0 +1,56 @@
+.loadingWrapper {
+  padding: 10px;
+}
+
+.loadingTitle {
+  opacity: 1;
+}
+
+.titleWrapper {
+  padding: 10px 0;
+}
+
+.titleSummary {
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+}
+
+.titleContent {
+  margin: 10px;
+  padding: 10px;
+  border-radius: @border-radius-base * 3;
+  background-color: #fff;
+}
+
+.table {
+  width: 100%;
+  // 超出滚动条
+  overflow-x: auto;
+  overflow-y: auto;
+  // 合并边框
+  border-collapse: collapse;
+}
+
+.tableCell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: justify;
+  white-space: wrap;
+  word-wrap: normal;
+}
+
+.tableTdCell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre-wrap;
+  word-wrap: normal;
+}
+
+.pre {
+  width: 100%;
+  white-space: pre-wrap;
+}

@@ -1,0 +1,151 @@
+::-webkit-scrollbar {
+  // 宽高
+  width: 8px;
+  height: 8px;
+
+  &-track {
+    // 定义滚动条轨道 内阴影+圆角
+    border-radius: 10px;
+    background: transparent;
+  }
+
+  &-thumb {
+    // 定义滑块 内阴影+圆角
+    @color: rgba(0, 0, 0, 0.15);
+    @color-hover: rgba(8, 6, 6, 0.2);
+
+    background: @color;
+    border: 1px solid rgba(255, 255, 255, 40%);
+    border-radius: 4px;
+
+    &:window-inactive {
+      background-color: @color-hover;
+    }
+
+    &:hover {
+      // hover
+      background-color: @color-hover;
+    }
+
+    &:active {
+      // window滚动
+      background-color: @color-hover;
+    }
+  }
+}
+
+html {
+  background-color: @bg-color !important;
+}
+
+.ant-pro-sider-logo {
+  // 文字超出省略
+  overflow: hidden;
+
+  /* 确保超出容器的文本会被裁剪 */
+  white-space: nowrap;
+
+  /* 确保文本在一行内显示 */
+  text-overflow: ellipsis;
+
+  /* 使用省略号表示被裁剪的文本 */
+}
+
+.ant-pro-form-login-title {
+  // 文字超出省略
+  overflow: hidden;
+
+  /* 确保超出容器的文本会被裁剪 */
+  white-space: nowrap;
+
+  /* 确保文本在一行内显示 */
+  text-overflow: ellipsis;
+
+  /* 使用省略号表示被裁剪的文本 */
+}
+
+.ant-page-header-has-breadcrumb {
+  padding: 10px 20px !important;
+
+  .ant-page-header-breadcrumb {
+    padding: 10px 0 !important;
+    border-bottom: 1px solid @border-color-base;
+  }
+}
+
+.ant-pro-page-container-children-container {
+  padding: 0 20px !important;
+}
+// .ant-pro-form-login-top {
+//   margin-bottom: 20px;
+// }
+
+// .ant-pro-layout-header {
+//   border-block-end: none !important;
+//   backdrop-filter: none !important;
+// }
+
+// .ant-pro-global-header {
+//   margin-inline: 0 !important;
+// }
+
+// // .ant-pro-top-nav-header-menu{
+// //   background-color: @bg-color !important;
+// // }
+// // .ant-pro-global-header-right-content{
+// //   background-color: @bg-color !important;
+// // }
+// .ant-pro-top-nav-header-logo {
+//   width: 220px;
+//   text-align: center;
+//   justify-content: center;
+// }
+
+// // .ant-pro-global-header-collapsed-button {
+// //   width: 80px;
+// //   margin-inline: 0 !important;
+// //   padding-left: 35px;
+// // }
+
+// @media screen and (max-width: 767px) {
+//   .ant-pro-global-header {
+//     [data-id='logo'] {
+//       display: none;
+//     }
+
+//     .ant-pro-global-header-collapsed-button {
+//       margin-inline-start: 18px;
+//     }
+//   }
+// }
+
+// .ant-pro-top-nav-header-main {
+//   padding-inline-start: 0;
+// }
+
+// .ant-pro-top-nav-header-menu {
+//   justify-content: right;
+// }
+
+// .ant-tabs-nav {
+//   margin: 0 10px !important;
+
+//   &::before {
+//     display: none;
+//   }
+// }
+
+// .ant-tabs-tab {
+//   margin-top: -18px !important;
+// }
+
+// .ant-tabs-ink-bar {
+//   display: none !important;
+// }
+
+// .ant-menu-overflow-item,
+// .ant-menu-submenu-title {
+//   > * {
+//     vertical-align: middle !important;
+//   }
+// }
