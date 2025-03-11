@@ -1,0 +1,48 @@
+@headerHeight: 80px;
+@footerHeight: 80px;
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.layout {
+  min-height: 600px;
+  height: 100%;
+  padding: 20px 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  // align-items: center;
+}
+
+.header {
+  height: @headerHeight;
+  background: transparent;
+}
+
+.content {
+  flex: 1;
+  padding: 24px 50px;
+  display: flex;
+  background: transparent;
+}
+
+.footer {
+  height: @footerHeight;
+  background: transparent;
+}
+
+.logo {
+  // width: 192px;
+  height: @headerHeight !important;
+}
+
+.card {
+  width: 480px;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+}

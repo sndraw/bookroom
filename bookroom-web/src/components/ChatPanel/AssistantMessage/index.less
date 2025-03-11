@@ -1,0 +1,61 @@
+.messageItemWrapper {
+  width: 100%;
+  box-sizing: content-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.messageItem {
+  max-width: 100%;
+  display: flex;
+  margin: 10px 0;
+}
+
+.messageAssistant {
+  float: left;
+}
+
+.messageContent {
+  flex: 1;
+  background: @bg-color;
+  border-radius: @border-radius-base * 3;
+  padding: 1em;
+  margin: 0 10px;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.messageContentAssistant {
+  background: @bg-gray-color;
+}
+
+.messageRole {
+  color: @primary-color;
+  flex: 0;
+}
+
+.messageRoleAssistant {
+  color: @primary-color;
+}
+
+.messageRoleText {
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  border-radius: 50%;
+  background: @bg-primary-color;
+  box-sizing: content-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.messageRoleTextAssistant {
+  background-color: @bg-warm-color;
+}
+
+.messageFooter {
+  text-align: right;
+  margin: 0.5em 0 0;
+}

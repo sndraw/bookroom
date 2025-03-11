@@ -1,0 +1,10 @@
+.idea
+node_modules
+logs
+dist
+json
+package-lock.json
+.env *
+.env.local
+uploads
+/pnpm-lock.yaml

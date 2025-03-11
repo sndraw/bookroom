@@ -1,0 +1,6 @@
+volumes
+logs
+*.log
+.env
+.env.web
+.env.middleware

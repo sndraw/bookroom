@@ -1,0 +1,131 @@
+// 卡片项
+.cardItem {
+  background: #fff;
+  padding: 35px 20px !important;
+  border-radius: @border-radius-base * 3;
+  border: 1px solid @border-color !important;
+  position: relative;
+
+  &:hover {
+    border: 1px solid @primary-color !important;
+  }
+}
+
+// 元数据
+.cardItemMeta {
+  // min-height: 240px;
+  padding: 0;
+}
+
+.cardItemTitleWrapper {
+  line-height: 16px;
+}
+
+// 标题
+.cardItemTitle {
+  width: 70%;
+  box-sizing: border-box;
+  padding: 0 10px;
+  // 不换行
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+// 描述
+.cardItemContent {
+  margin: 10px;
+  padding: 0;
+  // min-height: 200px;
+  line-height: 1.2;
+  text-align: justify;
+  // word-break: keep-all;
+  // word-wrap: normal;
+  // white-space: pre-line;
+  overflow: hidden;
+
+  /* 使用省略号表示被省略的内容 */
+  text-overflow: ellipsis;
+
+  // /* 将元素作为弹性伸缩盒子模型处理 */
+  // display: -webkit-box;
+
+  // /* 限制最大行数为2行 */
+  // -webkit-line-clamp: 3;
+
+  // /* 设置垂直布局 */
+  // -webkit-box-orient: vertical;
+}
+
+.cardItemNode {
+  padding: 2px 0;
+
+  .nodeLabel {
+    width: 5em;
+    padding: 0;
+    text-align: justify;
+    text-align-last: justify;
+    display: inline-block;
+  }
+
+  .nodeContent {
+    padding: 5px 0;
+    display: inline-block;
+  }
+
+  .nodeBox {
+    line-height: 30px;
+  }
+
+  .nodeStatus {
+    display: inline-block;
+    vertical-align: middle;
+    opacity: 0.9;
+  }
+
+  .nodeBtn {
+    padding: 0;
+    font-size: 15px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
+// 头像/图标
+.cardItemAvatar {
+  height: 24px;
+  font-size: 24px;
+  color: @processing-color;
+}
+
+// 操作工具条
+.cardItemActions {
+  position: absolute;
+  bottom: 5px;
+  right: 20px;
+}
+
+// 按钮
+.cardItemBtn {
+  width: 20px;
+  // line-height: 30px;
+  font-size: 18px;
+  line-height: 1em;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.cardItemBtnHover {
+  &:hover {
+    font-size: 20px;
+    cursor: pointer;
+  }
+}
+
+// 卡片管理
+.cardItemManage {
+  position: absolute;
+  top: 2px;
+  right: 5px;
+  line-height: 1;
+}

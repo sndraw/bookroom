@@ -1,0 +1,67 @@
+.container {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  width: 100%;
+  padding: 0 0 10px 0;
+  border-bottom: 1px solid @border-color;
+  position: relative;
+}
+
+.tableWrapper {
+  flex: auto;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.refreshButton {
+  margin-right: 60px;
+  // position: absolute;
+  // right: 5px;
+  // top: 5px;
+  // z-index: 1000;
+}
+
+.rowItem {
+  padding: 12px 10px !important;
+}
+
+.rowTitle {
+  margin: 0 !important;
+  cursor: default;
+}
+
+.expandedRow {
+  margin: 0 30px;
+  padding: 10px;
+  border: 1px solid @border-color;
+}
+
+.nodeInfoItem {
+  display: flex;
+  flex-direction: row;
+}
+
+// 固定大小-flex
+.nodeLabel {
+  width: 3em;
+  font-weight: bold;
+  text-align: justify;
+  text-align-last: justify;
+  flex: none;
+}
+
+.nodeDescription {
+  padding: 0;
+  flex: 1;
+}
+
+.edgeInfoItem {
+  margin: 10px;
+  padding: 0 10px;
+  border: 1px dashed @border-color;
+}

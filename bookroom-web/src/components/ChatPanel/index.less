@@ -1,0 +1,84 @@
+.header {
+  padding: 10px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.title {
+  font-size: 16px;
+  padding: 10px 0;
+  flex: 0;
+}
+
+.messageListWrapper {
+  flex: auto;
+  overflow-y: auto;
+  background: #fff;
+  padding: 10px 20px;
+  margin: 10px 0 20px;
+  border-radius: @border-radius-base * 3;
+  position: relative;
+}
+
+.inputForm {
+  flex: 0;
+}
+
+.messageList {
+  width: 100%;
+  padding: 20px 0;
+  box-sizing: content-box;
+  overflow: hidden;
+}
+
+.inputImages {
+  padding: 0 0 10px;
+}
+
+.inputTextAreaWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+// .inputVoiceItem{
+//   flex:0;
+//   margin: 0 !important;
+// }
+.voiceChat {
+  flex: 0;
+  margin: 0 !important;
+}
+
+.inputTextAreaItem {
+  flex: auto;
+  margin: 0 !important;
+}
+
+.inputTextAreaSendBtn {
+  flex: 0;
+  width: 160px;
+  height: 44px;
+  box-sizing: border-box;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.inputTextArea {
+  padding: 10px !important;
+  box-sizing: border-box;
+  // 右侧圆角为0
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.scrollToBottomButton {
+  position: sticky;
+  bottom: 0;
+  left: 50%;
+  // transform: translate(0, -50%);
+}
