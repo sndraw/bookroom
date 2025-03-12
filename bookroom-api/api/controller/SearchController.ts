@@ -1,5 +1,5 @@
 import BaseController from "./BaseController";
-import { resultError, resultSuccess } from "../common/resultFormat";
+import { resultError, resultSuccess } from "@/common/resultFormat";
 import { Context } from "koa";
 import searchAndParse from "@/SDK/baidu";
 

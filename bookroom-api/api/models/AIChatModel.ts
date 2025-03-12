@@ -1,6 +1,5 @@
 import { DataTypes, Model, Op } from "sequelize";
-import database from "../common/database";
-import { StatusEnum } from "@/constants/DataMap";
+import database from "@/common/database";
 import { StatusModelRule } from "./rule";
 // 模型详情-表
 class AIChatLog extends Model {
@@ -20,7 +19,7 @@ AIChatLog.init(
                 },
             },
         },
-        title:{
+        title: {
             field: "title",
             type: DataTypes.STRING(255),
             allowNull: false,
@@ -52,7 +51,7 @@ AIChatLog.init(
                 },
             },
         },
-        // 日志类型，1对话，2图片，3语音，4视频
+        // 类型，1对话，2图片，3语音，4视频
         type: {
             field: "type",
             type: DataTypes.INTEGER,

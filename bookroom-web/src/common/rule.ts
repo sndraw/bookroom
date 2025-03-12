@@ -23,7 +23,7 @@ export const USER_RULE = {
   },
 };
 
-export const AI_PLATFORM_RULE = {
+export const PLATFORM_RULE = {
   name: {
     RegExp: /^[\u4e00-\u9fa5a-zA-Z][\u4e00-\u9fa5a-zA-Z0-9_]{2,29}$/,
     message:

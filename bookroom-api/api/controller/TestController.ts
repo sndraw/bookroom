@@ -1,5 +1,5 @@
 import BaseController from "./BaseController";
-import { resultSuccess } from "../common/resultFormat";
+import { resultSuccess } from "@/common/resultFormat";
 import { Context } from "koa";
 import { getRoleMap } from "@/constants/RoleMap";
 

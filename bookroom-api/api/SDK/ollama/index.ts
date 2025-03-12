@@ -1,8 +1,11 @@
 import { Ollama } from 'ollama';
-import { OLLAMA_CONFIG } from "@/common/ai";
 import { StatusEnum } from '@/constants/DataMap';
 import { MD5 } from 'crypto-js';
 import { createFileClient } from '@/common/file';
+
+export const OLLAMA_CONFIG = {
+    keep_alive: "5m",
+}
 
 class OllamaApi {
     private readonly ollama: Ollama;

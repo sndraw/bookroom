@@ -7,6 +7,7 @@ import LinkPanel from './LinkPanel';
 import NodePanel from './NodePanel';
 import LinkAdd from './LinkPanel/LinkAdd';
 import NodeAdd from './NodePanel/NodeAdd';
+import { Access, useAccess, useModel } from '@umijs/max';
 
 type GraphMapPropsType = {
   // 2d或者3d
@@ -33,6 +34,8 @@ const GraphMap: React.FC<GraphMapPropsType> = (props: GraphMapPropsType) => {
   } = props;
   const GraphPanel = displayMode === '2d' ? GraphPanel2D : GraphPanel3D;
 
+  const access = useAccess();
+  const canEdit = access.canSeeDev
   if (!graphData) {
     return <></>;
   }
@@ -48,9 +51,12 @@ const GraphMap: React.FC<GraphMapPropsType> = (props: GraphMapPropsType) => {
       <ContxtmenuPanel graph={graph} workspace={workspace} refresh={refresh} />
       <LinkPanel graph={graph} workspace={workspace} refresh={refresh} />
       <NodePanel graph={graph} graphData={graphData} workspace={workspace} refresh={refresh} />
-      {/* 添加节点 */}
-      <LinkAdd graph={graph} graphData={graphData} workspace={workspace} refresh={refresh} />
-      <NodeAdd graph={graph} workspace={workspace} refresh={refresh} />
+      <Access accessible={canEdit}>
+        {/* 添加节点关系 */}
+        <LinkAdd graph={graph} graphData={graphData} workspace={workspace} refresh={refresh} />
+        {/* 添加节点 */}
+        <NodeAdd graph={graph} workspace={workspace} refresh={refresh} />
+      </Access>
     </>
   );
 };

@@ -97,8 +97,8 @@ const LmAdd: React.FC<PropsWithChildren<LmAddProps>> = (props) => {
             message: '平台名称为必填项',
           },
           {
-            pattern: AI_PLATFORM_RULE.name.RegExp,
-            message: AI_PLATFORM_RULE.name.message,
+            pattern: PLATFORM_RULE.name.RegExp,
+            message: PLATFORM_RULE.name.message,
           },
         ]}
         placeholder="请输入模型标识"

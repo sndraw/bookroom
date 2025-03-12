@@ -3,7 +3,7 @@ import PlatformSelect from '@/components/Platform/PlatformSelect';
 // import PlatformSetting from '@/components/Platform/PlatformSetting';
 import { MODE_ENUM } from '@/constants/DataMap';
 import { deleteAILm, pullAILm, runAILm } from '@/services/common/ai/lm';
-import { getAIPlatformInfo } from '@/services/common/ai/platform';
+import { getPlatformInfo } from '@/services/common/platform';
 import { ReloadOutlined } from '@ant-design/icons';
 import { ProList } from '@ant-design/pro-components';
 import { Access, Outlet, useAccess, useRequest } from '@umijs/max';
@@ -44,7 +44,7 @@ const LmList: React.FC<LmListPropsType> = (props) => {
     run: platformRun,
   } = useRequest(
     () => {
-      return getAIPlatformInfo({
+      return getPlatformInfo({
         platform,
       });
     },
@@ -126,7 +126,7 @@ const LmList: React.FC<LmListPropsType> = (props) => {
         {/* <Access accessible={false}>
               <PlatformSetting
                 platform={platform}
-                customRequest={getAIPlatformInfo}
+                customRequest={getPlatformInfo}
                 refresh={refresh}
               />
             </Access> */}

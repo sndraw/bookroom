@@ -1,7 +1,7 @@
 import { Context } from "koa";
-import { resultNotSetup } from "../common/resultFormat";
-import SiteService from "../service/SiteService";
-import RouteMap from "@/constants/RouteMap";
+import { resultNotSetup } from "@/common/resultFormat";
+import SiteService from "@/service/SiteService";
+import RouteMap from "@/routers/RouteMap";
 
 // 判定是否初始化中间件
 export default () => {

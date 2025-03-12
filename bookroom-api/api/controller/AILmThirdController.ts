@@ -1,13 +1,13 @@
 import { Context } from "koa";
-import { resultError, resultSuccess } from "../common/resultFormat";
-import AILmThirdService from "../service/AILmThirdService";
+import { resultError, resultSuccess } from "@/common/resultFormat";
+import AILmThirdService from "@/service/AILmThirdService";
 import BaseController from "./BaseController";
-import AIPlatformService from "../service/AIPlatformService";
-import AIChatLogService from "../service/AIChatLogService";
+import PlatformService from "@/service/PlatformService";
+import AIChatLogService from "@/service/AIChatLogService";
 
 import { responseStream } from "../utils/streamHelper";
-import { AI_PLATFORM_TYPE_MAP } from "@/common/ai";
 import { StatusEnum } from "@/constants/DataMap";
+import { PLATFORM_TYPE_MAP } from "@/common/platform";
 
 class AILmController extends BaseController {
 
@@ -18,8 +18,8 @@ class AILmController extends BaseController {
       let platformList: any = []
       let models: any = [];
       if (!platform) {
-        const platformInfoList = await AIPlatformService.queryActivedRecords({
-          type: AI_PLATFORM_TYPE_MAP.model.value
+        const platformInfoList = await PlatformService.queryActivedRecords({
+          type: PLATFORM_TYPE_MAP.model.value
         });
         platformList = platformInfoList.map((item: any) => {
           return item.name

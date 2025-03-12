@@ -1,16 +1,16 @@
 /* eslint-disable */
 // 该文件由 OneAPI 自动生成，请勿手动修改！
-import { AI_PLATFORM_TYPE_MAP } from '@/common/ai';
 import { postFetch } from '@/common/fetchRequest';
+import { PLATFORM_TYPE_MAP } from '@/common/platfrom';
 import { request } from '@umijs/max';
 
 /** GET /platform */
 export async function queryAILmPlatformList(options?: { [key: string]: any }) {
   const params = {
-    type: AI_PLATFORM_TYPE_MAP?.model.value,
+    type: PLATFORM_TYPE_MAP?.model.value,
   };
-  return request<API.Result_AIPlatformInfoList_>(
-    '/ai/platform/actived',
+  return request<API.Result_PlatformInfoList_>(
+    '/platform/actived',
     {
       method: 'GET',
       params: {
@@ -64,7 +64,7 @@ export async function queryAILmList(
   );
 }
 
-/** POST /ai/lm/platform/:platform  */
+/** POST /ai/lm/platform/:platform/lm  */
 export async function addAILm(
   params: {
     platform: string;
@@ -76,7 +76,7 @@ export async function addAILm(
   const record = {
     ...(body || {}),
   };
-  return request<API.Result_AILmInfo_>(`/ai/platform/${platform}/lm`, {
+  return request<API.Result_AILmInfo_>(`/ai/lm/platform/${platform}`, {
     method: 'POST',
     data: { ...record },
     ...(options || {}),

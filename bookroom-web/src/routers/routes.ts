@@ -213,9 +213,9 @@ const routes = [
   },
   {
     name: '系统配置',
-    path: ROUTE_MAP.AI_PLATFORM_LIST,
+    path: ROUTE_MAP.PLATFORM_LIST,
     icon: 'Apartment',
-    component: './AIPlatform/AIPlatformList',
+    component: './Platform/PlatformList',
     access: 'canSeeAdmin',
     wrappers: ['@/wrappers/auth'],
   },

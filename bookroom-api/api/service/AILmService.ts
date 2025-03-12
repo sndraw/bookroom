@@ -1,6 +1,6 @@
 import AILmModel from "@/models/AILmModel";
-import { AI_LM_TYPE_MAP } from "../common/ai";
-import AIPlatformService from "./AIPlatformService";
+import { AI_LM_TYPE_MAP } from "@/common/ai";
+import PlatformService from "./PlatformService";
 import { StatusEnum } from "@/constants/DataMap";
 
 
@@ -13,7 +13,7 @@ class AILmService {
             throw new Error("参数错误");
         }
         // 获取平台
-        const platformConfig: any = await AIPlatformService.findAIPlatformByIdOrName(platform, {
+        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
             safe: false
         });
         if (!platformConfig) {
@@ -57,7 +57,7 @@ class AILmService {
             throw new Error("参数错误");
         }
         // 获取平台
-        const platformConfig: any = await AIPlatformService.findAIPlatformByIdOrName(platform, {
+        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
             safe: false
         });
 
@@ -96,7 +96,7 @@ class AILmService {
             throw new Error("参数错误");
         }
         // 获取平台
-        const platformConfig: any = await AIPlatformService.findAIPlatformByIdOrName(platform, {
+        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
             safe: false
         });
         if (!platformConfig) {
@@ -126,7 +126,7 @@ class AILmService {
             throw new Error("参数错误");
         }
         // 获取平台
-        const platformConfig: any = await AIPlatformService.findAIPlatformByIdOrName(platform, {
+        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
             safe: false
         });
         if (!platformConfig) {
@@ -165,7 +165,7 @@ class AILmService {
             throw new Error("参数错误");
         }
         // 获取平台
-        const platformConfig: any = await AIPlatformService.findAIPlatformByIdOrName(platform, {
+        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
             safe: false
         });
         if (!platformConfig) {
@@ -200,7 +200,7 @@ class AILmService {
             throw new Error("参数错误");
         }
         // 获取平台
-        const platformConfig: any = await AIPlatformService.findAIPlatformByIdOrName(platform, {
+        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
             safe: false
         });
         if (!platformConfig) {

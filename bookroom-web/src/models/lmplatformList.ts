@@ -1,14 +1,14 @@
 import { useState } from 'react';
 
 const GrpahInfoList = () => {
-  const [platformList, setPlatformList] = useState<API.AIPlatformInfo[] | null>(
+  const [platformList, setPlatformList] = useState<API.PlatformInfo[] | null>(
     null,
   );
 
   return {
     namespace: 'lmplatformList',
     platformList,
-    setPlatformList: (platformList: API.AIPlatformInfo[] | null) => {
+    setPlatformList: (platformList: API.PlatformInfo[] | null) => {
       setPlatformList(platformList);
     },
     resetPlatformList: () => {

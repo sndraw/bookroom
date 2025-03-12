@@ -1,6 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import database from "../common/database";
-import { StatusEnum } from "@/constants/DataMap";
+import database from "@/common/database";
 import { StatusModelRule } from "./rule";
 
 // 微信公众号/小程序-用户标签表

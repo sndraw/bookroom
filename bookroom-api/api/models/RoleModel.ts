@@ -1,6 +1,6 @@
 import { DataTypes, Model, Op } from "sequelize";
-import database from "../common/database";
-import { ROLE_RULE } from "../common/rule";
+import database from "@/common/database";
+import { ROLE_RULE } from "@/common/rule";
 import { StatusModelRule } from "./rule";
 
 // 用户表

@@ -3,10 +3,10 @@
  * 继承自 BaseController，提供注册和登录功能
  */
 import BaseController from "./BaseController";
-import UserService from "../service/UserService";
-import { resultSuccess, resultError } from "../common/resultFormat";
+import UserService from "@/service/UserService";
+import { resultSuccess, resultError } from "@/common/resultFormat";
 import { Context } from "koa";
-import LoginLogService from "../service/LoginLogService";
+import LoginLogService from "@/service/LoginLogService";
 import { clearToken } from "@/middlewares/jwt.middleware";
 
 class UserInfoController extends BaseController {

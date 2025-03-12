@@ -25,7 +25,7 @@ export const USER_RULE = {
 }
 
 
-export const AI_PLATFORM_RULE = {
+export const PLATFORM_RULE = {
   name: {
     RegExp: /^[\u4e00-\u9fa5a-zA-Z][\u4e00-\u9fa5a-zA-Z0-9_]{2,29}$/,
     message: '平台名称应以中文或字母开头，由中文、字母、数字、下划线组成，长度在3到30个字符之间'

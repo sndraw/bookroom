@@ -1,5 +1,5 @@
 import { Context } from "koa";
-import { resultDenied } from "../common/resultFormat";
+import { resultDenied } from "@/common/resultFormat";
 import { USER_ROLE_ENUM } from "@/constants/RoleMap";
 import { AUTH_PATH_LIST, NO_AUTH_PATH_LIST } from "../config/auth.conf";
 
@@ -7,26 +7,22 @@ import { AUTH_PATH_LIST, NO_AUTH_PATH_LIST } from "../config/auth.conf";
 export default (current_route_path: string) => {
     const middleware = async (ctx: Context, next: () => Promise<any>) => {
         // 如果当前路径在路由白名单中，无需鉴权
-        const matched = NO_AUTH_PATH_LIST.some(url => {
-            return current_route_path === url;
+        const matched = NO_AUTH_PATH_LIST.find(item => {
+            return current_route_path === item.path && ctx.method.toUpperCase() === item.method.toUpperCase();
         });
         if (matched) {
             return next();
         }
         // 获取匹配的路由-对象
-        const matchedPathObj = Object.values(AUTH_PATH_LIST).find((obj) => {
-            if (!obj || !obj.auth) return false;
-            if (current_route_path !== obj.url) return false;
-            if (!obj.auth?.[ctx.method.toUpperCase() as keyof typeof obj.auth]) return false;
-            return true
+        const matchedPathObj = Object.values(AUTH_PATH_LIST).find((item) => {
+            return current_route_path === item.path && ctx.method.toUpperCase() === item.method.toUpperCase();
         })
         // 获取匹配的路由-鉴权角色列表
-        const authRoleList: Array<USER_ROLE_ENUM> = matchedPathObj?.auth?.[ctx.method.toUpperCase() as keyof typeof matchedPathObj.auth] || []
+        const authRoleList: USER_ROLE_ENUM[] = matchedPathObj?.auth || [];
         // 当前用户-详情信息
         const userInfo = ctx?.userInfo;
         // 当前用户-角色列表
         const currentUserRoles = userInfo?.role?.split(",");
-        // console.log("authRoleList", current_route_path, ctx.path, ctx.method, authRoleList)
         // 如果当前路径授权角色列表不为空，则根据用户角色判断访问权限
         if (Array.isArray(authRoleList) && authRoleList.length > 0) {
             // 如果当前角色为管理员，则允许访问

@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 
 /** GET /platform/actived */
-export async function queryAIPlatformActivedList(
+export async function queryPlatformActivedList(
   params?: {
     type: string;
   },
@@ -11,8 +11,8 @@ export async function queryAIPlatformActivedList(
     [key: string]: any;
   },
 ) {
-  return request<API.Result_AIPlatformInfoList_>(
-    '/ai/platform/actived',
+  return request<API.Result_PlatformInfoList_>(
+    '/platform/actived',
     {
       method: 'GET',
       params: {
@@ -23,8 +23,8 @@ export async function queryAIPlatformActivedList(
   );
 }
 
-/** GET /ai/platform */
-export async function queryAIPlatformList(
+/** GET /platform */
+export async function queryPlatformList(
   params: {
     name: string;
     status: number | string;
@@ -35,7 +35,7 @@ export async function queryAIPlatformList(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.Result_PageInfo_AIPlatformInfo__>(`/ai/platform`, {
+  return request<API.Result_PageInfo_PlatformInfo__>(`/platform`, {
     method: 'GET',
     params: {
       ...params,
@@ -44,31 +44,31 @@ export async function queryAIPlatformList(
   });
 }
 
-/** POST /ai/platform  */
-export async function addAIPlatform(
-  body: API.AIPlatformInfoVO,
+/** POST /platform  */
+export async function addPlatform(
+  body: API.PlatformInfoVO,
   options?: { [key: string]: any },
 ) {
   const record = {
     ...(body || {}),
   };
-  return request<API.Result_AIPlatformInfo_>(`/ai/platform`, {
+  return request<API.Result_PlatformInfo_>(`/platform`, {
     method: 'POST',
     data: { ...record },
     ...(options || {}),
   });
 }
 
-/** GET /ai/platform/:platform */
-export async function getAIPlatformInfo(
+/** GET /platform/:platform */
+export async function getPlatformInfo(
   params: {
     platform: string;
   },
   options?: { [key: string]: any },
 ) {
   const { platform } = params;
-  return request<API.Result_AIPlatformInfo_>(
-    `/ai/platform/${platform}`,
+  return request<API.Result_PlatformInfo_>(
+    `/platform/${platform}`,
     {
       method: 'GET',
       ...(options || {}),
@@ -76,8 +76,8 @@ export async function getAIPlatformInfo(
   );
 }
 
-/** PUT /ai/platform/:platform  */
-export async function modifyAIPlatform(
+/** PUT /platform/:platform  */
+export async function modifyPlatform(
   params: {
     platform: string;
   },
@@ -85,8 +85,8 @@ export async function modifyAIPlatform(
   options?: { [key: string]: any },
 ) {
   const { platform } = params;
-  return request<API.Result_AIPlatformInfo_>(
-    `/ai/platform/${platform}`,
+  return request<API.Result_PlatformInfo_>(
+    `/platform/${platform}`,
     {
       method: 'PUT',
       data: body,
@@ -95,22 +95,22 @@ export async function modifyAIPlatform(
   );
 }
 
-/** DELETE /ai/platform/:platform */
-export async function deleteAIPlatform(
+/** DELETE /platform/:platform */
+export async function deletePlatform(
   params: {
     platform: string;
   },
   options?: { [key: string]: any },
 ) {
   const { platform } = params;
-  return request<API.Result_string_>(`/ai/platform/${platform}`, {
+  return request<API.Result_string_>(`/platform/${platform}`, {
     method: 'DELETE',
     ...(options || {}),
   });
 }
 
-/** PUT /ai/platform/:id/status */
-export async function modifyAIPlatformStatus(
+/** PUT /platform/:id/status */
+export async function modifyPlatformStatus(
   params: {
     platform: string;
   },
@@ -118,7 +118,7 @@ export async function modifyAIPlatformStatus(
   options?: { [key: string]: any },
 ) {
   const { platform } = params;
-  return request<API.Result_string_>(`/ai/platform/${platform}/status`, {
+  return request<API.Result_string_>(`/platform/${platform}/status`, {
     method: 'PUT',
     data: body,
     ...(options || {}),
