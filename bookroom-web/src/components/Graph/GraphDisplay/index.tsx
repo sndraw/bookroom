@@ -1,7 +1,7 @@
 import { MODE_ENUM } from '@/constants/DataMap';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
-import { useAccess, useModel } from '@umijs/max';
+import { Access, useAccess, useModel } from '@umijs/max';
 import { Divider, Flex, FloatButton, Space, Spin, Switch } from 'antd';
 import classNames from 'classnames';
 import { useCallback, useEffect, useState } from 'react';
@@ -32,10 +32,12 @@ const GraphDisplay: React.FC<GraphDisplayPropsType> = (props) => {
   } = props;
 
   const access = useAccess();
+  const canEdit = access.canSeeDev && mode === MODE_ENUM.EDIT;
+  
   const [displayMode, setDisplayMode] = useState<'2d' | '3d'>('2d');
   // 操作状态管理
   const { operation, setOperation, resetOperation } = useModel('graphOperation');
-  
+
   const headerHeight = useHeaderHeight();
   const containerStyle = useCallback(() => {
     return {
@@ -78,20 +80,22 @@ const GraphDisplay: React.FC<GraphDisplayPropsType> = (props) => {
             />
           </Space>
           <FloatButton.Group className={styles?.graphGroupBtns}>
-            {/* 添加节点 */}
-            <FloatButton
-              className={styles.refreshButton}
-              tooltip="添加节点"
-              icon={<PlusOutlined />}
-              key="addNode"
-              type="primary"
-              onClick={() => {
-                setOperation({
-                  type: OperationTypeEnum.addNode,
-                  node: null,
-                });
-              }}
-            ></FloatButton>
+            <Access accessible={canEdit}>
+              {/* 添加节点 */}
+              <FloatButton
+                className={styles.refreshButton}
+                tooltip="添加节点"
+                icon={<PlusOutlined />}
+                key="addNode"
+                type="primary"
+                onClick={() => {
+                  setOperation({
+                    type: OperationTypeEnum.addNode,
+                    node: null,
+                  });
+                }}
+              ></FloatButton>
+            </Access>
             <FloatButton
               tooltip="刷新"
               icon={<ReloadOutlined />}

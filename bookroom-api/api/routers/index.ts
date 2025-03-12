@@ -3,7 +3,7 @@ import RouteMap from "@/routers/RouteMap";
 import admin_role from "./admin/role";
 import admin_user from "./admin/user";
 import ai_chat from "./common/ai_chat";
-import ai_graph  from "./common/ai_graph";
+import ai_graph from "./common/ai_graph";
 import ai_lm_third from "./common/ai_lm_third";
 import agent from "./common/agent";
 import platform from "./common/platform";
@@ -17,15 +17,19 @@ import user_info from "./common/user_info";
 
 import authMiddleware from "@/middlewares/auth.middleware";
 import search from "./common/search";
+import { USER_ROLE_ENUM } from "@/constants/RoleMap";
 // import wechat from "./common/wechat";
 
 const router = new Router();
 
-router.get(RouteMap.HOME, (ctx, next) => {
-  ctx.body = `Welcome to the ${process?.env?.SERVER_TITLE || "API"}!`;
-});
+export interface RouteItem {
+  method: string;
+  path: string;
+  handler?: any;
+  auth?: USER_ROLE_ENUM[] | null;
+}
 
-const routerList = [
+export const routerList: RouteItem[] = [
   ...admin_role,
   ...admin_user,
   ...ai_chat,
@@ -60,6 +64,5 @@ routerList.forEach((item: any) => {
       router.delete(item.path, authMiddleware(item.path), item.handler);
   }
 });
-
 
 export default router;

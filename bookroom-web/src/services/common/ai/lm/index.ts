@@ -64,7 +64,7 @@ export async function queryAILmList(
   );
 }
 
-/** POST /ai/lm/platform/:platform  */
+/** POST /ai/lm/platform/:platform/lm  */
 export async function addAILm(
   params: {
     platform: string;
@@ -76,7 +76,7 @@ export async function addAILm(
   const record = {
     ...(body || {}),
   };
-  return request<API.Result_AILmInfo_>(`/platform/${platform}/lm`, {
+  return request<API.Result_AILmInfo_>(`/ai/lm/platform/${platform}`, {
     method: 'POST',
     data: { ...record },
     ...(options || {}),

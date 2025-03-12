@@ -12,6 +12,11 @@ import { USER_RULE } from "@/common/rule";
  * 网站-全局接口
  **/
 class SiteController extends BaseController {
+  
+  // 首页
+  static async home(ctx: Context) {
+    ctx.body = `Welcome to the ${process?.env?.SERVER_TITLE || "API"}!`;
+  }
 
   // 获取初始化信息
   static async setup(ctx: Context) {

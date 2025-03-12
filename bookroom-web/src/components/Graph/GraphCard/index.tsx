@@ -48,7 +48,10 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
   // 主题
   const { token } = useToken();
   const [loading, setLoading] = useState(false);
-  const canEdit = access.canSeeDev && mode === MODE_ENUM.EDIT;
+  const { getGraphInfo } = useModel('graphList');
+  const graphInfo = getGraphInfo(item?.graph);
+  const canEdit = access.canSeeDev && mode === MODE_ENUM.EDIT && graphInfo?.code === AI_GRAPH_PLATFORM_MAP.lightrag_multi.value
+
 
   // 删除图谱空间
   const handleDelete = async ({
@@ -122,11 +125,11 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
                 <div className={styles?.nodeContent}>{item?.graph}</div>
               </div>
               {item?.graphCode && (
-                  <div className={styles?.cardItemNode}>
-                    <div className={styles?.nodeLabel}>接口类型：</div>
-                    <div className={styles?.nodeContent}>{item?.graphCode}</div>
-                  </div>
-                )}
+                <div className={styles?.cardItemNode}>
+                  <div className={styles?.nodeLabel}>接口类型：</div>
+                  <div className={styles?.nodeContent}>{item?.graphCode}</div>
+                </div>
+              )}
               {/* admin权限 */}
               <Access accessible={canEdit}>
                 {item?.graphHost && (

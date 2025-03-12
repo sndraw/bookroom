@@ -288,7 +288,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                 model: encodeURIComponent(item?.name),
               }),
             }}
-            // target="_blank"
+          // target="_blank"
           >
             <Button
               type="text"
@@ -307,7 +307,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                 model: encodeURIComponent(item?.name),
               }),
             }}
-            // target="_blank"
+          // target="_blank"
           >
             <Button
               type="text"
@@ -326,7 +326,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                 model: encodeURIComponent(item?.name),
               }),
             }}
-            // target="_blank"
+          // target="_blank"
           >
             <Button
               type="text"
@@ -362,7 +362,8 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
           </Access> */}
 
           <Access
-            accessible={item?.platformCode === AI_LM_PLATFORM_MAP?.ollama.value}
+            accessible={canEdit && item?.platformCode === AI_LM_PLATFORM_MAP?.ollama.value
+            }
           >
             {item?.status === STATUS_MAP.DISABLE.value && (
               <Button

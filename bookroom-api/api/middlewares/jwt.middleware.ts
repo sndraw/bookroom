@@ -12,8 +12,8 @@ export default () => {
     console.log("JWT中间件", "路由白名单", NO_AUTH_PATH_LIST);
     const middleware = async (ctx: Context, next: () => Promise<any>) => {
         // 如果当前路径在路由白名单中，无需鉴权
-        const matched = NO_AUTH_PATH_LIST.some(url => {
-            return ctx.path === url;
+        const matched = NO_AUTH_PATH_LIST.some(item => {
+            return ctx.path === item.path && ctx.method.toUpperCase() === item.method.toUpperCase();
         });
         if (matched) {
             return next();

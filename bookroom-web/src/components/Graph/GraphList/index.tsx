@@ -12,6 +12,7 @@ import GraphWorkspaceSave, {
 import GraphCard from '../GraphCard';
 import styles from './index.less';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
+import { AI_GRAPH_PLATFORM_MAP } from '@/common/ai';
 
 type GraphListPropsType = {
   mode?: MODE_ENUM;
@@ -24,7 +25,6 @@ type GraphListPropsType = {
   children?: React.ReactNode;
 };
 const GraphList: React.FC<GraphListPropsType> = (props) => {
-  const { getGraphInfo } = useModel('graphList');
 
   const [searchText, setSearchText] = useState<string>('' as string);
   const {
@@ -49,12 +49,12 @@ const GraphList: React.FC<GraphListPropsType> = (props) => {
     if (!searchText) return dataList;
     return dataList?.filter((item: any) => item.name?.toLowerCase()?.includes(searchText?.toLowerCase()));
   }, [dataList, searchText]);
-
+  const { getGraphInfo } = useModel('graphList');
   const graphInfo = getGraphInfo(graph);
 
   const access = useAccess();
 
-  const canEdit = access.canSeeDev && mode === MODE_ENUM.EDIT;
+  const canEdit = access.canSeeDev && mode === MODE_ENUM.EDIT  && graphInfo?.code === AI_GRAPH_PLATFORM_MAP.lightrag_multi.value
 
   const isLoading = !!loading;
 

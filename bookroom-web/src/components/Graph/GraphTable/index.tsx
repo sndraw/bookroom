@@ -10,7 +10,7 @@ import NodeDelete from '../GraphMap/NodePanel/NodeDelete';
 import NodeEdit from '../GraphMap/NodePanel/NodeEdit';
 import { formatText } from '../GraphMap/utils';
 import styles from './index.less';
-import { useAccess, useModel } from '@umijs/max';
+import { Access, useAccess, useModel } from '@umijs/max';
 import { OperationTypeEnum } from '@/types';
 import LinkAdd from '../GraphMap/LinkPanel/LinkAdd';
 import NodeAdd from '../GraphMap/NodePanel/NodeAdd';
@@ -143,19 +143,24 @@ const GraphTable: React.FC<GraphTablePropsType> = (props) => {
       dataIndex: 'edges',
       key: 'edges',
       render: (text, row) => {
-        const buttonRender = () => (<Button
-          type="link"
-          title="添加关联节点"
-          icon={<PlusOutlined />}
-          onClick={() => {
-            setOperation({
-              type: OperationTypeEnum.addLink,
-              link: {
-                source: row
-              }
-            })
-          }}>
-        </Button>)
+        const buttonRender = () => {
+          if (!canEdit) {
+            return null;
+          }
+          return <Button
+            type="link"
+            title="添加关联节点"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setOperation({
+                type: OperationTypeEnum.addLink,
+                link: {
+                  source: row
+                }
+              })
+            }}>
+          </Button>
+        }
         if (!row?.edges) {
           return <>{buttonRender()}</>;
         }
@@ -263,20 +268,22 @@ const GraphTable: React.FC<GraphTablePropsType> = (props) => {
           }}
         />
         <FloatButton.Group>
-          {/* 添加节点 */}
-          <FloatButton
-            className={styles.refreshButton}
-            tooltip="添加节点"
-            icon={<PlusOutlined />}
-            key="addNode"
-            type="primary"
-            onClick={() => {
-              setOperation({
-                type: OperationTypeEnum.addNode,
-                node: null,
-              });
-            }}
-          ></FloatButton>
+          <Access accessible={canEdit}>
+            {/* 添加节点 */}
+            <FloatButton
+              className={styles.refreshButton}
+              tooltip="添加节点"
+              icon={<PlusOutlined />}
+              key="addNode"
+              type="primary"
+              onClick={() => {
+                setOperation({
+                  type: OperationTypeEnum.addNode,
+                  node: null,
+                });
+              }}
+            ></FloatButton>
+          </Access>
           {/* 刷新 */}
           <FloatButton
             className={styles.refreshButton}
@@ -338,9 +345,12 @@ const GraphTable: React.FC<GraphTablePropsType> = (props) => {
           total: filterNodes?.length,
         }}
       />
-      {/* 添加节点关系 */}
-      <LinkAdd graph={graph} graphData={graphData} workspace={workspace} refresh={refresh} />
-      <NodeAdd graph={graph} workspace={workspace} refresh={refresh} />
+      <Access accessible={canEdit}>
+        {/* 添加节点关系 */}
+        <LinkAdd graph={graph} graphData={graphData} workspace={workspace} refresh={refresh} />
+        {/* 添加节点 */}
+        <NodeAdd graph={graph} workspace={workspace} refresh={refresh} />
+      </Access>
     </div>
   );
 };
