@@ -90,19 +90,33 @@ class AgentController extends BaseController {
     // 获取智能助手信息
     static async getAgentInfo(ctx: Context) {
         // 从路径获取参数
-        const { agent_id } = ctx.params;
+        const { platform, agent_id } = ctx.params;
+        if (!platform) {
+            throw new Error("参数错误");
+        }
         if (!agent_id) {
-            throw new Error("缺少智能助手ID参数");
+            throw new Error("参数错误");
         }
         try {
+            // 获取平台
+            const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
+                safe: false
+            });
+            if (!platformConfig) {
+                throw new Error("平台不存在");
+            }
+
             // 查询Agent
             const result = await AgentService.getAgentById(agent_id);
             if (!result) {
-                throw new Error("未找到指定的Agent");
+                throw new Error("未找到指定的智能助手");
             }
+            const data = result.toJSON();
+            data.paramters= data.paramters? JSON.parse(data.paramters) : {};
+            // 返回结果
             ctx.status = 200;
             ctx.body = resultSuccess({
-                data: result
+                data
             });
         } catch (e) {
             // 异常处理，返回错误信息
@@ -137,22 +151,22 @@ class AgentController extends BaseController {
             platform: {
                 type: "string",
                 required: true,
-                min: 4,
+                min: 2,
                 max: 40,
                 message: {
                     required: "平台名称不能为空",
-                    min: "平台名称长度不能小于4",
+                    min: "平台名称长度不能小于2",
                     max: "平台名称长度不能超过40",
                 }
             },
             name: {
                 type: "string",
                 required: false,
-                min: 4,
+                min: 2,
                 max: 255,
                 message: {
                     required: "智能助手名称不能为空",
-                    min: "智能助手名称不能小于4",
+                    min: "智能助手名称不能小于2",
                     max: "智能助手名称不能超过255",
                 }
             }
@@ -161,7 +175,8 @@ class AgentController extends BaseController {
         })
         try {
             const result = await AgentService.addAgent({
-                ...newParams
+                ...newParams,
+                userId: ctx?.userId
             });
             if (!result) {
                 throw new Error("添加失败"); // 抛出异常，便于后续处理
@@ -203,22 +218,22 @@ class AgentController extends BaseController {
             platform: {
                 type: "string",
                 required: true,
-                min: 4,
+                min: 2,
                 max: 40,
                 message: {
                     required: "平台名称不能为空",
-                    min: "平台名称长度不能小于4",
+                    min: "平台名称长度不能小于2",
                     max: "平台名称长度不能超过40",
                 }
             },
             agent_id: {
                 type: "string",
                 required: true,
-                min: 4,
+                min: 2,
                 max: 255,
                 message: {
                     required: "智能助手ID不能为空",
-                    min: "智能助手ID长度不能小于4",
+                    min: "智能助手ID长度不能小于2",
                     max: "智能助手ID长度不能超过255",
                 }
             }
@@ -229,7 +244,8 @@ class AgentController extends BaseController {
             const record = await AgentService.updateAgent({
                 platform,
                 agent_id,
-                ...params
+                ...params,
+                userId: ctx?.userId,
             });
 
             if (!record) {
@@ -269,22 +285,22 @@ class AgentController extends BaseController {
             platform: {
                 type: "string",
                 required: true,
-                min: 4,
+                min: 2,
                 max: 40,
                 message: {
                     required: "平台名称不能为空",
-                    min: "平台名称长度不能小于4",
+                    min: "平台名称长度不能小于2",
                     max: "平台名称长度不能超过40",
                 }
             },
             agent_id: {
                 type: "string",
                 required: true,
-                min: 4,
+                min: 2,
                 max: 255,
                 message: {
                     required: "智能助手不能为空",
-                    min: "智能助手长度不能小于4",
+                    min: "智能助手长度不能小于2",
                     max: "智能助手长度不能超过255",
                 }
             },
@@ -331,22 +347,22 @@ class AgentController extends BaseController {
             platform: {
                 type: "string",
                 required: true,
-                min: 4,
+                min: 2,
                 max: 40,
                 message: {
                     required: "平台名称不能为空",
-                    min: "平台名称长度不能小于4",
+                    min: "平台名称长度不能小于2",
                     max: "平台名称长度不能超过40",
                 }
             },
             agent_id: {
                 type: "string",
                 required: true,
-                min: 4,
+                min: 2,
                 max: 255,
                 message: {
                     required: "智能助手不能为空",
-                    min: "智能助手ID长度不能小于4",
+                    min: "智能助手ID长度不能小于2",
                     max: "智能助手ID长度不能超过255",
                 }
             },
@@ -355,6 +371,13 @@ class AgentController extends BaseController {
             agent_id
         })
         try {
+            // 获取平台
+            const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
+                safe: false
+            });
+            if (!platformConfig) {
+                throw new Error("平台不存在");
+            }
             if (!agent_id) {
                 throw new Error("ID参数错误");
             }

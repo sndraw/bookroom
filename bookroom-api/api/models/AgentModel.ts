@@ -1,25 +1,26 @@
 import { DataTypes, Model, Op } from "sequelize";
 import database from "@/common/database";
 import { StatusModelRule } from "./rule";
-// 模型详情-表
-class Agent extends Model {
+// 智能助手-表
+class AgentModel extends Model {
     // 校验数据唯一性
     static judgeUnique = async (data: any, id: any = null) => {
         if (!data) {
             return false;
         }
-        const orWhereArray: { [x: string]: any; }[] = [];
+        const andWhereArray: { [x: string]: any; }[] = [];
         const fieldKeys = ["platformId", "name"];
         // 筛选唯一项
         Object.keys(data).forEach((key) => {
             if (data[key] && fieldKeys.includes(key)) {
-                orWhereArray.push({
+                andWhereArray.push({
                     [key]: data[key],
                 });
             }
         });
+
         const where: any = {
-            [Op.or]: orWhereArray,
+            [Op.and]: andWhereArray,
         };
         // 如果有id参数，则为数据更新操作
         if (id) {
@@ -28,11 +29,12 @@ class Agent extends Model {
         const count = await super.count({
             where,
         });
+
         return !count;
     };
 }
 // 初始化model
-Agent.init(
+AgentModel.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -59,7 +61,7 @@ Agent.init(
         // 平台ID
         platformId: {
             field: "platform_id",
-            type: DataTypes.STRING(255),
+            type: DataTypes.UUID,
             allowNull: false,
             validate: {
                 notEmpty: {
@@ -74,20 +76,31 @@ Agent.init(
             allowNull: false,
             defaultValue: 1,
             validate: {
-                type: "日志类型必须为数字",
+                isInt: {
+                    msg: "类型必须为数字"
+                }
             }
         },
-        // 模型参数
+        // 参数parameters
         paramters: {
             field: "paramters",
             type: DataTypes.JSON,
+            // get() {
+            //     const paramters = this.getDataValue('paramters') || "{}";
+            //     console.log(paramters)
+            //     return JSON.parse(paramters);
+            // },
+            set(value: string) {
+                const str = JSON.stringify(value || {});
+                this.setDataValue('paramters', str);
+            },
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: "请填入模型参数",
+                    msg: "请填入参数",
                 },
                 isJSON: {
-                    msg: "模型参数必须为有效的JSON格式",
+                    msg: "参数必须为有效的JSON格式",
                 },
             },
         },
@@ -95,6 +108,14 @@ Agent.init(
         messages: {
             field: "messages",
             type: DataTypes.BLOB("long"),
+            get() {
+                const messages = Buffer.from(this.getDataValue('messages')).toString('base64');
+                return messages ? JSON.parse(messages) : [];
+            },
+            set(value: string) {
+                const str = JSON.stringify(value || []);
+                this.setDataValue('messages', Buffer.from(str, 'base64'));
+            },
             allowNull: true,
             validate: {
                 // notEmpty: {
@@ -163,4 +184,4 @@ Agent.init(
     }
 );
 
-export default Agent;
+export default AgentModel;

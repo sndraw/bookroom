@@ -13,7 +13,6 @@ export const responseStream = async (ctx: Context, dataStream: any, resovle?: (d
     // 确保在所有数据推送完毕后才调用 end()
     passThroughStream.on('end', () => {
         resovle?.(responseText);
-        // console.log("Stream ended successfully.")
         ctx.res.end();
     })
     // ctx.res.statusCode = 200;

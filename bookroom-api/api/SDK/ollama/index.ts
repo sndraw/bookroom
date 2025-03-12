@@ -9,14 +9,14 @@ export const OLLAMA_CONFIG = {
 
 class OllamaApi {
     private readonly ollama: Ollama;
-    private readonly platfromId: string = "";
+    private readonly platformId: string = "";
 
     constructor(ops: any) {
         const { id, ...params } = ops;
         if (!id) throw new Error("缺少平台ID");
 
         if (id) {
-            this.platfromId = id;
+            this.platformId = id;
         }
 
         this.ollama = new Ollama({
@@ -32,7 +32,7 @@ class OllamaApi {
             const runningModel = runningList.models.find((item: any) => modelItem.name === item.name);
             const modelInfo = {
                 ...modelItem,
-                id: MD5(modelItem.name + this.platfromId).toString(),
+                id: MD5(modelItem.name + this.platformId).toString(),
                 status: runningModel ? StatusEnum.ENABLE : StatusEnum.DISABLE
             };
             return modelInfo;
@@ -57,7 +57,7 @@ class OllamaApi {
         const runningModel = runningList.models.find((item: any) => model === item.name);
         return {
             ...modelInfo,
-            id: MD5(model + this.platfromId).toString(),
+            id: MD5(model + this.platformId).toString(),
             name: model,
             model: model,
             status: runningModel ? StatusEnum.ENABLE : StatusEnum.DISABLE

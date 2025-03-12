@@ -27,7 +27,7 @@ enum ROUTE_MAP {
   AGENT = '/agent',
   AGENT_LIST = '/agent/:platform',
   AGENT_TASK = '/agent/:platform/task/:agent',
-  AGENT_DETAIL = '/agent/:platform/detail/:agent',
+  AGENT_DETAIL = '/agent/:platform/data/:agent',
 }
 
 export default ROUTE_MAP;

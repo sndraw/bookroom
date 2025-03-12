@@ -8,6 +8,9 @@ const AgentPlatformList = () => {
   return {
     namespace: 'agentplatformList',
     platformList,
+    getPlatformInfo:(platform: string)=>{
+      return platformList?.find((item) => item.id === platform || item.name === platform);
+    },
     setPlatformList: (dataList: API.PlatformInfo[] | null) => {
       setPlatformList(dataList);
     },

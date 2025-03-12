@@ -44,7 +44,7 @@ class FileLogService {
             size: params?.size || 0,
             mimetype: params?.mimetype || "",
             userId: params?.userId || 0,
-            status: params?.status || StatusEnum.DISABLE,
+            status: params?.status || StatusEnum.ENABLE,
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
         });

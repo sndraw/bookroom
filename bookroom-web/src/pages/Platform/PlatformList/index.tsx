@@ -33,9 +33,9 @@ import {
 } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
 import CreateForm from '../components/CreateForm';
-import { PLATFORM_TYPE_MAP } from '@/common/platfrom';
+import { PLATFORM_TYPE_MAP } from '@/common/platform';
 import { AGENT_API_MAP } from '@/common/agent';
-import { SEARCH_API_MAP } from '@/services/common/search';
+import { SEARCH_API_MAP } from '@/common/search';
 
 const PlatformPage: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();

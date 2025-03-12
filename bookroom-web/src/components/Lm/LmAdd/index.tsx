@@ -1,6 +1,7 @@
 import { AI_LM_TYPE_MAP } from '@/common/ai';
 import { PlusOutlined } from '@ant-design/icons';
 import {
+  DrawerForm,
   ModalForm,
   ProFormDigit,
   ProFormSelect,
@@ -56,8 +57,9 @@ const LmAdd: React.FC<PropsWithChildren<LmAddProps>> = (props) => {
   };
 
   return (
-    <ModalForm
+    <DrawerForm
       title="添加模型"
+      width={"378px"}
       trigger={
         <Button
           title="添加模型"
@@ -79,7 +81,7 @@ const LmAdd: React.FC<PropsWithChildren<LmAddProps>> = (props) => {
         if (!validate) {
           return false;
         }
-        const result = await handleAdd(values);
+        const result = await handleAdd(values as any);
         if (!result) {
           return false;
         }
@@ -112,9 +114,9 @@ const LmAdd: React.FC<PropsWithChildren<LmAddProps>> = (props) => {
             message: '请输入模型标识',
           },
           {
-            min: 4,
+            min: 2,
             max: 255,
-            message: '模型标识长度为4-255个字符',
+            message: '模型标识长度为2-255个字符',
           },
         ]}
         placeholder="请输入模型标识"
@@ -142,9 +144,9 @@ const LmAdd: React.FC<PropsWithChildren<LmAddProps>> = (props) => {
             message: '请输入模型名称',
           },
           {
-            min: 4,
+            min: 2,
             max: 255,
-            message: '模型名称长度为4-255个字符',
+            message: '模型名称长度为2-255个字符',
           },
         ]}
         placeholder="请输入模型名称"
@@ -163,7 +165,7 @@ const LmAdd: React.FC<PropsWithChildren<LmAddProps>> = (props) => {
         ]}
         placeholder="请输入模型大小"
       />
-    </ModalForm>
+    </DrawerForm>
   );
 };
 

@@ -5,23 +5,23 @@ declare namespace API {
   interface AgentInfo {
     id: string;
     name: string;
-    code: string;
-    host?:string;
-    type: string;
-    paramsConfig?: any;
-    status: number;
-    createdAt: number;
-    updatedAt: number;
+    platformId?: string;
+    platformCode?:string;
+    type?: string;
+    paramters?: any;
+    status?: number;
+    createdAt?: number;
+    updatedAt?: number;
   }
 
   interface AgentInfoVO {
-    name: string;
-    code: string;
-    host?:string;
-    type: string;
-    paramsConfig?: any;
-    status: number;
-    status: number;
+    name?: string;
+    platformId?: string;
+    platformCode?:string;
+    type?: string;
+    code?:string;
+    paramters?: any;
+    status?: number;
   }
   interface Result_AgentInfo_ {
     code?: number;

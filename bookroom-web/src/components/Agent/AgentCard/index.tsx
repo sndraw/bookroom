@@ -4,6 +4,7 @@ import ROUTE_MAP from '@/routers/routeMap';
 import {
   RobotOutlined,
   PlayCircleOutlined,
+  CloseOutlined,
 } from '@ant-design/icons';
 import { useToken } from '@ant-design/pro-components';
 import { Access, generatePath, Link, useAccess, useModel } from '@umijs/max';
@@ -11,6 +12,8 @@ import {
   Avatar,
   Button,
   List,
+  message,
+  Popconfirm,
   Space,
   Spin,
   Typography,
@@ -18,10 +21,14 @@ import {
 import classNames from 'classnames';
 import { useState } from 'react';
 import styles from './index.less';
+import { deleteAgent } from '@/services/common/agent';
+import AgentEdit from '../AgentEdit';
 
 type AgentCardPropsType = {
   // 模式
   mode: MODE_ENUM;
+  // 平台
+  platform: string;
   // 当前Agent
   item: API.AgentInfo;
   // 刷新
@@ -30,14 +37,40 @@ type AgentCardPropsType = {
   className?: string;
 };
 const AgentCard: React.FC<AgentCardPropsType> = (props: AgentCardPropsType) => {
-  const { mode, item, refresh, className } = props;
+  const { platform, item, refresh, className } = props;
+
+  const { getPlatformInfo } = useModel('agentplatformList');
+  const platformInfo = getPlatformInfo(platform);
+
   // 权限
   const access = useAccess();
   // 主题
   const { token } = useToken();
   const [loading, setLoading] = useState(false);
-  const canEdit = access.canSeeDev && mode === MODE_ENUM.EDIT;
-
+  // 删除智能助手
+  const handleDelete = async ({
+    platform,
+    agent,
+  }: {
+    platform: string;
+    agent: string;
+  }) => {
+    if (!platform) return false;
+    if (!agent) return false;
+    setLoading(true);
+    try {
+      await deleteAgent({
+        platform,
+        agent: encodeURIComponent(agent.trim() || ''),
+      });
+      message.success(`删除成功`);
+      return true;
+    } catch (error: any) {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
   if (!item) {
     return <></>;
   }
@@ -74,25 +107,12 @@ const AgentCard: React.FC<AgentCardPropsType> = (props: AgentCardPropsType) => {
                   {encodeURIComponent(item?.name)}
                 </div>
               </div> */}
-              {item?.code && (
+              {platformInfo?.code && (
                 <div className={styles?.cardItemNode}>
                   <div className={styles?.nodeLabel}>接口类型：</div>
-                  <div className={styles?.nodeContent}>{item?.code}</div>
+                  <div className={styles?.nodeContent}>{platformInfo?.code}</div>
                 </div>
               )}
-              {/* admin权限 */}
-              <Access accessible={canEdit}>
-                {item?.host && (
-                  <div className={styles?.cardItemNode}>
-                    <div className={styles?.nodeLabel}>Agent地址：</div>
-                    <div className={styles?.nodeContent}>
-                      <Typography.Link href={item?.host} target="_blank">
-                        {item?.host}
-                      </Typography.Link>
-                    </div>
-                  </div>
-                )}
-              </Access>
               {item?.createdAt && (
                 <div className={styles?.cardItemNode}>
                   <div className={styles?.nodeLabel}>创建时间：</div>
@@ -112,16 +132,45 @@ const AgentCard: React.FC<AgentCardPropsType> = (props: AgentCardPropsType) => {
             </div>
           }
         />
-        {/* <Access accessible={canEdit}>
-          <Space className={classNames(styles.cardItemManage)}>
-          </Space>
-        </Access> */}
+        <Space className={classNames(styles.cardItemManage)}>
+          <AgentEdit
+            platform={platform}
+            agent={item?.id}
+            data={item}
+            refresh={refresh}
+            disabled={loading}
+          />
+          {/* pop提示 */}
+          <Popconfirm
+            disabled={loading}
+            title={`确定要删除该智能助手吗？`}
+            onConfirm={async () => {
+              if (!platform) return false;
+              if (!item?.name) return false;
+              const result = await handleDelete({
+                platform,
+                agent: item?.id,
+              }); // 刷新智能助手列表
+              if (result) {
+                refresh();
+              }
+            }}
+          >
+            <Button
+              title="删除智能助手"
+              type={'text'}
+              danger
+              icon={<CloseOutlined />}
+            />
+          </Popconfirm>
+        </Space>
         <Space className={classNames(styles.cardItemActions)}>
           <Link
             title={'任务执行'}
             to={{
               pathname: generatePath(ROUTE_MAP.AGENT_TASK, {
-                agent: item?.name,
+                platform: platformInfo?.name,
+                agent: item?.id,
               }),
             }}
           // target="_blank"

@@ -109,7 +109,7 @@ class AILmService {
             size: params?.size || 0,
             type: params?.type || AI_LM_TYPE_MAP.llm.value,
             paramsConfig: params?.paramsConfig || '', // 添加参数配置
-            status: params?.status || StatusEnum.DISABLE,
+            status: params?.status || StatusEnum.ENABLE,
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
         });

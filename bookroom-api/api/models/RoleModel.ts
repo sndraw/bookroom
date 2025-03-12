@@ -10,18 +10,18 @@ class RoleModel extends Model {
     if (!data) {
       return false;
     }
-    const orWhereArray: { [x: string]: any; }[] = [];
+    const addWhereArray: { [x: string]: any; }[] = [];
     const fieldKeys = ["name", "code"];
     // 筛选唯一项
     Object.keys(data).forEach((key) => {
       if (data[key] && fieldKeys.includes(key)) {
-        orWhereArray.push({
+        addWhereArray.push({
           [key]: data[key],
         });
       }
     });
     const where: any = {
-      [Op.or]: orWhereArray,
+      [Op.and]: addWhereArray,
     };
     // 如果有id参数，则为数据更新操作
     if (id) {

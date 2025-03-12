@@ -73,10 +73,10 @@ class AIChatService {
             platformId: platformConfig?.id,
             model: model,
             type: params?.type || 1,
-            paramters: params?.paramters || {},
+            paramters: params?.paramters || JSON.stringify({}),
             messages: params?.messages || [],
             userId: params?.userId || 0,
-            status: params?.status || StatusEnum.DISABLE,
+            status: params?.status || StatusEnum.ENABLE,
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
         });
@@ -107,7 +107,7 @@ class AIChatService {
                 paramters: params?.paramters || {},
                 messages: params?.messages || [],
                 userId: params?.userId || 0,
-                status: params?.status || StatusEnum.DISABLE,
+                status: params?.status || StatusEnum.ENABLE,
                 updatedAt: new Date().getTime(),
             },
             {
