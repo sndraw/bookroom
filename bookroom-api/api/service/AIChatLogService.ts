@@ -1,7 +1,7 @@
 import AIChatLogModel from "@/models/AIChatLogModel";
-import PlatformService from "./PlatformService";
 import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
+import PlatformService from "./PlatformService";
 
 
 class AIChatLogService {
@@ -39,10 +39,17 @@ class AIChatLogService {
         if (!model) {
             throw new Error("模型参数错误");
         }
+        // 获取平台
+        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
+            safe: false
+        });
+        if (!platformConfig) {
+            throw new Error("平台不存在");
+        }
         const result = await AIChatLogModel.create({
             id: params?.id || uuidv4(),
             chat_id: params?.chat_id || uuidv4(),
-            platform: platform,
+            platformId: platformConfig?.id,
             model: model,
             type: params?.type || 1,
             input: params?.input || {},
@@ -55,19 +62,11 @@ class AIChatLogService {
         return result
     }
     // 删除AI对话日志
-    static async deleteAIChatLog(params: any) {
-        const { platform, model } = params
-        if (!platform) {
-            throw new Error("平台参数错误");
-        }
-        if (!model) {
-            throw new Error("模型参数错误");
-        }
+    static async deleteAIChatLogById(id: string) {
         // 删除AI对话日志在数据库中的记录
         const deleteResult = await AIChatLogModel.destroy({
             where: {
-                platform: platform,
-                model: model,
+                id
             },
         });
 

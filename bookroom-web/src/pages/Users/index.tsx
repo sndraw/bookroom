@@ -3,8 +3,8 @@ import DefaultLayout from '@/layouts/DefaultLayout';
 import { queryActivedRoleList } from '@/services/admin/role';
 import {
   deleteUser,
-  modifyUser,
-  modifyUserStatus,
+  updateUser,
+  updateUserStatus,
   queryUserList,
 } from '@/services/admin/user';
 import { reverseStatus, statusToBoolean } from '@/utils/format';
@@ -57,7 +57,7 @@ const UsersPage: React.FC<unknown> = () => {
       if (!userId) return false;
       setLoading('正在修改');
       try {
-        const result = await modifyUser(
+        const result = await updateUser(
           {
             userId: userId || '',
           },
@@ -112,7 +112,7 @@ const UsersPage: React.FC<unknown> = () => {
       if (!userId) return false;
       setLoading('正在修改');
       try {
-        const result = await modifyUserStatus(
+        const result = await updateUserStatus(
           {
             userId: userId,
           },

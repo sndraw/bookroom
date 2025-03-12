@@ -8,7 +8,6 @@ type PlatformSelectPropsType = {
   title?: string;
   platform?: string;
   changePlatform: (platform: string) => void;
-  dataList?: any[];
   allowClear?: boolean;
   // 样式
   className?: string;
@@ -17,7 +16,6 @@ const PlatformSelect: React.FC<PlatformSelectPropsType> = (props) => {
   const {
     title,
     platform,
-    dataList,
     allowClear = false,
     changePlatform,
     className,
@@ -29,8 +27,10 @@ const PlatformSelect: React.FC<PlatformSelectPropsType> = (props) => {
     if (platform) {
       return;
     }
-    changePlatform(dataList?.[0]?.name);
-  }, [dataList]);
+    if (platformList?.[0]?.name) {
+      changePlatform(platformList?.[0]?.name);
+    }
+  }, []);
 
   return (
     <Space size={0} className={classNames(styles.selectContainer, className)}>

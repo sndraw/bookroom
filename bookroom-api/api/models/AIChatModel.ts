@@ -3,6 +3,33 @@ import database from "@/common/database";
 import { StatusModelRule } from "./rule";
 // 模型详情-表
 class AIChatLog extends Model {
+    // 校验数据唯一性
+    static judgeUnique = async (data: any, id: any = null) => {
+        if (!data) {
+            return false;
+        }
+        const orWhereArray: { [x: string]: any; }[] = [];
+        const fieldKeys = ["platformId", "name"];
+        // 筛选唯一项
+        Object.keys(data).forEach((key) => {
+            if (data[key] && fieldKeys.includes(key)) {
+                orWhereArray.push({
+                    [key]: data[key],
+                });
+            }
+        });
+        const where: any = {
+            [Op.or]: orWhereArray,
+        };
+        // 如果有id参数，则为数据更新操作
+        if (id) {
+            where.id = { [Op.not]: id };
+        }
+        const count = await super.count({
+            where,
+        });
+        return !count;
+    };
 }
 // 初始化model
 AIChatLog.init(
@@ -19,8 +46,8 @@ AIChatLog.init(
                 },
             },
         },
-        title: {
-            field: "title",
+        name: {
+            field: "name",
             type: DataTypes.STRING(255),
             allowNull: false,
             validate: {
@@ -29,14 +56,14 @@ AIChatLog.init(
                 },
             },
         },
-        // 平台
-        platform: {
-            field: "platform",
+        // 平台ID
+        platformId: {
+            field: "platform_id",
             type: DataTypes.STRING(255),
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: "请填入平台",
+                    msg: "请填入平台ID",
                 },
             },
         },
@@ -131,7 +158,20 @@ AIChatLog.init(
     {
         tableName: "ai_chat",
         // 索引
-        indexes: [],
+        indexes: [
+            {
+                // 唯一
+                unique: true,
+                // 字段集合
+                fields: ["id"],
+            },
+            {
+                // 唯一
+                unique: true,
+                // 字段集合
+                fields: ["platform_id", "name"]
+            }
+        ],
         timestamps: true,
         sequelize: database,
     }

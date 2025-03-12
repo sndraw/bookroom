@@ -119,7 +119,7 @@ export async function pullAILm(
   });
 }
 /** PUT /ai/lm/platform/:platform/model/:model  */
-export async function modifyAILm(
+export async function updateAILm(
   params: {
     platform: string;
     model: string;
@@ -138,7 +138,7 @@ export async function modifyAILm(
   );
 }
 /** PUT /ai/lm/platform/:platform/model/:model/status */
-export async function modifyAILmStatus(
+export async function updateAILmStatus(
   params: {
     platform: string;
     model: string;

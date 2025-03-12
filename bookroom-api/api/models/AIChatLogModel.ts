@@ -20,13 +20,13 @@ AIChatLog.init(
             },
         },
         // 平台
-        platform: {
-            field: "platform",
+        platformId: {
+            field: "platform_id",
             type: DataTypes.STRING(255),
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: "请填入平台",
+                    msg: "请填入平台ID",
                 },
             },
         },

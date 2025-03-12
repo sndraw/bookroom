@@ -17,9 +17,6 @@ export async function insertDocumentText(
     `/ai/graph/${graph}/workspace/${workspace}/data/text`,
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       data: body,
       ...(options || {}),
     },
@@ -103,9 +100,6 @@ export async function deleteGraphDocument(
     `/ai/graph/${graph}/workspace/${workspace}/document/${document_id}`,
     {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       ...(options || {}),
     },
   );

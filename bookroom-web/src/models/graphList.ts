@@ -9,8 +9,8 @@ const GrpahInfoList = () => {
     getGraphInfo: (graph: string) => {
       return graphList?.find((item) => item.id === graph || item.name === graph);
     },
-    setGraphList: (graphList: API.AIGraphInfo[] | null) => {
-      setGraphList(graphList);
+    setGraphList: (dataList: API.AIGraphInfo[] | null) => {
+      setGraphList(dataList);
     },
     resetGraphList: () => {
       setGraphList(null);

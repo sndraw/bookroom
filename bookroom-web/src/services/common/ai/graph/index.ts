@@ -33,7 +33,7 @@ export async function queryGraphWorkspaceList(
   options?: { [key: string]: any },
 ) {
   const { graph } = params;
-  return request<API.Result_AIGraphWorkspaceList_>(
+  return request<API.Result_PageInfo_AIGraphWorkspaceInfo__>(
     `/ai/graph/${graph}/workspace`,
     {
       method: 'GET',
@@ -73,9 +73,6 @@ export async function addGraphWorkspace(
     `/ai/graph/${graph}/workspace`,
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       data: body,
       ...(options || {}),
     },
@@ -97,9 +94,6 @@ export async function updateGraphWorkspace(
     `/ai/graph/${graph}/workspace/${workspace}`,
     {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       data: body,
       ...(options || {}),
     },
@@ -163,7 +157,7 @@ export async function getGraphNode(
 }
 
 
-/** PUT /ai/graph/:graph/workspace/:workspace/node */
+/** POST /ai/graph/:graph/workspace/:workspace/node */
 export async function addGraphNode(
   params: {
     graph: string;
@@ -178,9 +172,6 @@ export async function addGraphNode(
     `/ai/graph/${graph}/workspace/${workspace}/node`,
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       data: body,
       ...(options || {}),
     },
@@ -202,9 +193,6 @@ export async function updateGraphNode(
     `/ai/graph/${graph}/workspace/${workspace}/node/${node_id}`,
     {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       data: body,
       ...(options || {}),
     },
@@ -226,9 +214,6 @@ export async function deleteGraphNode(
     `/ai/graph/${graph}/workspace/${workspace}/node/${node_id}`,
     {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       ...(options || {}),
     },
   );
@@ -253,7 +238,7 @@ export async function getGraphLink(
     },
   );
 }
-/** PUT /ai/graph/:graph/workspace/:workspace/link*/
+/** POST /ai/graph/:graph/workspace/:workspace/link*/
 export async function addGraphLink(
   params: {
     graph: string;
@@ -268,9 +253,6 @@ export async function addGraphLink(
     `/ai/graph/${graph}/workspace/${workspace}/link`,
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       data: body,
       ...(options || {}),
     },
@@ -294,9 +276,6 @@ export async function updateGraphLink(
     `/ai/graph/${graph}/workspace/${workspace}/link/${source}/${target}`,
     {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       data: body,
       ...(options || {}),
     },
@@ -319,9 +298,6 @@ export async function deleteGraphLink(
     `/ai/graph/${graph}/workspace/${workspace}/link/${source}/${target}`,
     {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       ...(options || {}),
     },
   );
@@ -341,9 +317,6 @@ export async function clearGraphData(
     `/ai/graph/${graph}/workspace/${workspace}/data`,
     {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       ...(options || {}),
     },
   );

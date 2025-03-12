@@ -77,7 +77,7 @@ export async function getPlatformInfo(
 }
 
 /** PUT /platform/:platform  */
-export async function modifyPlatform(
+export async function updatePlatform(
   params: {
     platform: string;
   },
@@ -110,7 +110,7 @@ export async function deletePlatform(
 }
 
 /** PUT /platform/:id/status */
-export async function modifyPlatformStatus(
+export async function updatePlatformStatus(
   params: {
     platform: string;
   },

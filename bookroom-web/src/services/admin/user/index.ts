@@ -60,7 +60,7 @@ export async function getUserDetail(
 }
 
 /** PUT /admin/user/${userId} */
-export async function modifyUser(
+export async function updateUser(
   params: {
     /** userId */
     userId: string;
@@ -92,7 +92,7 @@ export async function deleteUser(
 }
 
 /** PUT /admin/user/${userId}/status */
-export async function modifyUserStatus(
+export async function updateUserStatus(
   params: {
     /** userId */
     userId: string;
@@ -109,7 +109,7 @@ export async function modifyUserStatus(
 }
 
 /** PUT /admin/user/${userId}/role */
-export async function modifyUserRole(
+export async function updateUserRole(
   params: {
     /** userId */
     userId: string;
