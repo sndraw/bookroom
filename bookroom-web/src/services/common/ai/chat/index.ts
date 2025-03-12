@@ -52,7 +52,7 @@ export async function getAIChatInfo(
 }
 
 /** PUT /ai/chat/:chat_id  */
-export async function saveAIChat(
+export async function updateAIChat(
   params: {
     chat_id: string;
   },

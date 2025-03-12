@@ -40,7 +40,7 @@ const AIGraphListPage: React.FC = () => {
       changeGraph={(newGraph) => {
         navigate(generatePath(ROUTE_MAP.AI_GRAPH_LIST, { graph: newGraph }));
       }}
-      dataList={data || []}
+      dataList={data?.list || []}
       loading={loading}
       refresh={run}
     ></GraphList>

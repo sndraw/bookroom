@@ -61,9 +61,16 @@ class AIChatService {
         if (!model) {
             throw new Error("模型参数错误");
         }
+        // 获取平台
+        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
+            safe: false
+        });
+        if (!platformConfig) {
+            throw new Error("平台不存在");
+        }
         const result = await AIChatModel.create({
             id: chat_id || uuidv4(),
-            platform: platform,
+            platformId: platformConfig?.id,
             model: model,
             type: params?.type || 1,
             paramters: params?.paramters || {},
@@ -85,9 +92,16 @@ class AIChatService {
         if (!model) {
             throw new Error("模型参数错误");
         }
+        // 获取平台
+        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
+            safe: false
+        });
+        if (!platformConfig) {
+            throw new Error("平台不存在");
+        }
         const result = await AIChatModel.update(
             {
-                platform: platform,
+                platformId: platformConfig?.id,
                 model: model,
                 type: params?.type || 1,
                 paramters: params?.paramters || {},

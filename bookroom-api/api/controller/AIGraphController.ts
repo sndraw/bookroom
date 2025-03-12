@@ -96,7 +96,9 @@ class AIGraphController extends BaseController {
 
             ctx.status = 200;
             ctx.body = resultSuccess({
-                data: workspaceList
+                data: {
+                    list: workspaceList
+                }
             });
         } catch (e) {
             ctx.logger.error("获取工作空间列表异常", e); // 记录错误日志    

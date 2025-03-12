@@ -61,7 +61,7 @@ export async function getRoleDetail(
 }
 
 /** PUT /admin/role/${roleId} */
-export async function modifyRole(
+export async function updateRole(
   params: {
     /** roleId */
     roleId: string;
@@ -93,7 +93,7 @@ export async function deleteRole(
 }
 
 /** PUT /admin/role/${roleId}/status */
-export async function modifyRoleStatus(
+export async function updateRoleStatus(
   params: {
     /** roleId */
     roleId: string;

@@ -6,40 +6,39 @@ import styles from './index.less';
 
 type AgentSelectPropsType = {
   title?: string;
-  graph?: string;
-  changeAgent?: (graph: string) => void;
+  platform?: string;
+  changePlatform?: (platform: string) => void;
+  allowClear?: boolean;
   // 样式
   className?: string;
 };
 const AgentSelect: React.FC<AgentSelectPropsType> = (props) => {
-  const { title, graph, changeAgent, className } = props;
-  const { graphList } = useModel('graphList');
+  const { title, platform, changePlatform, allowClear = false, className } = props;
+  const { platformList } = useModel('agentplatformList');
 
   useEffect(() => {
-    if (graph) {
+    if (platform) {
       return;
     }
-    if (graphList?.[0]?.name) {
-      changeAgent?.(graphList?.[0]?.name);
+    if (platformList?.[0]?.name) {
+      changePlatform?.(platformList?.[0]?.name);
     }
   }, []);
 
   return (
     <div className={classNames(styles.container, className)}>
-      <span>{title || 'Agent列表'}</span>
+      <span>{title || '智能助手'}</span>
       <Divider type="vertical" />
       <Select<string>
         className={styles.selectElement}
-        value={graph}
+        value={platform}
         placeholder="请选择Agent"
-        allowClear={false}
-        options={(graphList as any)?.map((item: any) => ({
+        allowClear={allowClear}
+        options={(platformList as any)?.map((item: any) => ({
           label: item.name,
           value: item.name,
         }))}
-        onChange={(value) => {
-          changeAgent?.(value as any);
-        }}
+        onChange={(value) => changePlatform?.(value as any)}
       />
     </div>
   );

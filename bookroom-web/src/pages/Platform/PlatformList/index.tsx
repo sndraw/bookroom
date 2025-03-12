@@ -8,8 +8,8 @@ import DefaultLayout from '@/layouts/DefaultLayout';
 import {
   addPlatform,
   deletePlatform,
-  modifyPlatform,
-  modifyPlatformStatus,
+  updatePlatform,
+  updatePlatformStatus,
   queryPlatformList,
 } from '@/services/common/platform';
 import { reverseStatus, statusToBoolean } from '@/utils/format';
@@ -69,7 +69,7 @@ const PlatformPage: React.FC<unknown> = () => {
       if (!platformId) return false;
       setLoading('正在修改');
       try {
-        const result = await modifyPlatform(
+        const result = await updatePlatform(
           {
             platform: platformId || '',
           },
@@ -124,7 +124,7 @@ const PlatformPage: React.FC<unknown> = () => {
       // 待修改状态-文本
       setLoading('正在修改');
       try {
-        const result = await modifyPlatformStatus(
+        const result = await updatePlatformStatus(
           {
             platform: platformId,
           },

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const GrpahInfoList = () => {
+const LmPlatformList = () => {
   const [platformList, setPlatformList] = useState<API.PlatformInfo[] | null>(
     null,
   );
@@ -8,8 +8,11 @@ const GrpahInfoList = () => {
   return {
     namespace: 'lmplatformList',
     platformList,
-    setPlatformList: (platformList: API.PlatformInfo[] | null) => {
-      setPlatformList(platformList);
+    getGraphInfo: (graph: string) => {
+      return platformList?.find((item) => item.id === graph || item.name === graph);
+    },
+    setPlatformList: (dataList: API.PlatformInfo[] | null) => {
+      setPlatformList(dataList);
     },
     resetPlatformList: () => {
       setPlatformList(null);
@@ -17,4 +20,4 @@ const GrpahInfoList = () => {
   };
 };
 
-export default GrpahInfoList;
+export default LmPlatformList;

@@ -10,7 +10,8 @@ import {
 import { Alert, Empty, Spin } from 'antd';
 import { useEffect } from 'react';
 import DefaultLayout from '../DefaultLayout';
-import { queryAgentList } from '@/services/common/agent';
+import { queryAgentList, queryAgentPlatformList } from '@/services/common/agent';
+import { platform } from 'os';
 
 export type PropsType = {
   children: JSX.Element;
@@ -19,22 +20,30 @@ export type PropsType = {
 
 const AgentLayout: React.FC<PropsType> = (props: PropsType) => {
   const { title } = props;
-  const { setAgentList } = useModel('agentList');
+  const { setPlatformList } = useModel('agentplatformList');
 
   const navigate = useNavigate();
-  const { agent } = useParams();
+  const { platform } = useParams();
   // graph列表-请求
-  const { data, loading, error, run } = useRequest(() => queryAgentList(), {
+  const { data, loading, error, run } = useRequest(() => queryAgentPlatformList(), {
     manual: true,
     throwOnError: true,
   });
   useEffect(() => {
     run().then((resData) => {
       if (resData) {
-        setAgentList(resData);
+        setPlatformList(resData);
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (data && data?.[0]?.name && !platform) {
+      navigate(
+        generatePath(ROUTE_MAP.AGENT_LIST, { platform: data?.[0]?.name }),
+      );
+    }
+  }, [data, platform]);
 
   return (
     <DefaultLayout>

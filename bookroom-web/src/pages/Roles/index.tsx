@@ -3,8 +3,8 @@ import DefaultLayout from '@/layouts/DefaultLayout';
 import {
   addRole,
   deleteRole,
-  modifyRole,
-  modifyRoleStatus,
+  updateRole,
+  updateRoleStatus,
   queryRoleList,
 } from '@/services/admin/role';
 import { ROLE_STATUS_MAP } from '@/services/admin/role/enum';
@@ -60,7 +60,7 @@ const RolesPage: React.FC<unknown> = () => {
       if (!roleId) return false;
       setLoading('正在修改');
       try {
-        const result = await modifyRole(
+        const result = await updateRole(
           {
             roleId: roleId || '',
           },
@@ -116,7 +116,7 @@ const RolesPage: React.FC<unknown> = () => {
       if (!roleId) return false;
       setLoading('正在修改');
       try {
-        const result = await modifyRoleStatus(
+        const result = await updateRoleStatus(
           {
             roleId: roleId,
           },

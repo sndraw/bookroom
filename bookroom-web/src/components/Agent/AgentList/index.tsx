@@ -5,14 +5,16 @@ import { Access, Outlet, useAccess, useModel } from '@umijs/max';
 import { Divider, FloatButton, Input, Space } from 'antd';
 import classNames from 'classnames';
 import { useCallback, useMemo, useState } from 'react';
-import AgentSelect from '../AgentSelect';
+import AgentPlatformSelect from '../AgentPlatformSelect';
 import AgentCard from '../AgentCard';
 import styles from './index.less';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
 
 type AgentListPropsType = {
   mode?: MODE_ENUM;
-  dataList?: API.AgentInfo[];
+  platform?: string;
+  changePlatform?: (newPlatform: string) => void;
+  dataList?:API.AgentInfo[];
   loading: any;
   refresh: () => void;
   className?: string;
@@ -22,11 +24,14 @@ const AgentList: React.FC<AgentListPropsType> = (props) => {
   const [searchText, setSearchText] = useState<string>('' as string);
   const {
     mode = MODE_ENUM.VIEW,
+    platform,
+    changePlatform,
     dataList,
     loading,
     refresh,
     className,
   } = props;
+
   const headerHeight = useHeaderHeight();
 
   // 计算样式
@@ -50,8 +55,13 @@ const AgentList: React.FC<AgentListPropsType> = (props) => {
 
   return (
     <div className={classNames(styles.container, className)} style={containerStyle()}>
-      <Space size={0} wrap className={styles.header}>
-        <span className={styles.title}>智能助手</span>
+      <Space size={16} wrap className={styles.header}>
+        <AgentPlatformSelect
+          title={'智能助手'}
+          platform={platform}
+          changePlatform={changePlatform}
+          allowClear={false}
+        />
         <Divider type="vertical" />
         {/* 筛选Agent */}
         <Input.Search

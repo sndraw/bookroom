@@ -84,7 +84,6 @@ const LmList: React.FC<LmListPropsType> = (props) => {
         <PlatformSelect
           title={'模型平台'}
           platform={platform}
-          dataList={dataList}
           changePlatform={changePlatform}
           allowClear={false}
         />

@@ -1,9 +1,32 @@
+import { PLATFORM_TYPE_MAP } from "@/common/platfrom";
 import { request } from "@umijs/max";
 
 /** GET /platform */
-export async function queryAgentList(options?: { [key: string]: any }) {
-  return request<API.Result_AgentInfoList_>(
-    '/agent',
+export async function queryAgentPlatformList(options?: { [key: string]: any }) {
+  const params = {
+    type: PLATFORM_TYPE_MAP?.agent.value,
+  };
+  return request<API.Result_PlatformInfoList_>(
+    '/platform/actived',
+    {
+      method: 'GET',
+      params: {
+        ...(params || {}),
+      },
+      ...(options || {}),
+    },
+  );
+}
+/** GET /agent/platform/:platform */
+export async function queryAgentList(
+  params: {
+    platform: string;
+  },
+  options?: { [key: string]: any }
+) {
+  const { platform } = params;
+  return request<API.Result_PageInfo_AgentInfo__>(
+    `/agent/platform/${platform}`,
     {
       method: 'GET',
       ...(options || {}),
@@ -11,35 +34,90 @@ export async function queryAgentList(options?: { [key: string]: any }) {
   );
 }
 
-/** GET /ai/agent/:agent  */
+/** GET /agent/platform/:platform/data/:agent  */
 export async function getAgentInfo(
   params: {
+    platform: string;
     agent: string;
   },
   options?: { [key: string]: any },
 ) {
-  const { agent } = params;
+  const { platform, agent } = params;
   return request<API.Result_AgentInfo_>(
-    `/agent/${agent}`,
+    `/agent/platform/${platform}/data/${agent}`,
     {
       method: 'GET',
       ...(options || {}),
     },
   );
 }
-/** GET /ai/agent/:agent  */
-export async function saveAgentConfig(
+/** POST /agent/platform/:platform/data  */
+export async function addAgent(
+  params: {
+    platform: string;
+  },
+  body: API.AgentInfoVO,
+  options?: { [key: string]: any },
+) {
+  const { platform } = params;
+  return request<API.Result_AgentInfo_>(
+    `/agent/platform/${platform}/data`,
+    {
+      method: 'POST',
+      data: body,
+      ...(options || {}),
+    },
+  );
+}
+/** PUT /agent/platform/:platform/data/:agent  */
+export async function updateAgent(
+  params: {
+    platform: string;
+    agent: string;
+  },
+  body: API.AgentInfoVO,
+  options?: { [key: string]: any },
+) {
+  const { platform, agent } = params;
+  return request<API.Result_AgentInfo_>(
+    `/agent/platform/${platform}/data/${agent}`,
+    {
+      method: 'PUT',
+      data: body,
+      ...(options || {}),
+    },
+  );
+}
+
+/** PUT /agent/platform/:platform/data/:agent/status  */
+export async function updateAgentStatus(
+  params: {
+    platform: string;
+    agent: string;
+  },
+  body: { status: number | string },
+  options?: { [key: string]: any },
+) {
+  const { platform, agent } = params;
+  return request<API.Result_AgentInfo_>(
+    `/agent/platform/${platform}/data/${agent}/status`,
+    {
+      method: 'PUT',
+      data: body,
+      ...(options || {}),
+    },
+  );
+}
+/** DELETE /agent/platform/:platform/data/:agent  */
+export async function deleteAIChat(
   params: {
     agent: string;
   },
   options?: { [key: string]: any },
 ) {
   const { agent } = params;
-  return request<API.Result_AgentInfo_>(
-    `/agent/${agent}`,
-    {
-      method: 'POST',
-      ...(options || {}),
-    },
-  );
+  return request<API.Result_string_>(`/agent/platform/:platform/data/${agent}`, {
+    method: 'DELETE',
+    ...(options || {}),
+  });
 }

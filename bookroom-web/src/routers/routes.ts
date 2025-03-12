@@ -191,7 +191,7 @@ const routes = [
     routes: [
       {
         name: '助手列表',
-        path:  '',
+        path: ROUTE_MAP.AGENT_LIST,
         icon: 'Robot',
         component: './Agent/AgentList',
         hideInBreadcrumb: false,
