@@ -1,5 +1,5 @@
 import UserController from "@/controller/UserController";
-import routeMap from "@/constants/RouteMap";
+import routeMap from "@/routers/RouteMap";
 
 const routerList = [
     {

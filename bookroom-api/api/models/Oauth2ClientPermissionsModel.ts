@@ -1,6 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import database from "../common/database";
-import { StatusEnum } from "@/constants/DataMap";
+import database from "@/common/database";
 import { StatusModelRule } from "./rule";
 // Oauth2-客户系统-权限关联表
 class Oauth2ClientPermissionsModel extends Model { }

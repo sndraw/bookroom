@@ -1,12 +1,12 @@
 import Router from "koa-router";
-import RouteMap from "@/constants/RouteMap";
+import RouteMap from "@/routers/RouteMap";
 import admin_role from "./admin/role";
 import admin_user from "./admin/user";
 import ai_chat from "./common/ai_chat";
-import ai_graph_multi  from "./common/ai_graph_multi";
+import ai_graph  from "./common/ai_graph";
 import ai_lm_third from "./common/ai_lm_third";
 import agent from "./common/agent";
-import ai_platform from "./common/ai_platform";
+import platform from "./common/platform";
 // import image from "./common/image";
 import file from "./common/file";
 // import oauth2 from "./common/oauth2";
@@ -29,10 +29,10 @@ const routerList = [
   ...admin_role,
   ...admin_user,
   ...ai_chat,
-  ...ai_graph_multi,
+  ...ai_graph,
   ...ai_lm_third,
   ...agent,
-  ...ai_platform,
+  ...platform,
   ...file,
   // ...image,
   ...login,

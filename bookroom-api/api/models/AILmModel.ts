@@ -1,6 +1,5 @@
 import { DataTypes, Model, Op } from "sequelize";
-import database from "../common/database";
-import { StatusEnum } from "@/constants/DataMap";
+import database from "@/common/database";
 import { StatusModelRule } from "./rule";
 // 模型详情-表
 class AILmModel extends Model {

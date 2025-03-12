@@ -1,17 +1,17 @@
 import { Context } from "koa";
-import { resultError, resultSuccess } from "../common/resultFormat";
-import AIPlatformService from "../service/AIPlatformService";
+import { resultError, resultSuccess } from "@/common/resultFormat";
+import PlatformService from "@/service/PlatformService";
 import BaseController from "./BaseController";
-import { AI_PLATFORM_RULE, URL_RULE } from "../common/rule";
+import { PLATFORM_RULE, URL_RULE } from "@/common/rule";
 import { StatusEnum } from "@/constants/DataMap";
 
-class AIPlatformController extends BaseController {
+class PlatformController extends BaseController {
   /**
 * 全部已启用平台列表-查询
 * @param {Object} ctx 上下文对象，包含请求和响应信息
 * @returns {Object} 返回响应体，包含成功或错误信息
 */
-  static async queryActivedAIPlatformList(ctx: Context) {
+  static async queryActivedPlatformList(ctx: Context) {
     const params = ctx.request.query;
     ctx.verifyParams({
       type: {
@@ -29,7 +29,7 @@ class AIPlatformController extends BaseController {
       ...params
     })
     try {
-      const records = await AIPlatformService.queryActivedRecords(params);
+      const records = await PlatformService.queryActivedRecords(params);
       // 注册成功处理
       ctx.body = resultSuccess({
         data: records
@@ -47,7 +47,7 @@ class AIPlatformController extends BaseController {
   }
 
   // 查询平台列表
-  static async queryAIPlatformList(ctx: Context) {
+  static async queryPlatformList(ctx: Context) {
     const params = ctx.request.query;
     ctx.verifyParams({
       name: {
@@ -106,7 +106,7 @@ class AIPlatformController extends BaseController {
     }, params);
     try {
       // 查询平台列表
-      const result = await AIPlatformService.queryAIPlatformList(params, { safe: false });
+      const result = await PlatformService.queryPlatformList(params, { safe: false });
       if (result && result?.list) {
         result?.list?.forEach((item: any) => {
           if (item.apiKey) {
@@ -135,14 +135,14 @@ class AIPlatformController extends BaseController {
   }
 
   // 获取平台信息
-  static async getAIPlatformInfo(ctx: Context) {
+  static async getPlatformInfo(ctx: Context) {
     const { platform } = ctx.params;
     try {
       if (!platform) {
         throw new Error("ID参数错误");
       }
       // 查询平台
-      const result = await AIPlatformService.findAIPlatformByIdOrName(platform);
+      const result = await PlatformService.findPlatformByIdOrName(platform);
       ctx.status = 200;
       ctx.body = resultSuccess({
         data: result
@@ -166,26 +166,26 @@ class AIPlatformController extends BaseController {
    * @param {Object} ctx 上下文对象，包含请求和响应信息
    * @returns {Object} 返回响应体，包含成功或错误信息
    */
-  static async addAIPlatform(ctx: Context) {
+  static async addPlatform(ctx: Context) {
 
     const params: any = ctx.request.body;
     ctx.verifyParams({
       name: {
         type: "string",
         required: true,
-        format: AI_PLATFORM_RULE.name.RegExp,
+        format: PLATFORM_RULE.name.RegExp,
         message: {
           required: "平台名称不能为空",
-          format: AI_PLATFORM_RULE.name.message,
+          format: PLATFORM_RULE.name.message,
         },
       },
       code: {
         type: "string",
         required: true,
-        format: AI_PLATFORM_RULE.code.RegExp,
+        format: PLATFORM_RULE.code.RegExp,
         message: {
           required: "接口类型不能为空",
-          format: AI_PLATFORM_RULE.code.message,
+          format: PLATFORM_RULE.code.message,
         },
       },
       type: {
@@ -242,7 +242,7 @@ class AIPlatformController extends BaseController {
       ...params
     });
     try {
-      await AIPlatformService.addAIPlatform(params)
+      await PlatformService.addPlatform(params)
       ctx.body = resultSuccess({
         data: "ok"
       });
@@ -265,7 +265,7 @@ class AIPlatformController extends BaseController {
    * @param {Object} ctx 上下文对象，包含请求和响应信息
    * @returns {Object} 返回响应体，包含成功或错误信息
    */
-  static async changeAIPlatformStatus(ctx: Context) {
+  static async changePlatformStatus(ctx: Context) {
     // 从路径获取平台ID
     const { platform } = ctx.params;
     const params: any = ctx.request.body;
@@ -297,7 +297,7 @@ class AIPlatformController extends BaseController {
       ...params
     });
     try {
-      const record: any = await AIPlatformService.findAIPlatformByIdOrName(platform);
+      const record: any = await PlatformService.findPlatformByIdOrName(platform);
       if (!record) {
         throw new Error("平台不存在");
       }
@@ -327,7 +327,7 @@ class AIPlatformController extends BaseController {
    * @param {Object} ctx 上下文对象，包含请求和响应信息
    * @returns {Object} 返回响应体，包含成功或错误信息
    */
-  static async changeAIPlatformInfo(ctx: Context) {
+  static async changePlatformInfo(ctx: Context) {
     // 从路径获取平台ID
     const { platform } = ctx.params;
     const params: any = ctx.request.body;
@@ -347,19 +347,19 @@ class AIPlatformController extends BaseController {
       name: {
         type: "string",
         required: false,
-        format: AI_PLATFORM_RULE.name.RegExp,
+        format: PLATFORM_RULE.name.RegExp,
         message: {
           required: "平台名称不能为空",
-          format: AI_PLATFORM_RULE.name.message,
+          format: PLATFORM_RULE.name.message,
         },
       },
       code: {
         type: "string",
         required: false,
-        format: AI_PLATFORM_RULE.code.RegExp,
+        format: PLATFORM_RULE.code.RegExp,
         message: {
           required: "接口类型不能为空",
-          format: AI_PLATFORM_RULE.code.message,
+          format: PLATFORM_RULE.code.message,
         },
       },
       type: {
@@ -408,7 +408,7 @@ class AIPlatformController extends BaseController {
     });
     try {
       const { name, code, type, host, apiKey, paramsConfig, status } = params;
-      const record: any = await AIPlatformService.findAIPlatformByIdOrName(platform, { safe: false });
+      const record: any = await PlatformService.findPlatformByIdOrName(platform, { safe: false });
       if (!record) {
         throw new Error("平台不存在");
       }
@@ -443,7 +443,7 @@ class AIPlatformController extends BaseController {
       if (status) {
         data.status = status;
       }
-      await AIPlatformService.updateAIPlatform(record?.id, data)
+      await PlatformService.updatePlatform(record?.id, data)
       ctx.body = resultSuccess({
         data: "ok"
       });
@@ -464,7 +464,7 @@ class AIPlatformController extends BaseController {
    * @param {Object} ctx 上下文对象，包含请求和响应信息
    * @returns {Object} 返回响应体，包含成功或错误信息
    */
-  static async deleteAIPlatform(ctx: Context) {
+  static async deletePlatform(ctx: Context) {
     // 从路径获取平台ID
     const { platform } = ctx.params;
     ctx.verifyParams({
@@ -484,11 +484,11 @@ class AIPlatformController extends BaseController {
       platform
     });
     try {
-      const record: any = await AIPlatformService.findAIPlatformByIdOrName(platform);
+      const record: any = await PlatformService.findPlatformByIdOrName(platform);
       if (!record) {
         throw new Error("平台不存在");
       }
-      await AIPlatformService.deleteAIPlatform(record?.id)
+      await PlatformService.deletePlatform(record?.id)
       ctx.body = resultSuccess({
         data: "ok"
       });
@@ -506,4 +506,4 @@ class AIPlatformController extends BaseController {
 
 }
 
-export default AIPlatformController;
+export default PlatformController;

@@ -91,6 +91,17 @@ const ChatParamters: React.FC<ChatParamtersProps> = (props) => {
     };
     setParamters(newParamters);
   };
+  const temperatureTip = <>
+    建议根据如下场景设置，并参考模型文档或实际效果调整
+    <br />
+    通用对话：1.3
+    <br />
+    翻译：1.3
+    <br />
+    代码生成/数学解题：0.0
+    <br />
+    数据抽取/分析：1.0
+  </>;
 
   return (
     <>
@@ -119,7 +130,7 @@ const ChatParamters: React.FC<ChatParamtersProps> = (props) => {
           >
             <label className={styles.formLabel}>
               温度
-              <Tooltip title="温度参数越低，模型的输出越确定，生成的文本更加保守和可预测。反之，较高的温度参数会使输出更加随机、多样化，但可能导致文本质量下降。">
+              <Tooltip title={temperatureTip}>
                 <QuestionCircleOutlined
                   style={{ marginLeft: 4, color: token.colorLink }}
                 />

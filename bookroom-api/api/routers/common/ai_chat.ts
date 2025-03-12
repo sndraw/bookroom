@@ -1,5 +1,5 @@
 import AIChatController from "@/controller/AIChatController";
-import routeMap from "@/constants/RouteMap";
+import routeMap from "@/routers/RouteMap";
 
 const routerList = [
     {

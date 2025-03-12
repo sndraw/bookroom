@@ -1,6 +1,6 @@
 import { MODE_ENUM } from '@/constants/DataMap';
 import { useNavigate, useParams, useRequest } from '@umijs/max';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Page404 from '@/pages/404';
 import AgentPanel from '@/components/Agent/AgentPanel';
 import styles from './index.less';
@@ -8,10 +8,12 @@ import { getAgentInfo } from '@/services/common/agent';
 import { Alert, Divider, Empty, Space, Spin } from 'antd';
 import ChatPanel from '@/components/ChatPanel';
 import { RobotOutlined } from '@ant-design/icons';
+import AgentParamters, { defaultParamters, ParamtersType } from '@/components/Agent/AgentParamters';
 
 const AgentTaskPage: React.FC = () => {
 
     const { agent } = useParams<{ agent: string }>();
+    const [paramters, setParamters] = useState<ParamtersType>(defaultParamters);
 
     // 模型信息-请求
     const { data, loading, error, run } = useRequest(
@@ -35,6 +37,11 @@ const AgentTaskPage: React.FC = () => {
             run();
         }
     }, [agent]);
+
+    useEffect(() => {
+        // 如果paramters有变化，保存数据到后端
+        
+    }, [paramters]);
 
 
     if (!agent) {
@@ -84,6 +91,14 @@ const AgentTaskPage: React.FC = () => {
                 <Divider type="vertical" />
                 <Space size={0} wrap className={styles.chatTags}>
                     <span>{agent}</span>
+                </Space>
+                <Divider type="vertical" />
+                <Space size={0} wrap className={styles.chatTags}>
+                    <AgentParamters
+                        data={data}
+                        paramters={paramters}
+                        setParamters={setParamters}
+                    />
                 </Space>
             </div>
         </ChatPanel>

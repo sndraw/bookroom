@@ -1,5 +1,5 @@
 import AILmController from "@/controller/AILmController";
-import routeMap from "@/constants/RouteMap";
+import routeMap from "@/routers/RouteMap";
 
 const routerList = [
     {

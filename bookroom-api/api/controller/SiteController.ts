@@ -1,8 +1,8 @@
 import BaseController from "./BaseController";
-import { resultError, resultSuccess } from "../common/resultFormat";
-import SiteService from "../service/SiteService";
-import UserService from "../service/UserService";
-import RoleService from "../service/RoleService";
+import { resultError, resultSuccess } from "@/common/resultFormat";
+import SiteService from "@/service/SiteService";
+import UserService from "@/service/UserService";
+import RoleService from "@/service/RoleService";
 
 import { Context } from "koa";
 import { getRoleMap, USER_ROLE_ENUM, USER_ROLE_NAME_OBJECT } from "@/constants/RoleMap";

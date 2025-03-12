@@ -1,5 +1,5 @@
 import { Context } from "koa";
-import { resultDenied } from "../common/resultFormat";
+import { resultDenied } from "@/common/resultFormat";
 import { USER_ROLE_ENUM } from "@/constants/RoleMap";
 import { AUTH_PATH_LIST, NO_AUTH_PATH_LIST } from "../config/auth.conf";
 

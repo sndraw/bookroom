@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import database from "../common/database";
+import database from "@/common/database";
 import { StatusModelRule } from "./rule";
 
 // 微信公众号/小程序-菜单表

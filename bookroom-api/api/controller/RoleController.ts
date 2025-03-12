@@ -3,11 +3,11 @@
  * 继承自 BaseController，提供注册和登录功能
  */
 import BaseController from "./BaseController";
-import RoleService from "../service/RoleService";
-// import RoleTokenService from "./../service/RoleTokenService";
-import { resultSuccess, resultError } from "../common/resultFormat";
+import RoleService from "@/service/RoleService";
+// import RoleTokenService from "./@/service/RoleTokenService";
+import { resultSuccess, resultError } from "@/common/resultFormat";
 import { Context } from "koa";
-import { ROLE_RULE } from "../common/rule";
+import { ROLE_RULE } from "@/common/rule";
 import { USER_ROLE_ENUM } from "@/constants/RoleMap";
 import { StatusEnum } from "@/constants/DataMap";
 

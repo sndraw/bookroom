@@ -1,5 +1,5 @@
 import RoleController from "@/controller/RoleController";
-import routeMap from "@/constants/RouteMap";
+import routeMap from "@/routers/RouteMap";
 const routerList = [
     {
         path: routeMap.ADMIN_ROLE_ACTIVED,

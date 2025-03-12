@@ -1,5 +1,5 @@
 import AIChatModel from "@/models/AIChatModel";
-import AIPlatformService from "./AIPlatformService";
+import PlatformService from "./PlatformService";
 import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
 

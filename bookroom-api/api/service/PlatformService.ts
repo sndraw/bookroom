@@ -1,9 +1,9 @@
 import { StatusEnum } from "@/constants/DataMap";
-import AIPlatformModel from "../models/AIPlatformlModel"
+import PlatformModel from "@/models/PlatformModel";
 import { Op } from "sequelize";
 
 
-class AIPlatformService {
+class PlatformService {
 
     // 获取全部已启用平台列表
     static async queryActivedRecords(params?: any) {
@@ -13,7 +13,7 @@ class AIPlatformService {
         if (params?.type) {
             where.type = params.type;
         }
-        const result = await AIPlatformModel.findAll({
+        const result = await PlatformModel.findAll({
             where,
             attributes: { exclude: ["apiKey", "host"] }, // 过滤字段
         });
@@ -22,7 +22,7 @@ class AIPlatformService {
 
 
     // 查询AI配置列表
-    static async queryAIPlatformList(params: any, ops = { safe: true }) {
+    static async queryPlatformList(params: any, ops = { safe: true }) {
         if (!params) {
             return false;
         }
@@ -81,7 +81,7 @@ class AIPlatformService {
             }
         }
 
-        const result = await AIPlatformModel.findAndCountAll({
+        const result = await PlatformModel.findAndCountAll({
             where: where,
             attributes: ops?.safe ? { exclude: ["apiKey", "host"] } : undefined,
             offset: (page - 1) * pageSize,
@@ -100,11 +100,11 @@ class AIPlatformService {
 
 
     // 查询AI配置信息-byIdOrName
-    static async findAIPlatformByIdOrName(platform: string, params = { safe: true }) {
+    static async findPlatformByIdOrName(platform: string, params = { safe: true }) {
         if (!platform) {
             throw new Error("参数错误");
         }
-        const platformInfo = await AIPlatformModel.findOne({
+        const platformInfo = await PlatformModel.findOne({
             where: {
                 [Op.or]: [
                     {
@@ -121,11 +121,11 @@ class AIPlatformService {
     }
 
     // 查询AI配置信息-byId
-    static async findAIPlatformById(id: string, params = { safe: true }) {
+    static async findPlatformById(id: string, params = { safe: true }) {
         if (!id) {
             throw new Error("参数错误");
         }
-        const platformInfo = await AIPlatformModel.findOne({
+        const platformInfo = await PlatformModel.findOne({
             where: {
                 id: id,
             },
@@ -136,11 +136,11 @@ class AIPlatformService {
 
 
     // 查询AI配置信息-byName
-    static async findAIPlatformByName(name: string, params = { safe: true }) {
+    static async findPlatformByName(name: string, params = { safe: true }) {
         if (!name) {
             throw new Error("参数错误");
         }
-        const platformInfo= await AIPlatformModel.findOne({
+        const platformInfo= await PlatformModel.findOne({
             where: {
                 name: name,
             },
@@ -149,16 +149,16 @@ class AIPlatformService {
         return platformInfo;
     }
     // 添加AI配置
-    static async addAIPlatform(data: any) {
+    static async addPlatform(data: any) {
         try {
             if (!data) {
                 throw new Error("参数错误");
             }
-            const unique = await AIPlatformModel.judgeUnique(data);
+            const unique = await PlatformModel.judgeUnique(data);
             if (!unique) {
                 throw new Error("AI配置已存在");
             }
-            return await AIPlatformModel.create({
+            return await PlatformModel.create({
                 ...data,
                 createdAt: new Date().getTime(),
                 updatedAt: new Date().getTime(),
@@ -170,15 +170,15 @@ class AIPlatformService {
         }
     }
     // 修改AI配置
-    static async updateAIPlatform(id: string, data: any) {
+    static async updatePlatform(id: string, data: any) {
         if (!id || !data) {
             throw new Error("参数错误");
         }
-        const unique = await AIPlatformModel.judgeUnique(data, id);
+        const unique = await PlatformModel.judgeUnique(data, id);
         if (!unique) {
             throw new Error("AI配置已存在");
         }
-        return await AIPlatformModel.update({
+        return await PlatformModel.update({
             ...data,
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
@@ -189,11 +189,11 @@ class AIPlatformService {
         });
     }
     // 删除AI配置
-    static async deleteAIPlatform(id: string) {
+    static async deletePlatform(id: string) {
         if (!id) {
             throw new Error("参数错误");
         }
-        return await AIPlatformModel.destroy({
+        return await PlatformModel.destroy({
             where: {
                 id: id,
             },
@@ -201,4 +201,4 @@ class AIPlatformService {
     }
 }
 
-export default AIPlatformService
+export default PlatformService

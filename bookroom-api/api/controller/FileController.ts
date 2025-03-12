@@ -1,5 +1,5 @@
 import BaseController from "./BaseController";
-import { resultError, resultSuccess } from "../common/resultFormat";
+import { resultError, resultSuccess } from "@/common/resultFormat";
 import { Context } from "koa";
 import fs from "fs";
 import { UPLOAD_FILE_TYPE } from "@/common/ai";

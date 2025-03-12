@@ -1,19 +1,17 @@
 import {
-  AI_AGENT_MAP,
   AI_GRAPH_PLATFORM_MAP,
   AI_LM_PLATFORM_MAP,
-  AI_PLATFORM_TYPE_MAP,
 } from '@/common/ai';
-import { AI_PLATFORM_RULE, URL_RULE } from '@/common/rule';
+import { PLATFORM_RULE, URL_RULE } from '@/common/rule';
 import { STATUS_MAP } from '@/constants/DataMap';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import {
-  addAIPlatform,
-  deleteAIPlatform,
-  modifyAIPlatform,
-  modifyAIPlatformStatus,
-  queryAIPlatformList,
-} from '@/services/common/ai/platform';
+  addPlatform,
+  deletePlatform,
+  modifyPlatform,
+  modifyPlatformStatus,
+  queryPlatformList,
+} from '@/services/common/platform';
 import { reverseStatus, statusToBoolean } from '@/utils/format';
 import { PlusOutlined } from '@ant-design/icons';
 import {
@@ -35,8 +33,11 @@ import {
 } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
 import CreateForm from '../components/CreateForm';
+import { PLATFORM_TYPE_MAP } from '@/common/platfrom';
+import { AGENT_API_MAP } from '@/common/agent';
+import { SEARCH_API_MAP } from '@/services/common/search';
 
-const AIPlatformPage: React.FC<unknown> = () => {
+const PlatformPage: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();
   const editableActionRef = useRef<EditableFormInstance>();
   const [loading, setLoading] = useState<string | boolean | number>(false);
@@ -47,10 +48,10 @@ const AIPlatformPage: React.FC<unknown> = () => {
    * 添加节点
    * @param fields
    */
-  const handleAdd = async (fields: API.AIPlatformInfoVO) => {
+  const handleAdd = async (fields: API.PlatformInfoVO) => {
     setLoading('正在添加');
     try {
-      await addAIPlatform({ ...fields });
+      await addPlatform({ ...fields });
       setLoading(false);
       message.success('添加成功');
       return true;
@@ -64,11 +65,11 @@ const AIPlatformPage: React.FC<unknown> = () => {
    * 更新节点
    */
   const handleUpdate = useCallback(
-    async (platformId: string, fields: API.AIPlatformInfoVO) => {
+    async (platformId: string, fields: API.PlatformInfoVO) => {
       if (!platformId) return false;
       setLoading('正在修改');
       try {
-        const result = await modifyAIPlatform(
+        const result = await modifyPlatform(
           {
             platform: platformId || '',
           },
@@ -99,7 +100,7 @@ const AIPlatformPage: React.FC<unknown> = () => {
     if (!platformId) return false;
     setLoading('正在删除...');
     try {
-      const result = await deleteAIPlatform({
+      const result = await deletePlatform({
         platform: platformId,
       });
       if (!result?.data) {
@@ -117,13 +118,13 @@ const AIPlatformPage: React.FC<unknown> = () => {
   /**
    * 修改平台状态
    */
-  const handleModifyAIPlatformStatus = useCallback(
+  const handleModifyPlatformStatus = useCallback(
     async (platformId: string, status: number | string) => {
       if (!platformId) return false;
       // 待修改状态-文本
       setLoading('正在修改');
       try {
-        const result = await modifyAIPlatformStatus(
+        const result = await modifyPlatformStatus(
           {
             platform: platformId,
           },
@@ -146,7 +147,7 @@ const AIPlatformPage: React.FC<unknown> = () => {
     [],
   );
 
-  const columns: ProDescriptionsItemProps<API.AIPlatformInfo>[] = [
+  const columns: ProDescriptionsItemProps<API.PlatformInfo>[] = [
     {
       title: 'ID',
       key: 'id',
@@ -168,8 +169,8 @@ const AIPlatformPage: React.FC<unknown> = () => {
             message: '平台名称为必填项',
           },
           {
-            pattern: AI_PLATFORM_RULE.name.RegExp,
-            message: AI_PLATFORM_RULE.name.message,
+            pattern: PLATFORM_RULE.name.RegExp,
+            message: PLATFORM_RULE.name.message,
           },
         ],
       },
@@ -182,9 +183,9 @@ const AIPlatformPage: React.FC<unknown> = () => {
       valueType: 'select',
       // 默认值
       // @ts-ignore
-      // initialValue: AI_PLATFORM_TYPE_MAP.model.value,
+      // initialValue: PLATFORM_TYPE_MAP.model.value,
       request: async () => {
-        const options: any = Object.entries(AI_PLATFORM_TYPE_MAP).map(
+        const options: any = Object.entries(PLATFORM_TYPE_MAP).map(
           (item) => {
             return {
               label: item[1]?.text,
@@ -212,8 +213,8 @@ const AIPlatformPage: React.FC<unknown> = () => {
             message: '平台类型为必填项',
           },
           {
-            pattern: AI_PLATFORM_RULE.code.RegExp,
-            message: AI_PLATFORM_RULE.code.message,
+            pattern: PLATFORM_RULE.code.RegExp,
+            message: PLATFORM_RULE.code.message,
           },
         ],
       },
@@ -232,7 +233,7 @@ const AIPlatformPage: React.FC<unknown> = () => {
         if (!params?.type) {
           return [];
         }
-        if (params?.type === AI_PLATFORM_TYPE_MAP.model.value) {
+        if (params?.type === PLATFORM_TYPE_MAP.model.value) {
           const options: any = Object.entries(AI_LM_PLATFORM_MAP).map(
             (item) => {
               return {
@@ -243,7 +244,7 @@ const AIPlatformPage: React.FC<unknown> = () => {
           );
           return options;
         }
-        if (params?.type === AI_PLATFORM_TYPE_MAP.graph.value) {
+        if (params?.type === PLATFORM_TYPE_MAP.graph.value) {
           const options: any = Object.entries(AI_GRAPH_PLATFORM_MAP).map(
             (item) => {
               return {
@@ -254,8 +255,19 @@ const AIPlatformPage: React.FC<unknown> = () => {
           );
           return options;
         }
-        if (params?.type === AI_PLATFORM_TYPE_MAP.agent.value) {
-          const options: any = Object.entries(AI_AGENT_MAP).map(
+        if (params?.type === PLATFORM_TYPE_MAP.agent.value) {
+          const options: any = Object.entries(AGENT_API_MAP).map(
+            (item) => {
+              return {
+                label: item[1]?.text,
+                value: item[1]?.value,
+              };
+            },
+          );
+          return options;
+        }
+        if (params?.type === PLATFORM_TYPE_MAP.search.value) {
+          const options: any = Object.entries(SEARCH_API_MAP).map(
             (item) => {
               return {
                 label: item[1]?.text,
@@ -274,8 +286,8 @@ const AIPlatformPage: React.FC<unknown> = () => {
             message: '接口类型为必填项',
           },
           {
-            pattern: AI_PLATFORM_RULE.code.RegExp,
-            message: AI_PLATFORM_RULE.code.message,
+            pattern: PLATFORM_RULE.code.RegExp,
+            message: PLATFORM_RULE.code.message,
           },
         ],
       },
@@ -378,7 +390,7 @@ const AIPlatformPage: React.FC<unknown> = () => {
             title={`是否修改该平台?`}
             onConfirm={async (event) => {
               // actionRef?.current?.startEditable(record?.id);
-              const result = await handleModifyAIPlatformStatus(
+              const result = await handleModifyPlatformStatus(
                 record?.id,
                 reverseStatus(record.status),
               );
@@ -442,7 +454,7 @@ const AIPlatformPage: React.FC<unknown> = () => {
   return (
     <DefaultLayout>
       <>
-        <EditableProTable<API.AIPlatformInfo>
+        <EditableProTable<API.PlatformInfo>
           headerTitle="查询表格"
           loading={{
             spinning: Boolean(loading),
@@ -469,7 +481,7 @@ const AIPlatformPage: React.FC<unknown> = () => {
             ></Button>,
           ]}
           request={async (params, sorter, filter) => {
-            const { data } = await queryAIPlatformList({
+            const { data } = await queryPlatformList({
               ...params,
               // @ts-ignore
               sorter,
@@ -531,7 +543,7 @@ const AIPlatformPage: React.FC<unknown> = () => {
           //         type="primary"
           //         onClick={async () => {
           //           const platformIdListStr = selectedRowKeys.join(',');
-          //           const result = await handleModifyAIPlatformStatus(
+          //           const result = await handleModifyPlatformStatus(
           //             platformIdListStr,
           //             STATUS_MAP.ENABLE.value,
           //           );
@@ -547,7 +559,7 @@ const AIPlatformPage: React.FC<unknown> = () => {
           //         danger
           //         onClick={async () => {
           //           const platformIdListStr = selectedRowKeys.join(',');
-          //           const result = await handleModifyAIPlatformStatus(
+          //           const result = await handleModifyPlatformStatus(
           //             platformIdListStr,
           //             STATUS_MAP.DISABLE.value,
           //           );
@@ -567,8 +579,8 @@ const AIPlatformPage: React.FC<unknown> = () => {
           onCancel={() => handleCreateModalVisible(false)}
           modalVisible={createModalVisible}
         >
-          <ProTable<API.AIPlatformInfo, API.AIPlatformInfo>
-            onSubmit={async (value: API.AIPlatformInfo) => {
+          <ProTable<API.PlatformInfo, API.PlatformInfo>
+            onSubmit={async (value: API.PlatformInfo) => {
               const success = await handleAdd(value);
               if (success) {
                 handleCreateModalVisible(false);
@@ -587,7 +599,7 @@ const AIPlatformPage: React.FC<unknown> = () => {
               wrapperCol: { span: 18 }, // 输入框占据的列数
               // 默认值
               initialValues: {
-                type: AI_PLATFORM_TYPE_MAP.model.value,
+                type: PLATFORM_TYPE_MAP.model.value,
                 code: AI_LM_PLATFORM_MAP.ollama.value,
                 status: String(STATUS_MAP.ENABLE.value),
               },
@@ -606,4 +618,4 @@ const AIPlatformPage: React.FC<unknown> = () => {
   );
 };
 
-export default AIPlatformPage;
+export default PlatformPage;

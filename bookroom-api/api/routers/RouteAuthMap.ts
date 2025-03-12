@@ -1,4 +1,4 @@
-import { USER_ROLE_ENUM } from "./RoleMap";
+import { USER_ROLE_ENUM } from "../constants/RoleMap";
 
 export default {
     HOME: null,
@@ -203,7 +203,7 @@ export default {
             USER_ROLE_ENUM.OPS
         ],
     },
-    AI_GRAPH_MULTI: {
+    AI_GRAPH: {
         GET: [
             USER_ROLE_ENUM.USER,
             USER_ROLE_ENUM.DEV,
@@ -214,7 +214,7 @@ export default {
             USER_ROLE_ENUM.OPS
         ],
     },
-    AI_GRAPH_MULTI_DETAIL: {
+    AI_GRAPH_DETAIL: {
         GET: [
             USER_ROLE_ENUM.USER,
             USER_ROLE_ENUM.DEV,
@@ -229,7 +229,7 @@ export default {
             USER_ROLE_ENUM.OPS
         ],
     },
-    AI_GRAPH_MULTI_WORKSPACE: {
+    AI_GRAPH_WORKSPACE: {
         GET: [
             USER_ROLE_ENUM.USER,
             USER_ROLE_ENUM.DEV,
@@ -240,59 +240,7 @@ export default {
             USER_ROLE_ENUM.OPS
         ]
     },
-    AI_GRAPH_MULTI_WORKSPACE_DETAIL: {
-        GET: [
-            USER_ROLE_ENUM.USER,
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ],
-        PUT: [
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ],
-        DELETE: [
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ]
-    },
-    AI_GRAPH_MULTI_NODE: {
-        GET: [
-            USER_ROLE_ENUM.USER,
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ],
-        POST: [
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ],
-    },
-    AI_GRAPH_MULTI_NODE_DETAIL: {
-        GET: [
-            USER_ROLE_ENUM.USER,
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ],
-        PUT: [
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ],
-        DELETE: [
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ],
-    },
-    AI_GRAPH_MULTI_LINK: {
-        GET: [
-            USER_ROLE_ENUM.USER,
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ],
-        POST: [
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ],
-    },
-    AI_GRAPH_MULTI_LINK_DETAIL: {
+    AI_GRAPH_WORKSPACE_DETAIL: {
         GET: [
             USER_ROLE_ENUM.USER,
             USER_ROLE_ENUM.DEV,
@@ -307,21 +255,7 @@ export default {
             USER_ROLE_ENUM.OPS
         ]
     },
-    AI_GRAPH_MULTI_DATA: {
-        GET: [
-            USER_ROLE_ENUM.USER,
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ],
-    },
-    AI_GRAPH_MULTI_CHAT: {
-        POST: [
-            USER_ROLE_ENUM.USER,
-            USER_ROLE_ENUM.DEV,
-            USER_ROLE_ENUM.OPS
-        ],
-    },
-    AI_GRAPH_MULTI_DOCUMENT: {
+    AI_GRAPH_NODE: {
         GET: [
             USER_ROLE_ENUM.USER,
             USER_ROLE_ENUM.DEV,
@@ -332,7 +266,7 @@ export default {
             USER_ROLE_ENUM.OPS
         ],
     },
-    AI_GRAPH_MULTI_DOCUMENT_DETAIL: {
+    AI_GRAPH_NODE_DETAIL: {
         GET: [
             USER_ROLE_ENUM.USER,
             USER_ROLE_ENUM.DEV,
@@ -347,7 +281,7 @@ export default {
             USER_ROLE_ENUM.OPS
         ],
     },
-    AI_GRAPH_MULTI_DATA_TEXT: {
+    AI_GRAPH_LINK: {
         GET: [
             USER_ROLE_ENUM.USER,
             USER_ROLE_ENUM.DEV,
@@ -358,7 +292,73 @@ export default {
             USER_ROLE_ENUM.OPS
         ],
     },
-    AI_GRAPH_MULTI_DATA_FILE: {
+    AI_GRAPH_LINK_DETAIL: {
+        GET: [
+            USER_ROLE_ENUM.USER,
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ],
+        PUT: [
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ],
+        DELETE: [
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ]
+    },
+    AI_GRAPH_DATA: {
+        GET: [
+            USER_ROLE_ENUM.USER,
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ],
+    },
+    AI_GRAPH_CHAT: {
+        POST: [
+            USER_ROLE_ENUM.USER,
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ],
+    },
+    AI_GRAPH_DOCUMENT: {
+        GET: [
+            USER_ROLE_ENUM.USER,
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ],
+        POST: [
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ],
+    },
+    AI_GRAPH_DOCUMENT_DETAIL: {
+        GET: [
+            USER_ROLE_ENUM.USER,
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ],
+        PUT: [
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ],
+        DELETE: [
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ],
+    },
+    AI_GRAPH_DATA_TEXT: {
+        GET: [
+            USER_ROLE_ENUM.USER,
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ],
+        POST: [
+            USER_ROLE_ENUM.DEV,
+            USER_ROLE_ENUM.OPS
+        ],
+    },
+    AI_GRAPH_DATA_FILE: {
         GET: [
             USER_ROLE_ENUM.USER,
             USER_ROLE_ENUM.DEV,
@@ -395,7 +395,7 @@ export default {
             USER_ROLE_ENUM.OPS
         ],
     },
-    AI_PLATFORM: {
+    PLATFORM: {
         GET: [
             USER_ROLE_ENUM.DEV,
             USER_ROLE_ENUM.OPS
@@ -405,14 +405,14 @@ export default {
             USER_ROLE_ENUM.OPS
         ],
     },
-    AI_PLATFORM_ACTIVED: {
+    PLATFORM_ACTIVED: {
         GET: [
             USER_ROLE_ENUM.USER,
             USER_ROLE_ENUM.DEV,
             USER_ROLE_ENUM.OPS
         ],
     },
-    AI_PLATFORM_DETAIL: {
+    PLATFORM_DETAIL: {
         GET: [
             USER_ROLE_ENUM.USER,
             USER_ROLE_ENUM.DEV,
@@ -427,7 +427,7 @@ export default {
             USER_ROLE_ENUM.OPS
         ],
     },
-    AI_PLATFORM_STATUS: {
+    PLATFORM_STATUS: {
         GET: [
             USER_ROLE_ENUM.USER,
             USER_ROLE_ENUM.DEV,

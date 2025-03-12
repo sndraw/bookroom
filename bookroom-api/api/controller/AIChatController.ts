@@ -1,5 +1,5 @@
 import { Context } from "koa";
-import { resultError, resultSuccess } from "../common/resultFormat";
+import { resultError, resultSuccess } from "@/common/resultFormat";
 import BaseController from "./BaseController";
 import AIChatService from "@/service/AIChatService";
 

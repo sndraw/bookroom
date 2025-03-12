@@ -1,10 +1,9 @@
 import { DataTypes, Model, Op } from "sequelize";
-import database from "../common/database";
-import { encrypt } from "../common/crypto";
+import database from "@/common/database";
+import { encrypt } from "@/common/crypto";
 import UserRoleModel from "./UserRoleModel";
 import RoleModel from "./RoleModel";
-import { USER_RULE } from "../common/rule";
-import { StatusEnum } from "@/constants/DataMap";
+import { USER_RULE } from "@/common/rule";
 import { StatusModelRule } from "./rule";
 
 // 用户表

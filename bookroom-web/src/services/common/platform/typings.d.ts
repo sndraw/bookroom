@@ -2,7 +2,7 @@
 // 该文件由 OneAPI 自动生成，请勿手动修改！
 
 declare namespace API {
-  interface AIPlatformInfo {
+  interface PlatformInfo {
     id: string;
     name: string;
     code: string;
@@ -13,7 +13,7 @@ declare namespace API {
     status?: number | string;
   }
 
-  interface AIPlatformInfoVO {
+  interface PlatformInfoVO {
     name: string;
     host: string;
     code: string;
@@ -22,28 +22,28 @@ declare namespace API {
     status?: number | string;
   }
 
-  interface Result_AIPlatformInfo_ {
+  interface Result_PlatformInfo_ {
     code?: number;
     message?: string;
-    data?: AIPlatformInfo;
+    data?: PlatformInfo;
   }
 
-  interface Result_AIPlatformInfoList_ {
+  interface Result_PlatformInfoList_ {
     code?: number;
     message?: string;
-    data?: AIPlatformInfo[];
+    data?: PlatformInfo[];
   }
 
-  interface PageInfo_AIPlatformInfo_ {
+  interface PageInfo_PlatformInfo_ {
     current?: number;
     pageSize?: number;
     total?: number;
-    list?: AIPlatformInfo[];
+    list?: PlatformInfo[];
   }
 
-  interface Result_PageInfo_AIPlatformInfo__ {
+  interface Result_PageInfo_PlatformInfo__ {
     code?: number;
     message?: string;
-    data?: PageInfo_AIPlatformInfo_;
+    data?: PageInfo_PlatformInfo_;
   }
 }

@@ -1,5 +1,5 @@
 import FileController from "@/controller/FileController";
-import routeMap from "@/constants/RouteMap";
+import routeMap from "@/routers/RouteMap";
 
 const routerList = [
     {

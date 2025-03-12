@@ -1,5 +1,5 @@
-import RouteAuthMap from "@/constants/RouteAuthMap";
-import RouteMap from "@/constants/RouteMap";
+import RouteAuthMap from "@/routers/RouteAuthMap";
+import RouteMap from "@/routers/RouteMap";
 
 // token存储key
 export const USER_TOKEN_KEY = process.env?.USER_TOKEN_KEY || 'work_token';

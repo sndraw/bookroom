@@ -1,5 +1,5 @@
 import { Context } from "koa";
-import { resultError } from "../common/resultFormat";
+import { resultError } from "@/common/resultFormat";
 import { NO_AUTH_PATH_LIST, USER_TOKEN_KEY } from "../config/auth.conf";
 
 const jwt = require("jsonwebtoken");

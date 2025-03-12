@@ -2,10 +2,10 @@ import { DataTypes, Model, Op } from "sequelize";
 import database from "@/common/database";
 import { StatusModelRule } from "./rule";
 // 模型详情-表
-class AIChatLog extends Model {
+class Agent extends Model {
 }
 // 初始化model
-AIChatLog.init(
+Agent.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -19,13 +19,13 @@ AIChatLog.init(
                 },
             },
         },
-        title: {
-            field: "title",
+        name: {
+            field: "name",
             type: DataTypes.STRING(255),
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: "请填入标题",
+                    msg: "请填入智能助手名称",
                 },
             },
         },
@@ -40,28 +40,14 @@ AIChatLog.init(
                 },
             },
         },
-        // 模型
-        model: {
-            field: "model",
-            type: DataTypes.STRING(255),
-            allowNull: false,
-            validate: {
-                notEmpty: {
-                    msg: "请填入模型",
-                },
-            },
-        },
-        // 类型，1对话，2图片，3语音，4视频
+        // 类型，1默认
         type: {
             field: "type",
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 1,
             validate: {
-                isIn: {
-                    args: [[1, 2, 3, 4]],
-                    msg: "日志类型必须为1,2,3,4其中之一",
-                },
+                type: "日志类型必须为数字",
             }
         },
         // 模型参数
@@ -129,12 +115,25 @@ AIChatLog.init(
         }
     },
     {
-        tableName: "ai_chat",
+        tableName: "agent",
         // 索引
-        indexes: [],
+        indexes: [
+            {
+                // 唯一
+                unique: true,
+                // 字段集合
+                fields: ["id"],
+            },
+            {
+                // 唯一
+                unique: true,
+                // 字段集合
+                fields: ["name"]
+            }
+        ],
         timestamps: true,
         sequelize: database,
     }
 );
 
-export default AIChatLog;
+export default Agent;

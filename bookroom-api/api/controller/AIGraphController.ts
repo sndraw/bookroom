@@ -1,8 +1,8 @@
 import { Context } from "koa";
-import { resultError, resultSuccess } from "../common/resultFormat";
+import { resultError, resultSuccess } from "@/common/resultFormat";
 import BaseController from "./BaseController";
-import AIPlatformService from "@/service/AIPlatformService"
-import { AI_GRAPH_MODE_ENUM, AI_GRAPH_PLATFORM_MAP, AI_GRAPH_UPLOAD_FILE_TYPE, AI_PLATFORM_TYPE_MAP } from "@/common/ai";
+import PlatformService from "@/service/PlatformService"
+import { AI_GRAPH_MODE_ENUM, AI_GRAPH_PLATFORM_MAP, AI_GRAPH_UPLOAD_FILE_TYPE } from "@/common/ai";
 import { responseStream } from "@/utils/streamHelper";
 import FormData from "form-data";
 import fs from "fs";
@@ -11,15 +11,16 @@ import LightragAPI from "@/SDK/lightrag";
 import { GRAPH_WORKSPACE_RULE } from "@/common/rule";
 import path from "path";
 import { StatusEnum } from "@/constants/DataMap";
+import { PLATFORM_TYPE_MAP } from "@/common/platform";
 
 
 // 多工作空间AI图谱
-class AIGraphMultiController extends BaseController {
+class AIGraphController extends BaseController {
 
     static async queryGraphList(ctx: Context) {
         try {
-            const graphList = await AIPlatformService.queryActivedRecords({
-                type: AI_PLATFORM_TYPE_MAP.graph.value
+            const graphList = await PlatformService.queryActivedRecords({
+                type: PLATFORM_TYPE_MAP.graph.value
             });
             ctx.status = 200;
             ctx.body = resultSuccess({
@@ -44,7 +45,7 @@ class AIGraphMultiController extends BaseController {
                 throw new Error("图谱ID参数错误");
             }
             // 查询平台
-            const result = await AIPlatformService.findAIPlatformByIdOrName(graph);
+            const result = await PlatformService.findPlatformByIdOrName(graph);
             ctx.status = 200;
             ctx.body = resultSuccess({
                 data: result
@@ -69,7 +70,7 @@ class AIGraphMultiController extends BaseController {
                 throw new Error("图谱ID参数错误");
             }
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
             if (!graphInfo) {
@@ -116,7 +117,7 @@ class AIGraphMultiController extends BaseController {
                 throw new Error("图谱ID参数错误");
             }
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
             if (!graphInfo) {
@@ -177,7 +178,7 @@ class AIGraphMultiController extends BaseController {
                 throw new Error("图谱ID参数错误");
             }
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
             if (!graphInfo) {
@@ -231,7 +232,7 @@ class AIGraphMultiController extends BaseController {
                 throw new Error("图谱ID参数错误");
             }
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
             if (!graphInfo) {
@@ -271,7 +272,7 @@ class AIGraphMultiController extends BaseController {
                 throw new Error("图谱ID参数错误");
             }
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -304,7 +305,7 @@ class AIGraphMultiController extends BaseController {
                 throw new Error("图谱ID参数错误");
             }
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -345,7 +346,7 @@ class AIGraphMultiController extends BaseController {
             }
 
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -392,7 +393,7 @@ class AIGraphMultiController extends BaseController {
             }
 
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
             if (!graphInfo) {
@@ -438,7 +439,7 @@ class AIGraphMultiController extends BaseController {
             }
 
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
             if (!graphInfo) {
@@ -478,7 +479,7 @@ class AIGraphMultiController extends BaseController {
             }
 
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -517,7 +518,7 @@ class AIGraphMultiController extends BaseController {
             }
 
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -569,7 +570,7 @@ class AIGraphMultiController extends BaseController {
             }
 
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
             if (!graphInfo) {
@@ -616,7 +617,7 @@ class AIGraphMultiController extends BaseController {
             }
 
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
             if (!graphInfo) {
@@ -657,7 +658,7 @@ class AIGraphMultiController extends BaseController {
             }
 
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -743,7 +744,7 @@ class AIGraphMultiController extends BaseController {
                 throw new Error("文本参数错误");
             }
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -836,7 +837,7 @@ class AIGraphMultiController extends BaseController {
                 throw new Error("文件列表为空");
             }
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -931,7 +932,7 @@ class AIGraphMultiController extends BaseController {
             }
 
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -966,7 +967,7 @@ class AIGraphMultiController extends BaseController {
             }
 
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
             if (!graphInfo) {
@@ -1001,7 +1002,7 @@ class AIGraphMultiController extends BaseController {
                 throw new Error("文档ID参数错误");
             }
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -1039,7 +1040,7 @@ class AIGraphMultiController extends BaseController {
                 throw new Error("文档ID参数错误");
             }
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -1157,7 +1158,7 @@ class AIGraphMultiController extends BaseController {
             }
 
             // 查询平台
-            const graphInfo: any = await AIPlatformService.findAIPlatformByIdOrName(graph, {
+            const graphInfo: any = await PlatformService.findPlatformByIdOrName(graph, {
                 safe: false
             });
 
@@ -1217,4 +1218,4 @@ class AIGraphMultiController extends BaseController {
         }
     }
 }
-export default AIGraphMultiController;
+export default AIGraphController;

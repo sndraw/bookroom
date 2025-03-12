@@ -1,11 +1,10 @@
 import { DataTypes, Model, Op } from "sequelize";
-import database from "../common/database";
-import { AI_PLATFORM_RULE, URL_RULE } from "../common/rule";
-import { StatusEnum } from "@/constants/DataMap";
+import database from "@/common/database";
+import { PLATFORM_RULE, URL_RULE } from "@/common/rule";
 import { StatusModelRule } from "./rule";
 
 // 平台-表
-class AIPlatformModel extends Model {
+class PlatformModel extends Model {
     // 校验数据唯一性
     static judgeUnique = async (data: any, id: any = null) => {
         if (!data) {
@@ -35,7 +34,7 @@ class AIPlatformModel extends Model {
     };
 }
 // 初始化model
-AIPlatformModel.init(
+PlatformModel.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -56,8 +55,8 @@ AIPlatformModel.init(
             allowNull: false,
             validate: {
                 is: {
-                    args: AI_PLATFORM_RULE.name.RegExp,
-                    msg: AI_PLATFORM_RULE.name.message,
+                    args: PLATFORM_RULE.name.RegExp,
+                    msg: PLATFORM_RULE.name.message,
                 },
                 notEmpty: {
                     msg: "请填入平台名称",
@@ -71,8 +70,8 @@ AIPlatformModel.init(
             allowNull: false,
             validate: {
                 is: {
-                    args: AI_PLATFORM_RULE.code.RegExp,
-                    msg: AI_PLATFORM_RULE.code.message,
+                    args: PLATFORM_RULE.code.RegExp,
+                    msg: PLATFORM_RULE.code.message,
                 },
                 notEmpty: {
                     msg: "请填入接口类型",
@@ -86,8 +85,8 @@ AIPlatformModel.init(
             allowNull: false,
             validate: {
                 is: {
-                    args: AI_PLATFORM_RULE.type.RegExp,
-                    msg: AI_PLATFORM_RULE.type.message,
+                    args: PLATFORM_RULE.type.RegExp,
+                    msg: PLATFORM_RULE.type.message,
                 },
                 notEmpty: {
                     msg: "请填入平台类型",
@@ -160,7 +159,7 @@ AIPlatformModel.init(
         }
     },
     {
-        tableName: "ai_platform",
+        tableName: "platform",
         // 索引
         indexes: [
             {
@@ -175,4 +174,4 @@ AIPlatformModel.init(
     }
 );
 
-export default AIPlatformModel;
+export default PlatformModel;

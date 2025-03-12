@@ -1,7 +1,7 @@
 
 import SearchController from "../../controller/SearchController";
 
-import routeMap from "@/constants/RouteMap";
+import routeMap from "@/routers/RouteMap";
 
 const routerList = [
     {

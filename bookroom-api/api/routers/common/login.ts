@@ -1,5 +1,5 @@
 import LoginController from "../../controller/LoginController";
-import routeMap from "@/constants/RouteMap";
+import routeMap from "@/routers/RouteMap";
 
 const routerList = [
     {

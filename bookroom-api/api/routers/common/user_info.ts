@@ -1,5 +1,5 @@
 import UserInfoController from "@/controller/UserInfoController";
-import routeMap from "@/constants/RouteMap";
+import routeMap from "@/routers/RouteMap";
 
 
 const routerList = [

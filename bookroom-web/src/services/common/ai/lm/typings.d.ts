@@ -99,7 +99,7 @@ declare namespace API {
     data?: AILmChatInfo;
   }
 
-  interface Result_AIPlatformInfoList_ {
+  interface Result_PlatformInfoList_ {
     code?: number;
     message?: string;
     data?: AILmPlatformInfo[];
