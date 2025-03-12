@@ -1,5 +1,5 @@
 import { DownloadOutlined } from '@ant-design/icons';
-import { ModalForm, ProFormText } from '@ant-design/pro-components';
+import { DrawerForm, ModalForm, ProFormText } from '@ant-design/pro-components';
 import { Button, Form, message, Spin } from 'antd';
 import React, { PropsWithChildren, useState } from 'react';
 
@@ -97,20 +97,19 @@ const LmPull: React.FC<PropsWithChildren<LmPullProps>> = (props) => {
   };
 
   return (
-    <ModalForm
+    <DrawerForm
       title="下载模型"
       disabled={!!loading}
+      width={"378px"}
       trigger={
-        <Button
-          title="下载模型"
-          icon={<DownloadOutlined />}
-          type="primary"
-          shape={loading ? 'round' : 'circle'}
-          loading={!!loading}
-          disabled={!!loading}
-        >
-          {loading ? loading : ''}
-        </Button>
+          <Button
+            title={loading ? String(loading) : '下载模型'}
+            icon={<DownloadOutlined />}
+            type="primary"
+            shape={'circle'}
+            loading={!!loading}
+            disabled={!!loading}
+          />
       }
       form={form}
       onOpenChange={(open) => {
@@ -123,7 +122,7 @@ const LmPull: React.FC<PropsWithChildren<LmPullProps>> = (props) => {
         if (!validate) {
           return false;
         }
-        const result = await handlePull(values);
+        const result = await handlePull(values as any);
         if (!result) {
           return false;
         }
@@ -140,9 +139,9 @@ const LmPull: React.FC<PropsWithChildren<LmPullProps>> = (props) => {
             message: '请输入模型',
           },
           {
-            min: 4,
+            min: 2,
             max: 255,
-            message: '模型长度为4-255个字符',
+            message: '模型长度为2-255个字符',
           },
         ]}
         placeholder="请输入模型"
@@ -150,7 +149,7 @@ const LmPull: React.FC<PropsWithChildren<LmPullProps>> = (props) => {
       <Spin tip={'正在下载...'} spinning={!!loading}>
         {loading}
       </Spin>
-    </ModalForm>
+    </DrawerForm>
   );
 };
 

@@ -78,27 +78,27 @@ class AIChatController extends BaseController {
       platform: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 40,
         message: {
           required: "平台名称不能为空",
-          min: "平台名称长度不能小于4",
+          min: "平台名称长度不能小于2",
           max: "平台名称长度不能超过40",
         }
       },
       model: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 255,
         message: {
           required: "模型不能为空",
-          min: "模型长度不能小于4",
+          min: "模型长度不能小于2",
           max: "模型长度不能超过255",
         }
       },
       paramters: {
-        type: "object",
+        type: "string",
         required: true,
         message: {
           required: "模型参数不能为空",

@@ -17,7 +17,7 @@ export type PropsType = {
 };
 const RegisterLayout: React.FC<PropsType> = (props) => {
   const { title = '注册', requestApi, isSetup } = props;
-  const { showLoading, hideLoading } = useModel('globalLoading');
+  const { loading, showLoading, hideLoading } = useModel('globalLoading');
   const [modal, contextHolder] = Modal.useModal();
 
   const [formRef] = Form.useForm();
@@ -27,26 +27,23 @@ const RegisterLayout: React.FC<PropsType> = (props) => {
     const encryptedPassword = MD5(formData.password).toString();
     showLoading();
     // 注册
-    const registerInfo = await requestApi({
-      ...formData,
-      password: encryptedPassword,
-    }).then((res) => {
-      if (res?.data) {
-        return res.data;
-      }
-    });
-    if (!registerInfo) {
-      return false;
-    }
-    message.success(`${title}成功`);
-    setTimeout(() => {
+    try {
+      await requestApi({
+        ...formData,
+        password: encryptedPassword,
+      })
+      message.success(`${title}成功`);
+      setTimeout(() => {
+        hideLoading();
+        if (isSetup) {
+          window.location.reload();
+          return;
+        }
+        navigate(ROUTE_MAP.LOGIN, { replace: true });
+      }, 2000);
+    } catch (error) {
       hideLoading();
-      if (isSetup) {
-        window.location.reload();
-        return;
-      }
-      navigate(ROUTE_MAP.LOGIN, { replace: true });
-    }, 2000);
+    }
     return true;
   };
 
@@ -76,6 +73,7 @@ const RegisterLayout: React.FC<PropsType> = (props) => {
         onFinishFailed={onFinishFailed}
         autoComplete="off"
         labelAlign="left"
+        disabled={loading}
       >
         <Form.Item<FieldType>
           label="用户"

@@ -72,7 +72,7 @@ class UserInfoController extends BaseController {
       oldpassword: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 40,
         message: {
           required: "旧密码不能为空",
@@ -83,7 +83,7 @@ class UserInfoController extends BaseController {
       password: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 40,
         message: {
           required: "新密码不能为空",

@@ -4,14 +4,14 @@ import { createFileClient } from '@/common/file';
 
 class OpenAIApi {
     private readonly openai: any;
-    private readonly platfromId: string = "";
+    private readonly platformId: string = "";
 
     constructor(ops: any) {
         const { apiKey, host, id } = ops;
         if (!id) throw new Error("缺少平台ID");
 
         if (id) {
-            this.platfromId = id;
+            this.platformId = id;
         }
         this.openai = new OpenAI({
             apiKey: apiKey,
@@ -21,7 +21,7 @@ class OpenAIApi {
     // 获取模型列表
     async queryAILmList(query: any = {}) {
         const where: any = {
-            platformId: this.platfromId
+            platformId: this.platformId
         }
         if (query?.status) {
             where.status = query.status;
@@ -53,7 +53,7 @@ class OpenAIApi {
     // 获取模型详情
     async getAILmInfo(model: string) {
         // const where = {
-        //     platformId: this.platfromId,
+        //     platformId: this.platformId,
         //     model: model,
         // }
         // const modelInfo = await AILmModel.findOne({

@@ -95,22 +95,22 @@ class AILmController extends BaseController {
       platform: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 40,
         message: {
           required: "平台名称不能为空",
-          min: "平台名称长度不能小于4",
+          min: "平台名称长度不能小于2",
           max: "平台名称长度不能超过40",
         }
       },
       model: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 255,
         message: {
           required: "模型不能为空",
-          min: "模型长度不能小于4",
+          min: "模型长度不能小于2",
           max: "模型长度不能超过255",
         }
       },
@@ -161,22 +161,22 @@ class AILmController extends BaseController {
       platform: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 40,
         message: {
           required: "平台名称不能为空",
-          min: "平台名称长度不能小于4",
+          min: "平台名称长度不能小于2",
           max: "平台名称长度不能超过40",
         }
       },
       model: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 255,
         message: {
           required: "模型不能为空",
-          min: "模型长度不能小于4",
+          min: "模型长度不能小于2",
           max: "模型长度不能超过255",
         }
       },
@@ -228,22 +228,22 @@ class AILmController extends BaseController {
       platform: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 40,
         message: {
           required: "平台名称不能为空",
-          min: "平台名称长度不能小于4",
+          min: "平台名称长度不能小于2",
           max: "平台名称长度不能超过40",
         }
       },
       model: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 255,
         message: {
           required: "模型不能为空",
-          min: "模型长度不能小于4",
+          min: "模型长度不能小于2",
           max: "模型长度不能超过255",
         }
       },
@@ -290,22 +290,22 @@ class AILmController extends BaseController {
       platform: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 40,
         message: {
           required: "平台名称不能为空",
-          min: "平台名称长度不能小于4",
+          min: "平台名称长度不能小于2",
           max: "平台名称长度不能超过40",
         }
       },
       model: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 255,
         message: {
           required: "模型不能为空",
-          min: "模型长度不能小于4",
+          min: "模型长度不能小于2",
           max: "模型长度不能超过255",
         }
       },
@@ -369,22 +369,22 @@ class AILmController extends BaseController {
       platform: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 40,
         message: {
           required: "平台名称不能为空",
-          min: "平台名称长度不能小于4",
+          min: "平台名称长度不能小于2",
           max: "平台名称长度不能超过40",
         }
       },
       model: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 255,
         message: {
           required: "模型不能为空",
-          min: "模型长度不能小于4",
+          min: "模型长度不能小于2",
           max: "模型长度不能超过255",
         }
       },
@@ -547,22 +547,22 @@ class AILmController extends BaseController {
       platform: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 40,
         message: {
           required: "平台名称不能为空",
-          min: "平台名称长度不能小于4",
+          min: "平台名称长度不能小于2",
           max: "平台名称长度不能超过40",
         }
       },
       model: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 255,
         message: {
           required: "模型不能为空",
-          min: "模型长度不能小于4",
+          min: "模型长度不能小于2",
           max: "模型长度不能超过255",
         }
       },
@@ -573,7 +573,7 @@ class AILmController extends BaseController {
         max: 1024,
         message: {
           required: "提示词不能为空",
-          min: "提示词长度不能小于4",
+          min: "提示词长度不能小于2",
           max: "提示词长度不能超过1024",
         }
       },
@@ -666,22 +666,22 @@ class AILmController extends BaseController {
       platform: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 40,
         message: {
           required: "平台名称不能为空",
-          min: "平台名称长度不能小于4",
+          min: "平台名称长度不能小于2",
           max: "平台名称长度不能超过40",
         }
       },
       model: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 255,
         message: {
           required: "模型不能为空",
-          min: "模型长度不能小于4",
+          min: "模型长度不能小于2",
           max: "模型长度不能超过255",
         }
       },
@@ -771,22 +771,22 @@ class AILmController extends BaseController {
       platform: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 40,
         message: {
           required: "平台名称不能为空",
-          min: "平台名称长度不能小于4",
+          min: "平台名称长度不能小于2",
           max: "平台名称长度不能超过40",
         }
       },
       model: {
         type: "string",
         required: true,
-        min: 4,
+        min: 2,
         max: 255,
         message: {
           required: "模型不能为空",
-          min: "模型长度不能小于4",
+          min: "模型长度不能小于2",
           max: "模型长度不能超过255",
         }
       },
@@ -797,7 +797,7 @@ class AILmController extends BaseController {
         max: 1024,
         message: {
           required: "提示词不能为空",
-          min: "提示词长度不能小于4",
+          min: "提示词长度不能小于2",
           max: "提示词长度不能超过1024",
         }
       },

@@ -1,11 +1,11 @@
 import { DataTypes, Model } from "sequelize";
 import database from "@/common/database";
 import { StatusModelRule } from "./rule";
-// 模型详情-表
-class AIChatLog extends Model {
+// 对话日志-表
+class AIChatLogModel extends Model {
 }
 // 初始化model
-AIChatLog.init(
+AIChatLogModel.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -22,7 +22,7 @@ AIChatLog.init(
         // 平台
         platformId: {
             field: "platform_id",
-            type: DataTypes.STRING(255),
+            type: DataTypes.UUID,
             allowNull: false,
             validate: {
                 notEmpty: {
@@ -48,10 +48,9 @@ AIChatLog.init(
             allowNull: false,
             defaultValue: 1,
             validate: {
-                isIn: {
-                    args: [[1, 2, 3, 4]],
-                    msg: "日志类型必须为1,2,3,4其中之一",
-                },
+                isInt: {
+                    msg: "类型必须为数字"
+                }
             }
         },
         chat_id: {
@@ -134,4 +133,4 @@ AIChatLog.init(
     }
 );
 
-export default AIChatLog;
+export default AIChatLogModel;

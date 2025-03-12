@@ -1,10 +1,9 @@
-import { MODE_ENUM } from '@/constants/DataMap';
 import { useNavigate, useParams, useRequest } from '@umijs/max';
 import { useEffect, useState } from 'react';
 import Page404 from '@/pages/404';
 import AgentPanel from '@/components/Agent/AgentPanel';
 import styles from './index.less';
-import { getAgentInfo } from '@/services/common/agent';
+import { getAgentInfo, updateAgent } from '@/services/common/agent';
 import { Alert, Divider, Empty, Space, Spin } from 'antd';
 import ChatPanel from '@/components/ChatPanel';
 import { RobotOutlined } from '@ant-design/icons';
@@ -12,13 +11,14 @@ import AgentParamters, { defaultParamters, ParamtersType } from '@/components/Ag
 
 const AgentTaskPage: React.FC = () => {
 
-    const { agent } = useParams<{ agent: string }>();
+    const { agent, platform } = useParams();
     const [paramters, setParamters] = useState<ParamtersType>(defaultParamters);
-
+    const [init, setInit] = useState(false);
     // 模型信息-请求
     const { data, loading, error, run } = useRequest(
         () =>
             getAgentInfo({
+                platform: platform || '',
                 agent: agent || '',
             }),
         {
@@ -34,13 +34,31 @@ const AgentTaskPage: React.FC = () => {
 
     useEffect(() => {
         if (agent) {
-            run();
+            run().then((resData) => {
+                if (resData && resData.paramters) {
+                    setParamters({
+                        ...paramters,
+                        ...resData.paramters
+                    });
+                }
+                setTimeout(() => {
+                    setInit(true);
+                }, 500);
+            })
         }
     }, [agent]);
 
     useEffect(() => {
-        // 如果paramters有变化，保存数据到后端
-        
+        if (platform && data && init) {
+            // 如果paramters有变化，保存数据到后端
+            updateAgent({
+                platform,
+                agent: data?.id
+            }, {
+                ...data,
+                paramters
+            })
+        }
     }, [paramters]);
 
 
@@ -90,7 +108,7 @@ const AgentTaskPage: React.FC = () => {
                 </Space>
                 <Divider type="vertical" />
                 <Space size={0} wrap className={styles.chatTags}>
-                    <span>{agent}</span>
+                    <span>{data?.name}</span>
                 </Space>
                 <Divider type="vertical" />
                 <Space size={0} wrap className={styles.chatTags}>

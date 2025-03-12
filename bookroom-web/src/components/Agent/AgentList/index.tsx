@@ -9,12 +9,13 @@ import AgentPlatformSelect from '../AgentPlatformSelect';
 import AgentCard from '../AgentCard';
 import styles from './index.less';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
+import AgentAdd from '../AgentAdd';
 
 type AgentListPropsType = {
   mode?: MODE_ENUM;
-  platform?: string;
+  platform: string;
   changePlatform?: (newPlatform: string) => void;
-  dataList?:API.AgentInfo[];
+  dataList?: API.AgentInfo[];
   loading: any;
   refresh: () => void;
   className?: string;
@@ -72,7 +73,14 @@ const AgentList: React.FC<AgentListPropsType> = (props) => {
             setSearchText(value);
           }}
         />
-        <FloatButton.Group key={'addAgentWorkspaceGroup'}>
+        <FloatButton.Group key={'agentGroup'}>
+          <AgentAdd
+            platform={platform}
+            disabled={isLoading}
+            refresh={() => {
+              refresh();
+            }}
+          />
           <FloatButton
             tooltip="刷新"
             icon={<ReloadOutlined />}
@@ -107,6 +115,7 @@ const AgentList: React.FC<AgentListPropsType> = (props) => {
           <div className={styles.listItem} key={item?.id}>
             <AgentCard
               mode={mode}
+              platform={platform}
               refresh={() => {
                 refresh();
               }}

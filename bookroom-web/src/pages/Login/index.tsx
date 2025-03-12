@@ -12,6 +12,8 @@ import { MD5 } from 'crypto-js';
 import styles from './index.less';
 
 const LoginPage: React.FC = () => {
+  const { loading, showLoading, hideLoading } = useModel('globalLoading');
+
   const { initialState, setInitialState } = useModel('@@initialState');
   // const { siteInfo = {} } = initialState || {};
   const [modal, contextHolder] = Modal.useModal();
@@ -24,40 +26,47 @@ const LoginPage: React.FC = () => {
     }
     // 密码加密
     const encryptedPassword = MD5(formData.password).toString();
-
-    // 登录
-    const tokenObj = await login({
-      ...formData,
-      password: encryptedPassword,
-    }).then((res: any) => {
-      if (res?.data) {
-        return res?.data;
+    try {
+      showLoading();
+      // 登录
+      const tokenObj = await login({
+        ...formData,
+        password: encryptedPassword,
+      }).then((res: any) => {
+        if (res?.data) {
+          return res?.data;
+        }
+      });
+      if (!tokenObj?.access_token) {
+        return false;
       }
-    });
-    if (!tokenObj?.access_token) {
-      return false;
-    }
 
-    setToken(tokenObj);
+      setToken(tokenObj);
 
-    // 获取初始化配置
-    const initialData = await fetchInitialData().then((res) => {
-      if (res?.data) {
-        return res.data;
+      // 获取初始化配置
+      const initialData = await fetchInitialData().then((res) => {
+        if (res?.data) {
+          return res.data;
+        }
+      });
+
+      if (!initialData) {
+        return false;
       }
-    });
-
-    if (!initialData) {
+      // 保存初始化设置
+      setInitialState({
+        ...initialData,
+      });
+      // 延迟跳转，防止异步获取数据失败，跳转回当前页面
+      setTimeout(() => {
+        navigate(ROUTE_MAP.HOME, { replace: true });
+      }, 100);
+      return true;
+    } catch (error) {
       return false;
+    } finally {
+      hideLoading();
     }
-    // 保存初始化设置
-    setInitialState({
-      ...initialData,
-    });
-    // 延迟跳转，防止异步获取数据失败，跳转回当前页面
-    setTimeout(() => {
-      navigate(ROUTE_MAP.HOME, { replace: true });
-    }, 100);
   };
 
   // const onFinishFailed = (error: any) => {
@@ -83,6 +92,8 @@ const LoginPage: React.FC = () => {
             </Link>
           </div>
         }
+        loading={loading}
+        disabled={loading}
       >
         <ProFormText
           name="username"

@@ -55,7 +55,7 @@ class AIChatLogService {
             input: params?.input || {},
             output: params?.output || "",
             userId: params?.userId || 0,
-            status: params?.status || StatusEnum.DISABLE,
+            status: params?.status || StatusEnum.ENABLE,
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
         });

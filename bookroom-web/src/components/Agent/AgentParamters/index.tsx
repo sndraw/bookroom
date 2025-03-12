@@ -1,7 +1,7 @@
 import { AI_LM_PLATFORM_MAP } from '@/common/ai';
 import { QuestionCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { useToken } from '@ant-design/pro-components';
-import { Access } from '@umijs/max';
+import { Access, useModel } from '@umijs/max';
 import {
   Button,
   Drawer,
@@ -20,16 +20,12 @@ import styles from './index.less';
 
 export interface ParamtersType {
   isStream: boolean;
-  searchConfig: any;
+  searchEngine?: string;
 }
 
 export const defaultParamters: ParamtersType = {
   isStream: true,
-  searchConfig: {
-    url: 'http://baidu.com/search',
-    engine: 'baidu',
-    apiKey: '',
-  }
+  searchEngine: undefined
 };
 
 interface AgentParamtersProps {
@@ -41,29 +37,33 @@ interface AgentParamtersProps {
 const AgentParamters: React.FC<AgentParamtersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isStream, setIsStream] = useState<boolean>(true);
-  // const [searchUrl, setSearchUrl] = useState<string>();
-  // const [searchEngine, setSearchEngine] = useState<string>();
-  // const [searchApiKey, setSearchApiKey] = useState<string>();
-  // const [searchParams, setSearchParams] = useState<any>({});
-  const [searchConfig, setSearchConfig] = useState<any>({});
+  const [searchEngine, setSearchEngine] = useState<string>();
 
   const { data, paramters, setParamters } = props;
   const { token } = useToken();
 
+  const { searchEngineList } = useModel('searchengineList');
+
   useEffect(() => {
     if (paramters) {
       setIsStream(paramters.isStream);
-      setSearchConfig(paramters.searchConfig);
+      setSearchEngine(paramters.searchEngine);
     }
   }, [paramters]);
 
   const handleSave = () => {
     const newParamters: ParamtersType = {
       isStream,
-      searchConfig
+      searchEngine,
     };
     setParamters(newParamters);
   };
+
+  const searchEngineOptions = () => {
+    return searchEngineList?.map((item: any) => {
+      return { value: item.id, label: item.name };
+    });
+  }
 
   return (
     <>
@@ -87,56 +87,18 @@ const AgentParamters: React.FC<AgentParamtersProps> = (props) => {
         <div className={styles.formPanel}>
           <Flex
             className={styles.formItem}
-            vertical
             justify="justifyContent"
+            align="center"
           >
             <label className={styles.formLabel} >搜索引擎：</label>
-            <Space wrap direction={"vertical"} className={styles.formItemList}>
-              <Form.Item colon={false}>
-                <Input
-                  min={1}
-                  max={255}
-                  value={searchConfig?.url}
-                  placeholder="请输入搜索引擎地址"
-                  onChange={(e) => {
-                    setSearchConfig({
-                      ...searchConfig,
-                      url: e.target.value
-                    });
-                  }}
-                />
-              </Form.Item>
-              <Form.Item colon={false}>
-                <Select
-                  options={[
-                    { value: 'baidu', label: 'Baidu' },
-                    { value: 'google', label: 'Google' },
-                  ]}
-                  placeholder="请选择引擎类型"
-                  value={searchConfig?.engine}
-                  onChange={(value) => {
-                    setSearchConfig({
-                      ...searchConfig,
-                      engine: value
-                    });
-                  }}
-                />
-              </Form.Item>
-              <Form.Item colon={false}>
-                <Input.Password
-                  min={1}
-                  max={255}
-                  value={searchConfig?.apiKey}
-                  placeholder="请输入API Key"
-                  onChange={(e) => {
-                    setSearchConfig({
-                      ...searchConfig,
-                      apiKey: e.target.value
-                    });
-                  }}
-                />
-              </Form.Item>
-            </Space>
+            <Select
+              options={searchEngineOptions()}
+              placeholder="请选择引擎类型"
+              value={searchEngine}
+              onChange={(value) => {
+                setSearchEngine(value);
+              }}
+            />
           </Flex>
           <Flex
             className={styles.formItem}

@@ -1085,11 +1085,11 @@ class AIGraphController extends BaseController {
             graph: {
                 type: "string",
                 required: true,
-                min: 4,
+                min: 2,
                 max: 40,
                 message: {
                     required: "知识图谱ID不能为空",
-                    min: "知识图谱ID长度不能小于4",
+                    min: "知识图谱ID长度不能小于2",
                     max: "知识图谱长度不能超过40",
                 }
             },

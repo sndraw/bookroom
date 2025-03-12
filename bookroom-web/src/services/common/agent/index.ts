@@ -1,7 +1,7 @@
-import { PLATFORM_TYPE_MAP } from "@/common/platfrom";
+import { PLATFORM_TYPE_MAP } from "@/common/platform";
 import { request } from "@umijs/max";
 
-/** GET /platform */
+/** GET /platform/actived */
 export async function queryAgentPlatformList(options?: { [key: string]: any }) {
   const params = {
     type: PLATFORM_TYPE_MAP?.agent.value,
@@ -51,7 +51,7 @@ export async function getAgentInfo(
     },
   );
 }
-/** POST /agent/platform/:platform/data  */
+/** POST /agent/platform/:platform  */
 export async function addAgent(
   params: {
     platform: string;
@@ -61,7 +61,7 @@ export async function addAgent(
 ) {
   const { platform } = params;
   return request<API.Result_AgentInfo_>(
-    `/agent/platform/${platform}/data`,
+    `/agent/platform/${platform}`,
     {
       method: 'POST',
       data: body,
@@ -109,14 +109,15 @@ export async function updateAgentStatus(
   );
 }
 /** DELETE /agent/platform/:platform/data/:agent  */
-export async function deleteAIChat(
+export async function deleteAgent(
   params: {
+    platform: string;
     agent: string;
   },
   options?: { [key: string]: any },
 ) {
-  const { agent } = params;
-  return request<API.Result_string_>(`/agent/platform/:platform/data/${agent}`, {
+  const { platform, agent } = params;
+  return request<API.Result_string_>(`/agent/platform/${platform}/data/${agent}`, {
     method: 'DELETE',
     ...(options || {}),
   });

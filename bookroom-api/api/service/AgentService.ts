@@ -2,6 +2,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
 import AgentModel from '@/models/AgentModel';
 import PlatformService from './PlatformService';
+import { Op } from 'sequelize';
+import { isDate } from 'util';
 
 class AgentService {
 
@@ -27,16 +29,15 @@ class AgentService {
         }
         return await AgentModel.findByPk(agent)
     }
-
     // 添加或者更新智能助手
     static async addOrUpdateAgent(params: any) {
-        const { agentId, platform } = params
+        const { agent_id, platform } = params
         if (!platform) {
             throw new Error("平台参数错误");
         }
-        if (agentId) {
+        if (agent_id) {
             // 获取模型信息
-            const AgentInfo = await AgentModel.findByPk(agentId);
+            const AgentInfo = await AgentModel.findByPk(agent_id);
             if (AgentInfo) {
                 // 更新日志
                 const result = await this.updateAgent(params);
@@ -51,7 +52,7 @@ class AgentService {
 
     // 添加智能助手
     static async addAgent(params: any) {
-        const { agentId, platform } = params
+        const { agent_id, platform } = params
         if (!platform) {
             throw new Error("平台参数错误");
         }
@@ -63,13 +64,13 @@ class AgentService {
             throw new Error("平台不存在");
         }
         const data = {
-            platform: platformConfig?.id,
+            platformId: platformConfig?.id,
             name: params?.name || "",
             type: params?.type || 1,
             paramters: params?.paramters || {},
             messages: params?.messages || [],
             userId: params?.userId || 0,
-            status: params?.status || StatusEnum.DISABLE,
+            status: params?.status || StatusEnum.ENABLE,
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
         }
@@ -79,7 +80,7 @@ class AgentService {
             throw new Error("名称已存在");
         }
         const result = await AgentModel.create({
-            id: agentId || uuidv4(),
+            id: agent_id || uuidv4(),
             ...data,
         });
         return result
@@ -87,7 +88,7 @@ class AgentService {
 
     // 更新智能助手
     static async updateAgent(params: any) {
-        const { agentId, platform } = params
+        const { agent_id, platform } = params
         if (!platform) {
             throw new Error("平台参数错误");
         }
@@ -99,44 +100,50 @@ class AgentService {
             throw new Error("平台不存在");
         }
         const data = {
-            platform: platformConfig?.id,
+            platformId: platformConfig?.id,
+            name: params?.name || "",
             type: params?.type || 1,
             paramters: params?.paramters || {},
             messages: params?.messages || [],
             userId: params?.userId || 0,
-            status: params?.status || StatusEnum.DISABLE,
+            status: params?.status || StatusEnum.ENABLE,
             updatedAt: new Date().getTime(),
         }
         // 判定数据唯一性
-        const unique = await AgentModel.judgeUnique({
-            id: agentId,
-            data
-        });
+        const unique = await AgentModel.judgeUnique(data, agent_id);
+
         if (!unique) {
             throw new Error("名称已存在");
         }
-        const result = await AgentModel.update({
-            data,
-        },
-            {
-                where: {
-                    id: agentId,
+        const transaction = await AgentModel?.sequelize?.transaction();
+        try {
+            const result = await AgentModel.update(
+                {
+                    ...data,
+                },
+                {
+                    where: {
+                        id: agent_id,
+                    },
+                    transaction: transaction,
                 }
-            }
-        );
-
-        if (!result) {
-            throw new Error("智能助手不存在或已删除");
+            );
+            await transaction?.commit();
+            return result;
         }
-        return result
+        catch (e) {
+            await transaction?.rollback();
+            const error: any = e;
+            throw error;
+        }
     }
     // 修改智能助手状态
     static async updateAgentStatus(params: any) {
-        const { platform, agentId, status } = params
+        const { platform, agent_id, status } = params
         if (!platform) {
             throw new Error("参数错误");
         }
-        if (!agentId) {
+        if (!agent_id) {
             throw new Error("参数错误");
         }
         // 获取平台
@@ -153,7 +160,7 @@ class AgentService {
             },
             {
                 where: {
-                    id: agentId,
+                    id: agent_id,
                 }
             }
         );
@@ -164,13 +171,13 @@ class AgentService {
         return result
     }
     // 删除智能助手
-    static async deleteAgentById(agentId: string) {
-        if (!agentId) {
+    static async deleteAgentById(agent_id: string) {
+        if (!agent_id) {
             throw new Error("ID不能为空");
         }
         return await AgentModel.destroy({
             where: {
-                id: agentId,
+                id: agent_id,
             },
         })
     }
