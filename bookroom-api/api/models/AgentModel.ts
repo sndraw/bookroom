@@ -85,20 +85,19 @@ AgentModel.init(
         paramters: {
             field: "paramters",
             type: DataTypes.JSON,
-            // get() {
-            //     const paramters = this.getDataValue('paramters') || "{}";
-            //     console.log(paramters)
-            //     return JSON.parse(paramters);
-            // },
+            get() {
+                const paramters = this.getDataValue('paramters') || "{}";
+                return JSON.parse(paramters);
+            },
             set(value: string) {
                 const str = JSON.stringify(value || {});
                 this.setDataValue('paramters', str);
             },
-            allowNull: false,
+            allowNull: true,
             validate: {
-                notEmpty: {
-                    msg: "请填入参数",
-                },
+                // notEmpty: {
+                //     msg: "请填入参数",
+                // },
                 isJSON: {
                     msg: "参数必须为有效的JSON格式",
                 },

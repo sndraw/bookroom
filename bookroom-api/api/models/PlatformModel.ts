@@ -122,12 +122,23 @@ PlatformModel.init(
         // 配置参数
         paramsConfig: {
             field: "params_onfig",
-            type: DataTypes.STRING(255),
+            type: DataTypes.JSON,
             allowNull: true,
+            get() {
+                const paramters = this.getDataValue('params_onfig') || "{}";
+                return JSON.parse(paramters);
+            },
+            set(value: string) {
+                const str = JSON.stringify(value || {});
+                this.setDataValue('params_onfig', str);
+            },
             validate: {
                 // notEmpty: {
-                //     msg: "请填入参数配置",
+                //     msg: "请填入参数",
                 // },
+                isJSON: {
+                    msg: "参数必须为有效的JSON格式",
+                },
             },
         },
         // 启用状态：1启用，0禁用

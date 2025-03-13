@@ -5,6 +5,10 @@ import PlatformService from "@/service/PlatformService";
 import AgentService from "@/service/AgentService";
 import { PLATFORM_TYPE_MAP } from "@/common/platform";
 import { StatusEnum } from "@/constants/DataMap";
+import TavilyAPI from "@/SDK/tavily";
+import { responseStream } from "@/utils/streamHelper";
+import AIChatLogService from "@/service/AIChatLogService";
+import { AGENT_API_MAP } from "@/common/agent";
 
 class AgentController extends BaseController {
     // 获取-全部来源-智能助手-列表
@@ -112,7 +116,6 @@ class AgentController extends BaseController {
                 throw new Error("未找到指定的智能助手");
             }
             const data = result.toJSON();
-            data.paramters= data.paramters? JSON.parse(data.paramters) : {};
             // 返回结果
             ctx.status = 200;
             ctx.body = resultSuccess({
@@ -398,6 +401,111 @@ class AgentController extends BaseController {
                 code: error?.code,
                 message: error?.message || error,
             });
+        }
+    }
+
+    static async agentChat(ctx: Context) {
+        // 从路径获取参数
+        const { platform, agent_id } = ctx.params;
+        let params: any = ctx.request.body;
+        if (typeof params === 'string') {
+            // 将字符串转换为对象
+            params = JSON.parse(params);
+        }
+        const newParams = {
+            platform,
+            agent_id,
+            ...params
+        }
+        ctx.verifyParams({
+            platform: {
+                type: "string",
+                required: true,
+                min: 2,
+                max: 40,
+                message: {
+                    required: "平台名称不能为空",
+                    min: "平台名称长度不能小于2",
+                    max: "平台名称长度不能超过40",
+                }
+            },
+            agent_id: {
+                type: "string",
+                required: true,
+                min: 2,
+                max: 255,
+                message: {
+                    required: "智能助手不能为空",
+                    min: "智能助手长度不能小于2",
+                    max: "智能助手长度不能超过255",
+                }
+            },
+            is_stream: {
+                type: "boolean",
+                required: false,
+                default: true,
+                message: {
+                    required: "是否流式返回不能为空",
+                    type: "是否流式返回类型错误"
+                }
+            },
+            query: {
+                type: "string",
+                required: true,
+                message: {
+                    required: "查询内容不能为空"
+                }
+            }
+        }, {
+            ...newParams
+        });
+        // 查询参数
+        let queryParams = {};
+        // 回复文本
+        let responseText: any = '';
+
+        try {
+            const { is_stream, query } = newParams;
+            queryParams = {
+                platform,
+                agent_id,
+                stream: !!is_stream, // 是否流式返回数据
+                query: query, // 查询内容
+            }
+            const dataStream = await AgentService.agentChat(queryParams);
+            if (is_stream) {
+                responseText = await responseStream(ctx, dataStream);
+                return;
+            }
+            responseText = dataStream?.response || dataStream || '';
+            ctx.status = 200;
+            ctx.body = resultSuccess({
+                data: responseText
+            });
+
+        } catch (e: any) {
+            // 异常处理，返回错误信息
+            ctx.logger.error("知识图谱对话异常", e); // 记录错误日志
+            ctx.status = 500;
+            const error: any = e?.error || e;
+            ctx.body = resultError({
+                code: error?.code,
+                message: error?.message || error || '',
+            });
+            responseText = error?.message || '';
+        } finally {
+            ctx.res.once('close', () => {
+                // 添加聊天记录到数据库
+                AIChatLogService.addAIChatLog({
+                    platform,
+                    model: PLATFORM_TYPE_MAP.agent.value,
+                    type: 1,
+                    input: JSON.stringify(queryParams), // 将请求参数转换为JSON字符串
+                    output: responseText || '', // 确保响应文本不为空字符串
+                    userId: ctx?.userId, // 假设ctx中包含用户ID
+                    status: StatusEnum.ENABLE
+                });
+            })
         }
     }
 }

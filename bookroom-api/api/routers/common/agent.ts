@@ -45,6 +45,12 @@ const routerList = [
         handler: AgentController.deleteAgent,
         auth: [USER_ROLE_ENUM.OPS, USER_ROLE_ENUM.DEV, USER_ROLE_ENUM.USER]
     },
+    {
+        path: routeMap.AGENT_CHAT,
+        method: "POST",
+        handler: AgentController.agentChat,
+        auth: [USER_ROLE_ENUM.OPS, USER_ROLE_ENUM.DEV, USER_ROLE_ENUM.USER]
+    }
 ];
 
 export default routerList;

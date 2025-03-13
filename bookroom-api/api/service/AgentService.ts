@@ -4,6 +4,8 @@ import AgentModel from '@/models/AgentModel';
 import PlatformService from './PlatformService';
 import { Op } from 'sequelize';
 import { isDate } from 'util';
+import TavilyAPI from '@/SDK/tavily';
+import { SEARCH_API_MAP } from '@/common/search';
 
 class AgentService {
 
@@ -180,6 +182,67 @@ class AgentService {
                 id: agent_id,
             },
         })
+    }
+
+    // 智能助手对话
+    static async agentChat(params: any) {
+        const { agent_id, platform, query, stream } = params
+        if (!agent_id || !platform || !query) {
+            throw new Error("参数错误");
+        }
+        const agent = await AgentModel.findByPk(agent_id);
+        if (!agent) {
+            throw new Error("智能助手不存在或已删除");
+        }
+        // 获取平台
+        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
+            safe: false
+        });
+        if (!platformConfig) {
+            throw new Error("平台不存在");
+        }
+        if (!agent_id) {
+            throw new Error("智能助手ID参数错误");
+        }
+
+        // 查询Agent
+        const result = await AgentService.getAgentById(agent_id);
+        if (!result) {
+            throw new Error("未找到指定的智能助手");
+        }
+
+        const data = result.toJSON();
+
+        const { paramters } = data;
+        if (!paramters) {
+            throw new Error("智能助手参数配置错误");
+        }
+        const { searchEngine } = paramters;
+        let response: any;
+
+        if (searchEngine) {
+            // 获取搜索引擎配置
+            const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchEngine, {
+                safe: false
+            });
+            const queryParams = {
+                query: query, // 查询内容
+                max_results: 10
+            }
+            switch (searchEngineConfig?.code) {
+                case SEARCH_API_MAP.tavily.value:
+                    response = await new TavilyAPI({
+                        host: searchEngineConfig?.host,
+                        apiKey: searchEngineConfig?.apiKey,
+                    }).search(queryParams);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return response
+
     }
 }
 

@@ -1,3 +1,4 @@
+import { postFetch } from "@/common/fetchRequest";
 import { PLATFORM_TYPE_MAP } from "@/common/platform";
 import { request } from "@umijs/max";
 
@@ -120,5 +121,31 @@ export async function deleteAgent(
   return request<API.Result_string_>(`/agent/platform/${platform}/data/${agent}`, {
     method: 'DELETE',
     ...(options || {}),
+  });
+}
+/** POST /agent/platform/:platform/chat/:agent  */
+export async function agentChat(
+  params: {
+    platformHost?: string;
+    platform: string;
+    agent?: string;
+    is_stream?: boolean;
+  },
+  body: {
+    query: string;
+  },
+  options?: { [key: string]: any },
+) {
+  const { platformHost, platform, agent, is_stream = true } = params;
+  let url = `/agent/platform/${platform}/chat/${agent}`;
+  if (platformHost) {
+    url = `/${platformHost}/query`;
+  }
+  return postFetch({
+    url: url,
+    body: body,
+    options: options,
+    skipErrorHandler: true,
+    is_stream: is_stream,
   });
 }

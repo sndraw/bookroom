@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Page404 from '@/pages/404';
 import AgentPanel from '@/components/Agent/AgentPanel';
 import styles from './index.less';
-import { getAgentInfo, updateAgent } from '@/services/common/agent';
+import { agentChat, getAgentInfo, updateAgent } from '@/services/common/agent';
 import { Alert, Divider, Empty, Space, Spin } from 'antd';
 import ChatPanel from '@/components/ChatPanel';
 import { RobotOutlined } from '@ant-design/icons';
@@ -27,8 +27,20 @@ const AgentTaskPage: React.FC = () => {
     );
 
     const sendMsgRequest = async (data: any, options: any) => {
-        console.log(data, options);
-        // 发送消息的逻辑
+        const { messages } = data || {};
+        return await agentChat(
+            {
+                platform: String(platform),
+                agent: agent,
+                is_stream: paramters?.isStream,
+            },
+            {
+                query: messages[messages?.length - 1]?.content,
+            },
+            {
+                ...(options || {}),
+            },
+        );
     };
 
 

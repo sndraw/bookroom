@@ -12,4 +12,8 @@ export const SEARCH_API_MAP = {
         value: 'Google',
         text: 'Google'
     },
+    tavily: {
+        value: 'Tavily',
+        text: 'Tavily'
+    }
 }

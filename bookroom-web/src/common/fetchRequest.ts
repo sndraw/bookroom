@@ -76,9 +76,17 @@ export const postFetch = async (opts: {
     }
     // 发送请求
     return fetch(newConfig.url, newConfig.options).then(async (response) => {
+      // 判定回复是否为流式响应，如果不是直接返回
       if (!is_stream) {
         return response;
       }
+
+      // 检查 Content-Type 头来判断是否为流式响应
+      const contentType = response.headers.get('Content-Type');
+      if ( !contentType || !contentType.includes('application/octet-stream')) {
+        return response;
+      }
+
       if (!response?.ok) {
         throw response;
       }
