@@ -1209,7 +1209,7 @@ class AIGraphController extends BaseController {
                 // 添加聊天记录到数据库
                 AIChatLogService.addAIChatLog({
                     platform: graph,
-                    model: workspace + "/" + AI_GRAPH_PLATFORM_MAP.lightrag.value,
+                    model: `${PLATFORM_TYPE_MAP.graph} | ${workspace}`,
                     type: 1,
                     input: JSON.stringify(queryParams), // 将请求参数转换为JSON字符串
                     output: responseText || '', // 确保响应文本不为空字符串

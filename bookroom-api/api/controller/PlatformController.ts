@@ -432,14 +432,15 @@ class PlatformController extends BaseController {
           /^(.{3})(.*)(.{3})$/,
           "$1****$3"
         );
-        console.log(originalApiKey, apiKey)
         if (originalApiKey !== apiKey) {
           data.apiKey = apiKey;
         }
       } else {
         data.apiKey = "";
       }
-      data.paramsConfig = paramsConfig;
+      if (paramsConfig) {
+        data.paramsConfig = paramsConfig;
+      }
       if (status) {
         data.status = status;
       }

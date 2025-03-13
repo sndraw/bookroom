@@ -101,8 +101,8 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
 
         // 判定非流式输出
         if (!response) {
-          const response = (await res?.json()) || res;
-          responseData = response?.data || '生成失败';
+          const resObj = (await res?.json()) || res;
+          responseData = resObj?.data || resObj || '';
           // 如果responseData是JSON格式，直接解析
           if (typeof responseData === 'string') {
             newResMessage.content = responseData;
@@ -111,7 +111,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
               '```json\n' + JSON.stringify(responseData, null, 2) + '\n```';
           }
           setMessageList([...newMessageList, newResMessage]);
-          return response;
+          return resObj;
         }
         // 流式输出判定
         if (!response?.ok) {
