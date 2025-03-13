@@ -55,16 +55,19 @@
 
 ### 系统配置示例
 #### 模型平台-接口类型
-> 1. ollama：http://127.0.0.1:11434
+> 1. ollama：http://192.168.1.2:11434
 > 2. openai：https://dashscope.aliyuncs.com/compatible-mode/v1
 
-#### 知识图谱-接口类型
-> 1. LightRAG：http://127.0.0.1:9621
+#### 知识图谱-接口类型 - 完善中
+> 1. LightRAG：http://127.0.0.1:19621
 > 2. LightRAG_Multi：http://127.0.0.1:19621
 
-#### 智能助手-接口类型
-> 1. OpenManus：http://127.0.0.1:5172
-> 2. OWL：http://127.0.0.1:7860
+#### 智能助手-接口类型 - 开发中
+> 1. Open Manus：http://192.168.1.2:5172
+> 2. Agents SDK: http//192.168.1.2:5173
+
+#### 搜索引擎-接口类型 - 开发中
+> 1. Tavily: https://api.tavily.com
 
 ## 截图展示
 ### 系统配置
