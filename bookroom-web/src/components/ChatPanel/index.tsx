@@ -102,7 +102,8 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         // 判定非流式输出
         if (!response) {
           const resObj = (await res?.json()) || res;
-          responseData = resObj?.data || resObj || '';
+          console.log(resObj);
+          responseData = resObj?.data || resObj?.results || '';
           // 如果responseData是JSON格式，直接解析
           if (typeof responseData === 'string') {
             newResMessage.content = responseData;
