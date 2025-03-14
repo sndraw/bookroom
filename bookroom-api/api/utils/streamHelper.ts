@@ -3,7 +3,7 @@ import { PassThrough } from "stream";
 
 export const responseStream = async (ctx: Context, dataStream: any, resovle?: (data: any) => void) => {
     let responseText: string = '';
-    if (!dataStream || !(typeof dataStream === 'object' && 'pipe' in dataStream)) {
+    if (!dataStream || !dataStream?.itr){
         ctx.status = 200;
         ctx.body = dataStream;
         return;
