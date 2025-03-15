@@ -399,7 +399,17 @@ const PlatformPage: React.FC<unknown> = () => {
             required: false,
             message: '参数配置为必填项',
           },
-
+          {
+            //  自定义规则
+            validator(_: any, value: any) {
+              try {
+                JSON.parse(value);
+                return Promise.resolve();
+              } catch (error) {
+                return Promise.reject(new Error('参数配置必须是有效的JSON格式'));
+              }
+            },
+          },
         ],
       },
     },

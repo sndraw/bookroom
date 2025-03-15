@@ -90,7 +90,8 @@ const PlatformParameters: React.FC<PlatformParametersProps> = (props) => {
             min: 1,
             max: 255,
             message: '参数配置长度为1到255字符',
-          }, {
+          },
+          {
             //  自定义规则
             validator(_: any, value: any) {
               try {
