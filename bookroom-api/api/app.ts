@@ -18,7 +18,6 @@ import parameter from "./middlewares/parameter.middleware";
 import setup from "./middlewares/setup.middleware";
 
 import fs from "fs";
-import { escape } from "querystring";
 
 const app = new Koa();
 

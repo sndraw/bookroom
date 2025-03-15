@@ -5,7 +5,7 @@ export const HTTP_AUTH_KEY =
 export const HTTP_AUTH_VALUE_PREFIX =
   process.env?.UMI_APP_HTTP_AUTH_VALUE_PREFIX || 'Basic';
 // token-存储标识
-export const TOKEN_KEY = process.env?.UMI_APP_TOKEN_KEY || 'work_token';
+export const TOKEN_KEY = process.env?.UMI_APP_TOKEN_KEY || 'bookroom_token';
 
 // 保存token
 export const setToken = (token: object | string) => {

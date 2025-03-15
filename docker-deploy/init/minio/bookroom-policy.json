@@ -10,7 +10,7 @@
                 "s3:PutObject"
             ],
             "Resource": [
-                "arn:aws:s3:::work/*"
+                "arn:aws:s3:::bookroom/*"
             ]
         }
     ]

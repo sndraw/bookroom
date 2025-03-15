@@ -58,7 +58,7 @@ docker login -u username <IP:port>/<repository>
 注：Makefile中定义了build-push-all目标，可以一次性构建并推送镜像
 
 ```
-make build-push-all REGISTRY_URL=<IP:port>/<repository> IMAGE_NAME=bookroom-api IMAGE_VERISON=1.0.0
+make build-push-all REGISTRY_URL=<IP:port>/<repository> IMAGE_NAME=sndraw/bookroom-web IMAGE_VERISON=1.0.0
 ```
 
 

@@ -4,7 +4,7 @@ export default {
     port: Number(process.env.MINIO_PORT) || undefined,
     accessKey: process.env.MINIO_ACCESS_KEY || "",
     secretKey: process.env.MINIO_SECRET_KEY || "",
-    bucketName: process.env.MINIO_BUCKET_NAME || "work",
+    bucketName: process.env.MINIO_BUCKET_NAME || "bookroom",
     region: process.env.MINIO_REGION || "‌ap-southeast-1‌",
     useSSL: process.env.MINIO_USE_SSL === "true" || false,
 };
