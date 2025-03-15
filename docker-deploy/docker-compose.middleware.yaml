@@ -1,6 +1,6 @@
 services:
   # The lightrag.
-  work_lightrag:
+  lightrag:
     image: sndraw/lightrag-multi:1.0.6-beta-6
     restart: always
     environment:
@@ -44,10 +44,10 @@ services:
       timeout: 20s
       retries: 5
     networks:
-      - work_shared_network
+      - bookroom_shared_network
       - default
 
-  work_minio:
+  minio:
     image: minio/minio:RELEASE.2025-01-20T14-49-07Z
     restart: always
     environment:
@@ -65,10 +65,10 @@ services:
       timeout: 20s
       retries: 3
     networks:
-      - work_shared_network
+      - bookroom_shared_network
       - default
 
-  work_ollama:
+  ollama:
       image: 'ollama/ollama:latest'
       pull_policy: if_not_present
       tty: true
@@ -81,7 +81,7 @@ services:
         OLLAMA_MAX_LOADED_MODELS: ${OLLAMA_MAX_LOADED_MODELS:-4}
         OLLAMA_KEEPALIVE: ${OLLAMA_KEEPALIVE:-5m}
       networks:
-        - work_shared_network
+        - bookroom_shared_network
         - default
       volumes:
         - ./volumes/ollama/.ollama:/root/.ollama
@@ -100,6 +100,6 @@ services:
                   - gpu
 # 指定共享网络
 networks:
-  work_shared_network:
+  bookroom_shared_network:
     driver: bridge
     internal: true

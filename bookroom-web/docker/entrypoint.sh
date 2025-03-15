@@ -15,6 +15,7 @@ if [ ! -d "/app/dist" ]; then
   npm run build
   cp -r /app/dist/* /usr/share/nginx/html/
 fi
+echo "Starting Nginx..."
 
 # 启动nginx
 nginx -g 'daemon off;'

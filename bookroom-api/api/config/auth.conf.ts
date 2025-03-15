@@ -2,7 +2,7 @@ import { RouteItem, routerList } from "@/routers";
 import RouteMap from "@/routers/RouteMap";
 
 // token存储key
-export const USER_TOKEN_KEY = process.env?.USER_TOKEN_KEY || 'work_token';
+export const USER_TOKEN_KEY = process.env?.USER_TOKEN_KEY || 'bookroom_token';
 
 // 登录错误最大尝试次数
 export const LOGIN_MAX_ERROR_COUNT = Number(process.env?.LOGIN_MAX_ERROR_COUNT || 3);
