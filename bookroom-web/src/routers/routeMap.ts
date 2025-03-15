@@ -25,9 +25,9 @@ enum ROUTE_MAP {
   AI_DOCUMENT = '/ai/graph/:graph/workspace/:workspace/document',
   AI_DOCUMENT_DETAIL = '/ai/graph/:graph/workspace/:workspace/document/:document_id',
   AGENT = '/agent',
-  AGENT_LIST = '/agent/:platform',
-  AGENT_TASK = '/agent/:platform/task/:agent',
-  AGENT_DETAIL = '/agent/:platform/data/:agent',
+  AGENT_LIST = '/agent',
+  AGENT_DETAIL = '/agent/:agent',
+  AGENT_TASK = '/agent/:agent/task',
 }
 
 export default ROUTE_MAP;

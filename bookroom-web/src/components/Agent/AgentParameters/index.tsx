@@ -18,45 +18,45 @@ import {
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
 
-export interface ParamtersType {
+export interface ParametersType {
   isStream: boolean;
   searchEngine?: string;
 }
 
-export const defaultParamters: ParamtersType = {
+export const defaultParameters: ParametersType = {
   isStream: true,
   searchEngine: undefined
 };
 
-interface AgentParamtersProps {
+interface AgentParametersProps {
   data: any;
-  paramters: any;
-  setParamters: (paramters: ParamtersType) => void;
+  parameters: any;
+  changeParameters: (parameters: ParametersType) => void;
 }
 
-const AgentParamters: React.FC<AgentParamtersProps> = (props) => {
+const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isStream, setIsStream] = useState<boolean>(true);
   const [searchEngine, setSearchEngine] = useState<string>();
 
-  const { data, paramters, setParamters } = props;
+  const { data, parameters, changeParameters } = props;
   const { token } = useToken();
 
   const { searchEngineList } = useModel('searchengineList');
 
   useEffect(() => {
-    if (paramters) {
-      setIsStream(paramters.isStream);
-      setSearchEngine(paramters.searchEngine);
+    if (parameters) {
+      setIsStream(parameters.isStream);
+      setSearchEngine(parameters.searchEngine);
     }
-  }, [paramters]);
+  }, [parameters]);
 
   const handleSave = () => {
-    const newParamters: ParamtersType = {
+    const newParameters: ParametersType = {
       isStream,
       searchEngine,
     };
-    setParamters(newParamters);
+    changeParameters(newParameters);
   };
 
   const searchEngineOptions = () => {
@@ -125,4 +125,4 @@ const AgentParamters: React.FC<AgentParamtersProps> = (props) => {
   );
 };
 
-export default AgentParamters;
+export default AgentParameters;

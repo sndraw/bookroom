@@ -1,21 +1,26 @@
 import ChatPanel from '@/components/ChatPanel';
-import ChatParamters, {
-  defaultParamters,
-  ParamtersType,
-} from '@/components/ChatPanel/ChatParamters';
+import ChatParameters, {
+  defaultParameters,
+  ParametersType,
+} from '@/components/ChatPanel/ChatParameters';
 import PromptInput from '@/components/PromptInput';
 import Page404 from '@/pages/404';
 import { AILmChat, getAILmInfo } from '@/services/common/ai/lm';
-import { Access, useAccess, useParams, useRequest } from '@umijs/max';
+import { Access, useAccess, useModel, useParams, useRequest } from '@umijs/max';
 import { Divider, Space, Tag } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import styles from './index.less';
+import { queryAIChatList, saveAIChat } from '@/services/common/ai/chat';
 
 const AILmChatPage: React.FC = () => {
   const access = useAccess();
   const { platform, model } = useParams();
-  const [paramters, setParamters] = useState<ParamtersType>(defaultParamters);
+  const [parameters, setParameters] = useState<ParametersType>(defaultParameters);
   const [prompt, setPrompt] = useState<string>('');
+  const [chatInfo, setChatInfo] = useState<API.AIChatInfo | null>(null);
+  const { getPlatformName } = useModel('lmplatformList');
+
   // 模型信息-请求
   const { data, loading, run } = useRequest(
     () =>
@@ -27,35 +32,43 @@ const AILmChatPage: React.FC = () => {
       manual: true,
     },
   );
+  // 对话列表-请求
+  const { data: chatList, loading: chatListLoading, run: chatListRun } = useRequest(
+    () =>
+      queryAIChatList({
+        query_mode: 'search',
+        platform: platform || '',
+        model: model || '',
+      }),
+    {
+      manual: true,
+    },
+  );
 
   // 发送
   const sendMsgRequest = async (data: any, options: any) => {
     const { messages } = data || {};
     const newMessages = [
-      // 添加到messages头部
-      {
-        role: 'system',
-        content: prompt,
-      },
       ...(messages || []),
     ];
     return await AILmChat(
       {
         platform: platform || '',
         model: encodeURIComponent(model || ''),
-        is_stream: paramters?.isStream,
+        is_stream: parameters?.isStream,
       },
       {
         model: model || '',
+        prompt: prompt, // 设置提示信息
         messages: [...newMessages],
         format: '',
-        top_p: paramters?.topP,
-        top_k: paramters?.topK,
-        temperature: paramters?.temperature, // 设置温度
-        max_tokens: paramters?.maxTokens, // 设置最大token数
-        repeat_penalty: paramters?.repeatPenalty, // 设置惩罚强度
-        frequency_penalty: paramters?.frequencyPenalty, // 设置频率惩罚
-        presence_penalty: paramters?.presencePenalty, // 设置存在惩罚
+        top_p: parameters?.topP,
+        top_k: parameters?.topK,
+        temperature: parameters?.temperature, // 设置温度
+        max_tokens: parameters?.maxTokens, // 设置最大token数
+        repeat_penalty: parameters?.repeatPenalty, // 设置惩罚强度
+        frequency_penalty: parameters?.frequencyPenalty, // 设置频率惩罚
+        presence_penalty: parameters?.presencePenalty, // 设置存在惩罚
       },
       {
         ...(options || {}),
@@ -63,12 +76,32 @@ const AILmChatPage: React.FC = () => {
     );
   };
 
-  const isLoading = loading;
+  const isLoading = loading || chatListLoading;
+
   useEffect(() => {
     if (model) {
       run();
+      chatListRun();
     }
   }, [model]);
+
+  useEffect(() => {
+    const chatInfo = chatList?.record;
+    if (chatInfo) {
+      setChatInfo(chatInfo);
+    }
+  }, [chatList]);
+
+  useEffect(() => {
+    if (chatInfo) {
+      setParameters({
+        ...parameters,
+        ...(chatInfo?.parameters || {}),
+      });
+      setPrompt(chatInfo?.prompt || "");
+    }
+  }, [chatInfo]);
+
   // 检查参数是否有效
   if (!platform || !model) {
     return <Page404 title={'非法访问'} />;
@@ -78,15 +111,26 @@ const AILmChatPage: React.FC = () => {
     <ChatPanel
       className={styles?.chatContainer}
       disabled={isLoading}
-      supportImages={paramters?.supportImages}
-      supportVoice={paramters?.supportVoice}
+      defaultMessageList={chatInfo?.messages}
+      supportImages={parameters?.supportImages}
+      supportVoice={parameters?.supportVoice}
       customRequest={sendMsgRequest}
-      onSend={() => {}}
-      onStop={() => {}}
+      onSend={(messageList) => {
+        saveAIChat(
+          {
+            platform,
+            model,
+            type: 1,
+            parameters,
+            prompt,
+            messages: messageList
+          })
+      }}
+      onStop={() => { }}
     >
       <div>
         <Space size={0} wrap className={styles.chatTags}>
-          <span>{platform}</span>
+          <span>{getPlatformName(platform)}</span>
         </Space>
         <Divider type="vertical" />
         <Space size={0} wrap className={styles.chatTitle}>
@@ -100,10 +144,17 @@ const AILmChatPage: React.FC = () => {
               <Tag color="default">API：{data?.platformHost}/api/chat</Tag>
             )}
           </Access>
-          <ChatParamters
+          <ChatParameters
             data={data}
-            paramters={paramters}
-            setParamters={setParamters}
+            parameters={parameters}
+            changeParameters={(newParameters)=>{
+              setParameters(newParameters);
+              saveAIChat({
+                platform,
+                model,
+                parameters: newParameters,
+              });
+            }}
           />
         </Space>
         {/* 添加提示词输入框 */}

@@ -44,7 +44,7 @@ export default class TavilyAPI {
         }
         try {
             const url = `${this.host}/search`;
-            const dataStream: any = await request(url, {
+            const result: any = await request(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -54,9 +54,9 @@ export default class TavilyAPI {
                 responseType: stream ? 'stream' : 'json'
             });
             if (stream) {
-                return dataStream;
+                return result;
             }
-            return dataStream || '';
+            return result || '';
         } catch (error: any) {
             console.error('Error in search:', error);
             throw new Error(error?.message || error);

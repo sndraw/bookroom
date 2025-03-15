@@ -4,10 +4,12 @@
 declare namespace API {
   interface AIChatInfo {
     id: string;
-    platformId: string;
+    platformId?: string;
+    platform?: string;
     model: string;
     type: number;
-    paramters: object;
+    parameters: object;
+    prompt?: string;
     messages: any[];
     userId: number;
     status: number;
@@ -16,13 +18,15 @@ declare namespace API {
   }
 
   interface AIChatInfoVO {
-    platformId: string;
+    platformId?: string;
+    platform?: string;
     model: string;
-    type: number;
-    paramters: object;
-    messages: any[];
-    userId: number;
-    status: number;
+    type?: number;
+    prompt?: string;
+    parameters?: object;
+    messages?: any[];
+    userId?: number;
+    status?: number;
   }
   interface Result_AIChatInfo_ {
     code?: number;
@@ -34,6 +38,7 @@ declare namespace API {
     current?: number;
     pageSize?: number;
     total?: number;
+    record?: AIChatInfo,
     list?: AIChatInfo[];
   }
 

@@ -205,6 +205,7 @@ export async function AILmChat(
   body: {
     model?: string;
     format?: string;
+    prompt?: string;
     messages?: any[];
     temperature?: number;
     top_k?: number;

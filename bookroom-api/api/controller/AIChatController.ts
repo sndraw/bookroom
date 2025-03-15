@@ -2,21 +2,54 @@ import { Context } from "koa";
 import { resultError, resultSuccess } from "@/common/resultFormat";
 import BaseController from "./BaseController";
 import AIChatService from "@/service/AIChatService";
+import PlatformService from "@/service/PlatformService";
 
 
 class AIChatController extends BaseController {
   // 获取AI对话列表
   static async queryAIChatList(ctx: Context) {
-    const params = ctx.query;
+    const { query_mode = "list", ...query } = ctx.query || {}
     try {
+      if (query_mode === "search") {
+        const { platform, model } = query || {};
+        if (!platform || !model) {
+          throw new Error("参数错误");
+        }
+        // 获取平台
+        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform as string, {
+          safe: false
+        });
+        if (!platformConfig) {
+          throw new Error("平台不存在");
+        }
+        // 查询AI对话
+        const result = await AIChatService.findAIChatByParams({
+          platformId: platformConfig.id,
+          model,
+          userId: ctx.userId,
+        });
+        ctx.status = 200;
+        ctx.body = resultSuccess({
+          data: {
+            record: result
+          }
+        });
+        return;
+      }
       // 查询AI对话列表
-      const chatList = await AIChatService.queryAIChatList(params);
+      const chatList = await AIChatService.queryAIChatList({
+        query: {
+          ...query,
+          userId: ctx.userId,
+        }
+      });
       ctx.status = 200;
       ctx.body = resultSuccess({
         data: {
           list: chatList
         }
       });
+
     } catch (e) {
       // 异常处理，返回错误信息
       ctx.logger.error("查询AI对话列表异常", e); // 记录错误日志
@@ -29,6 +62,7 @@ class AIChatController extends BaseController {
     }
   }
 
+
   // 获取AI对话信息
   static async getAIChatInfo(ctx: Context) {
     // 从路径获取参数
@@ -39,7 +73,9 @@ class AIChatController extends BaseController {
         throw new Error("缺少对话ID参数");
       }
       // 查询AI对话
-      const result = await AIChatService.getAIChatById(chat_id);
+      const result = await AIChatService.getAIChatById(chat_id, {
+        userId: ctx.userId,
+      });
       ctx.status = 200;
       ctx.body = resultSuccess({
         data: result
@@ -63,7 +99,8 @@ class AIChatController extends BaseController {
     const params: any = ctx.request.body;
     const newParams = {
       ...params,
-      chat_id
+      chat_id,
+      userId: ctx.userId
     }
     ctx.verifyParams({
       chat_id: {
@@ -77,7 +114,7 @@ class AIChatController extends BaseController {
       },
       platform: {
         type: "string",
-        required: true,
+        required: false,
         min: 2,
         max: 40,
         message: {
@@ -97,14 +134,23 @@ class AIChatController extends BaseController {
           max: "模型长度不能超过255",
         }
       },
-      paramters: {
-        type: "string",
-        required: true,
+      parameters: {
+        type: "object",
+        required: false,
         message: {
           required: "模型参数不能为空",
           object: "模型参数格式非法",
         },
 
+      },
+      prompt: {
+        type: "string",
+        required: false,
+        max: 1024,
+        message: {
+          required: "提示长度不能为空",
+          max: "提示长度不能超过1024",
+        },
       },
       messages: {
         type: "array",
@@ -117,8 +163,45 @@ class AIChatController extends BaseController {
       ...newParams
     })
     try {
-      const result = await AIChatService.addOrUpdateAIChat(newParams);
-      if(!result) {
+      const { platform, model, ...data } = newParams;
+      // 获取平台
+      const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform as string, {
+        safe: false
+      });
+      if (!platformConfig) {
+        throw new Error("平台不存在");
+      }
+      // 查询是否存在
+      const chat = await AIChatService.findAIChatByParams({
+        platformId: platformConfig.id,
+        model,
+        userId: ctx.userId,
+      });
+      if (chat) {
+        if (chat.getDataValue('userId') !== ctx.userId) {
+          throw new Error("无权限修改该对话");
+        }
+        chat.setAttributes({
+          ...data,
+          platformId: platformConfig.id,
+          model,
+          userId: ctx.userId,
+          updatedAt: new Date().getTime(),
+        });
+        await chat.save();
+        ctx.status = 200;
+        ctx.body = resultSuccess({
+          data: chat
+        });
+        return;
+      }
+      const result = await AIChatService.addAIChat({
+        ...data,
+        platformId: platformConfig.id,
+        model,
+        userId: ctx.userId
+      });
+      if (!result) {
         throw new Error("保存AI对话失败");
       }
       ctx.status = 200;
@@ -143,10 +226,22 @@ class AIChatController extends BaseController {
     const { chat_id } = ctx.params;
 
     try {
+      if (!chat_id) {
+        throw new Error("请传入对话ID");
+      }
+      // 查询是否存在
+      const chat = await AIChatService.getAIChatById(chat_id);
+      if (!chat) {
+        throw new Error("对话不存在");
+      }
+      if (chat.getDataValue('userId') !== ctx.userId) {
+        throw new Error("无权限删除该对话");
+      }
       const result = await AIChatService.deleteAIChatById(chat_id);
       if (!result) {
         throw new Error("删除AI对话失败");
       }
+
       ctx.status = 200;
       ctx.body = resultSuccess({
         data: result

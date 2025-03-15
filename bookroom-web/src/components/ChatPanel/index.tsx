@@ -19,6 +19,8 @@ import UserMessage from './UserMessage';
 type ChatPanelPropsType = {
   // 标题
   title?: string;
+  // 默认消息列表
+  defaultMessageList?: ChatMessageType[];
   // 是否支持images
   supportImages?: boolean;
   // 是否支持语音
@@ -43,6 +45,7 @@ type ChatPanelPropsType = {
 const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const {
     title,
+    defaultMessageList,
     supportImages,
     supportVoice,
     customRequest,
@@ -101,9 +104,17 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
 
         // 判定非流式输出
         if (!response) {
-          const resObj = (await res?.json()) || res;
-          console.log(resObj);
-          responseData = resObj?.data || resObj?.results || '';
+          // 如果res是string格式，直接解析
+          if (!res?.ok) {
+            responseData = res?.statusText;
+          } else {
+            let resObj: any = res;
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              resObj = await res?.json?.();
+            }
+            responseData = resObj?.data || resObj?.results || '生成失败';
+          }
           // 如果responseData是JSON格式，直接解析
           if (typeof responseData === 'string') {
             newResMessage.content = responseData;
@@ -111,8 +122,9 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
             newResMessage.content =
               '```json\n' + JSON.stringify(responseData, null, 2) + '\n```';
           }
-          setMessageList([...newMessageList, newResMessage]);
-          return resObj;
+          newMessageList.push(newResMessage);
+          setMessageList([...newMessageList]);
+          return res;
         }
         // 流式输出判定
         if (!response?.ok) {
@@ -183,7 +195,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         newMessageList.push(resMessage);
       }
       setMessageList([...newMessageList]);
-      console.log('请求异常：', error);
+      console.error('请求异常：', error);
     } finally {
       setLoading(false);
       if (!responseData) {
@@ -242,6 +254,12 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if(defaultMessageList){
+      setMessageList(defaultMessageList);
+    }
+  }, [defaultMessageList]); // 监听消息变化
 
   const scrollToBottom = () => {
     // 如果已经底部，则滚动

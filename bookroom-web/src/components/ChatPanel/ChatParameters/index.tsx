@@ -14,7 +14,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
 
-export interface ParamtersType {
+export interface ParametersType {
   isStream: boolean;
   supportImages: boolean;
   supportVoice?: boolean;
@@ -27,7 +27,7 @@ export interface ParamtersType {
   maxTokens: number;
 }
 
-export const defaultParamters: ParamtersType = {
+export const defaultParameters: ParametersType = {
   isStream: true,
   supportImages: true,
   supportVoice: true,
@@ -40,13 +40,13 @@ export const defaultParamters: ParamtersType = {
   maxTokens: 4096,
 };
 
-interface ChatParamtersProps {
+interface ChatParametersProps {
   data: any;
-  paramters: any;
-  setParamters: (paramters: ParamtersType) => void;
+  parameters: any;
+  changeParameters: (parameters: ParametersType) => void;
 }
 
-const ChatParamters: React.FC<ChatParamtersProps> = (props) => {
+const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isStream, setIsStream] = useState<boolean>(true);
   const [supportImages, setSupportImages] = useState<boolean>(true);
@@ -59,25 +59,25 @@ const ChatParamters: React.FC<ChatParamtersProps> = (props) => {
   const [presencePenalty, setPresencePenalty] = useState<number>(0);
   const [maxTokens, setMaxTokens] = useState<number>(4096);
   const { token } = useToken();
-  const { data, paramters, setParamters } = props;
+  const { data, parameters, changeParameters } = props;
 
   useEffect(() => {
-    if (paramters) {
-      setIsStream(paramters.isStream);
-      setSupportImages(paramters.supportImages);
-      setSupportVoice(paramters.supportVoice); // 这里需要修改为支持语音
-      setTemperature(paramters.temperature);
-      setTopK(paramters.topK);
-      setTopP(paramters.topP);
-      setRepeatPenalty(paramters.repeatPenalty);
-      setFrequencyPenalty(paramters.frequencyPenalty);
-      setPresencePenalty(paramters.presencePenalty);
-      setMaxTokens(paramters.maxTokens);
+    if (parameters) {
+      setIsStream(parameters.isStream);
+      setSupportImages(parameters.supportImages);
+      setSupportVoice(parameters.supportVoice); // 这里需要修改为支持语音
+      setTemperature(parameters.temperature);
+      setTopK(parameters.topK);
+      setTopP(parameters.topP);
+      setRepeatPenalty(parameters.repeatPenalty);
+      setFrequencyPenalty(parameters.frequencyPenalty);
+      setPresencePenalty(parameters.presencePenalty);
+      setMaxTokens(parameters.maxTokens);
     }
-  }, [paramters]);
+  }, [parameters]);
 
   const handleSave = () => {
-    const newParamters: ParamtersType = {
+    const newParameters: ParametersType = {
       isStream,
       supportImages,
       supportVoice,
@@ -89,7 +89,7 @@ const ChatParamters: React.FC<ChatParamtersProps> = (props) => {
       presencePenalty,
       maxTokens,
     };
-    setParamters(newParamters);
+    changeParameters(newParameters);
   };
   const temperatureTip = <>
     建议根据如下场景设置，并参考模型文档或实际效果调整
@@ -354,4 +354,4 @@ const ChatParamters: React.FC<ChatParamtersProps> = (props) => {
   );
 };
 
-export default ChatParamters;
+export default ChatParameters;

@@ -37,7 +37,8 @@
     "react-syntax-highlighter": "^15.6.1",
     "simple-peer": "^9.11.1",
     "three": "^0.171.0",
-    "three-spritetext": "^1.9.4"
+    "three-spritetext": "^1.9.4",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/chroma-js": "^2.4.5",

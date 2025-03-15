@@ -7,8 +7,10 @@ declare namespace API {
     name: string;
     platformId?: string;
     platformCode?:string;
+    description?: string;
     type?: string;
-    paramters?: any;
+    parameters?: any;
+    messages?:any;
     status?: number;
     createdAt?: number;
     updatedAt?: number;
@@ -18,9 +20,11 @@ declare namespace API {
     name?: string;
     platformId?: string;
     platformCode?:string;
+    description?: string;
     type?: string;
     code?:string;
-    paramters?: any;
+    parameters?: any;
+    messages?: any;
     status?: number;
   }
   interface Result_AgentInfo_ {

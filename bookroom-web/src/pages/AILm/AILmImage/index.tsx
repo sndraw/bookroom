@@ -1,7 +1,7 @@
 import ChatPanel from '@/components/ChatPanel';
 import Page404 from '@/pages/404';
 import { AILmImage, getAILmInfo } from '@/services/common/ai/lm';
-import { Access, useAccess, useParams, useRequest } from '@umijs/max';
+import { Access, useAccess, useModel, useParams, useRequest } from '@umijs/max';
 import { Divider, Flex, Space, Switch, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 import styles from './index.less';
@@ -11,6 +11,7 @@ const AILmImagePage: React.FC = () => {
   const { platform, model } = useParams();
   const [isStream, setIsStream] = useState<boolean>(true);
   const [supportImages, setSupportImages] = useState<boolean>(true);
+  const { getPlatformName } = useModel('lmplatformList');
 
   // 模型信息-请求
   const { data, loading, run } = useRequest(
@@ -62,12 +63,12 @@ const AILmImagePage: React.FC = () => {
       disabled={isLoading}
       // supportImages={supportImages}
       customRequest={sendMsgRequest}
-      onSend={() => {}}
-      onStop={() => {}}
+      onSend={() => { }}
+      onStop={() => { }}
     >
       <div>
         <Space size={0} wrap className={styles.chatTags}>
-          <span>{platform}</span>
+          <span>{getPlatformName(platform)}</span>
         </Space>
         <Divider type="vertical" />
         <Space size={0} wrap className={styles.chatTitle}>

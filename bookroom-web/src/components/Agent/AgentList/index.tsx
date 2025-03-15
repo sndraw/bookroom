@@ -5,7 +5,6 @@ import { Access, Outlet, useAccess, useModel } from '@umijs/max';
 import { Divider, FloatButton, Input, Space } from 'antd';
 import classNames from 'classnames';
 import { useCallback, useMemo, useState } from 'react';
-import AgentPlatformSelect from '../AgentPlatformSelect';
 import AgentCard from '../AgentCard';
 import styles from './index.less';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
@@ -13,8 +12,6 @@ import AgentAdd from '../AgentAdd';
 
 type AgentListPropsType = {
   mode?: MODE_ENUM;
-  platform: string;
-  changePlatform?: (newPlatform: string) => void;
   dataList?: API.AgentInfo[];
   loading: any;
   refresh: () => void;
@@ -25,8 +22,6 @@ const AgentList: React.FC<AgentListPropsType> = (props) => {
   const [searchText, setSearchText] = useState<string>('' as string);
   const {
     mode = MODE_ENUM.VIEW,
-    platform,
-    changePlatform,
     dataList,
     loading,
     refresh,
@@ -56,18 +51,15 @@ const AgentList: React.FC<AgentListPropsType> = (props) => {
 
   return (
     <div className={classNames(styles.container, className)} style={containerStyle()}>
-      <Space size={16} wrap className={styles.header}>
-        <AgentPlatformSelect
-          title={'智能助手'}
-          platform={platform}
-          changePlatform={changePlatform}
-          allowClear={false}
-        />
+      <Space size={0} wrap className={styles.header}>
+        <Space size={0} wrap className={styles.documentTags}>
+          <span>智能助手</span>
+        </Space>
         <Divider type="vertical" />
-        {/* 筛选Agent */}
+        {/* 筛选智能助手 */}
         <Input.Search
           allowClear
-          placeholder={'搜索Agent'}
+          placeholder={'搜索智能助手'}
           defaultValue={searchText}
           onSearch={(value) => {
             setSearchText(value);
@@ -75,7 +67,6 @@ const AgentList: React.FC<AgentListPropsType> = (props) => {
         />
         <FloatButton.Group key={'agentGroup'}>
           <AgentAdd
-            platform={platform}
             disabled={isLoading}
             refresh={() => {
               refresh();
@@ -115,7 +106,6 @@ const AgentList: React.FC<AgentListPropsType> = (props) => {
           <div className={styles.listItem} key={item?.id}>
             <AgentCard
               mode={mode}
-              platform={platform}
               refresh={() => {
                 refresh();
               }}

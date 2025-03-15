@@ -64,7 +64,7 @@ export default function (app: any, translate: any = null) {
                 let message = "参数校验失败";
                 // 将err.errors数组中的message拼接成字符串
                 if (err?.errors) {
-                    message += ": " + err?.errors?.map((e: any) => e.message).join(",");
+                    message += ": " + err?.errors?.map((e: any) => e?.field + " " + e?.message).join(",");
                 }
                 ctx.status = 422;
                 ctx.body = {

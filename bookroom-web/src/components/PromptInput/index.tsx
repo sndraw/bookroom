@@ -17,6 +17,8 @@ const PromptInput: React.FC<PromptInputProps> = (props) => {
       <Input.TextArea
         placeholder={title || '请输入提示词'}
         value={prompt}
+        maxLength={1024}
+        showCount
         onChange={(event) => {
           onChange(event.target.value);
         }}

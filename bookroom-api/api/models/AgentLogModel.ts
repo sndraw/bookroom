@@ -1,11 +1,11 @@
 import { DataTypes, Model } from "sequelize";
 import database from "@/common/database";
 import { StatusModelRule } from "./rule";
-// 对话日志-表
-class AIChatLogModel extends Model {
+// 智能助手-日志-表
+class AgentLogModel extends Model {
 }
 // 初始化model
-AIChatLogModel.init(
+AgentLogModel.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -19,47 +19,13 @@ AIChatLogModel.init(
                 },
             },
         },
-        // 平台
-        platformId: {
-            field: "platform_id",
-            type: DataTypes.UUID,
-            allowNull: false,
-            validate: {
-                notEmpty: {
-                    msg: "请填入平台ID",
-                },
-            },
-        },
-        // 模型
-        model: {
-            field: "model",
-            type: DataTypes.STRING(255),
-            allowNull: true,
-            validate: {
-                notEmpty: {
-                    msg: "请填入模型",
-                },
-            },
-        },
-        // 日志类型，1对话，2图片，3语音，4视频
-        type: {
-            field: "type",
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 1,
-            validate: {
-                isInt: {
-                    msg: "类型必须为数字"
-                }
-            }
-        },
-        chat_id: {
-            field: "chat_id",
+        agentId: {
+            field: "agent_id",
             type: DataTypes.STRING(255),
             allowNull: false,
             validate: {
-                notEmpty:{
-                    msg:"请填入对话ID"
+                notEmpty: {
+                    msg: "请填入智能助手ID"
                 }
             },
         },
@@ -67,10 +33,10 @@ AIChatLogModel.init(
         input: {
             field: "input",
             type: DataTypes.BLOB("long"),
-            allowNull: false,
             get() {
                 return Buffer.from(this.getDataValue('input')).toString('base64');
             },
+            allowNull: false,
             validate: {
                 notEmpty: {
                     msg: "请填入输入内容",
@@ -131,7 +97,7 @@ AIChatLogModel.init(
         }
     },
     {
-        tableName: "ai_chat_log",
+        tableName: "agent_log",
         // 索引
         indexes: [],
         timestamps: true,
@@ -139,4 +105,4 @@ AIChatLogModel.init(
     }
 );
 
-export default AIChatLogModel;
+export default AgentLogModel;

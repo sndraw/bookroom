@@ -212,6 +212,7 @@ class AILmService {
         const {
             platform,
             model,
+            prompt,
             messages,
             is_stream,
             temperature,
@@ -237,6 +238,13 @@ class AILmService {
         });
         if (!platformConfig) {
             throw new Error("平台不存在");
+        }
+        if(prompt){
+            // 加到数组顶部
+            messages.unshift({
+                role: "system",
+                content: prompt
+            });
         }
 
         let result: any;

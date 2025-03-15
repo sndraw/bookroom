@@ -11,20 +11,18 @@ import {
   updatePlatform,
   updatePlatformStatus,
   queryPlatformList,
+  updatePlatformParameters,
 } from '@/services/common/platform';
 import { reverseStatus, statusToBoolean } from '@/utils/format';
-import { PlusOutlined } from '@ant-design/icons';
 import {
   ActionType,
   EditableFormInstance,
   EditableProTable,
   ProDescriptionsItemProps,
-  ProTable,
 } from '@ant-design/pro-components';
 import {
   Button,
   Divider,
-  Flex,
   Popconfirm,
   Space,
   Switch,
@@ -32,18 +30,16 @@ import {
   message,
 } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
-import CreateForm from '../components/CreateForm';
 import { PLATFORM_TYPE_MAP } from '@/common/platform';
 import { AGENT_API_MAP } from '@/common/agent';
 import { SEARCH_API_MAP } from '@/common/search';
+import ParametersEdit from '@/components/Platform/PlatformParameters';
+import PlatformAdd from '@/components/Platform/PlatformAdd';
 
 const PlatformPage: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();
   const editableActionRef = useRef<EditableFormInstance>();
   const [loading, setLoading] = useState<string | boolean | number>(false);
-  // 创建节点
-  const [createModalVisible, handleCreateModalVisible] =
-    useState<boolean>(false);
   /**
    * 添加节点
    * @param fields
@@ -51,6 +47,11 @@ const PlatformPage: React.FC<unknown> = () => {
   const handleAdd = async (fields: API.PlatformInfoVO) => {
     setLoading('正在添加');
     try {
+      // 如果params_config是字符串
+      if (fields?.parameters && typeof fields?.parameters === 'string') {
+        fields.parameters = JSON.parse(fields.parameters);
+      }
+      // 添加平台
       await addPlatform({ ...fields });
       setLoading(false);
       message.success('添加成功');
@@ -69,6 +70,10 @@ const PlatformPage: React.FC<unknown> = () => {
       if (!platformId) return false;
       setLoading('正在修改');
       try {
+        // 如果params_config是字符串
+        if (fields?.parameters && typeof fields?.parameters === 'string') {
+          fields.parameters = JSON.parse(fields.parameters);
+        }
         const result = await updatePlatform(
           {
             platform: platformId || '',
@@ -92,7 +97,41 @@ const PlatformPage: React.FC<unknown> = () => {
     },
     [],
   );
+  /**
+   * 更新配置
+   */
+  const handleUpdateParameters = useCallback(
+    async (platformId: string, fields: API.PlatformInfoVO) => {
+      if (!platformId) return false;
+      setLoading('正在修改');
+      try {
+        // 如果params_config是字符串
+        if (fields?.parameters && typeof fields?.parameters === 'string') {
+          fields.parameters = JSON.parse(fields.parameters);
+        }
+        const result = await updatePlatformParameters(
+          {
+            platform: platformId || '',
+          },
+          {
+            parameters: fields.parameters || {},
+          },
+        );
+        setLoading(false);
 
+        if (!result?.data) {
+          throw `修改${fields?.name}失败`;
+        }
+        message.success('修改成功');
+        return true;
+      } catch (error: any) {
+        setLoading(false);
+        // message.error(error?.message || '修改失败');
+        return false;
+      }
+    },
+    [],
+  );
   /**
    *  删除节点
    */
@@ -336,17 +375,31 @@ const PlatformPage: React.FC<unknown> = () => {
     },
     {
       title: '参数配置',
-      key: 'paramsConfig',
-      dataIndex: 'paramsConfig',
-      // editable: false,
+      key: 'parameters',
+      dataIndex: 'parameters',
+      editable: false,
       valueType: 'textarea',
       hideInSearch: true,
+      hideInForm: true,
+      // 数值转换
+      renderText: (value) => {
+        // 如果是object
+        if (typeof value === 'object') {
+          // 如果object为空
+          if (Object.keys(value).length === 0) {
+            return '';
+          }
+          return JSON.stringify(value);
+        }
+        return String(value);
+      },
       formItemProps: {
         rules: [
           {
             required: false,
             message: '参数配置为必填项',
           },
+
         ],
       },
     },
@@ -387,7 +440,7 @@ const PlatformPage: React.FC<unknown> = () => {
         return (
           <Popconfirm
             key={record?.id}
-            title={`是否修改该平台?`}
+            title={`是否修改该平台状态?`}
             onConfirm={async (event) => {
               // actionRef?.current?.startEditable(record?.id);
               const result = await handleModifyPlatformStatus(
@@ -416,6 +469,14 @@ const PlatformPage: React.FC<unknown> = () => {
       width: 100,
       render: (_: any, row, index, action) => (
         <>
+          <ParametersEdit
+            data={row}
+            onFinished={(values) => {
+              return handleUpdateParameters(row.id, values);
+            }}
+            refresh={() => action?.reload()}
+          />
+          <Divider type="vertical" />
           <a
             key={row?.id}
             onClick={() => {
@@ -472,13 +533,13 @@ const PlatformPage: React.FC<unknown> = () => {
             showSizeChanger: true,
           }}
           toolBarRender={() => [
-            <Button
-              title="添加平台"
-              key="addPlatform"
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => handleCreateModalVisible(true)}
-            ></Button>,
+            <PlatformAdd
+              key="add"
+              columns={columns}
+              disabled={!!loading}
+              onFinished={(values) => handleAdd(values)}
+              refresh={() => actionRef?.current?.reload()}
+            />,
           ]}
           request={async (params, sorter, filter) => {
             const { data } = await queryPlatformList({
@@ -536,83 +597,45 @@ const PlatformPage: React.FC<unknown> = () => {
               </Space>
             );
           }}
-          // tableAlertOptionRender={({ selectedRowKeys }) => {
-          //   return (
-          //     <Space size={16}>
-          //       <Button
-          //         type="primary"
-          //         onClick={async () => {
-          //           const platformIdListStr = selectedRowKeys.join(',');
-          //           const result = await handleModifyPlatformStatus(
-          //             platformIdListStr,
-          //             STATUS_MAP.ENABLE.value,
-          //           );
-          //           if (result) {
-          //             actionRef.current?.clearSelected?.();
-          //             actionRef.current?.reloadAndRest?.();
-          //           }
-          //         }}
-          //       >
-          //         批量启用
-          //       </Button>
-          //       <Button
-          //         danger
-          //         onClick={async () => {
-          //           const platformIdListStr = selectedRowKeys.join(',');
-          //           const result = await handleModifyPlatformStatus(
-          //             platformIdListStr,
-          //             STATUS_MAP.DISABLE.value,
-          //           );
-          //           if (result) {
-          //             actionRef.current?.clearSelected?.();
-          //             actionRef.current?.reloadAndRest?.();
-          //           }
-          //         }}
-          //       >
-          //         批量禁用
-          //       </Button>
-          //     </Space>
-          //   );
-          // }}
+        // tableAlertOptionRender={({ selectedRowKeys }) => {
+        //   return (
+        //     <Space size={16}>
+        //       <Button
+        //         type="primary"
+        //         onClick={async () => {
+        //           const platformIdListStr = selectedRowKeys.join(',');
+        //           const result = await handleModifyPlatformStatus(
+        //             platformIdListStr,
+        //             STATUS_MAP.ENABLE.value,
+        //           );
+        //           if (result) {
+        //             actionRef.current?.clearSelected?.();
+        //             actionRef.current?.reloadAndRest?.();
+        //           }
+        //         }}
+        //       >
+        //         批量启用
+        //       </Button>
+        //       <Button
+        //         danger
+        //         onClick={async () => {
+        //           const platformIdListStr = selectedRowKeys.join(',');
+        //           const result = await handleModifyPlatformStatus(
+        //             platformIdListStr,
+        //             STATUS_MAP.DISABLE.value,
+        //           );
+        //           if (result) {
+        //             actionRef.current?.clearSelected?.();
+        //             actionRef.current?.reloadAndRest?.();
+        //           }
+        //         }}
+        //       >
+        //         批量禁用
+        //       </Button>
+        //     </Space>
+        //   );
+        // }}
         />
-        <CreateForm
-          onCancel={() => handleCreateModalVisible(false)}
-          modalVisible={createModalVisible}
-        >
-          <ProTable<API.PlatformInfo, API.PlatformInfo>
-            onSubmit={async (value: API.PlatformInfo) => {
-              const success = await handleAdd(value);
-              if (success) {
-                handleCreateModalVisible(false);
-                if (actionRef.current) {
-                  actionRef.current.reload();
-                }
-              }
-            }}
-            rowKey="id"
-            type="form"
-            // @ts-ignore
-            columns={columns}
-            form={{
-              layout: 'horizontal', // 设置表单布局为水平布局
-              labelCol: { span: 6 }, // 标签占据的列数
-              wrapperCol: { span: 18 }, // 输入框占据的列数
-              // 默认值
-              initialValues: {
-                type: PLATFORM_TYPE_MAP.model.value,
-                code: AI_LM_PLATFORM_MAP.ollama.value,
-                status: String(STATUS_MAP.ENABLE.value),
-              },
-              submitter: {
-                render: (_, dom) => (
-                  <Flex gap={16} justify={'flex-end'}>
-                    {dom}
-                  </Flex>
-                ),
-              },
-            }}
-          />
-        </CreateForm>
       </>
     </DefaultLayout>
   );

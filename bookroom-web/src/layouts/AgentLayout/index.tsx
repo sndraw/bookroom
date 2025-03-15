@@ -24,8 +24,6 @@ const AgentLayout: React.FC<PropsType> = (props: PropsType) => {
   const { setPlatformList } = useModel('agentplatformList');
   const { setSearchEngineList } = useModel('searchengineList');
 
-  const navigate = useNavigate();
-  const { platform } = useParams();
   // 智能助手列表-请求
   const { data, loading, error, run } = useRequest(() => queryAgentPlatformList(), {
     manual: true,
@@ -49,14 +47,6 @@ const AgentLayout: React.FC<PropsType> = (props: PropsType) => {
     });
   }, []);
 
-  useEffect(() => {
-    if (data && data?.[0]?.name && !platform) {
-      navigate(
-        generatePath(ROUTE_MAP.AGENT_LIST, { platform: data?.[0]?.name }),
-      );
-    }
-  }, [data, platform]);
-
   return (
     <DefaultLayout>
       <>
@@ -74,7 +64,7 @@ const AgentLayout: React.FC<PropsType> = (props: PropsType) => {
           <>
             {data && data?.length > 0 && <Outlet />}
             {(!data || data?.length < 1) && (
-              <Empty description="请先进行系统配置" />
+              <Empty description="请前往【系统配置】添加【智能助手-接口类型】" />
             )}
           </>
         )}

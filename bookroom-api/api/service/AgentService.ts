@@ -2,8 +2,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
 import AgentModel from '@/models/AgentModel';
 import PlatformService from './PlatformService';
-import { Op } from 'sequelize';
-import { isDate } from 'util';
 import TavilyAPI from '@/SDK/tavily';
 import { SEARCH_API_MAP } from '@/common/search';
 
@@ -33,18 +31,16 @@ class AgentService {
     }
     // 添加或者更新智能助手
     static async addOrUpdateAgent(params: any) {
-        const { agent_id, platform } = params
-        if (!platform) {
-            throw new Error("平台参数错误");
-        }
+        const { agent_id } = params
         if (agent_id) {
             // 获取模型信息
             const AgentInfo = await AgentModel.findByPk(agent_id);
             if (AgentInfo) {
                 // 更新日志
-                const result = await this.updateAgent(params);
+                const result = await this.updateAgent(agent_id, params);
                 return result;
             }
+            return null;
         }
         // 添加日志
         const result = await this.addAgent(params);
@@ -54,22 +50,23 @@ class AgentService {
 
     // 添加智能助手
     static async addAgent(params: any) {
-        const { agent_id, platform } = params
-        if (!platform) {
-            throw new Error("平台参数错误");
+        const { agent_id, platformId } = params
+        if (!platformId) {
+            throw new Error("参数错误");
         }
         // 获取平台
-        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
+        const platformConfig: any = await PlatformService.findPlatformById(platformId, {
             safe: false
         });
         if (!platformConfig) {
-            throw new Error("平台不存在");
+            throw new Error("接口名称不存在");
         }
         const data = {
             platformId: platformConfig?.id,
             name: params?.name || "",
+            description: params?.description || "",
             type: params?.type || 1,
-            paramters: params?.paramters || {},
+            parameters: params?.parameters || {},
             messages: params?.messages || [],
             userId: params?.userId || 0,
             status: params?.status || StatusEnum.ENABLE,
@@ -87,73 +84,51 @@ class AgentService {
         });
         return result
     }
-
     // 更新智能助手
-    static async updateAgent(params: any) {
-        const { agent_id, platform } = params
-        if (!platform) {
-            throw new Error("平台参数错误");
+    static async updateAgent(agent_id: string, params: any) {
+        const { platformId } = params
+        if (!agent_id) {
+            throw new Error("参数错误");
         }
-        // 获取平台
-        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
-            safe: false
-        });
-        if (!platformConfig) {
-            throw new Error("平台不存在");
-        }
-        const data = {
-            platformId: platformConfig?.id,
-            name: params?.name || "",
-            type: params?.type || 1,
-            paramters: params?.paramters || {},
-            messages: params?.messages || [],
-            userId: params?.userId || 0,
-            status: params?.status || StatusEnum.ENABLE,
-            updatedAt: new Date().getTime(),
-        }
-        // 判定数据唯一性
-        const unique = await AgentModel.judgeUnique(data, agent_id);
 
-        if (!unique) {
-            throw new Error("名称已存在");
-        }
-        const transaction = await AgentModel?.sequelize?.transaction();
         try {
-            const result = await AgentModel.update(
-                {
-                    ...data,
-                },
-                {
-                    where: {
-                        id: agent_id,
-                    },
-                    transaction: transaction,
+            if (platformId) {
+                // 获取平台
+                const platformConfig: any = await PlatformService.findPlatformById(platformId, {
+                    safe: false
+                });
+                if (!platformConfig) {
+                    throw new Error("接口名称不存在");
                 }
-            );
-            await transaction?.commit();
+            }
+            const agent = await AgentModel.findByPk(agent_id);
+
+            if (!agent) {
+                throw new Error("智能助手不存在");
+            }
+            agent.setAttributes({
+                ...params,
+                updatedAt: new Date().getTime(),
+            });
+            // 判定数据唯一性
+            const unique = await AgentModel.judgeUnique(agent.toJSON(), agent_id);
+
+            if (!unique) {
+                throw new Error("名称已存在");
+            }
+
+            const result = await agent.save();
             return result;
         }
         catch (e) {
-            await transaction?.rollback();
             const error: any = e;
             throw error;
         }
     }
-    // 修改智能助手状态
-    static async updateAgentStatus(params: any) {
-        const { platform, agent_id, status } = params
-        if (!platform) {
-            throw new Error("参数错误");
-        }
+    // 更新智能助手状态
+    static async updateAgentStatus(agent_id: string, status: number) {
         if (!agent_id) {
             throw new Error("参数错误");
-        }
-        // 获取平台
-        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
-            safe: false
-        });
-        if (!platformConfig) {
-            throw new Error("平台不存在");
         }
         const result = await AgentModel.update(
             {
@@ -172,6 +147,10 @@ class AgentService {
         }
         return result
     }
+    // 更新智能助手消息记录
+    static async updateAgentMessages(agent_id: string, messages: any) {
+
+    }
     // 删除智能助手
     static async deleteAgentById(agent_id: string) {
         if (!agent_id) {
@@ -185,9 +164,9 @@ class AgentService {
     }
 
     // 智能助手对话
-    static async agentChat(params: any) {
-        const { agent_id, platform, query, stream } = params
-        if (!agent_id || !platform || !query) {
+    static async agentChat(agent_id: string, params: any) {
+        const { platformId, query, stream } = params
+        if (!agent_id || !platformId || !query) {
             throw new Error("参数错误");
         }
         const agent = await AgentModel.findByPk(agent_id);
@@ -195,14 +174,11 @@ class AgentService {
             throw new Error("智能助手不存在或已删除");
         }
         // 获取平台
-        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
+        const platformConfig: any = await PlatformService.findPlatformById(platformId, {
             safe: false
         });
         if (!platformConfig) {
-            throw new Error("平台不存在");
-        }
-        if (!agent_id) {
-            throw new Error("智能助手ID参数错误");
+            throw new Error("接口名称不存在");
         }
 
         // 查询Agent
@@ -213,11 +189,11 @@ class AgentService {
 
         const data = result.toJSON();
 
-        const { paramters } = data;
-        if (!paramters) {
+        const { parameters } = data;
+        if (!parameters) {
             throw new Error("智能助手参数配置错误");
         }
-        const { searchEngine } = paramters;
+        const { searchEngine } = parameters;
         let response: any;
 
         if (searchEngine) {

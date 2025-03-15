@@ -45,7 +45,7 @@ const PlatformSelect: React.FC<PlatformSelectPropsType> = (props) => {
         allowClear={allowClear}
         options={(platformList as any)?.map((item: any) => ({
           label: item.name,
-          value: item.name,
+          value: item.id,
         }))}
         onChange={(value) => changePlatform(value as any)}
       />

@@ -9,7 +9,7 @@ class AgentModel extends Model {
             return false;
         }
         const andWhereArray: { [x: string]: any; }[] = [];
-        const fieldKeys = ["platformId", "name"];
+        const fieldKeys = ["name"];
         // 筛选唯一项
         Object.keys(data).forEach((key) => {
             if (data[key] && fieldKeys.includes(key)) {
@@ -58,16 +58,22 @@ AgentModel.init(
                 },
             },
         },
-        // 平台ID
+        // 接口名称ID
         platformId: {
             field: "platform_id",
             type: DataTypes.UUID,
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: "请填入平台ID",
+                    msg: "请填入接口名称ID",
                 },
             },
+        },
+        // 描述
+        description: {
+            field: "description",
+            type: DataTypes.STRING(255),
+            allowNull: true,
         },
         // 类型，1默认
         type: {
@@ -82,16 +88,16 @@ AgentModel.init(
             }
         },
         // 参数parameters
-        paramters: {
-            field: "paramters",
+        parameters: {
+            field: "parameters",
             type: DataTypes.JSON,
             get() {
-                const paramters = this.getDataValue('paramters') || "{}";
-                return JSON.parse(paramters);
+                const parameters = this.getDataValue('parameters') || "{}";
+                return JSON.parse(parameters);
             },
-            set(value: string) {
+            set(value: any) {
                 const str = JSON.stringify(value || {});
-                this.setDataValue('paramters', str);
+                this.setDataValue('parameters', str);
             },
             allowNull: true,
             validate: {
@@ -106,20 +112,23 @@ AgentModel.init(
         // 消息内容
         messages: {
             field: "messages",
-            type: DataTypes.BLOB("long"),
+            type: DataTypes.JSON,
             get() {
-                const messages = Buffer.from(this.getDataValue('messages')).toString('base64');
-                return messages ? JSON.parse(messages) : [];
+                const parameters = this.getDataValue('messages') || "{}";
+                return JSON.parse(parameters);
             },
-            set(value: string) {
-                const str = JSON.stringify(value || []);
-                this.setDataValue('messages', Buffer.from(str, 'base64'));
+            set(value: any) {
+                const str = JSON.stringify(value || {});
+                this.setDataValue('messages', str);
             },
             allowNull: true,
             validate: {
                 // notEmpty: {
                 //     msg: "请填入消息内容",
                 // },
+                isJSON: {
+                    msg: "消息列表必须为有效的JSON格式",
+                },
             },
         },
         // 用户ID
@@ -175,7 +184,7 @@ AgentModel.init(
                 // 唯一
                 unique: true,
                 // 字段集合
-                fields: ["platform_id", "name"]
+                fields: ["name"]
             }
         ],
         timestamps: true,

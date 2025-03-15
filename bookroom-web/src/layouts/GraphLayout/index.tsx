@@ -61,7 +61,7 @@ const GraphLayout: React.FC<PropsType> = (props: PropsType) => {
           <>
             {data && data?.length > 0 && <Outlet />}
             {(!data || data?.length < 1) && (
-              <Empty description="请先进行系统配置" />
+              <Empty description="请前往【系统配置】添加【知识图谱】" />
             )}
           </>
         )}

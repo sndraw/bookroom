@@ -1,15 +1,15 @@
-import AIChatLogModel from "@/models/AIChatLogModel";
+import AgentLogModel from "@/models/AgentLogModel";
 import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
 import PlatformService from "./PlatformService";
 
 
-class AIChatLogService {
+class AgentLogService {
 
-    // 查询AI对话日志列表
-    static async queryAIChatLogList(params: any) {
+    // 查询智能助手日志列表
+    static async queryAgentLogList(params: any) {
         const { query } = params
-        const list: any = await AIChatLogModel.findAll({
+        const list: any = await AgentLogModel.findAll({
             where: {
                 ...(query || {})
             }
@@ -21,29 +21,18 @@ class AIChatLogService {
         return list
     }
 
-    // 查询AI对话日志详情
-    static async getAIChatLogById(id: string) {
+    // 查询智能助手日志详情
+    static async getAgentLogById(id: string) {
         if (!id) {
             throw new Error("ID不能为空");
         }
-        return await AIChatLogModel.findByPk(id)
+        return await AgentLogModel.findByPk(id)
     }
 
 
-    // 添加AI对话日志
-    static async addAIChatLog(params: any) {
+    // 添加智能助手日志
+    static async addAgentLog(params: any) {
         try {
-            const { platform, model } = params
-            if (!platform) {
-                throw new Error("平台参数错误");
-            }
-            // 获取平台
-            const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
-                safe: false
-            });
-            if (!platformConfig) {
-                throw new Error("平台不存在");
-            }
             let input = params?.input || "";
             // 如果output是对象格式，转换为字符串格式
             if (typeof input === 'object') {
@@ -54,12 +43,9 @@ class AIChatLogService {
             if (typeof output === 'object') {
                 output = JSON.stringify(output);
             }
-            const result = await AIChatLogModel.create({
+            const result = await AgentLogModel.create({
                 id: params?.id || uuidv4(),
-                chat_id: params?.chat_id || uuidv4(),
-                platformId: platformConfig?.id,
-                model: model || "",
-                type: params?.type || 1,
+                agentId: params?.agentId || uuidv4(),
                 input: input,
                 output: output,
                 userId: params?.userId || 0,
@@ -69,25 +55,25 @@ class AIChatLogService {
             });
             return result
         } catch (error) {
-            console.error("添加AI对话日志失败", error); // 记录错误日志
+            console.error("添加智能助手日志失败", error); // 记录错误日志
             throw error;
         }
     }
-    // 删除AI对话日志
-    static async deleteAIChatLogById(id: string) {
-        // 删除AI对话日志在数据库中的记录
-        const deleteResult = await AIChatLogModel.destroy({
+    // 删除智能助手日志
+    static async deleteAgentLogById(id: string) {
+        // 删除智能助手日志在数据库中的记录
+        const deleteResult = await AgentLogModel.destroy({
             where: {
                 id
             },
         });
 
         if (!deleteResult) {
-            throw new Error("AI对话日志不存在或已删除");
+            throw new Error("智能助手日志不存在或已删除");
         }
 
         return deleteResult
     }
 }
 
-export default AIChatLogService
+export default AgentLogService

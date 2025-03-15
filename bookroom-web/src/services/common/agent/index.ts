@@ -18,51 +18,46 @@ export async function queryAgentPlatformList(options?: { [key: string]: any }) {
     },
   );
 }
-/** GET /agent/platform/:platform */
+/** GET /agent */
 export async function queryAgentList(
-  params: {
-    platform: string;
-  },
+  params?: any,
   options?: { [key: string]: any }
 ) {
-  const { platform } = params;
   return request<API.Result_PageInfo_AgentInfo__>(
-    `/agent/platform/${platform}`,
+    `/agent`,
     {
       method: 'GET',
+      params: {
+        ...(params || {}),
+      },
       ...(options || {}),
     },
   );
 }
 
-/** GET /agent/platform/:platform/data/:agent  */
+/** GET /agent/:agent  */
 export async function getAgentInfo(
   params: {
-    platform: string;
     agent: string;
   },
   options?: { [key: string]: any },
 ) {
-  const { platform, agent } = params;
+  const { agent } = params;
   return request<API.Result_AgentInfo_>(
-    `/agent/platform/${platform}/data/${agent}`,
+    `/agent/${agent}`,
     {
       method: 'GET',
       ...(options || {}),
     },
   );
 }
-/** POST /agent/platform/:platform  */
+/** POST /agent  */
 export async function addAgent(
-  params: {
-    platform: string;
-  },
   body: API.AgentInfoVO,
   options?: { [key: string]: any },
 ) {
-  const { platform } = params;
   return request<API.Result_AgentInfo_>(
-    `/agent/platform/${platform}`,
+    `/agent`,
     {
       method: 'POST',
       data: body,
@@ -70,18 +65,17 @@ export async function addAgent(
     },
   );
 }
-/** PUT /agent/platform/:platform/data/:agent  */
+/** PUT /agent/:agent  */
 export async function updateAgent(
   params: {
-    platform: string;
     agent: string;
   },
   body: API.AgentInfoVO,
   options?: { [key: string]: any },
 ) {
-  const { platform, agent } = params;
+  const { agent } = params;
   return request<API.Result_AgentInfo_>(
-    `/agent/platform/${platform}/data/${agent}`,
+    `/agent/${agent}`,
     {
       method: 'PUT',
       data: body,
@@ -90,18 +84,17 @@ export async function updateAgent(
   );
 }
 
-/** PUT /agent/platform/:platform/data/:agent/status  */
+/** PUT /agent/:agent/status  */
 export async function updateAgentStatus(
   params: {
-    platform: string;
     agent: string;
   },
   body: { status: number | string },
   options?: { [key: string]: any },
 ) {
-  const { platform, agent } = params;
+  const { agent } = params;
   return request<API.Result_AgentInfo_>(
-    `/agent/platform/${platform}/data/${agent}/status`,
+    `/agent/${agent}/status`,
     {
       method: 'PUT',
       data: body,
@@ -109,25 +102,22 @@ export async function updateAgentStatus(
     },
   );
 }
-/** DELETE /agent/platform/:platform/data/:agent  */
+/** DELETE /agent/:agent  */
 export async function deleteAgent(
   params: {
-    platform: string;
     agent: string;
   },
   options?: { [key: string]: any },
 ) {
-  const { platform, agent } = params;
-  return request<API.Result_string_>(`/agent/platform/${platform}/data/${agent}`, {
+  const { agent } = params;
+  return request<API.Result_string_>(`/agent/${agent}`, {
     method: 'DELETE',
     ...(options || {}),
   });
 }
-/** POST /agent/platform/:platform/chat/:agent  */
+/** POST /agent/chat/:agent  */
 export async function agentChat(
   params: {
-    platformHost?: string;
-    platform: string;
     agent?: string;
     is_stream?: boolean;
   },
@@ -136,13 +126,9 @@ export async function agentChat(
   },
   options?: { [key: string]: any },
 ) {
-  const { platformHost, platform, agent, is_stream = true } = params;
-  let url = `/agent/platform/${platform}/chat/${agent}`;
-  if (platformHost) {
-    url = `/${platformHost}/query`;
-  }
+  const { agent, is_stream = true } = params;
   return postFetch({
-    url: url,
+    url: `/agent/${agent}/chat`,
     body: body,
     options: options,
     skipErrorHandler: true,

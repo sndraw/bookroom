@@ -7,29 +7,29 @@ import mimeTypes from "mime-types";
 class MinioApi {
 
     private readonly minioClient: any;
-    private readonly paramsConfig: any | null = null;
+    private readonly parameters: any | null = null;
     public readonly bucketName: string | null = null;
 
     constructor(ops: any) {
-        const { apiKey, host, paramsConfig } = ops;
+        const { apiKey, host, parameters } = ops;
         // 拆分apiKey
         const apiKeyArr = apiKey.split(":");
         if (apiKeyArr.length !== 2) throw new Error("API Key格式不正确");
 
-        // 如果paramsConfig不为空且为字符串格式，需要解析成JSON格式
-        if (paramsConfig && typeof paramsConfig === "string") {
+        // 如果parameters不为空且为字符串格式，需要解析成JSON格式
+        if (parameters && typeof parameters === "string") {
             try {
-                ops.paramsConfig = JSON.parse(paramsConfig);
+                ops.parameters = JSON.parse(parameters);
             } catch (e) {
                 throw new Error("参数配置解析失败，请检查格式是否正确");
             }
         }
-        // 如果paramsConfig是对象格式，直接赋值给this.paramsConfig
-        if (paramsConfig && typeof paramsConfig === "object") {
-            this.paramsConfig = paramsConfig;
+        // 如果parameters是对象格式，直接赋值给this.parameters
+        if (parameters && typeof parameters === "object") {
+            this.parameters = parameters;
         }
-        if (paramsConfig?.bucketName) {
-            this.bucketName = paramsConfig.bucketName;
+        if (parameters?.bucketName) {
+            this.bucketName = parameters.bucketName;
         }
         const hostObj: any = {
             endPoint: undefined,
@@ -56,8 +56,8 @@ class MinioApi {
             port: hostObj?.port,
             accessKey: apiKeyArr[0],
             secretKey: apiKeyArr[1],
-            region: paramsConfig.region,
-            useSSL: paramsConfig.useSSL,
+            region: parameters.region,
+            useSSL: parameters.useSSL,
         }
         try {
             // 初始化minio客户端

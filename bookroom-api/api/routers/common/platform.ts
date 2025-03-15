@@ -34,6 +34,12 @@ const routerList = [
         auth: [USER_ROLE_ENUM.OPS, USER_ROLE_ENUM.DEV]
     },
     {
+        path: routeMap.PLATFORM_PARAMETERS,
+        method: "PUT",
+        handler: PlatformController.changePlatformParameters,
+        auth: [USER_ROLE_ENUM.OPS, USER_ROLE_ENUM.DEV]
+    },
+    {
         path: routeMap.PLATFORM_STATUS,
         method: "PUT",
         handler: PlatformController.changePlatformStatus,
