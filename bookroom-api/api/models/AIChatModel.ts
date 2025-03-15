@@ -9,7 +9,7 @@ class AIChatModel extends Model {
             return false;
         }
         const addWhereArray: { [x: string]: any; }[] = [];
-        const fieldKeys = ["platformId", "name"];
+        const fieldKeys = ["platform_id", "model","userId"];
         // 筛选唯一项
         Object.keys(data).forEach((key) => {
             if (data[key] && fieldKeys.includes(key)) {
@@ -91,9 +91,17 @@ AIChatModel.init(
             }
         },
         // 模型参数
-        paramters: {
-            field: "paramters",
+        parameters: {
+            field: "parameters",
             type: DataTypes.JSON,
+            get() {
+                const parameters = this.getDataValue('parameters') || "{}";
+                return JSON.parse(parameters);
+            },
+            set(value: any) {
+                const str = JSON.stringify(value || {});
+                this.setDataValue('parameters', str);
+            },
             allowNull: false,
             validate: {
                 notEmpty: {
@@ -104,15 +112,36 @@ AIChatModel.init(
                 },
             },
         },
+        // 提示词
+        prompt: {
+            field: "prompt",
+            type: DataTypes.STRING(1024),
+            allowNull: true,
+            validate: {
+                // notEmpty: {
+                //     msg: "请填入提示词",
+                // },
+            },
+        },
         // 消息内容
         messages: {
             field: "messages",
-            type: DataTypes.BLOB("long"),
-            allowNull: true,
+            type: DataTypes.JSON,
+            get() {
+                const parameters = this.getDataValue('messages') || "{}";
+                return JSON.parse(parameters);
+            },
+            set(value: any) {
+                const str = JSON.stringify(value || {});
+                this.setDataValue('messages', str);
+            },
             validate: {
                 // notEmpty: {
                 //     msg: "请填入消息内容",
                 // },
+                isJSON: {
+                    msg: "消息列表必须为有效的JSON格式",
+                },
             },
         },
         // 用户ID
@@ -168,7 +197,7 @@ AIChatModel.init(
                 // 唯一
                 unique: true,
                 // 字段集合
-                fields: ["platform_id", "name"]
+                fields: ["platform_id", "model","user_id"]
             }
         ],
         timestamps: true,

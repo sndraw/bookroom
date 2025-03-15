@@ -6,9 +6,10 @@ declare namespace API {
     id: string;
     name: string;
     code: string;
+    type: string;
     host: string;
     apiKey?: string;
-    paramsConfig?: object;
+    parameters?: string | object;
     // 状态：0停止，1运行
     status?: number | string;
   }
@@ -17,7 +18,8 @@ declare namespace API {
     name: string;
     host: string;
     code: string;
-    paramsConfig?: object;
+    type:string;
+    parameters?: string | object;
     // 状态：0停止，1运行
     status?: number | string;
   }

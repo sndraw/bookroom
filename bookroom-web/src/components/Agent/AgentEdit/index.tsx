@@ -1,15 +1,17 @@
 import { addAgent, updateAgent } from '@/services/common/agent';
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined } from '@ant-design/icons';
 import {
   DrawerForm,
+  ProFormSelect,
   ProFormText,
+  ProFormTextArea,
 } from '@ant-design/pro-components';
+import { useModel } from '@umijs/max';
 import { Button, Form, message } from 'antd';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 
 interface AgentEditProps {
-  platform: string;
   agent: string;
   data: API.AgentInfoVO;
   refresh?: () => void;
@@ -18,22 +20,24 @@ interface AgentEditProps {
 }
 
 const AgentEdit: React.FC<AgentEditProps> = (props) => {
-  const { platform, agent, data, refresh, disabled, className } = props;
+  const { agent, data, refresh, disabled, className } = props;
   const [form] = Form.useForm<API.AgentInfoVO>();
 
   const [loading, setLoading] = useState(false);
 
+  const { getPlatformOptions } = useModel('agentplatformList');
 
   const handleEdit = async (values: any) => {
     setLoading(true);
     try {
       await updateAgent(
         {
-          platform,
           agent
         },
         {
           name: values?.name,
+          platformId: values?.platformId,
+          description: values?.description,
         }
       ).then((response) => {
         message.success('智能助手修改成功');
@@ -100,6 +104,33 @@ const AgentEdit: React.FC<AgentEditProps> = (props) => {
           },
         ]}
         placeholder="请输入名称"
+      />
+      <ProFormSelect
+        name="platformId"
+        label="接口名称"
+        rules={[
+          {
+            required: true,
+            message: '请选择接口名称',
+          },
+        ]}
+        placeholder="请选择接口名称"
+        options={getPlatformOptions()}
+      />
+      <ProFormTextArea
+        name="description"
+        label="描述"
+        minRows={2}
+        maxLength={255}
+        showCount={true}
+        rules={[
+          {
+            min: 1,
+            max: 255,
+            message: '描述长度为1到255字符',
+          },
+        ]}
+        placeholder="请输入描述"
       />
     </DrawerForm>
   );

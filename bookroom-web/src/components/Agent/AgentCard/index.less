@@ -73,6 +73,22 @@
     display: inline-block;
   }
 
+  .description {
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+    padding: 10px !important;
+    margin: 10px 0 0 0;
+    border: 1px solid @gray-color;
+    // 省略
+    white-space: nowrap;
+    /* 防止文本换行 */
+    overflow: hidden;
+    /* 隐藏溢出的文本 */
+    text-overflow: ellipsis;
+    /* 显示省略号 */
+  }
+
   .nodeBox {
     line-height: 30px;
   }

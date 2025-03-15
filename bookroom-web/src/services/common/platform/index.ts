@@ -108,7 +108,21 @@ export async function deletePlatform(
     ...(options || {}),
   });
 }
-
+/** PUT /platform/:id/parameters */
+export async function updatePlatformParameters(
+  params: {
+    platform: string;
+  },
+  body: { parameters: object | string },
+  options?: { [key: string]: any },
+) {
+  const { platform } = params;
+  return request<API.Result_string_>(`/platform/${platform}/parameters`, {
+    method: 'PUT',
+    data: body,
+    ...(options || {}),
+  });
+}
 /** PUT /platform/:id/status */
 export async function updatePlatformStatus(
   params: {

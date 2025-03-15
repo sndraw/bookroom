@@ -284,7 +284,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
             title={'AI对话'}
             to={{
               pathname: generatePath(ROUTE_MAP.AI_LM_CHAT, {
-                platform: item?.platform,
+                platform: item?.platformId,
                 model: encodeURIComponent(item?.name),
               }),
             }}
@@ -303,7 +303,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
             title={'对话补全'}
             to={{
               pathname: generatePath(ROUTE_MAP.AI_LM_GENERATE, {
-                platform: item?.platform,
+                platform: item?.platformId,
                 model: encodeURIComponent(item?.name),
               }),
             }}
@@ -322,7 +322,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
             title={'嵌入向量'}
             to={{
               pathname: generatePath(ROUTE_MAP.AI_LM_EMBED, {
-                platform: item?.platform,
+                platform: item?.platformId,
                 model: encodeURIComponent(item?.name),
               }),
             }}

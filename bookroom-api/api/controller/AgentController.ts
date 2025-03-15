@@ -9,67 +9,17 @@ import TavilyAPI from "@/SDK/tavily";
 import { responseStream } from "@/utils/streamHelper";
 import AIChatLogService from "@/service/AIChatLogService";
 import { AGENT_API_MAP } from "@/common/agent";
+import { platform } from "os";
+import AgentLogService from "@/service/AgentLogService";
 
 class AgentController extends BaseController {
-    // 获取-全部来源-智能助手-列表
-    static async queryAllAgentList(ctx: Context) {
-        const { platform, ...query } = ctx.query;
-        try {
-            let platformList: any = []
-            let agents: any = [];
-            if (!platform) {
-                const platformInfoList = await PlatformService.queryActivedRecords({
-                    type: PLATFORM_TYPE_MAP.agent.value
-                });
-                platformList = platformInfoList.map((item: any) => {
-                    return item.name
-                })
-            } else {
-                platformList.push(platform)
-            }
-            for (const platformItem of platformList) {
-                const platformModels: any = await AgentService.queryAgentList({
-                    platformId: platformItem.id,
-                    query
-                });
-                agents = agents.concat(platformModels);
-            }
-            ctx.status = 200;
-            ctx.body = resultSuccess({
-                data: {
-                    list: agents
-                }
-            });
-        } catch (e) {
-            // 异常处理，返回错误信息
-            ctx.logger.error("查询智能助手列表异常", e); // 记录错误日志
-            ctx.status = 500;
-            const error: any = e;
-            ctx.body = resultError({
-                code: error?.code,
-                message: error?.message || error,
-            });
-        }
-    }
     // 获取智能助手列表
     static async queryAgentList(ctx: Context) {
         // 从路径获取参数
-        const { platform, query } = ctx.params;
+        const { query } = ctx.params;
         try {
-            if (!platform) {
-                throw new Error("参数错误");
-            }
-            // 获取平台
-            const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
-                safe: false
-            })
-            if (!platformConfig) {
-                throw new Error("平台不存在");
-            }
-
             // 查询智能助手列表
             const agentList = await AgentService.queryAgentList({
-                platformId: platformConfig.id,
                 query,
             });
 
@@ -94,22 +44,11 @@ class AgentController extends BaseController {
     // 获取智能助手信息
     static async getAgentInfo(ctx: Context) {
         // 从路径获取参数
-        const { platform, agent_id } = ctx.params;
-        if (!platform) {
-            throw new Error("参数错误");
-        }
+        const { agent_id } = ctx.params;
         if (!agent_id) {
             throw new Error("参数错误");
         }
         try {
-            // 获取平台
-            const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
-                safe: false
-            });
-            if (!platformConfig) {
-                throw new Error("平台不存在");
-            }
-
             // 查询Agent
             const result = await AgentService.getAgentById(agent_id);
             if (!result) {
@@ -139,8 +78,6 @@ class AgentController extends BaseController {
      * @returns {Object} 返回响应体，包含成功或错误信息
      */
     static async addAgent(ctx: Context) {
-        // 从路径获取参数
-        const { platform } = ctx.params;
         let params: any = ctx.request.body;
         if (typeof params === 'string') {
             // 将字符串转换为对象
@@ -148,23 +85,23 @@ class AgentController extends BaseController {
         }
         const newParams = {
             ...params,
-            platform
+            userId: ctx?.userId
         }
         ctx.verifyParams({
-            platform: {
+            platformId: {
                 type: "string",
                 required: true,
                 min: 2,
                 max: 40,
                 message: {
-                    required: "平台名称不能为空",
-                    min: "平台名称长度不能小于2",
-                    max: "平台名称长度不能超过40",
+                    required: "接口名称不能为空",
+                    min: "接口名称长度不能小于2",
+                    max: "接口名称长度不能超过40",
                 }
             },
             name: {
                 type: "string",
-                required: false,
+                required: true,
                 min: 2,
                 max: 255,
                 message: {
@@ -172,15 +109,31 @@ class AgentController extends BaseController {
                     min: "智能助手名称不能小于2",
                     max: "智能助手名称不能超过255",
                 }
-            }
+            },
+            description: {
+                type: "string",
+                required: false,
+                min: 1,
+                max: 255,
+                message: {
+                    required: "描述不能为空",
+                    min: "描述长度不能小于1",
+                    max: "描述长度不能超过255"
+                }
+            },
+            parameters: {
+                type: "object",
+                required: false,
+                message: {
+                    required: "参数不能为空",
+                    object: "参数格式非法"
+                }
+            },
         }, {
             ...newParams,
         })
         try {
-            const result = await AgentService.addAgent({
-                ...newParams,
-                userId: ctx?.userId
-            });
+            const result = await AgentService.addAgent(newParams);
             if (!result) {
                 throw new Error("添加失败"); // 抛出异常，便于后续处理
             }
@@ -210,46 +163,62 @@ class AgentController extends BaseController {
     static async changeAgentInfo(ctx: Context) {
 
         // 从路径获取参数
-        const { platform, agent_id } = ctx.params;
+        const { agent_id } = ctx.params;
         const params: any = ctx.request.body;
         const newParams = {
             ...params,
-            platform,
-            agent_id
+            userId: ctx?.userId
         }
         ctx.verifyParams({
-            platform: {
+            platformId: {
                 type: "string",
-                required: true,
+                required: false,
                 min: 2,
                 max: 40,
                 message: {
-                    required: "平台名称不能为空",
-                    min: "平台名称长度不能小于2",
-                    max: "平台名称长度不能超过40",
+                    required: "接口名称不能为空",
+                    min: "接口名称长度不能小于2",
+                    max: "接口名称长度不能超过40",
                 }
             },
-            agent_id: {
+            name: {
                 type: "string",
-                required: true,
+                required: false,
                 min: 2,
                 max: 255,
                 message: {
-                    required: "智能助手ID不能为空",
-                    min: "智能助手ID长度不能小于2",
-                    max: "智能助手ID长度不能超过255",
+                    required: "智能助手名称不能为空",
+                    min: "智能助手名称不能小于2",
+                    max: "智能助手名称不能超过255",
                 }
-            }
+            },
+            description: {
+                type: "string",
+                required: false,
+                min: 1,
+                max: 255,
+                message: {
+                    required: "描述不能为空",
+                    min: "描述长度不能小于1",
+                    max: "描述长度不能超过255"
+                }
+            },
+            parameters: {
+                type: "object",
+                required: false,
+                message: {
+                    required: "参数不能为空",
+                    object: "参数格式非法"
+                }
+            },
         }, {
             ...newParams
         })
         try {
-            const record = await AgentService.updateAgent({
-                platform,
-                agent_id,
-                ...params,
-                userId: ctx?.userId,
-            });
+            if (!agent_id) {
+                throw new Error("ID参数错误");
+            }
+            const record = await AgentService.updateAgent(agent_id, newParams);
 
             if (!record) {
                 throw new Error("智能助手信息修改失败");
@@ -277,36 +246,9 @@ class AgentController extends BaseController {
     static async changeAgentStatus(ctx: Context) {
 
         // 从路径获取参数
-        const { platform, agent_id } = ctx.params;
+        const { agent_id } = ctx.params;
         const params: any = ctx.request.body;
-        const newParams = {
-            ...params,
-            platform,
-            agent_id
-        }
         ctx.verifyParams({
-            platform: {
-                type: "string",
-                required: true,
-                min: 2,
-                max: 40,
-                message: {
-                    required: "平台名称不能为空",
-                    min: "平台名称长度不能小于2",
-                    max: "平台名称长度不能超过40",
-                }
-            },
-            agent_id: {
-                type: "string",
-                required: true,
-                min: 2,
-                max: 255,
-                message: {
-                    required: "智能助手不能为空",
-                    min: "智能助手长度不能小于2",
-                    max: "智能助手长度不能超过255",
-                }
-            },
             status: {
                 type: "enum",
                 required: true,
@@ -318,11 +260,15 @@ class AgentController extends BaseController {
                 },
             },
         }, {
-            ...newParams
+            ...params
         })
 
         try {
-            const record = await AgentService.updateAgentStatus(newParams);
+            if (!agent_id) {
+                throw new Error("ID参数错误");
+            }
+            const { status } = params;
+            const record = await AgentService.updateAgentStatus(agent_id, status);
 
             if (!record) {
                 throw new Error("智能助手状态修改失败");
@@ -345,42 +291,8 @@ class AgentController extends BaseController {
     // 删除智能助手
     static async deleteAgent(ctx: Context) {
         // 从路径获取参数
-        const { platform, agent_id } = ctx.params;
-        ctx.verifyParams({
-            platform: {
-                type: "string",
-                required: true,
-                min: 2,
-                max: 40,
-                message: {
-                    required: "平台名称不能为空",
-                    min: "平台名称长度不能小于2",
-                    max: "平台名称长度不能超过40",
-                }
-            },
-            agent_id: {
-                type: "string",
-                required: true,
-                min: 2,
-                max: 255,
-                message: {
-                    required: "智能助手不能为空",
-                    min: "智能助手ID长度不能小于2",
-                    max: "智能助手ID长度不能超过255",
-                }
-            },
-        }, {
-            platform,
-            agent_id
-        })
+        const { agent_id } = ctx.params;
         try {
-            // 获取平台
-            const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
-                safe: false
-            });
-            if (!platformConfig) {
-                throw new Error("平台不存在");
-            }
             if (!agent_id) {
                 throw new Error("ID参数错误");
             }
@@ -406,29 +318,17 @@ class AgentController extends BaseController {
 
     static async agentChat(ctx: Context) {
         // 从路径获取参数
-        const { platform, agent_id } = ctx.params;
+        const { agent_id } = ctx.params;
         let params: any = ctx.request.body;
         if (typeof params === 'string') {
             // 将字符串转换为对象
             params = JSON.parse(params);
         }
         const newParams = {
-            platform,
             agent_id,
             ...params
         }
         ctx.verifyParams({
-            platform: {
-                type: "string",
-                required: true,
-                min: 2,
-                max: 40,
-                message: {
-                    required: "平台名称不能为空",
-                    min: "平台名称长度不能小于2",
-                    max: "平台名称长度不能超过40",
-                }
-            },
             agent_id: {
                 type: "string",
                 required: true,
@@ -460,19 +360,24 @@ class AgentController extends BaseController {
             ...newParams
         });
         // 查询参数
-        let queryParams = {};
+        let queryParams: any = {};
         // 回复文本
         let responseText: any = '';
 
         try {
             const { is_stream, query } = newParams;
+            const agent = await AgentService.getAgentById(agent_id)
+            if (!agent) {
+                throw new Error("智能助手不存在或已删除");
+            }
+            const agentInfo = agent.toJSON();
             queryParams = {
-                platform,
-                agent_id,
+                platformId: agentInfo?.platformId,
                 stream: !!is_stream, // 是否流式返回数据
                 query: query, // 查询内容
             }
-            const dataStream = await AgentService.agentChat(queryParams);
+            const dataStream = await AgentService.agentChat(agent_id, queryParams);
+
             if (is_stream) {
                 responseText = await responseStream(ctx, dataStream);
                 return;
@@ -495,15 +400,12 @@ class AgentController extends BaseController {
             responseText = error?.message || '';
         } finally {
             ctx.res.once('close', () => {
-                // 添加聊天记录到数据库
-                AIChatLogService.addAIChatLog({
-                    platform,
-                    model: PLATFORM_TYPE_MAP.agent.value,
-                    type: 1,
-                    input: JSON.stringify(queryParams), // 将请求参数转换为JSON字符串
-                    output: responseText || '', // 确保响应文本不为空字符串
-                    userId: ctx?.userId, // 假设ctx中包含用户ID
-                    status: StatusEnum.ENABLE
+                AgentLogService.addAgentLog({
+                    agentId: agent_id,
+                    input: JSON.stringify(queryParams) || '',
+                    output: responseText,
+                    userId: ctx.userId,
+                    status: StatusEnum.ENABLE,
                 });
             })
         }

@@ -5,10 +5,15 @@ import { request } from '@umijs/max';
 /** GET /ai/chat */
 export async function queryAIChatList(
   params: {
+    query_mode?: 'list' | 'search';
     /** current */
     current?: number;
     /** pageSize */
     pageSize?: number;
+    /** platform */
+    platform?: string;
+    /** model */
+    model?: string;
   },
   options?: { [key: string]: any },
 ) {
@@ -21,8 +26,9 @@ export async function queryAIChatList(
   });
 }
 
+// 添加或更新对话记录
 /** POST /ai/chat */
-export async function addAIChat(
+export async function saveAIChat(
   body: API.AIChatInfoVO,
   options?: { [key: string]: any },
 ) {

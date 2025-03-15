@@ -108,7 +108,7 @@ class AILmService {
             model: model,
             size: params?.size || 0,
             type: params?.type || AI_LM_TYPE_MAP.llm.value,
-            paramsConfig: params?.paramsConfig || '', // 添加参数配置
+            parameters: params?.parameters || '', // 添加参数配置
             status: params?.status || StatusEnum.ENABLE,
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
@@ -137,7 +137,7 @@ class AILmService {
                 name: params?.name || model,
                 size: params?.size || 0,
                 type: params?.type || AI_LM_TYPE_MAP.llm.value,
-                paramsConfig: params?.paramsConfig || '', // 添加参数配置
+                parameters: params?.parameters || '', // 添加参数配置
                 updatedAt: new Date().getTime(),
             },
             {

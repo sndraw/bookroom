@@ -1214,7 +1214,6 @@ class AIGraphController extends BaseController {
                     input: JSON.stringify(queryParams), // 将请求参数转换为JSON字符串
                     output: responseText || '', // 确保响应文本不为空字符串
                     userId: ctx?.userId, // 假设ctx中包含用户ID
-                    status: StatusEnum.ENABLE
                 });
             })
         }

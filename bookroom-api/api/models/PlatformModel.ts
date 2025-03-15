@@ -120,17 +120,17 @@ PlatformModel.init(
             },
         },
         // 配置参数
-        paramsConfig: {
-            field: "params_onfig",
+        parameters: {
+            field: "parameters",
             type: DataTypes.JSON,
             allowNull: true,
             get() {
-                const paramters = this.getDataValue('params_onfig') || "{}";
-                return JSON.parse(paramters);
+                const parameters = this.getDataValue('parameters') || "{}";
+                return JSON.parse(parameters);
             },
             set(value: string) {
                 const str = JSON.stringify(value || {});
-                this.setDataValue('params_onfig', str);
+                this.setDataValue('parameters', str);
             },
             validate: {
                 // notEmpty: {

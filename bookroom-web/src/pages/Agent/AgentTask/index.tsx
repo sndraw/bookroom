@@ -7,18 +7,16 @@ import { agentChat, getAgentInfo, updateAgent } from '@/services/common/agent';
 import { Alert, Divider, Empty, Space, Spin } from 'antd';
 import ChatPanel from '@/components/ChatPanel';
 import { RobotOutlined } from '@ant-design/icons';
-import AgentParamters, { defaultParamters, ParamtersType } from '@/components/Agent/AgentParamters';
+import AgentParameters, { defaultParameters, ParametersType } from '@/components/Agent/AgentParameters';
 
 const AgentTaskPage: React.FC = () => {
 
-    const { agent, platform } = useParams();
-    const [paramters, setParamters] = useState<ParamtersType>(defaultParamters);
-    const [init, setInit] = useState(false);
+    const { agent } = useParams();
+    const [parameters, setParameters] = useState<ParametersType>(defaultParameters);
     // 模型信息-请求
     const { data, loading, error, run } = useRequest(
         () =>
             getAgentInfo({
-                platform: platform || '',
                 agent: agent || '',
             }),
         {
@@ -30,9 +28,8 @@ const AgentTaskPage: React.FC = () => {
         const { messages } = data || {};
         return await agentChat(
             {
-                platform: String(platform),
                 agent: agent,
-                is_stream: paramters?.isStream,
+                is_stream: parameters?.isStream,
             },
             {
                 query: messages[messages?.length - 1]?.content,
@@ -46,32 +43,18 @@ const AgentTaskPage: React.FC = () => {
 
     useEffect(() => {
         if (agent) {
-            run().then((resData) => {
-                if (resData && resData.paramters) {
-                    setParamters({
-                        ...paramters,
-                        ...resData.paramters
-                    });
-                }
-                setTimeout(() => {
-                    setInit(true);
-                }, 500);
-            })
+            run()
         }
     }, [agent]);
 
     useEffect(() => {
-        if (platform && data && init) {
-            // 如果paramters有变化，保存数据到后端
-            updateAgent({
-                platform,
-                agent: data?.id
-            }, {
-                ...data,
-                paramters
-            })
+        if (data) {
+            setParameters({
+                ...parameters,
+                ...(data?.parameters || {}),
+            });
         }
-    }, [paramters]);
+    }, [data]);
 
 
     if (!agent) {
@@ -110,8 +93,15 @@ const AgentTaskPage: React.FC = () => {
                     placeholder: '请输入任务提示以启动新任务',
                 }
             }
+            defaultMessageList={data?.messages}
             customRequest={sendMsgRequest}
-            onSend={() => { }}
+            onSend={(messages) => {
+                updateAgent({
+                    agent: data?.id
+                }, {
+                    messages
+                })
+            }}
             onStop={() => { }}
         >
             <div>
@@ -124,10 +114,17 @@ const AgentTaskPage: React.FC = () => {
                 </Space>
                 <Divider type="vertical" />
                 <Space size={0} wrap className={styles.chatTags}>
-                    <AgentParamters
+                    <AgentParameters
                         data={data}
-                        paramters={paramters}
-                        setParamters={setParamters}
+                        parameters={parameters}
+                        changeParameters={(newParameters) => {
+                            setParameters(newParameters);
+                            updateAgent({
+                                agent: data?.id
+                            }, {
+                                parameters: newParameters,
+                            })
+                        }}
                     />
                 </Space>
             </div>

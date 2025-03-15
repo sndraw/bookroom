@@ -8,8 +8,14 @@ const LmPlatformList = () => {
   return {
     namespace: 'lmplatformList',
     platformList,
-    getGraphInfo: (graph: string) => {
-      return platformList?.find((item) => item.id === graph || item.name === graph);
+    getPlatformName: (platform: string) => {
+      return platformList?.find((item) => item.id === platform || item.name === platform)?.name;
+    },
+    getPlatformCode: (platform: string) => {
+      return platformList?.find((item) => item.id === platform || item.name === platform)?.code;
+    },
+    getPlatformInfo: (platform: string) => {
+      return platformList?.find((item) => item.id === platform || item.name === platform);
     },
     setPlatformList: (dataList: API.PlatformInfo[] | null) => {
       setPlatformList(dataList);

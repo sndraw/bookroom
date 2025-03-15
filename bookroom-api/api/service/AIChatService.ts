@@ -19,34 +19,52 @@ class AIChatService {
         }
         return list
     }
+    // 查询单条AI对话详情-通过查询参数
+    static async findAIChatByParams(where: any = {}) {
+        return await AIChatModel.findOne({
+            where: {
+                ...where,
+            },
+        });
+    }
 
     // 查询AI对话详情
-    static async getAIChatById(chat_id: string) {
+    static async getAIChatById(chat_id: string, where: any = {}) {
         if (!chat_id) {
             throw new Error("ID不能为空");
         }
-        return await AIChatModel.findByPk(chat_id)
+        return await AIChatModel.findOne({
+            where: {
+                id: chat_id,
+                ...where,
+            },
+        });
     }
 
     // 添加或者更新AI对话
     static async addOrUpdateAIChat(params: any) {
-        const { chat_id, platform, model } = params
-        if (!platform) {
+        const { chat_id, platformId, model } = params
+        if (!platformId) {
             throw new Error("平台参数错误");
         }
         if (!model) {
             throw new Error("模型参数错误");
         }
         if (chat_id) {
-            // 获取模型信息
-            const aiChatInfo = await AIChatModel.findByPk(chat_id);
-            if (aiChatInfo) {
-                // 更新日志
-                const result = await this.updateAIChat(params);
+            // 获取对话信息
+            const chatInfo = await AIChatModel.findByPk(chat_id);
+            if (chatInfo) {
+                const { chat_id, platform, ...data } = params;
+                // 更新对话
+                chatInfo.setAttributes({
+                    ...data,
+                    updatedAt: new Date().getTime(),
+                });
+                const result = await chatInfo.save();
                 return result;
             }
         }
-        // 添加日志
+        // 添加对话
         const result = await this.addAIChat(params);
         return result;
     }
@@ -54,61 +72,57 @@ class AIChatService {
 
     // 添加AI对话
     static async addAIChat(params: any) {
-        const { chat_id, platform, model } = params
-        if (!platform) {
+        const { chat_id, platformId, model } = params
+        if (!platformId) {
             throw new Error("平台参数错误");
         }
         if (!model) {
             throw new Error("模型参数错误");
         }
-        // 获取平台
-        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
-            safe: false
-        });
-        if (!platformConfig) {
-            throw new Error("平台不存在");
-        }
-        const result = await AIChatModel.create({
+        const data = {
             id: chat_id || uuidv4(),
-            platformId: platformConfig?.id,
+            name: params?.name || params?.messages?.[0]?.content?.slice(0, 10) || "未知对话",
+            platformId,
             model: model,
             type: params?.type || 1,
-            paramters: params?.paramters || JSON.stringify({}),
+            prompt: params?.prompt || "",
+            parameters: params?.parameters || {},
             messages: params?.messages || [],
             userId: params?.userId || 0,
             status: params?.status || StatusEnum.ENABLE,
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
-        });
+        };
+
+        const result = await AIChatModel.create(data);
+
         return result
     }
 
     // 更新AI对话
     static async updateAIChat(params: any) {
-        const { chat_id, platform, model } = params
-        if (!platform) {
-            throw new Error("平台参数错误");
+        const { chat_id, platformId, model } = params
+        if (!platformId) {
+            throw new Error("参数错误");
         }
         if (!model) {
-            throw new Error("模型参数错误");
+            throw new Error("参数错误");
         }
-        // 获取平台
-        const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
-            safe: false
-        });
-        if (!platformConfig) {
-            throw new Error("平台不存在");
+        const data = {
+            platformId,
+            name: params?.name || params?.messages?.[0]?.content?.slice(0, 10) || "未知对话",
+            model: model,
+            type: params?.type || 1,
+            prompt: params?.prompt || "",
+            parameters: params?.parameters || {},
+            messages: params?.messages || [],
+            userId: params?.userId || 0,
+            status: params?.status || StatusEnum.ENABLE,
+            updatedAt: new Date().getTime(),
         }
         const result = await AIChatModel.update(
             {
-                platformId: platformConfig?.id,
-                model: model,
-                type: params?.type || 1,
-                paramters: params?.paramters || {},
-                messages: params?.messages || [],
-                userId: params?.userId || 0,
-                status: params?.status || StatusEnum.ENABLE,
-                updatedAt: new Date().getTime(),
+                ...data
             },
             {
                 where: {

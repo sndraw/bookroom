@@ -73,48 +73,4 @@ declare namespace API {
     message?: string;
     data?: PageInfo_AILmInfo_;
   }
-
-  interface AILmChatInfo {
-    id: string;
-    name: string;
-    code: string;
-    url: string;
-    paramsConfig?: object;
-    // 状态：0停止，1运行
-    status?: number | string;
-  }
-
-  interface AILmChatInfoVO {
-    name: string;
-    url: string;
-    code: string;
-    paramsConfig?: object;
-    // 状态：0停止，1运行
-    status?: number | string;
-  }
-
-  interface Result_AILmChatInfo_ {
-    code?: number;
-    message?: string;
-    data?: AILmChatInfo;
-  }
-
-  interface Result_PlatformInfoList_ {
-    code?: number;
-    message?: string;
-    data?: AILmPlatformInfo[];
-  }
-
-  interface PageInfo_AILmChatInfo_ {
-    current?: number;
-    pageSize?: number;
-    total?: number;
-    list?: AILmChatInfo[];
-  }
-
-  interface Result_PageInfo_AILmChatInfo__ {
-    code?: number;
-    message?: string;
-    data?: PageInfo_AILmChatInfo_;
-  }
 }

@@ -7,7 +7,7 @@ export const createFileClient = (config?: any) => {
     config = {
       apiKey: `${minioConfig.accessKey}:${minioConfig.secretKey}`,
       host: minioConfig.endpoint + (minioConfig?.port ? `:${minioConfig.port}` : ""),
-      paramsConfig: {
+      parameters: {
         bucketName: minioConfig.bucketName,
         region: minioConfig.region,
         useSSL: minioConfig.useSSL
@@ -20,7 +20,7 @@ export const createFileClient = (config?: any) => {
   if (!config?.apiKey) {
     throw new Error("缺少文件上传API密钥")
   }
-  if (!config?.paramsConfig?.bucketName) {
+  if (!config?.parameters?.bucketName) {
     throw new Error("缺少文件上传存储空间名称")
   }
   return new MinioApi(config);

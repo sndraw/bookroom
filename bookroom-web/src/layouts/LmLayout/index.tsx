@@ -42,7 +42,7 @@ const LmLayout: React.FC<PropsType> = (props: PropsType) => {
   useEffect(() => {
     if (data && data?.[0]?.name && !platform) {
       navigate(
-        generatePath(ROUTE_MAP.AI_LM_LIST, { platform: data?.[0]?.name }),
+        generatePath(ROUTE_MAP.AI_LM_LIST, { platform: data?.[0]?.id }),
       );
     }
   }, [data, platform]);
@@ -64,7 +64,7 @@ const LmLayout: React.FC<PropsType> = (props: PropsType) => {
           <>
             {data && data?.length > 0 && <Outlet />}
             {(!data || data?.length < 1) && (
-              <Empty description="请先进行系统配置" />
+              <Empty description="请前往【系统配置】添加【模型平台】" />
             )}
           </>
         )}

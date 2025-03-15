@@ -388,6 +388,15 @@ class AILmController extends BaseController {
           max: "模型长度不能超过255",
         }
       },
+      prompt: {
+        type: "string",
+        required: false,
+        max: 1024,
+        message: {
+          required: "提示词不能为空",
+          max: "提示词长度不能超过1024",
+        }
+      },
       messages: {
         type: "array",
         required: true,
@@ -573,7 +582,7 @@ class AILmController extends BaseController {
         max: 1024,
         message: {
           required: "提示词不能为空",
-          min: "提示词长度不能小于2",
+          min: "提示词长度不能小于1",
           max: "提示词长度不能超过1024",
         }
       },
@@ -788,17 +797,6 @@ class AILmController extends BaseController {
           required: "模型不能为空",
           min: "模型长度不能小于2",
           max: "模型长度不能超过255",
-        }
-      },
-      prompt: {
-        type: "string",
-        required: true,
-        min: 1,
-        max: 1024,
-        message: {
-          required: "提示词不能为空",
-          min: "提示词长度不能小于2",
-          max: "提示词长度不能超过1024",
         }
       },
     }, {

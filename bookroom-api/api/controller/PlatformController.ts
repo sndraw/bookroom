@@ -220,12 +220,12 @@ class PlatformController extends BaseController {
           length: "验证密钥长度不能超过255",
         },
       },
-      paramsConfig: {
-        type: "string",
+      parameters: {
+        type: "object",
         required: false,
         message: {
           required: "参数配置不能为空",
-          type: "参数配置格式不正确",
+          object: "参数配置格式不正确",
         },
       },
       status: {
@@ -258,6 +258,62 @@ class PlatformController extends BaseController {
     }
   }
 
+  /**
+   * 平台配置修改
+   * @param {Object} ctx 上下文对象，包含请求和响应信息
+   * @returns {Object} 返回响应体，包含成功或错误信息
+   */
+  static async changePlatformParameters(ctx: Context) {
+    // 从路径获取平台ID
+    const { platform } = ctx.params;
+    const params: any = ctx.request.body;
+    ctx.verifyParams({
+      platform: {
+        type: "string",
+        required: true,
+        min: 1,
+        max: 40,
+        message: {
+          required: "ID不能为空",
+          int: "ID不合法",
+          min: "ID不合法",
+          max: "ID不合法"
+        },
+      },
+      parameters: {
+        type: "object",
+        required: false,
+        message: {
+          required: "参数配置不能为空",
+          object: "参数配置格式不正确",
+        },
+      },
+    }, {
+      platform,
+      ...params
+    });
+    try {
+      const record: any = await PlatformService.findPlatformByIdOrName(platform);
+      if (!record) {
+        throw new Error("平台不存在");
+      }
+      record.parameters = params?.parameters;
+      await record.save();
+      // 成功处理
+      ctx.body = resultSuccess({
+        data: record
+      });
+    } catch (e) {
+      // 异常处理，返回错误信息
+      ctx.logger.error("平台状态修改异常", e); // 记录错误日志
+      ctx.status = 500;
+      const error: any = e;
+      ctx.body = resultError({
+        code: error?.code,
+        message: error?.message || error,
+      });
+    }
+  }
 
 
   /**
@@ -394,8 +450,8 @@ class PlatformController extends BaseController {
           length: "验证密钥长度不能超过255",
         },
       },
-      paramsConfig: {
-        type: "string",
+      parameters: {
+        type: "object",
         required: false,
         message: {
           required: "参数配置不能为空",
@@ -407,7 +463,7 @@ class PlatformController extends BaseController {
       ...params
     });
     try {
-      const { name, code, type, host, apiKey, paramsConfig, status } = params;
+      const { name, code, type, host, apiKey, parameters, status } = params;
       const record: any = await PlatformService.findPlatformByIdOrName(platform, { safe: false });
       if (!record) {
         throw new Error("平台不存在");
@@ -438,8 +494,8 @@ class PlatformController extends BaseController {
       } else {
         data.apiKey = "";
       }
-      if (paramsConfig) {
-        data.paramsConfig = paramsConfig;
+      if (parameters) {
+        data.parameters = parameters;
       }
       if (status) {
         data.status = status;
