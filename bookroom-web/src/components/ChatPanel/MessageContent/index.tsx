@@ -17,40 +17,36 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
   // 图片预览列表
   const [imageList, setImageList] = useState<any[]>([]);
   // 语音预览
-  const [voice, setVoice] = useState<any>(null);
-  // 转换图片预览列表
-  const transformImageList = async (images: any[] | undefined) => {
-    if (images && images?.length > 0) {
+  const [audioList, setAudioList] = useState<any>(null);
+  // 转换文件预览列表
+  const transformFileList = async (files: any[] | undefined) => {
+    const fileList = [];
+    if (files && files?.length > 0) {
       const imagesBase64 = await Promise.all(
-        images.map(async (image) => {
+        files.map(async (file) => {
           // 获取图片的base64编码
           const res = await previewFileApi({
-            fileId: image,
+            fileId: file,
           });
           return res?.url;
         }),
       ); // 获取图片的base64编码
-      setImageList(imagesBase64);
-    } else {
-      setImageList([]);
-    }
-  };
-
-  // 转换语音预览
-  const transformVoice = async (voice: any) => {
-    if (voice) {
-      const res = await previewFileApi({
-        fileId: voice,
-      });
-      setVoice(res?.url);
-    } else {
-      setVoice(null);
-    }
+      fileList.push(imagesBase64);
+    } 
+    return fileList;
   };
 
   useEffect(() => {
-    transformImageList(msgObj?.images);
-    transformVoice(msgObj?.voice);
+    if (msgObj?.images) {
+      transformFileList(msgObj.images).then((list) => {
+        setImageList(list);
+      });
+    }
+    if (msgObj?.audios) {
+      transformFileList(msgObj.audios).then((list) => {
+        setAudioList(list);
+      });
+    }
   }, [msgObj]);
 
   return (
@@ -73,13 +69,16 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
           })}
         </Space>
       )}
-      {voice && (
-        <div className={styles.voicePreviewContainer}>
-          <audio controls>
-            <source src={voice} type="audio/mpeg" />
-            Your browser does not support the audio element.
-          </audio>
-        </div>
+      {audioList && (
+        <Space className={styles.imagePreviewContainer} wrap>
+          {audioList?.map((item: string | undefined, index: any) => {
+            return (<audio controls>
+              <source src={item} type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+            );
+          })}
+        </Space>
       )}
     </>
   );

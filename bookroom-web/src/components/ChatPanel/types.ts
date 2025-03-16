@@ -3,7 +3,6 @@ export interface ChatMessageType {
   role: string;
   content: any;
   images?: any[];
-  videos?: any[];
-  voice?: any;
+  audios?: any[];
   createdAt?: Date;
 }

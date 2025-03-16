@@ -1,10 +1,11 @@
 import useHeaderHeight from '@/hooks/useHeaderHeight';
 import {
+  ClearOutlined,
   DownOutlined,
   PauseCircleOutlined,
   SendOutlined,
 } from '@ant-design/icons';
-import { Button, Form, Input, message } from 'antd';
+import { Button, FloatButton, Form, Input, message, Popconfirm } from 'antd';
 import classNames from 'classnames';
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
@@ -31,6 +32,8 @@ type ChatPanelPropsType = {
   onSend?: (values: any[]) => void;
   // 消息发送
   onStop?: () => void;
+  // 消息清除
+  onClear?: () => void;
   // 是否禁用
   disabled?: boolean;
   // 样式
@@ -51,6 +54,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     customRequest,
     onSend,
     onStop,
+    onClear,
     disabled,
     className,
     sendOptions
@@ -256,7 +260,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   }, []);
 
   useEffect(() => {
-    if(defaultMessageList){
+    if (defaultMessageList) {
       setMessageList(defaultMessageList);
     }
   }, [defaultMessageList]); // 监听消息变化
@@ -308,7 +312,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     //   setVideoList([]);
     // }
     if (supportVoice && voice) {
-      newMessage.voice = voice;
+      newMessage.audios = [voice];
     }
 
     const newMessageList = [...messageList, newMessage];
@@ -398,6 +402,15 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     }
   };
 
+  // 清空对话
+  const handleClear = () => {
+    setMessageList([]);
+    if (onClear) {
+      onClear?.();
+    }
+  };
+
+
   return (
     <div
       className={classNames(styles.container, className)}
@@ -462,6 +475,20 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
           /> */}
         </div>
       )}
+
+      {!disabled && !loading &&
+        <Popconfirm
+          disabled={loading}
+          title={`确定要清空对话吗？`}
+          onConfirm={handleClear}
+        >
+          <FloatButton
+            className={styles.clearButton}
+            icon={<ClearOutlined />}
+            type={"default"}
+          ></FloatButton>
+        </Popconfirm>
+      }
       <Form
         className={styles.inputForm}
         form={form}

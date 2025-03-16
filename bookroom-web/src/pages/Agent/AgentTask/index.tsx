@@ -103,6 +103,13 @@ const AgentTaskPage: React.FC = () => {
                 })
             }}
             onStop={() => { }}
+            onClear={() => {
+                updateAgent({
+                    agent: data?.id
+                }, {
+                    messages: []
+                })
+            }}
         >
             <div>
                 <Space size={0} wrap className={styles.chatTitle}>
