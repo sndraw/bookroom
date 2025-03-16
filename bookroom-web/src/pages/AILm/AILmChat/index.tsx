@@ -127,6 +127,17 @@ const AILmChatPage: React.FC = () => {
           })
       }}
       onStop={() => { }}
+      onClear={() => {
+        saveAIChat(
+          {
+            platform,
+            model,
+            type: 1,
+            parameters,
+            prompt,
+            messages: []
+          })
+      }}
     >
       <div>
         <Space size={0} wrap className={styles.chatTags}>
@@ -147,7 +158,7 @@ const AILmChatPage: React.FC = () => {
           <ChatParameters
             data={data}
             parameters={parameters}
-            changeParameters={(newParameters)=>{
+            changeParameters={(newParameters) => {
               setParameters(newParameters);
               saveAIChat({
                 platform,

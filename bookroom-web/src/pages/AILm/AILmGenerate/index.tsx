@@ -68,6 +68,7 @@ const AILmGeneratePage: React.FC = () => {
       customRequest={sendMsgRequest}
       onSend={() => { }}
       onStop={() => { }}
+      onClear={() => {}}
     >
       <div>
         <Space size={0} wrap className={styles.chatTags}>

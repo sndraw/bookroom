@@ -239,14 +239,11 @@ class AILmService {
         if (!platformConfig) {
             throw new Error("平台不存在");
         }
-        if(prompt){
-            // 加到数组顶部
-            messages.unshift({
-                role: "system",
-                content: prompt
-            });
-        }
-
+        // 加到数组顶部
+        messages.unshift({
+            role: "system",
+            content: prompt || "You are a helpful assistant."
+        });
         let result: any;
         switch (platformConfig?.code) {
             case AI_LM_PLATFORM_MAP.ollama.value:

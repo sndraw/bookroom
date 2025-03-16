@@ -86,51 +86,63 @@ class OpenAIApi {
 
     async getAILmChat(params: any) {
         const { model, messages, is_stream, temperature = 0.7, top_p = 0.8, max_tokens = 4096 } = params
-        // 定义新的消息列表
-        const newMessageList = await this.convertMessagesToVLModelInput({
-            messages
-        });
-        const completion = await this.openai.chat.completions.create({
-            model,
-            messages: newMessageList || [],
-            stream: is_stream,
-            stream_options: is_stream ? { include_usage: true } : undefined,
-            temperature: temperature,
-            top_p: top_p,
-            n: 1,
-            max_tokens: max_tokens,
-        });
-        return completion
+        try {
+            // 定义新的消息列表
+            const newMessageList = await this.convertMessagesToVLModelInput({
+                messages
+            });
+            const completion = await this.openai.chat.completions.create({
+                model,
+                messages: newMessageList || [],
+                stream: is_stream,
+                stream_options: is_stream ? { include_usage: true } : undefined,
+                temperature: temperature,
+                top_p: top_p,
+                n: 1,
+                max_tokens: max_tokens,
+                modalities: ["text"],
+            });
+            return completion;
+        } catch (e) {
+            console.log(e)
+            throw e;
+        }
     }
 
     async getAILmGenerate(params: any) {
         const { model, prompt, images, is_stream, temperature = 0.7, max_tokens = 4096 } = params;
-        let newMessageList: any[] = [
-            {
-                role: "system",
-                content: [{ type: "text", text: "You are a helpful assistant." }],
+        try {
+            let newMessageList: any[] = [
+                {
+                    role: "system",
+                    content: [{ type: "text", text: "You are a helpful assistant." }],
+                }
+            ];
+            if (images && images.length > 0 || images && images.length > 0) {
+                const userMessage = await this.convertImagesToVLModelInput({
+                    text: prompt,
+                    images,
+                });
+                if (userMessage) {
+                    newMessageList.push(userMessage)
+                }
             }
-        ];
-        if (images && images.length > 0) {
-            const userMessage = await this.convertImagesToVLModelInput({
-                text: prompt,
-                images,
+
+            const completion = await this.openai.chat.completions.create({
+                model,
+                messages: newMessageList || [],
+                stream: is_stream,
+                stream_options: is_stream ? { include_usage: true } : undefined,
+                temperature: temperature,
+                top_p: 0.8,
+                n: 1,
+                max_tokens: max_tokens
             });
-            if (userMessage) {
-                newMessageList.push(userMessage)
-            }
+            return completion
+        } catch (e) {
+            console.log(e)
+            throw e;
         }
-        const completion = await this.openai.chat.completions.create({
-            model,
-            messages: newMessageList || [],
-            stream: is_stream,
-            stream_options: is_stream ? { include_usage: true } : undefined,
-            temperature: temperature,
-            top_p: 0.8,
-            n: 1,
-            max_tokens: max_tokens
-        });
-        return completion
     }
     // 文本向量
     async getAILmEmbeddings(params: any) {
@@ -151,28 +163,34 @@ class OpenAIApi {
 
     // 图片生成
     async getAILmImageGenerate(params: any) {
-        const {
-            model,
-            prompt,
-            is_stream,
-            quality = "standard",
-            response_format = "url",
-            style = "natural",
-            size = "1024x1024",
-            n = 1
-        } = params;
-        const result= await this.openai.images.generate({
-            model,
-            prompt,
-            quality,
-            response_format,
-            style,
-            size,
-            n
-        }, {
-            stream: is_stream
-        });
-        return result;
+        try {
+            const {
+                model,
+                prompt,
+                is_stream,
+                quality = "standard",
+                response_format = "url",
+                style = "natural",
+                size = "1024x1024",
+                n = 1
+            } = params;
+            const result = await this.openai.images.generate({
+                model,
+                prompt,
+                quality,
+                response_format,
+                style,
+                size,
+                n
+            }, {
+                stream: is_stream
+            });
+            return result;
+        }
+        catch (e) {
+            console.log(e)
+            throw e;
+        }
     }
 
     // 转换图片列表为模型输入格式
@@ -186,26 +204,31 @@ class OpenAIApi {
         };
         const userMessage: any = {
             role: "user",
-            content: [{ type: "text", text: text }],
+            content: [],
         };
 
-        let image_url: any = "";
         if (images && Array.isArray(images)) {
-            image_url = images[0]
-            if (typeof image_url === "string" && (!image_url.startsWith("http") || !image_url.startsWith("https"))) {
-                image_url = await createFileClient().getObjectData({
-                    objectName: image_url,
-                    encodingType: "base64",
-                    addFileType: true,
-                })
-            }
-            if (image_url) {
-                userMessage.content.push({
+            for (const item of images) {
+                const message = {
                     type: "image_url",
-                    image_url: image_url,
-                })
+                    image_url: {
+                        url: item,
+                    }
+                }
+                if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
+                    const imageObj: any = await createFileClient().getObjectData({
+                        objectName: item,
+                        encodingType: "base64",
+                        addFileType: true,
+                    })
+                    message.image_url.url = imageObj?.dataStr;
+                }
+                userMessage.content.push(message);
             }
-        };
+        }
+        userMessage.content.push(
+            { type: "text", text: text }
+        )
         return userMessage;
     }
 
@@ -237,33 +260,59 @@ class OpenAIApi {
             }
             if (message.role === "user" || message.role === "assistant") {
                 const content = message?.content;
+                const images = message?.images;
+                if (images && Array.isArray(images)) {
+                    for (const item of images) {
+                        const message = {
+                            type: "image_url",
+                            image_url: {
+                                url: item,
+                            }
+                        }
+                        if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
+                            const imageObj: any = await createFileClient().getObjectData({
+                                objectName: item,
+                                encodingType: "base64",
+                                addFileType: true,
+                            })
+                            message.image_url.url = imageObj?.dataStr;
+                        }
+                    }
+                }
+                const audios = message?.audios;
+                if (audios && Array.isArray(audios)) {
+                    for (const item of audios) {
+                        const message = {
+                            type: "input_audio",
+                            input_audio: {
+                                data: item,
+                                format: "mp3" //默认格式为mp3，实际格式可能需要根据实际情况进行调整
+                            }
+                        }
+                        if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
+                            const audioObj: any = await createFileClient().getObjectData({
+                                objectName: item,
+                                encodingType: "base64",
+                                addFileType: true,
+                            })
+                            message.input_audio = {
+                                data: audioObj?.dataStr,
+                                format: audioObj?.fileType || "mp3",
+                            }
+                        }
+                        newMessage.content.push(message);
+                    }
+                }
                 if (typeof content === "string") {
                     newMessage.content.push({
                         type: "text",
-                        text: content
-                    });
-                }
-                const images = message?.images;
-                if (images && Array.isArray(images)) {
-                    let image_url = images[0]
-                    if (typeof image_url === "string" && (!image_url.startsWith("http") || !image_url.startsWith("https"))) {
-                        image_url = await createFileClient().getObjectData({
-                            objectName: image_url,
-                            encodingType: "base64",
-                            addFileType: true,
-                        })
-                    }
-                    newMessage.content.push({
-                        type: "image_url",
-                        image_url: {
-                            url: image_url,
-                        },
+                        text: content || (message.role === "user" && audios ? "请识别上述音频内容并据此生成回复" : "")
                     });
                 }
             }
+
             newMessageList.push(newMessage);
         }
-
         return newMessageList;
 
     }

@@ -125,18 +125,20 @@ class MinioApi {
                         return;
                     }
                     let dataStr = dataBuffer.toString('base64')
+                    const mimeType = mimeTypes.lookup(objectName); // 使用mime-types库自动查找
                     // 添加文件类型到base64字符串中
                     if (addFileType) {
-                        // 如果图片有扩展名，添加到base64字符串中
-                        const mimeType = mimeTypes.lookup(objectName); // 使用mime-types库自动查找
                         if (mimeType) {
                             dataStr = `data:${mimeType};base64,${dataStr}`;
                         } else {
                             dataStr = `data:application/octet-stream;base64,${dataStr}`; // 默认使用二进制流类型
                         }
                     }
-
-                    resolve(dataStr);
+                    resolve({
+                        dataStr: dataStr,
+                        fileType: mimeTypes.extension(mimeType || ""),
+                        mimeType: mimeTypes.lookup(objectName), // 使用mime-types库自动查找
+                    });
                 });
 
                 stream.on('error', (err: any) => {
