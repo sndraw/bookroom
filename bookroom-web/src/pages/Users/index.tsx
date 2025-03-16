@@ -1,4 +1,5 @@
 import { STATUS_MAP } from '@/constants/DataMap';
+import useHeaderHeight from '@/hooks/useHeaderHeight';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import { queryActivedRoleList } from '@/services/admin/role';
 import {
@@ -31,6 +32,12 @@ const UsersPage: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();
   const editableActionRef = useRef<EditableFormInstance>();
   const [loading, setLoading] = useState<string | boolean | number>(false);
+  const headerHeight = useHeaderHeight();
+
+  // 计算样式
+  const containerHeight = useCallback(() => {
+    return `calc(100vh - ${headerHeight + 320}px)`;
+  }, [headerHeight]);
 
   // /**
   //  * 添加节点
@@ -337,6 +344,9 @@ const UsersPage: React.FC<unknown> = () => {
               // labelWidth: 120,
             }
           }
+          scroll={{
+            y: containerHeight(),
+          }}
           pagination={{
             defaultPageSize: 10,
             defaultCurrent: 1,
@@ -410,44 +420,44 @@ const UsersPage: React.FC<unknown> = () => {
               </Space>
             );
           }}
-          // tableAlertOptionRender={({ selectedRowKeys }) => {
-          //   return (
-          //     <Space size={16}>
-          //       <Button
-          //         type="primary"
-          //         onClick={async () => {
-          //           const userIdListStr = selectedRowKeys.join(',');
-          //           const result = await handleModifyUserStatus(
-          //             userIdListStr,
-          //             STATUS_MAP.ENABLE,
-          //           );
-          //           if (result) {
-          //             actionRef.current?.clearSelected?.();
-          //             actionRef.current?.reloadAndRest?.();
-          //           }
-          //         }}
-          //       >
-          //         批量启用
-          //       </Button>
-          //       <Button
-          //         danger
-          //         onClick={async () => {
-          //           const userIdListStr = selectedRowKeys.join(',');
-          //           const result = await handleModifyUserStatus(
-          //             userIdListStr,
-          //             STATUS_MAP.DISABLE,
-          //           );
-          //           if (result) {
-          //             actionRef.current?.clearSelected?.();
-          //             actionRef.current?.reloadAndRest?.();
-          //           }
-          //         }}
-          //       >
-          //         批量禁用
-          //       </Button>
-          //     </Space>
-          //   );
-          // }}
+        // tableAlertOptionRender={({ selectedRowKeys }) => {
+        //   return (
+        //     <Space size={16}>
+        //       <Button
+        //         type="primary"
+        //         onClick={async () => {
+        //           const userIdListStr = selectedRowKeys.join(',');
+        //           const result = await handleModifyUserStatus(
+        //             userIdListStr,
+        //             STATUS_MAP.ENABLE,
+        //           );
+        //           if (result) {
+        //             actionRef.current?.clearSelected?.();
+        //             actionRef.current?.reloadAndRest?.();
+        //           }
+        //         }}
+        //       >
+        //         批量启用
+        //       </Button>
+        //       <Button
+        //         danger
+        //         onClick={async () => {
+        //           const userIdListStr = selectedRowKeys.join(',');
+        //           const result = await handleModifyUserStatus(
+        //             userIdListStr,
+        //             STATUS_MAP.DISABLE,
+        //           );
+        //           if (result) {
+        //             actionRef.current?.clearSelected?.();
+        //             actionRef.current?.reloadAndRest?.();
+        //           }
+        //         }}
+        //       >
+        //         批量禁用
+        //       </Button>
+        //     </Space>
+        //   );
+        // }}
         />
         {/* <CreateForm
           onCancel={() => handleCreateModalVisible(false)}

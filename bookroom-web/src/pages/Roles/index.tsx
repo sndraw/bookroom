@@ -27,11 +27,18 @@ import {
 } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
 import CreateForm from './components/CreateForm';
+import useHeaderHeight from '@/hooks/useHeaderHeight';
 
 const RolesPage: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();
   const editableActionRef = useRef<EditableFormInstance>();
   const [loading, setLoading] = useState<string | boolean | number>(false);
+  const headerHeight = useHeaderHeight();
+  // 计算样式
+  const containerHeight  = useCallback(() => {
+    return `calc(100vh - ${headerHeight + 320}px)`;
+  }, [headerHeight]);
+
   // 创建节点
   const [createModalVisible, handleCreateModalVisible] =
     useState<boolean>(false);
@@ -303,6 +310,9 @@ const RolesPage: React.FC<unknown> = () => {
               // labelWidth: 120,
             }
           }
+          scroll={{
+            y: containerHeight(),
+          }}
           pagination={{
             defaultPageSize: 10,
             defaultCurrent: 1,
@@ -376,44 +386,6 @@ const RolesPage: React.FC<unknown> = () => {
               </Space>
             );
           }}
-          // tableAlertOptionRender={({ selectedRowKeys }) => {
-          //   return (
-          //     <Space size={16}>
-          //       <Button
-          //         type="primary"
-          //         onClick={async () => {
-          //           const roleIdListStr = selectedRowKeys.join(',');
-          //           const result = await handleModifyRoleStatus(
-          //             roleIdListStr,
-          //             ROLE_STATUS_MAP.ENABLE.value,
-          //           );
-          //           if (result) {
-          //             actionRef.current?.clearSelected?.();
-          //             actionRef.current?.reloadAndRest?.();
-          //           }
-          //         }}
-          //       >
-          //         批量启用
-          //       </Button>
-          //       <Button
-          //         danger
-          //         onClick={async () => {
-          //           const roleIdListStr = selectedRowKeys.join(',');
-          //           const result = await handleModifyRoleStatus(
-          //             roleIdListStr,
-          //             ROLE_STATUS_MAP.DISABLE.value,
-          //           );
-          //           if (result) {
-          //             actionRef.current?.clearSelected?.();
-          //             actionRef.current?.reloadAndRest?.();
-          //           }
-          //         }}
-          //       >
-          //         批量禁用
-          //       </Button>
-          //     </Space>
-          //   );
-          // }}
         />
         <CreateForm
           onCancel={() => handleCreateModalVisible(false)}

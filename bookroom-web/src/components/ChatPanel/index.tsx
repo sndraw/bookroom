@@ -9,13 +9,14 @@ import { Button, FloatButton, Form, Input, message, Popconfirm } from 'antd';
 import classNames from 'classnames';
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
-import { getUrlAndUploadFileApi } from '@/services/common/file';
 import ImageUploadPreview from '../ImageUploadPreview';
-import VoiceChat from '../VoiceChat';
+import VoiceChat from '../Voice/VoiceChat';
 import AssistantMessage from './AssistantMessage';
 import styles from './index.less';
 import { ChatMessageType } from './types';
 import UserMessage from './UserMessage';
+import { voiceRecognizeTask } from '@/services/common/voice';
+import { getUrlAndUploadFileApi } from '@/services/common/file';
 
 type ChatPanelPropsType = {
   // 标题
@@ -24,8 +25,8 @@ type ChatPanelPropsType = {
   defaultMessageList?: ChatMessageType[];
   // 是否支持images
   supportImages?: boolean;
-  // 是否支持语音
-  supportVoice?: boolean;
+  // 语音识别参数
+  voiceParams?: any;
   // 请求方法
   customRequest: (data: any, options: any) => Promise<any>;
   // 消息发送
@@ -50,7 +51,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     title,
     defaultMessageList,
     supportImages,
-    supportVoice,
+    voiceParams,
     customRequest,
     onSend,
     onStop,
@@ -65,6 +66,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
 
   const objectIdMapRef = useRef<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(false);
+  const [voiceLoading, setVoiceLoading] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(false);
 
   const [form] = Form.useForm();
@@ -281,8 +283,8 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     if (loading) {
       return;
     }
-    const { msg, voice } = values;
-    if (!msg?.trim() && !voice && !imageList?.length && !videoList?.length) {
+    const { msg } = values;
+    if (!msg?.trim() && !imageList?.length && !videoList?.length) {
       return;
     }
     form.resetFields();
@@ -311,9 +313,6 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     //   newMessage.videos = [...objectIds];
     //   setVideoList([]);
     // }
-    if (supportVoice && voice) {
-      newMessage.audios = [voice];
-    }
 
     const newMessageList = [...messageList, newMessage];
     handleSend?.(newMessageList);
@@ -328,6 +327,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       //   audio.play();
       // }
       if (audioBlob instanceof Blob) {
+        setVoiceLoading(true)
         // 上传音频文件到服务器 type: 'audio/wav'
         const objectId = new Date().getTime() + '_' + 'voice.wav';
         // 上传文件
@@ -342,16 +342,24 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         if (!isUploaded) {
           return;
         }
-        // 提交消息
-        setTimeout(() => {
-          handleSubmit({
-            msg: '',
-            voice: objectId,
-          });
-        }, 500);
+        const response: any = await voiceRecognizeTask({
+          id: voiceParams,
+          is_stream: false
+        }, {
+          voiceData: objectId,
+        });
+        if (!response?.ok) {
+          const res = await response.json();
+          throw res;
+        } else {
+          const res = await response.json();
+          form.setFieldValue('msg', res.data);
+        }
       }
-    } catch (error) {
-      message.error('处理语音消息失败');
+    } catch (error: any) {
+      message.error(error?.message || "语音识别失败");
+    } finally {
+      setVoiceLoading(false)
     }
   };
 
@@ -476,7 +484,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         </div>
       )}
 
-      {!disabled && !loading &&
+      {!disabled && !loading && !voiceLoading &&
         <Popconfirm
           disabled={loading}
           title={`确定要清空对话吗？`}
@@ -484,6 +492,11 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         >
           <FloatButton
             className={styles.clearButton}
+            style={
+              {
+                zIndex: 100, // 设置z-index值
+              }
+            }
             icon={<ClearOutlined />}
             type={"default"}
           ></FloatButton>
@@ -496,10 +509,10 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         disabled={disabled}
       >
         <div className={styles.inputTextAreaWrapper}>
-          {supportVoice && (
+          {voiceParams && (
             <VoiceChat
               className={styles?.voiceChat}
-              disabled={disabled || loading}
+              disabled={disabled || loading || voiceLoading}
               onRecordStart={() => { }}
               onRecordStop={(audioBlob) => {
                 handleVoiceMessage(audioBlob);
@@ -514,6 +527,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
               onKeyDown={handleKeyDown}
               onChange={handleInputChange}
               autoSize={{ minRows: 1, maxRows: 1 }}
+              disabled={voiceLoading}
             />
           </Form.Item>
           {/* 发送按钮 */}
@@ -524,7 +538,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
               type="primary"
               htmlType="submit"
               loading={loading}
-              disabled={disabled}
+              disabled={disabled || voiceLoading}
               title="发送"
             >
               <SendOutlined />

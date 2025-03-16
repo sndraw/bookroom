@@ -61,7 +61,7 @@ const PlatformParameters: React.FC<PlatformParametersProps> = (props) => {
         } else {
           const fieldValues = { ...data }
           if (data.parameters && typeof data.parameters === "object") {
-            fieldValues.parameters = JSON.stringify(data.parameters);
+            fieldValues.parameters = JSON.stringify(data.parameters, null, 2);
           }
           form.setFieldsValue(fieldValues);
         }

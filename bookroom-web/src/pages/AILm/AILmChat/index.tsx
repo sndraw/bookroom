@@ -3,7 +3,7 @@ import ChatParameters, {
   defaultParameters,
   ParametersType,
 } from '@/components/ChatPanel/ChatParameters';
-import PromptInput from '@/components/PromptInput';
+import PromptInput from '@/components/ChatPanel/PromptInput';
 import Page404 from '@/pages/404';
 import { AILmChat, getAILmInfo } from '@/services/common/ai/lm';
 import { Access, useAccess, useModel, useParams, useRequest } from '@umijs/max';
@@ -39,6 +39,7 @@ const AILmChatPage: React.FC = () => {
         query_mode: 'search',
         platform: platform || '',
         model: model || '',
+        type: 1,
       }),
     {
       manual: true,
@@ -113,7 +114,7 @@ const AILmChatPage: React.FC = () => {
       disabled={isLoading}
       defaultMessageList={chatInfo?.messages}
       supportImages={parameters?.supportImages}
-      supportVoice={parameters?.supportVoice}
+      voiceParams={parameters?.voiceParams}
       customRequest={sendMsgRequest}
       onSend={(messageList) => {
         saveAIChat(
@@ -132,6 +133,7 @@ const AILmChatPage: React.FC = () => {
           {
             platform,
             model,
+            name:"",
             type: 1,
             parameters,
             prompt,
@@ -156,9 +158,14 @@ const AILmChatPage: React.FC = () => {
             )}
           </Access>
           <ChatParameters
+            platform={platform}
             data={data}
             parameters={parameters}
             changeParameters={(newParameters) => {
+              // 如果未改变，则不更新参数 */
+              if (JSON.stringify(parameters) === JSON.stringify(newParameters)) {
+                return;
+              }
               setParameters(newParameters);
               saveAIChat({
                 platform,

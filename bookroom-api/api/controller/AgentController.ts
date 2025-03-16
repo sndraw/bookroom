@@ -402,7 +402,7 @@ class AgentController extends BaseController {
             ctx.res.once('close', () => {
                 AgentLogService.addAgentLog({
                     agentId: agent_id,
-                    input: JSON.stringify(queryParams) || '',
+                    input: JSON.stringify(queryParams, null, 2) || '',
                     output: responseText,
                     userId: ctx.userId,
                     status: StatusEnum.ENABLE,

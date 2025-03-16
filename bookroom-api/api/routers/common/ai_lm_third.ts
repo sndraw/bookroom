@@ -62,7 +62,7 @@ const routerList = [
         method: "POST",
         handler: AILmThirdController.embeddingVector,
         auth: [USER_ROLE_ENUM.OPS, USER_ROLE_ENUM.DEV, USER_ROLE_ENUM.USER]
-    },
+    }
 ];
 
 export default routerList;

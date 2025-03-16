@@ -1,3 +1,4 @@
+import { VOICE_RECOGNIZE_API_MAP } from "@/common/voice";
 
 export const ROUTE_BASE_URL = process.env.SERVER_BASE_URL || '/api';
 
@@ -11,6 +12,7 @@ export default {
     REFRESH_TOKEN: ROUTE_BASE_URL + "/token/refresh",
     LOGOUT: ROUTE_BASE_URL + "/logout",
     PWD: ROUTE_BASE_URL + "/pwd",
+    INITIAL: ROUTE_BASE_URL + "/initial",
     IMAGE_LIST: ROUTE_BASE_URL + "/image",
     IMAGE_PREVIEW: ROUTE_BASE_URL + "/image/preview",
     IMAGE_DOWNLOAD: ROUTE_BASE_URL + "/image/download",
@@ -18,7 +20,9 @@ export default {
     FILE_UPLOAD_URL: ROUTE_BASE_URL + "/file/upload/:object_id",
     FILE_PREVIEW: ROUTE_BASE_URL + "/file/preview/:object_id",
     FILE_DOWNLOAD: ROUTE_BASE_URL + "/file/download/:object_id",
-    INITIAL: ROUTE_BASE_URL + "/initial",
+    VOICE_RECOGNIZE:ROUTE_BASE_URL + "/voice/recognize",
+    VOICE_RECOGNIZE_DETAIL:ROUTE_BASE_URL + "/voice/recognize/:id",
+    VOICE_RECOGNIZE_TASK:ROUTE_BASE_URL + "/voice/recognize/:id/task",
     AI_CHAT: ROUTE_BASE_URL + "/ai/chat",
     AI_CHAT_DETAIL: ROUTE_BASE_URL + "/ai/chat/:chat_id",
     AI_LM_ALL: ROUTE_BASE_URL + "/ai/lm",

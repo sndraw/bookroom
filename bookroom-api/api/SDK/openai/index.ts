@@ -108,7 +108,44 @@ class OpenAIApi {
             throw e;
         }
     }
+    // 语音识别
+    async getVoiceRecognize(params: any) {
+        const { model, audio, language } = params;
+        try {
+            let audioData = audio;
+            if (typeof audio === "string" && (!audio.startsWith("http") || !audio.startsWith("https"))) {
+                const imageObj: any = await createFileClient().getObjectData({
+                    objectName: audio,
+                    encodingType: "base64",
+                    addFileType: true,
+                })
+                audioData = imageObj?.dataStr;
+            }
+            const response = await this.openai.audio.transcriptions.create({
+                file: audioData,
+                model,
+                language: language
+            });
+            if (!response?.success) {
+                throw new Error("语音识别失败");
+            }
+            const transcriptions = response?.transcriptions;
+            if (!transcriptions) {
+                throw new Error("语音识别失败");
+            }
+            const transcription = transcriptions[0];
+            if (!transcription?.text) {
+                throw new Error("语音识别失败");
+            }
+            return transcription?.text;
+        } catch (e) {
+            console.log(e)
+            throw e;
+        }
+    }
 
+
+    // 对话补全
     async getAILmGenerate(params: any) {
         const { model, prompt, images, is_stream, temperature = 0.7, max_tokens = 4096 } = params;
         try {
@@ -277,6 +314,7 @@ class OpenAIApi {
                             })
                             message.image_url.url = imageObj?.dataStr;
                         }
+                        newMessage.content.push(message);
                     }
                 }
                 const audios = message?.audios;
@@ -306,7 +344,7 @@ class OpenAIApi {
                 if (typeof content === "string") {
                     newMessage.content.push({
                         type: "text",
-                        text: content || (message.role === "user" && audios ? "请识别上述音频内容并据此生成回复" : "")
+                        text: content || "Hello!"
                     });
                 }
             }

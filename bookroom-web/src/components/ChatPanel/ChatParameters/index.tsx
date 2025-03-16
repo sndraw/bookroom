@@ -13,11 +13,12 @@ import {
 } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
+import VoiceRecognizeSelect from '@/components/Voice/VoiceRecognizeSelect';
 
 export interface ParametersType {
   isStream: boolean;
   supportImages: boolean;
-  supportVoice?: boolean;
+  voiceParams?: any;
   temperature: number;
   topK: number;
   topP: number;
@@ -30,7 +31,7 @@ export interface ParametersType {
 export const defaultParameters: ParametersType = {
   isStream: true,
   supportImages: true,
-  supportVoice: true,
+  voiceParams: false,
   temperature: 0.7,
   topK: 10,
   topP: 0.9,
@@ -41,6 +42,7 @@ export const defaultParameters: ParametersType = {
 };
 
 interface ChatParametersProps {
+  platform: string;
   data: any;
   parameters: any;
   changeParameters: (parameters: ParametersType) => void;
@@ -50,7 +52,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isStream, setIsStream] = useState<boolean>(true);
   const [supportImages, setSupportImages] = useState<boolean>(true);
-  const [supportVoice, setSupportVoice] = useState<boolean>(true);
+  const [voiceParams, setVoiceParams] = useState<any>(false);
   const [temperature, setTemperature] = useState<number>(0.7);
   const [topK, setTopK] = useState<number>(10);
   const [topP, setTopP] = useState<number>(0.9);
@@ -59,13 +61,13 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [presencePenalty, setPresencePenalty] = useState<number>(0);
   const [maxTokens, setMaxTokens] = useState<number>(4096);
   const { token } = useToken();
-  const { data, parameters, changeParameters } = props;
+  const {platform, data, parameters, changeParameters } = props;
 
   useEffect(() => {
     if (parameters) {
       setIsStream(parameters.isStream);
       setSupportImages(parameters.supportImages);
-      setSupportVoice(parameters.supportVoice); // 这里需要修改为支持语音
+      setVoiceParams(parameters.voiceParams); // 这里需要修改为支持语音
       setTemperature(parameters.temperature);
       setTopK(parameters.topK);
       setTopP(parameters.topP);
@@ -80,7 +82,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
     const newParameters: ParametersType = {
       isStream,
       supportImages,
-      supportVoice,
+      voiceParams,
       temperature,
       topK,
       topP,
@@ -336,16 +338,11 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
             align="center"
           >
             <label className={styles.formLabel}>语音输入：</label>
-            <Switch
-              value={supportVoice}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setSupportVoice(false);
-                }
-                setSupportVoice(checked);
+            <VoiceRecognizeSelect
+              value={voiceParams}
+              onChange={(value: any) => {
+                setVoiceParams(value);
               }}
-              checkedChildren="启用"
-              unCheckedChildren="禁用"
             />
           </Flex>
         </div>

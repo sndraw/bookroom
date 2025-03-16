@@ -406,7 +406,6 @@ class AILmService {
         }
         return result
     }
-
 }
 
 export default AILmService

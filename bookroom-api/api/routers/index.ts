@@ -1,5 +1,6 @@
 import Router from "koa-router";
-import RouteMap from "@/routers/RouteMap";
+import { USER_ROLE_ENUM } from "@/constants/RoleMap";
+import authMiddleware from "@/middlewares/auth.middleware";
 import admin_role from "./admin/role";
 import admin_user from "./admin/user";
 import ai_chat from "./common/ai_chat";
@@ -7,18 +8,18 @@ import ai_graph from "./common/ai_graph";
 import ai_lm_third from "./common/ai_lm_third";
 import agent from "./common/agent";
 import platform from "./common/platform";
-// import image from "./common/image";
 import file from "./common/file";
-// import oauth2 from "./common/oauth2";
 import login from "./common/login";
 import site from "./common/site";
-// import test from "./common/test";
 import user_info from "./common/user_info";
-
-import authMiddleware from "@/middlewares/auth.middleware";
 import search from "./common/search";
-import { USER_ROLE_ENUM } from "@/constants/RoleMap";
+import voice from "./common/voice";
+// import image from "./common/image";
+// import oauth2 from "./common/oauth2";
 // import wechat from "./common/wechat";
+// import test from "./common/test";
+
+
 
 const router = new Router();
 
@@ -38,14 +39,16 @@ export const routerList: RouteItem[] = [
   ...agent,
   ...platform,
   ...file,
-  // ...image,
   ...login,
-  // ...oauth2,
   ...site,
-  // ...test,
   ...search,
   ...user_info,
+  ...voice,
+  // ...image,
+  // ...oauth2,
   // ...wechat
+  // ...test,
+
 ];
 
 routerList.forEach((item: any) => {

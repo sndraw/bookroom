@@ -27,19 +27,29 @@ import {
   Space,
   Switch,
   Table,
+  Typography,
   message,
 } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
+import useHeaderHeight from '@/hooks/useHeaderHeight';
 import { PLATFORM_TYPE_MAP } from '@/common/platform';
 import { AGENT_API_MAP } from '@/common/agent';
 import { SEARCH_API_MAP } from '@/common/search';
 import ParametersEdit from '@/components/Platform/PlatformParameters';
 import PlatformAdd from '@/components/Platform/PlatformAdd';
+import { VOICE_RECOGNIZE_API_MAP } from '@/common/voice';
 
 const PlatformPage: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();
   const editableActionRef = useRef<EditableFormInstance>();
   const [loading, setLoading] = useState<string | boolean | number>(false);
+  const headerHeight = useHeaderHeight();
+
+  // 计算样式
+  const containerHeight = useCallback(() => {
+    return `calc(100vh - ${headerHeight + 320}px)`;
+  }, [headerHeight]);
+
   /**
    * 添加节点
    * @param fields
@@ -316,6 +326,18 @@ const PlatformPage: React.FC<unknown> = () => {
           );
           return options;
         }
+        if (params?.type === PLATFORM_TYPE_MAP.voice_recognize.value) {
+          const options: any = Object.entries(VOICE_RECOGNIZE_API_MAP).map(
+            (item) => {
+              return {
+                label: item[1]?.text,
+                value: item[1]?.value,
+              };
+            },
+          );
+          return options;
+        }
+
         return [];
       },
       formItemProps: {
@@ -337,11 +359,16 @@ const PlatformPage: React.FC<unknown> = () => {
       dataIndex: 'host',
       // editable: false,
       hideInSearch: true,
+      //@ts-ignore
+      width: 200,
+      ellipsis: {
+        showTitle: true,
+      },
       render: (dom, entity) => {
         return (
-          <Button href={entity?.host} type="link" target="_blank">
+          <a style={{ whiteSpace: "normal" }} href={entity?.host} target="_blank">
             {entity?.host}
-          </Button>
+          </a>
         );
       },
       formItemProps: {
@@ -383,15 +410,17 @@ const PlatformPage: React.FC<unknown> = () => {
       hideInForm: true,
       // 数值转换
       renderText: (value) => {
+        let text = String(value);
         // 如果是object
         if (typeof value === 'object') {
           // 如果object为空
           if (Object.keys(value).length === 0) {
-            return '';
+            text = ""
+          } else {
+            text = JSON.stringify(value, null, 2)
           }
-          return JSON.stringify(value);
         }
-        return String(value);
+        return <pre>{text}</pre>;
       },
       formItemProps: {
         rules: [
@@ -476,7 +505,7 @@ const PlatformPage: React.FC<unknown> = () => {
       // 右侧固定列
       // @ts-ignore
       fixed: 'right',
-      width: 100,
+      width: 120,
       render: (_: any, row, index, action) => (
         <>
           <ParametersEdit
@@ -524,129 +553,92 @@ const PlatformPage: React.FC<unknown> = () => {
 
   return (
     <DefaultLayout>
-      <>
-        <EditableProTable<API.PlatformInfo>
-          headerTitle="查询表格"
-          loading={{
-            spinning: Boolean(loading),
-            tip: loading,
-          }}
-          actionRef={actionRef}
-          editableFormRef={editableActionRef}
-          rowKey="id"
-          search={{
-            labelWidth: 120,
-          }}
-          pagination={{
-            defaultPageSize: 10,
-            defaultCurrent: 1,
-            showSizeChanger: true,
-          }}
-          toolBarRender={() => [
-            <PlatformAdd
-              key="add"
-              columns={columns}
-              disabled={!!loading}
-              onFinished={(values) => handleAdd(values)}
-              refresh={() => actionRef?.current?.reload()}
-            />,
-          ]}
-          request={async (params, sorter, filter) => {
-            const { data } = await queryPlatformList({
-              ...params,
-              // @ts-ignore
-              sorter,
-              filter,
-            });
-            return {
-              data: [...(data?.list || [])],
-              // 不传会使用 data 的长度，如果是分页一定要传
-              total: data?.total || 0,
-            };
-          }}
-          // @ts-ignore
-          columns={columns}
-          // rowSelection={{
-          //   onChange: (_, selectedRows) => setSelectedRows(selectedRows),
-          // }}
-          editable={{
-            type: 'single',
-            onSave: async (rowKey, data, originRow) => {
-              const result = await handleUpdate(originRow.id, data);
-              if (!result) {
-                // actionRef?.current?.cancelEditable(rowKey);
-                throw new Error('修改失败');
-              }
-            },
-            actionRender: (_row, _config, defaultDom) => [
-              defaultDom.save,
-              defaultDom.cancel,
-            ],
-            // onDelete: async (rowKey, row) => {
-            //   const result = await handleRemove(row.id);
-            //   if (!result) {
-            //     throw `删除${rowKey}错误`;
-            //   }
-            // },
-          }}
-          recordCreatorProps={false}
-          rowSelection={{
-            // 注释该行则默认不显示下拉选项
-            selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-            defaultSelectedRowKeys: [],
-          }}
-          tableAlertRender={({ selectedRowKeys, onCleanSelected }) => {
-            return (
-              <Space size={24}>
-                <span>
-                  已选 {selectedRowKeys.length} 项
-                  <a style={{ marginInlineStart: 8 }} onClick={onCleanSelected}>
-                    取消选择
-                  </a>
-                </span>
-              </Space>
-            );
-          }}
-        // tableAlertOptionRender={({ selectedRowKeys }) => {
-        //   return (
-        //     <Space size={16}>
-        //       <Button
-        //         type="primary"
-        //         onClick={async () => {
-        //           const platformIdListStr = selectedRowKeys.join(',');
-        //           const result = await handleModifyPlatformStatus(
-        //             platformIdListStr,
-        //             STATUS_MAP.ENABLE.value,
-        //           );
-        //           if (result) {
-        //             actionRef.current?.clearSelected?.();
-        //             actionRef.current?.reloadAndRest?.();
-        //           }
-        //         }}
-        //       >
-        //         批量启用
-        //       </Button>
-        //       <Button
-        //         danger
-        //         onClick={async () => {
-        //           const platformIdListStr = selectedRowKeys.join(',');
-        //           const result = await handleModifyPlatformStatus(
-        //             platformIdListStr,
-        //             STATUS_MAP.DISABLE.value,
-        //           );
-        //           if (result) {
-        //             actionRef.current?.clearSelected?.();
-        //             actionRef.current?.reloadAndRest?.();
-        //           }
-        //         }}
-        //       >
-        //         批量禁用
-        //       </Button>
-        //     </Space>
-        //   );
+      <EditableProTable<API.PlatformInfo>
+        headerTitle="查询表格"
+        loading={{
+          spinning: Boolean(loading),
+          tip: loading,
+        }}
+        actionRef={actionRef}
+        editableFormRef={editableActionRef}
+        rowKey="id"
+        scroll={{
+          y: containerHeight(),
+        }}
+        search={{
+          labelWidth: 120,
+        }}
+        pagination={{
+          defaultPageSize: 10,
+          defaultCurrent: 1,
+          showSizeChanger: true,
+        }}
+        toolBarRender={() => [
+          <PlatformAdd
+            key="add"
+            columns={columns}
+            disabled={!!loading}
+            onFinished={(values) => handleAdd(values)}
+            refresh={() => actionRef?.current?.reload()}
+          />,
+        ]}
+        request={async (params, sorter, filter) => {
+          const { data } = await queryPlatformList({
+            ...params,
+            // @ts-ignore
+            sorter,
+            filter,
+          });
+          return {
+            data: [...(data?.list || [])],
+            // 不传会使用 data 的长度，如果是分页一定要传
+            total: data?.total || 0,
+          };
+        }}
+        // @ts-ignore
+        columns={columns}
+        // rowSelection={{
+        //   onChange: (_, selectedRows) => setSelectedRows(selectedRows),
         // }}
-        />
-      </>
+        editable={{
+          type: 'single',
+          onSave: async (rowKey, data, originRow) => {
+            const result = await handleUpdate(originRow.id, data);
+            if (!result) {
+              // actionRef?.current?.cancelEditable(rowKey);
+              throw new Error('修改失败');
+            }
+          },
+          actionRender: (_row, _config, defaultDom) => [
+            defaultDom.save,
+            defaultDom.cancel,
+          ],
+          // onDelete: async (rowKey, row) => {
+          //   const result = await handleRemove(row.id);
+          //   if (!result) {
+          //     throw `删除${rowKey}错误`;
+          //   }
+          // },
+        }}
+        recordCreatorProps={false}
+        rowSelection={{
+          // 注释该行则默认不显示下拉选项
+          selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+          defaultSelectedRowKeys: [],
+        }}
+        tableAlertRender={({ selectedRowKeys, onCleanSelected }) => {
+          return (
+            <Space size={24}>
+              <span>
+                已选 {selectedRowKeys.length} 项
+                <a style={{ marginInlineStart: 8 }} onClick={onCleanSelected}>
+                  取消选择
+                </a>
+              </span>
+            </Space>
+          );
+        }}
+      />
     </DefaultLayout>
   );
 };

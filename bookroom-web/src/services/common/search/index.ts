@@ -3,7 +3,7 @@ import { PLATFORM_TYPE_MAP } from '@/common/platform';
 import { request } from '@umijs/max';
 
 /** GET /platform/actived  */
-export async function querySearchList(options?: { [key: string]: any }) {
+export async function querySearchEngineList(options?: { [key: string]: any }) {
   const params = {
     type: PLATFORM_TYPE_MAP?.search.value,
   };
