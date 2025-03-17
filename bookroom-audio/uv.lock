@@ -40,6 +40,15 @@ wheels = [
 ]
 
 [[package]]
+name = "ascii-colors"
+version = "0.5.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/4e/b0/ae76326b3f5ea0199b6c404c1c0833471caf23025ad907d184e9d678e133/ascii_colors-0.5.2.tar.gz", hash = "sha256:8d6a6e6433cabc49b91acf53b9416ceeab9bcb8f7bba0ebe9c177395c5463790", size = 11815 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/26/c8/2bb16138ca011f6297635a2e1aa4aec67fa81957625abd33db4139ab739a/ascii_colors-0.5.2-py3-none-any.whl", hash = "sha256:f5f1dc98116b44d3f6e110980361d8e167647bf8710c974ec4f38f9c5fe7cf8f", size = 10596 },
+]
+
+[[package]]
 name = "av"
 version = "14.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -77,6 +86,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "argparse" },
+    { name = "ascii-colors" },
     { name = "dotenv" },
     { name = "fastapi" },
     { name = "faster-whisper" },
@@ -91,6 +101,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "argparse", specifier = ">=1.4.0" },
+    { name = "ascii-colors", specifier = ">=0.5.2" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "fastapi", specifier = ">=0.115.11" },
     { name = "faster-whisper", specifier = ">=1.1.1" },

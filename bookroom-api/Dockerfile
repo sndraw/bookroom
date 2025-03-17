@@ -1,9 +1,8 @@
 # 使用 Node.js 官方基础镜像进行构建
-
 FROM  node:22 AS base
-
-
 FROM  base AS builder
+
+
 WORKDIR /app
 
 

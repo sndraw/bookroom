@@ -34,7 +34,6 @@ log/
 .gradio/
 .history/
 temp/
-
 # IDE / Editor Files
 .idea/
 .vscode/

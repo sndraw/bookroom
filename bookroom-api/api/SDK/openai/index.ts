@@ -121,23 +121,22 @@ class OpenAIApi {
                 })
                 audioData = imageObj?.dataStr;
             }
-            const response = await this.openai.audio.transcriptions.create({
+            const result = await this.openai.audio.transcriptions.create({
                 file: audioData,
                 model,
                 language: language
             });
-            if (!response?.success) {
+            if (!result) {
                 throw new Error("语音识别失败");
             }
-            const transcriptions = response?.transcriptions;
-            if (!transcriptions) {
-                throw new Error("语音识别失败");
+            let fullTranscription = result?.text || "";
+            // 如果results是个数组
+            if (Array.isArray(result)) {
+                for (const transcription of result) {
+                    fullTranscription += transcription?.text;
+                }
             }
-            const transcription = transcriptions[0];
-            if (!transcription?.text) {
-                throw new Error("语音识别失败");
-            }
-            return transcription?.text;
+            return fullTranscription;
         } catch (e) {
             console.log(e)
             throw e;

@@ -1,10 +1,14 @@
 import argparse
+import logging
 import os
 from typing import Optional
 
 from fastapi import HTTPException, Security
 from fastapi.security import APIKeyHeader
 from starlette.status import HTTP_403_FORBIDDEN
+from bookroom_audio.api import __api_name__
+
+logger = logging.getLogger(__api_name__)
 
 
 def parse_args():
@@ -19,10 +23,16 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--model-size",
+        "--model",
         type=str,
-        default=os.getenv("MODEL_SIZE", "medium"),
-        help="Size of the Whisper model to use (default: medium).",
+        default=os.getenv("MODEL", "medium"),
+        help="Size or path of the Whisper model to use (default: medium).",
+    )
+    parser.add_argument(
+        "--model-keep-alive",
+        type=str,
+        default=os.getenv("MODEL_KEEP_ALIVE", "5m"),
+        help="How long to keep the model in memory before unloading it (default: 5m).",
     )
     parser.add_argument(
         "--device",
@@ -35,6 +45,18 @@ def parse_args():
         type=str,
         default=os.getenv("MODEL_SIZE", "int8"),
         help="Compute type for the model (default: int8).",
+    )
+    parser.add_argument(
+        "--num-workers",
+        type=int,
+        default=os.getenv("NUM_WORKERS", 1),
+        help="Number workders for the model (default: 1).",
+    )
+    parser.add_argument(
+        "--download-root",
+        type=str,
+        default=os.getenv("DOWNLOAD_ROOT", "./.cache"),
+        help="Download workders for the model (default: ./.cache).",
     )
     parser.add_argument(
         "--host",
@@ -91,11 +113,14 @@ def get_api_key_dependency(api_key: Optional[str]):
             raise HTTPException(
                 status_code=HTTP_403_FORBIDDEN, detail="API Key required"
             )
-            
+
         if api_key_header_value.startswith("Bearer "):
             api_key_header_value = api_key_header_value.split(" ")[1]
         else:
-            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Invalid Authorization header format")
+            raise HTTPException(
+                status_code=HTTP_403_FORBIDDEN,
+                detail="Invalid Authorization header format",
+            )
 
         if api_key_header_value != api_key:
             raise HTTPException(
@@ -104,3 +129,12 @@ def get_api_key_dependency(api_key: Optional[str]):
         return api_key_header_value
 
     return api_key_auth
+
+
+def parse_keep_alive(keep_alive):
+    if "m" in keep_alive:
+        return int(keep_alive[:-1]) * 60
+    elif "h" in keep_alive:
+        return int(keep_alive[:-1]) * 3600
+    else:
+        raise ValueError("Invalid format for keep_alive. Expected '5m' or '5h'.")
