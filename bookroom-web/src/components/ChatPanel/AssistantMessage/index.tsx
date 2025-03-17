@@ -10,7 +10,7 @@ import {
   markdownToText,
   MarkdownWithHighlighting,
 } from '@/components/Markdown';
-import TextToSpeech from '@/components/TextToSpeech';
+import TextToSpeech from '@/components/Voice/TextToSpeech';
 import { Button, Popconfirm } from 'antd';
 import styles from './index.less';
 

@@ -220,7 +220,7 @@ export async function AILmChat(
   const { platformHost, platform, model, is_stream = true } = params;
   let url = `/ai/lm/platform/${platform}/model/${model}/chat`;
   if (platformHost) {
-    url = `/${platformHost}/api/chat`;
+    url = `${platformHost}/api/chat`;
   }
 
   return postFetch({
@@ -251,7 +251,7 @@ export async function AILmGenerate(
   const { platformHost, platform, model, is_stream = true } = params;
   let url = `/ai/lm/platform/${platform}/model/${model}/generate`;
   if (platformHost) {
-    url = `/${platformHost}/api/generate`;
+    url = `${platformHost}/api/generate`;
   }
 
   return postFetch({
@@ -285,7 +285,7 @@ export async function AILmImage(
   const { platformHost, platform, model, is_stream = true } = params;
   let url = `/ai/lm/platform/${platform}/model/${model}/image`;
   if (platformHost) {
-    url = `/${platformHost}/api/image`;
+    url = `${platformHost}/api/image`;
   }
 
   return postFetch({
@@ -314,7 +314,7 @@ export async function AILmEmbed(
   const { platformHost, platform, model, is_stream = false } = params;
   let url = `/ai/lm/platform/${platform}/model/${model}/embed`;
   if (platformHost) {
-    url = `/${platformHost}/api/embed`;
+    url = `${platformHost}/api/embed`;
   }
 
   return postFetch({

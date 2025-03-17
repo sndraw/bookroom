@@ -108,7 +108,43 @@ class OpenAIApi {
             throw e;
         }
     }
+    // 语音识别
+    async getVoiceRecognize(params: any) {
+        const { model, audio, language } = params;
+        try {
+            let audioData = audio;
+            if (typeof audio === "string" && (!audio.startsWith("http") || !audio.startsWith("https"))) {
+                const imageObj: any = await createFileClient().getObjectData({
+                    objectName: audio,
+                    encodingType: "base64",
+                    addFileType: true,
+                })
+                audioData = imageObj?.dataStr;
+            }
+            const result = await this.openai.audio.transcriptions.create({
+                file: audioData,
+                model,
+                language: language
+            });
+            if (!result) {
+                throw new Error("语音识别失败");
+            }
+            let fullTranscription = result?.text || "";
+            // 如果results是个数组
+            if (Array.isArray(result)) {
+                for (const transcription of result) {
+                    fullTranscription += transcription?.text;
+                }
+            }
+            return fullTranscription;
+        } catch (e) {
+            console.log(e)
+            throw e;
+        }
+    }
 
+
+    // 对话补全
     async getAILmGenerate(params: any) {
         const { model, prompt, images, is_stream, temperature = 0.7, max_tokens = 4096 } = params;
         try {
@@ -277,6 +313,7 @@ class OpenAIApi {
                             })
                             message.image_url.url = imageObj?.dataStr;
                         }
+                        newMessage.content.push(message);
                     }
                 }
                 const audios = message?.audios;
@@ -306,7 +343,7 @@ class OpenAIApi {
                 if (typeof content === "string") {
                     newMessage.content.push({
                         type: "text",
-                        text: content || (message.role === "user" && audios ? "请识别上述音频内容并据此生成回复" : "")
+                        text: content || "Hello!"
                     });
                 }
             }

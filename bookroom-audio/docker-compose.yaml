@@ -1,0 +1,11 @@
+services:
+  bookroom_audio:
+    build: .
+    ports:
+      - "${EXPOSE_PORT:-15231}:${PORT:-15231}"
+    volumes:
+      - ./.cache:/app/.cache
+      - ./docker/entrypoint.sh:/entrypoint.sh:ro
+    env_file:
+      - .env
+    restart: unless-stopped

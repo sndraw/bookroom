@@ -6,6 +6,7 @@ declare namespace API {
     id: string;
     platformId?: string;
     platform?: string;
+    name?: string;
     model: string;
     type: number;
     parameters: object;
@@ -20,6 +21,7 @@ declare namespace API {
   interface AIChatInfoVO {
     platformId?: string;
     platform?: string;
+    name?: string;
     model: string;
     type?: number;
     prompt?: string;

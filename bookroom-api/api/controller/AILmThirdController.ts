@@ -514,7 +514,7 @@ class AILmController extends BaseController {
           platform,
           model,
           type: 1,
-          input: JSON.stringify(params), // 将请求参数转换为JSON字符串
+          input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
         });
@@ -633,7 +633,7 @@ class AILmController extends BaseController {
           platform,
           model,
           type: 1,
-          input: JSON.stringify(params), // 将请求参数转换为JSON字符串
+          input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
         });
@@ -742,7 +742,7 @@ class AILmController extends BaseController {
           platform,
           model,
           type: 1,
-          input: JSON.stringify(params), // 将请求参数转换为JSON字符串
+          input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
           status: StatusEnum.ENABLE
@@ -838,7 +838,7 @@ class AILmController extends BaseController {
           platform,
           model,
           type: 1,
-          input: JSON.stringify(params), // 将请求参数转换为JSON字符串
+          input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
         });
@@ -846,7 +846,6 @@ class AILmController extends BaseController {
     }
 
   }
-
 }
 
 export default AILmController;

@@ -5,4 +5,5 @@ export const PLATFORM_TYPE_MAP = {
     graph: { value: 'graph', text: '知识图谱' },
     agent: { value: 'agent', text: '智能助手' },
     search: { value: 'search', text: '搜索引擎' },
+    voice_recognize: { value: 'voice_recognize', text: '语音识别' },
 };

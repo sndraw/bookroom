@@ -125,6 +125,10 @@ const AgentTaskPage: React.FC = () => {
                         data={data}
                         parameters={parameters}
                         changeParameters={(newParameters) => {
+                            // 如果未改变，则不更新参数 */
+                            if (JSON.stringify(parameters) === JSON.stringify(newParameters)) {
+                                return;
+                            }
                             setParameters(newParameters);
                             updateAgent({
                                 agent: data?.id

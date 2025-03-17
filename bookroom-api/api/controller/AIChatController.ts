@@ -183,6 +183,7 @@ class AIChatController extends BaseController {
         }
         chat.setAttributes({
           ...data,
+          name: data?.name || data?.messages?.[0]?.content?.slice(0, 10) || "未知对话",
           platformId: platformConfig.id,
           model,
           userId: ctx.userId,

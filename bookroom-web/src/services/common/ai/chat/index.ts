@@ -14,6 +14,8 @@ export async function queryAIChatList(
     platform?: string;
     /** model */
     model?: string;
+    /** type */
+    type?: number; // 类型
   },
   options?: { [key: string]: any },
 ) {
@@ -45,13 +47,12 @@ export async function saveAIChat(
 /** GET /ai/chat/:chat_id  */
 export async function getAIChatInfo(
   params: {
-    platform: string;
-    model: string;
+    chat_id: string;
   },
   options?: { [key: string]: any },
 ) {
-  const { platform, model } = params;
-  return request<API.Result_AIChatInfo_>(`/ai/chat`, {
+  const { chat_id } = params;
+  return request<API.Result_AIChatInfo_>(`/ai/chat/${chat_id}`, {
     method: 'GET',
     ...(options || {}),
   });

@@ -86,7 +86,7 @@ AILmModel.init(
                 return JSON.parse(parameters);
             },
             set(value: string) {
-                const str = JSON.stringify(value || {});
+                const str = JSON.stringify(value || {}, null, 2);
                 this.setDataValue('params_onfig', str);
             },
             validate: {

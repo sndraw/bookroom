@@ -16,7 +16,7 @@
 
 **示例如下（拷贝示例文件并修改为本地 env 文件）**  
 本地 env 文件：`.env.local`
-```
+````bash
 SERVER_PORT=5001
 SERVER_LOGS_PATH=/logs/bookroom-api
 DB_HOST=localhost
@@ -38,7 +38,7 @@ MINIO_USE_SSL=false
 ```
 
 ### 3、安装全局依赖（本地热部署开发可以忽略该步骤）
-```
+````bash
 npm config set registry https://registry.npmmirror.com
 
 npm install ts-node -g
@@ -63,26 +63,26 @@ npm install pnpm -g
 
 #### pm2 部署
 
-```
+````bash
 pnpm build
 pnpm deploy
 ```
 
 #### pm2 移除服务
 
-```
+````bash
 pnpm undeploy
 ```
 
 # Docker打包
 ### 1.登录镜像仓库（可选）
-```
+```bash
 docker login -u username <IP:port>/<repository>
 ```
 ### 2.构建镜像
 
 #### make命令（参数可选）
 注：Makefile中定义了build-push-all目标，可以一次性构建并推送镜像
-```
+````bash
 make build-push-all REGISTRY_URL=<IP:port>/<repository> IMAGE_NAME=sndraw/bookroom-api IMAGE_VERISON=1.0.0
 ```

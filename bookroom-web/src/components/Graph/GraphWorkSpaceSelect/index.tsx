@@ -50,6 +50,7 @@ const GraphWorkspaceSelect: React.FC<GraphWorkspaceSelectPropsType> = (
         value={workspace}
         placeholder="请选择图谱空间"
         allowClear={false}
+        showSearch
         options={(data as any)?.map((item: any) => ({
           label: item.name,
           value: item.id,

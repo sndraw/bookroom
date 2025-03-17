@@ -1,7 +1,6 @@
 import AgentLogModel from "@/models/AgentLogModel";
 import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
-import PlatformService from "./PlatformService";
 
 
 class AgentLogService {

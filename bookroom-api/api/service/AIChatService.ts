@@ -58,6 +58,7 @@ class AIChatService {
                 // 更新对话
                 chatInfo.setAttributes({
                     ...data,
+                    name: data?.name || data?.messages?.[0]?.content?.slice(0, 10) || "未知对话",
                     updatedAt: new Date().getTime(),
                 });
                 const result = await chatInfo.save();

@@ -1,22 +1,16 @@
-import { AI_LM_PLATFORM_MAP } from '@/common/ai';
-import { QuestionCircleOutlined, SettingOutlined } from '@ant-design/icons';
+import { SettingOutlined } from '@ant-design/icons';
 import { useToken } from '@ant-design/pro-components';
-import { Access, useModel } from '@umijs/max';
+import { useModel } from '@umijs/max';
 import {
   Button,
   Drawer,
   Flex,
-  Form,
-  Input,
-  InputNumber,
   Select,
-  Slider,
-  Space,
   Switch,
-  Tooltip,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
+import SearchEngineSelect from '@/components/Search/SearchEngineSelect';
 
 export interface ParametersType {
   isStream: boolean;
@@ -42,8 +36,6 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const { data, parameters, changeParameters } = props;
   const { token } = useToken();
 
-  const { searchEngineList } = useModel('searchengineList');
-
   useEffect(() => {
     if (parameters) {
       setIsStream(parameters.isStream);
@@ -58,12 +50,6 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     };
     changeParameters(newParameters);
   };
-
-  const searchEngineOptions = () => {
-    return searchEngineList?.map((item: any) => {
-      return { value: item.id, label: item.name };
-    });
-  }
 
   return (
     <>
@@ -91,13 +77,9 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             align="center"
           >
             <label className={styles.formLabel} >搜索引擎：</label>
-            <Select
-              options={searchEngineOptions()}
-              placeholder="请选择引擎类型"
+            <SearchEngineSelect
               value={searchEngine}
-              onChange={(value) => {
-                setSearchEngine(value);
-              }}
+              onChange={(value: string) => setSearchEngine(value)}
             />
           </Flex>
           <Flex

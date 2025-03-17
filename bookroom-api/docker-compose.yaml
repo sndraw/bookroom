@@ -1,0 +1,13 @@
+
+  # The bookroom api.
+  bookroom_api:
+    build: .
+    ports:
+      - "${PORT:-5001}:5001"
+    volumes:
+      # Mount the storage directory to the container, for storing user files.
+      - ./pm2.config.js:/app/pm2.config.js:ro
+      - ./uploads:/app/api/uploads
+    env_file:
+      - .env.local
+    restart: unless-stopped

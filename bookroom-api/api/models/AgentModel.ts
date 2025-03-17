@@ -96,7 +96,7 @@ AgentModel.init(
                 return JSON.parse(parameters);
             },
             set(value: any) {
-                const str = JSON.stringify(value || {});
+                const str = JSON.stringify(value || {}, null, 2);
                 this.setDataValue('parameters', str);
             },
             allowNull: true,
@@ -118,7 +118,7 @@ AgentModel.init(
                 return JSON.parse(parameters);
             },
             set(value: any) {
-                const str = JSON.stringify(value || {});
+                const str = JSON.stringify(value || {}, null, 2);
                 this.setDataValue('messages', str);
             },
             allowNull: true,
