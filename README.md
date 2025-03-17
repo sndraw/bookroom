@@ -24,9 +24,10 @@
   - [LightRAG_Multi(多图谱空间版本)](https://github.com/sndraw/LightRAG-Multi)
 
 - ### 智能助手（多智能助手管理、自动执行任务）- 功能架构中
-  - [OpenManus](https://github.com/mannaandpoem/OpenManus)
-  - [OWL](https://github.com/camel-ai/owl)
+  - [BookRoom MCP](https://github.com/sndraw/bookroom-mcp)
 
+- ### 语音识别（本地语音识别、云端语音识别）- 功能架构中
+  - [BookRoom Audio](https://github.com/sndraw/bookroom-audio)
 
 - ### 用户管理
   - 用户注册和登录管理
@@ -63,11 +64,14 @@
 > 2. LightRAG_Multi：http://127.0.0.1:19621
 
 #### 智能助手-接口类型 - 开发中
-> 1. MCP SDK://192.168.1.2:5172
+> 1. MCP SDK://192.168.1.2:25230
 > 2. Agents SDK: http//192.168.1.2:5173
 
 #### 搜索引擎-接口类型 - 开发中
 > 1. Tavily: https://api.tavily.com
+
+#### 语音识别-接口类型 - 完善中
+> 1. OpenAI: https://192.168.1.2::25231
 
 ## 截图展示
 ### 系统配置
