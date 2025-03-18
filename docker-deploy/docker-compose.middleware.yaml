@@ -79,7 +79,7 @@ services:
         OLLAMA_ORIGINS: ${OLLAMA_ORIGINS:-*}
         OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-4}
         OLLAMA_MAX_LOADED_MODELS: ${OLLAMA_MAX_LOADED_MODELS:-4}
-        OLLAMA_KEEPALIVE: ${OLLAMA_KEEPALIVE:-5m}
+        OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-5m}
       networks:
         - bookroom_shared_network
         - default
@@ -100,8 +100,7 @@ services:
                   - gpu
 
   audio:
-    # 默认为CPU版本，cpu版本请使用: sndraw/bookroom-audio-gpu 镜像，并配置DEVICE变量为cuda
-    image: 'sndraw/bookroom-audio:0.0.1'
+    image: sndraw/bookroom-audio:0.0.2
     restart: unless-stopped
     volumes:
       - ./volumes/bookroom-audio/.cache:/app/.cache
@@ -109,9 +108,9 @@ services:
       TZ: ${TZ:-Asia/Shanghai}
       API_KEY: ${AUDIO_API_KEY:-your_api_key_here}
       MODEL: ${AUDIO_MODEL:-medium}
-      DEVICE: ${AUDIO_DEVICE:-cpu}
+      DEVICE: ${AUDIO_DEVICE:-auto}
       COMPUTE_TYPE: ${AUDIO_COMPUTE_TYPE:-float16}
-      MODEL_KEEPALIVE: ${AUDIO_MODEL_KEEPALIVE:-true}
+      MODEL_KEEP_ALIVE: ${AUDIO_MODEL_KEEP_ALIVE:-true}
       NUM_WORKERS: ${AUDIO_NUM_WORKERS:-2}
     ports:
       - "${EXPOSE_AUDIO_PORT:-15231}:${AUDIO_PORT:-15231}"

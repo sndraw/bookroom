@@ -114,12 +114,10 @@ class OpenAIApi {
         try {
             let audioData = audio;
             if (typeof audio === "string" && (!audio.startsWith("http") || !audio.startsWith("https"))) {
-                const imageObj: any = await createFileClient().getObjectData({
-                    objectName: audio,
-                    encodingType: "base64",
-                    addFileType: true,
+                const url: any = await createFileClient().presignedGetObject({
+                    objectName: audio
                 })
-                audioData = imageObj?.dataStr;
+                audioData = url;
             }
             const result = await this.openai.audio.transcriptions.create({
                 file: audioData,
@@ -133,7 +131,7 @@ class OpenAIApi {
             // 如果results是个数组
             if (Array.isArray(result)) {
                 for (const transcription of result) {
-                    fullTranscription += transcription?.text;
+                    fullTranscription += transcription?.text || "";
                 }
             }
             return fullTranscription;
