@@ -54,7 +54,7 @@ services:
       --lower_case_table_names=1
       --max_allowed_packet=128M
     volumes:
-      # - ./init/docker-entrypoint-initdb.d/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql # 挂载初始化脚本
+      - ./init/docker-entrypoint-initdb.d/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql # 挂载初始化脚本
       - ./volumes/mysql:/var/lib/mysql
       # - ./mysql/my.cnf:/etc/my.cnf
     ports:
