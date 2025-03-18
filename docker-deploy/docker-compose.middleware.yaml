@@ -107,12 +107,12 @@ services:
       - ./volumes/bookroom-audio/.cache:/app/.cache
     environment:
       TZ: ${TZ:-Asia/Shanghai}
-      AUDIO_API_KEY: ${AUDIO_API_KEY:-your_api_key_here}
-      AUDIO_MODEL: ${AUDIO_MODEL:-medium}
-      AUDIO_DEVICE: ${AUDIO_DEVICE:-cpu}
-      AUDIO_COMPUTE_TYPE: ${AUDIO_COMPUTE_TYPE:-float16}
-      AUDIO_MODEL_KEEPALIVE: ${AUDIO_MODEL_KEEPALIVE:-true}
-      AUDIO_NUM_WORKERS: ${AUDIO_NUM_WORKERS:-2}
+      API_KEY: ${AUDIO_API_KEY:-your_api_key_here}
+      MODEL: ${AUDIO_MODEL:-medium}
+      DEVICE: ${AUDIO_DEVICE:-cpu}
+      COMPUTE_TYPE: ${AUDIO_COMPUTE_TYPE:-float16}
+      MODEL_KEEPALIVE: ${AUDIO_MODEL_KEEPALIVE:-true}
+      NUM_WORKERS: ${AUDIO_NUM_WORKERS:-2}
     ports:
       - "${EXPOSE_AUDIO_PORT:-15231}:${AUDIO_PORT:-15231}"
     networks:
