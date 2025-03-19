@@ -100,7 +100,7 @@ services:
                   - gpu
 
   audio:
-    image: sndraw/bookroom-audio:0.0.2
+    image: sndraw/bookroom-audio:0.0.3
     restart: unless-stopped
     volumes:
       - ./volumes/bookroom-audio/.cache:/app/.cache
@@ -112,6 +112,8 @@ services:
       COMPUTE_TYPE: ${AUDIO_COMPUTE_TYPE:-float16}
       MODEL_KEEP_ALIVE: ${AUDIO_MODEL_KEEP_ALIVE:-true}
       NUM_WORKERS: ${AUDIO_NUM_WORKERS:-2}
+      DOWNLOAD_ROOT: ${AUDIO_DOWNLOAD_ROOT:-./cache}
+      LOCAL_FILES_ONLY: ${AUDIO_LOCAL_FILES_ONLY:-true}
     ports:
       - "${EXPOSE_AUDIO_PORT:-15231}:${AUDIO_PORT:-15231}"
     networks:
