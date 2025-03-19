@@ -1,20 +1,25 @@
 import { Divider, Select } from 'antd';
 import { useRequest } from '@umijs/max';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { queryVoiceRecognizeList } from '@/services/common/voice';
 import styles from './index.less';
+import { VOICE_RECOGNIZE_LANGUAGE_MAP, VOICE_RECOGNIZE_TASK_MAP } from '@/common/voice';
 
 type VoiceRecognizeSelectPropsType = {
   title?: string;
-  value?: string;
-  onChange: (selected: any) => void;
+  value?: API.VoiceParametersType;
+  onChange: (value: API.VoiceParametersType) => void;
   dataList?: any[];
   // 样式
   className?: string;
 };
 const VoiceRecognizeSelect: React.FC<VoiceRecognizeSelectPropsType> = (props) => {
   const { title, value, onChange, dataList, className } = props;
+  const [platformId, setPlatformId] = useState('');
+  const [task, setTask] = useState(VOICE_RECOGNIZE_TASK_MAP.transcribe.value);
+  const [language, setLanguage] = useState(VOICE_RECOGNIZE_LANGUAGE_MAP.zh.value);
+
 
   // 模型列表-请求
   const { data, loading, run } = useRequest(
@@ -32,6 +37,25 @@ const VoiceRecognizeSelect: React.FC<VoiceRecognizeSelectPropsType> = (props) =>
     }
     run();
   }, []);
+  useEffect(() => {
+    if(value){
+      setPlatformId(value?.id || '');
+      setLanguage(value?.language || '');
+      setTask(value?.task || '');
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if(!platformId){
+      onChange(null);
+      return;
+    }
+    onChange({
+      id: platformId,
+      language: language,
+      task: task,
+    });
+  }, [platformId, task, language]);
 
   return (
     <div className={classNames(styles.selectContainer, className)}>
@@ -43,7 +67,8 @@ const VoiceRecognizeSelect: React.FC<VoiceRecognizeSelectPropsType> = (props) =>
       }
       <Select<string>
         className={styles?.selectElement}
-        value={value}
+        value={platformId}
+        onChange={setPlatformId}
         placeholder="请选择语识别接口"
         allowClear
         // showSearch
@@ -52,7 +77,31 @@ const VoiceRecognizeSelect: React.FC<VoiceRecognizeSelectPropsType> = (props) =>
           label: item.name,
           value: item.id,
         }))}
-        onChange={onChange}
+      />
+      {/* 任务类型*/}
+      <Select<string>
+        className={styles?.selectElement}
+        value={task}
+        onChange={setTask}
+        placeholder="请选择任务类型"
+        loading={loading}
+        options={Object.entries(VOICE_RECOGNIZE_TASK_MAP)?.map((item: any) => ({
+          label: item[1]?.text,
+          value: item[1]?.value,
+        }))}
+      />
+      {/* 目标语言*/}
+      <Select<string>
+        className={styles?.selectElement}
+        value={language}
+        onChange={setLanguage}
+        placeholder="请选择目标语言"
+        showSearch
+        loading={loading}
+        options={Object.entries(VOICE_RECOGNIZE_LANGUAGE_MAP)?.map((item: any) => ({
+          label: item[1]?.text,
+          value: item[1]?.value,
+        }))}
       />
     </div>
   );

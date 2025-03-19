@@ -18,7 +18,7 @@ import VoiceRecognizeSelect from '@/components/Voice/VoiceRecognizeSelect';
 export interface ParametersType {
   isStream: boolean;
   supportImages: boolean;
-  voiceParams?: any;
+  voiceParams?: API.VoiceParametersType;
   temperature: number;
   topK: number;
   topP: number;
@@ -31,7 +31,7 @@ export interface ParametersType {
 export const defaultParameters: ParametersType = {
   isStream: true,
   supportImages: true,
-  voiceParams: false,
+  voiceParams: null,
   temperature: 0.7,
   topK: 10,
   topP: 0.9,
@@ -335,7 +335,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
           <Flex
             className={styles.formItem}
             justify="justifyContent"
-            align="center"
+            align="top"
           >
             <label className={styles.formLabel}>语音输入：</label>
             <VoiceRecognizeSelect

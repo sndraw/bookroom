@@ -46,9 +46,7 @@ export async function voiceRecognizeTask(
     id: string;
     is_stream?: boolean;
   },
-  body: {
-    voiceData?: any;
-  },
+  body: API.VoiceParametersType,
   options?: { [key: string]: any },
 ) {
   const { id, is_stream = false } = params;

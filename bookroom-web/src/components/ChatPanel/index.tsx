@@ -26,7 +26,7 @@ type ChatPanelPropsType = {
   // 是否支持images
   supportImages?: boolean;
   // 语音识别参数
-  voiceParams?: any;
+  voiceParams?: API.VoiceParametersType;
   // 请求方法
   customRequest: (data: any, options: any) => Promise<any>;
   // 消息发送
@@ -342,18 +342,32 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         if (!isUploaded) {
           return;
         }
+        if (!voiceParams?.id) {
+          message.error("请先配置语音输入参数");
+          return;
+        }
+        // 调用语音识别接口
         const response: any = await voiceRecognizeTask({
-          id: voiceParams,
+          id: voiceParams?.id,
           is_stream: false
         }, {
           voiceData: objectId,
+          language: voiceParams?.language,
+          task: voiceParams?.task
         });
         if (!response?.ok) {
           const res = await response.json();
           throw res;
         } else {
           const res = await response.json();
-          form.setFieldValue('msg', res.data);
+          if (res?.data) {
+            let msg = form.getFieldValue('msg') || "";
+            if (msg) {
+              msg += '\n'
+            }
+            msg += res?.data?.trim();
+            form.setFieldValue('msg', msg);
+          }
         }
       }
     } catch (error: any) {
@@ -512,7 +526,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
           {voiceParams && (
             <VoiceChat
               className={styles?.voiceChat}
-              disabled={disabled || loading || voiceLoading}
+              disabled={disabled || voiceLoading}
               onRecordStart={() => { }}
               onRecordStop={(audioBlob) => {
                 handleVoiceMessage(audioBlob);
@@ -526,8 +540,8 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
               className={styles.inputTextArea}
               onKeyDown={handleKeyDown}
               onChange={handleInputChange}
-              autoSize={{ minRows: 1, maxRows: 1 }}
-              disabled={voiceLoading}
+              autoSize={{ minRows: 1, maxRows: 4 }}
+              rows={1}
             />
           </Form.Item>
           {/* 发送按钮 */}
@@ -538,7 +552,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
               type="primary"
               htmlType="submit"
               loading={loading}
-              disabled={disabled || voiceLoading}
+              disabled={disabled}
               title="发送"
             >
               <SendOutlined />
