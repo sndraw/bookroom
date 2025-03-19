@@ -6,7 +6,7 @@ import { VOICE_RECOGNIZE_API_MAP } from "@/common/voice";
 class VoiceService {
     // 语音识别
     static async voiceRecognize(params: any) {
-        const { platform, audio, language="zh"  } = params
+        const { platform, audio, task, language } = params
 
         if (!platform) {
             throw new Error("参数错误");
@@ -29,9 +29,10 @@ class VoiceService {
         switch (platformConfig?.code) {
             case VOICE_RECOGNIZE_API_MAP.openai.value:
                 return await new OpenAIAPI(platformConfig?.toJSON()).getVoiceRecognize({
-                    model:platformConfig?.parameters?.model,
+                    model: platformConfig?.parameters?.model,
                     audio,
-                    language
+                    language,
+                    task
                 })
                 break;
             default:

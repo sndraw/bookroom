@@ -1,6 +1,7 @@
 import OpenAI from 'openai'
 import { StatusEnum } from '@/constants/DataMap';
 import { createFileClient } from '@/common/file';
+import { VOICE_RECOGNIZE_LANGUAGE_MAP, VOICE_RECOGNIZE_TASK_MAP } from '@/common/voice';
 
 class OpenAIApi {
     private readonly openai: any;
@@ -110,7 +111,7 @@ class OpenAIApi {
     }
     // 语音识别
     async getVoiceRecognize(params: any) {
-        const { model, audio, language } = params;
+        const { model, audio, language = VOICE_RECOGNIZE_LANGUAGE_MAP.zh.value, task = VOICE_RECOGNIZE_TASK_MAP.transcribe.value } = params;
         try {
             let audioData = audio;
             if (typeof audio === "string" && (!audio.startsWith("http") || !audio.startsWith("https"))) {
@@ -119,11 +120,25 @@ class OpenAIApi {
                 })
                 audioData = url;
             }
-            const result = await this.openai.audio.transcriptions.create({
-                file: audioData,
-                model,
-                language: language
-            });
+            let result: any = "";
+            switch (task) {
+                case VOICE_RECOGNIZE_TASK_MAP.translate.value:
+                    result = await this.openai.audio.translations.create({
+                        file: audioData,
+                        model,
+                        language,
+                        task
+                    });
+                    break;
+                default:
+                    result = await this.openai.audio.transcriptions.create({
+                        file: audioData,
+                        model,
+                        language,
+                        task
+                    });
+                    break;
+            }
             if (!result) {
                 throw new Error("语音识别失败");
             }

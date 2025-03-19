@@ -68,7 +68,7 @@ class VoiceController extends BaseController {
             params = JSON.parse(params);
         }
         try {
-            const { voiceData, language = 'zh' } = params || {};
+            const { voiceData, task, language = 'zh' } = params || {};
 
             if (!id) {
                 throw new Error('ID不能为空');
@@ -80,7 +80,8 @@ class VoiceController extends BaseController {
             const result = await VoiceService.voiceRecognize({
                 platform: id,
                 audio: voiceData,
-                language
+                language,
+                task
             });
             // 返回结果
             ctx.status = 200;
