@@ -61,7 +61,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [presencePenalty, setPresencePenalty] = useState<number>(0);
   const [maxTokens, setMaxTokens] = useState<number>(4096);
   const { token } = useToken();
-  const {platform, data, parameters, changeParameters } = props;
+  const { platform, data, parameters, changeParameters } = props;
 
   useEffect(() => {
     if (parameters) {
@@ -339,6 +339,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
           >
             <label className={styles.formLabel}>语音输入：</label>
             <VoiceRecognizeSelect
+              className={styles.formSelect}
               value={voiceParams}
               onChange={(value: any) => {
                 setVoiceParams(value);

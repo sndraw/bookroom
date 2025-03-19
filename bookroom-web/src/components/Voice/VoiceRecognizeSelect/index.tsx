@@ -1,4 +1,4 @@
-import { Divider, Select } from 'antd';
+import { Divider, Select, Space } from 'antd';
 import { useRequest } from '@umijs/max';
 import { useEffect, useState } from 'react';
 import classNames from 'classnames';
@@ -7,7 +7,6 @@ import styles from './index.less';
 import { VOICE_RECOGNIZE_LANGUAGE_MAP, VOICE_RECOGNIZE_TASK_MAP } from '@/common/voice';
 
 type VoiceRecognizeSelectPropsType = {
-  title?: string;
   value?: API.VoiceParametersType;
   onChange: (value: API.VoiceParametersType) => void;
   dataList?: any[];
@@ -15,7 +14,7 @@ type VoiceRecognizeSelectPropsType = {
   className?: string;
 };
 const VoiceRecognizeSelect: React.FC<VoiceRecognizeSelectPropsType> = (props) => {
-  const { title, value, onChange, dataList, className } = props;
+  const { value, onChange, dataList, className } = props;
   const [platformId, setPlatformId] = useState('');
   const [task, setTask] = useState(VOICE_RECOGNIZE_TASK_MAP.transcribe.value);
   const [language, setLanguage] = useState(VOICE_RECOGNIZE_LANGUAGE_MAP.zh.value);
@@ -38,7 +37,7 @@ const VoiceRecognizeSelect: React.FC<VoiceRecognizeSelectPropsType> = (props) =>
     run();
   }, []);
   useEffect(() => {
-    if(value){
+    if (value) {
       setPlatformId(value?.id || '');
       setLanguage(value?.language || '');
       setTask(value?.task || '');
@@ -46,7 +45,7 @@ const VoiceRecognizeSelect: React.FC<VoiceRecognizeSelectPropsType> = (props) =>
   }, [value]);
 
   useEffect(() => {
-    if(!platformId){
+    if (!platformId) {
       onChange(null);
       return;
     }
@@ -58,13 +57,7 @@ const VoiceRecognizeSelect: React.FC<VoiceRecognizeSelectPropsType> = (props) =>
   }, [platformId, task, language]);
 
   return (
-    <div className={classNames(styles.selectContainer, className)}>
-      {title &&
-        <>
-          <span className={styles.title}>{title}</span>
-          <Divider type="vertical" />
-        </>
-      }
+    <Space wrap size={10} direction={'vertical'} className={classNames(styles.selectContainer, className)}>
       <Select<string>
         className={styles?.selectElement}
         value={platformId}
@@ -103,7 +96,7 @@ const VoiceRecognizeSelect: React.FC<VoiceRecognizeSelectPropsType> = (props) =>
           value: item[1]?.value,
         }))}
       />
-    </div>
+    </Space>
   );
 };
 
