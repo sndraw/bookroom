@@ -295,13 +295,21 @@ class OpenAIApi {
                     }
                 }
                 if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
-                    const objectName = getObjectName(item, userId);
-                    const imageObj: any = await createFileClient().getObjectData({
-                        objectName,
-                        encodingType: "base64",
-                        addFileType: true,
-                    })
-                    message.image_url.url = imageObj?.dataStr;
+                    try {
+
+                        const objectName = getObjectName(item, userId);
+                        const imageObj: any = await createFileClient().getObjectData({
+                            objectName,
+                            encodingType: "base64",
+                            addFileType: true,
+                        })
+                        if (!imageObj?.dataStr) continue;
+                        message.image_url.url = imageObj?.dataStr;
+                    }
+                    catch (error) {
+                        console.error('获取图片失败:', error);
+                        continue;
+                    }
                 }
                 userMessage.content.push(message);
             }
@@ -317,7 +325,7 @@ class OpenAIApi {
         messages: any[];
         userId?: string;
     }) {
-        const { messages,userId} = params;
+        const { messages, userId } = params;
         if (!messages || !Array.isArray(messages)) {
             return null;
         }
@@ -351,13 +359,20 @@ class OpenAIApi {
                             }
                         }
                         if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
-                            const objectName = getObjectName(item, userId);
-                            const imageObj: any = await createFileClient().getObjectData({
-                                objectName,
-                                encodingType: "base64",
-                                addFileType: true,
-                            })
-                            message.image_url.url = imageObj?.dataStr;
+                            try {
+                                const objectName = getObjectName(item, userId);
+                                const imageObj: any = await createFileClient().getObjectData({
+                                    objectName,
+                                    encodingType: "base64",
+                                    addFileType: true,
+                                })
+                                if (!imageObj?.dataStr) continue;
+                                message.image_url.url = imageObj?.dataStr;
+                            }
+                            catch (error) {
+                                console.error('获取图片失败:', error);
+                                continue;
+                            }
                         }
                         newMessage.content.push(message);
                     }
@@ -373,15 +388,21 @@ class OpenAIApi {
                             }
                         }
                         if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
-                            const objectName = getObjectName(item, userId);
-                            const audioObj: any = await createFileClient().getObjectData({
-                                objectName,
-                                encodingType: "base64",
-                                addFileType: true,
-                            })
-                            message.input_audio = {
-                                data: audioObj?.dataStr,
-                                format: audioObj?.fileType || "mp3",
+                            try {
+                                const objectName = getObjectName(item, userId);
+                                const audioObj: any = await createFileClient().getObjectData({
+                                    objectName,
+                                    encodingType: "base64",
+                                    addFileType: true,
+                                })
+                                if (!audioObj?.dataStr) continue;
+                                message.input_audio = {
+                                    data: audioObj?.dataStr,
+                                    format: audioObj?.fileType || "mp3",
+                                }
+                            } catch (error) {
+                                console.error('获取音频失败:', error);
+                                continue;
                             }
                         }
                         newMessage.content.push(message);

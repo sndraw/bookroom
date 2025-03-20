@@ -222,12 +222,18 @@ class OllamaApi {
             for (let i = 0; i < newImages.length; i++) {
                 const imageId = newImages[i];
                 if (typeof imageId === "string") {
-                    const objectName = getObjectName(imageId, userId);
-                    const imageObj: any = await createFileClient().getObjectData({
-                        objectName,
-                        encodingType: "base64"
-                    });
-                    newImages[i] = imageObj?.dataStr;
+                    try {
+                        const objectName = getObjectName(imageId, userId);
+                        const imageObj: any = await createFileClient().getObjectData({
+                            objectName,
+                            encodingType: "base64"
+                        });
+                        if (!imageObj?.dataStr) continue;
+                        newImages[i] = imageObj?.dataStr;
+                    } catch (error) {
+                        console.error('获取图片失败:', error);
+                        continue;
+                    }
                 }
             }
         }
@@ -250,13 +256,19 @@ class OllamaApi {
                     const imageId = message.images[i];
                     if (typeof imageId === "string") {
                         const objectName = getObjectName(imageId, userId);
-                        const imageObj: any = await createFileClient().getObjectData(
-                            {
-                                objectName,
-                                encodingType: "base64"
-                            },
-                        );
-                        message.images[i] = imageObj?.dataStr;
+                        try {
+                            const imageObj: any = await createFileClient().getObjectData(
+                                {
+                                    objectName,
+                                    encodingType: "base64"
+                                },
+                            );
+                            if (!imageObj?.dataStr) continue;
+                            message.images[i] = imageObj?.dataStr;
+                        } catch (error) {
+                            console.error('获取图片失败:', error);
+                            continue;
+                        }
                     }
                 }
             }
