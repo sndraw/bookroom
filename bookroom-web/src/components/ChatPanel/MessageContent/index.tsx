@@ -72,7 +72,7 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
       {audioList && (
         <Space className={styles.imagePreviewContainer} wrap>
           {audioList?.map((item: string | undefined, index: any) => {
-            return (<audio controls>
+            return (<audio controls key={index}>
               <source src={item} type="audio/mpeg" />
               Your browser does not support the audio element.
             </audio>

@@ -1,7 +1,6 @@
 import { Context } from "koa";
 import { resultError, resultSuccess } from "@/common/resultFormat";
 import BaseController from "./BaseController";
-import AILmThirdService from "@/service/AILmThirdService";
 import PlatformService from "@/service/PlatformService";
 import { PLATFORM_TYPE_MAP } from "@/common/platform";
 import VoiceService from "@/service/VoiceService";
@@ -81,7 +80,8 @@ class VoiceController extends BaseController {
                 platform: id,
                 audio: voiceData,
                 language,
-                task
+                task,
+                userId: ctx?.userId
             });
             // 返回结果
             ctx.status = 200;
@@ -89,8 +89,6 @@ class VoiceController extends BaseController {
                 data: result
             });
             return;
-
-
         } catch (e: any) {
             // 异常处理，返回错误信息
             ctx.logger.error("语音识别异常：", e); // 记录错误日志

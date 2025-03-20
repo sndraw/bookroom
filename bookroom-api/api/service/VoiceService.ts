@@ -6,7 +6,7 @@ import { VOICE_RECOGNIZE_API_MAP } from "@/common/voice";
 class VoiceService {
     // 语音识别
     static async voiceRecognize(params: any) {
-        const { platform, audio, task, language } = params
+        const { platform, audio, task, language, userId } = params
 
         if (!platform) {
             throw new Error("参数错误");
@@ -32,7 +32,8 @@ class VoiceService {
                     model: platformConfig?.parameters?.model,
                     audio,
                     language,
-                    task
+                    task,
+                    userId
                 })
                 break;
             default:

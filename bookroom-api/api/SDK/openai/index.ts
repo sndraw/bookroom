@@ -1,6 +1,6 @@
 import OpenAI from 'openai'
 import { StatusEnum } from '@/constants/DataMap';
-import { createFileClient } from '@/common/file';
+import { createFileClient, getObjectName } from '@/common/file';
 import { VOICE_RECOGNIZE_LANGUAGE_MAP, VOICE_RECOGNIZE_TASK_MAP } from '@/common/voice';
 
 class OpenAIApi {
@@ -86,11 +86,21 @@ class OpenAIApi {
     }
 
     async getAILmChat(params: any) {
-        const { model, messages, is_stream, temperature = 0.7, top_p = 0.8, max_tokens = 4096 } = params
+        const {
+            model,
+            messages,
+            is_stream,
+            temperature = 0.7,
+            top_p = 0.8,
+            max_tokens = 4096,
+            userId
+        } = params
+
         try {
             // 定义新的消息列表
             const newMessageList = await this.convertMessagesToVLModelInput({
-                messages
+                messages,
+                userId
             });
             const completion = await this.openai.chat.completions.create({
                 model,
@@ -111,12 +121,19 @@ class OpenAIApi {
     }
     // 语音识别
     async getVoiceRecognize(params: any) {
-        const { model, audio, language = VOICE_RECOGNIZE_LANGUAGE_MAP.zh.value, task = VOICE_RECOGNIZE_TASK_MAP.transcribe.value } = params;
+        const {
+            model,
+            audio,
+            language = VOICE_RECOGNIZE_LANGUAGE_MAP.zh.value,
+            task = VOICE_RECOGNIZE_TASK_MAP.transcribe.value,
+            userId
+        } = params;
         try {
             let audioData = audio;
             if (typeof audio === "string" && (!audio.startsWith("http") || !audio.startsWith("https"))) {
+                const objectName = getObjectName(audio, userId);
                 const url: any = await createFileClient().presignedGetObject({
-                    objectName: audio
+                    objectName
                 })
                 audioData = url;
             }
@@ -128,7 +145,7 @@ class OpenAIApi {
                         model,
                         language,
                         task
-                    });
+                    })
                     break;
                 default:
                     result = await this.openai.audio.transcriptions.create({
@@ -159,7 +176,16 @@ class OpenAIApi {
 
     // 对话补全
     async getAILmGenerate(params: any) {
-        const { model, prompt, images, is_stream, temperature = 0.7, max_tokens = 4096 } = params;
+        const {
+            model,
+            prompt,
+            images,
+            is_stream,
+            temperature = 0.7,
+            max_tokens = 4096,
+            userId
+        } = params;
+
         try {
             let newMessageList: any[] = [
                 {
@@ -171,6 +197,7 @@ class OpenAIApi {
                 const userMessage = await this.convertImagesToVLModelInput({
                     text: prompt,
                     images,
+                    userId
                 });
                 if (userMessage) {
                     newMessageList.push(userMessage)
@@ -197,7 +224,8 @@ class OpenAIApi {
     async getAILmEmbeddings(params: any) {
         const {
             model,
-            input
+            input,
+            userId = null
         } = params;
         try {
             return await this.openai.embeddings.create({
@@ -221,7 +249,8 @@ class OpenAIApi {
                 response_format = "url",
                 style = "natural",
                 size = "1024x1024",
-                n = 1
+                n = 1,
+                userId = null
             } = params;
             const result = await this.openai.images.generate({
                 model,
@@ -246,8 +275,9 @@ class OpenAIApi {
     async convertImagesToVLModelInput(params: {
         text: string;
         images: string;
+        userId?: string;
     }) {
-        const { text, images } = params;
+        const { text, images, userId } = params;
         if (!images) {
             return null;
         };
@@ -265,8 +295,9 @@ class OpenAIApi {
                     }
                 }
                 if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
+                    const objectName = getObjectName(item, userId);
                     const imageObj: any = await createFileClient().getObjectData({
-                        objectName: item,
+                        objectName,
                         encodingType: "base64",
                         addFileType: true,
                     })
@@ -284,8 +315,9 @@ class OpenAIApi {
     // 转换messages为模型输入格式
     async convertMessagesToVLModelInput(params: {
         messages: any[];
+        userId?: string;
     }) {
-        const { messages } = params;
+        const { messages,userId} = params;
         if (!messages || !Array.isArray(messages)) {
             return null;
         }
@@ -319,8 +351,9 @@ class OpenAIApi {
                             }
                         }
                         if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
+                            const objectName = getObjectName(item, userId);
                             const imageObj: any = await createFileClient().getObjectData({
-                                objectName: item,
+                                objectName,
                                 encodingType: "base64",
                                 addFileType: true,
                             })
@@ -340,8 +373,9 @@ class OpenAIApi {
                             }
                         }
                         if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
+                            const objectName = getObjectName(item, userId);
                             const audioObj: any = await createFileClient().getObjectData({
-                                objectName: item,
+                                objectName,
                                 encodingType: "base64",
                                 addFileType: true,
                             })

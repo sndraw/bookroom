@@ -483,7 +483,8 @@ class AILmController extends BaseController {
     try {
       const { is_stream } = newParams;
       const dataStream = await AILmThirdService.chatAILm({
-        ...newParams
+        ...newParams,
+        userId: ctx?.userId
       });
       if (is_stream) {
         responseText = await responseStream(ctx, dataStream);
@@ -602,7 +603,8 @@ class AILmController extends BaseController {
     try {
       const { is_stream } = newParams;
       const dataStream = await AILmThirdService.generateAILm({
-        ...newParams
+        ...newParams,
+        userId: ctx?.userId
       });
       if (is_stream) {
         responseText = await responseStream(ctx, dataStream);
@@ -711,7 +713,8 @@ class AILmController extends BaseController {
     try {
       const { is_stream } = newParams;
       const dataStream = await AILmThirdService.embeddingVector({
-        ...newParams
+        ...newParams,
+        userId: ctx?.userId
       });
       if (is_stream) {
         responseText = await responseStream(ctx, dataStream);
@@ -807,7 +810,8 @@ class AILmController extends BaseController {
     try {
       const { is_stream } = newParams;
       const dataStream = await AILmThirdService.generateImage({
-        ...newParams
+        ...newParams,
+        userId: ctx?.userId
       });
       if (is_stream) {
         responseText = await responseStream(ctx, dataStream);

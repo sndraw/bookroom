@@ -221,7 +221,8 @@ class AILmService {
             max_tokens,
             repeat_penalty,
             frequency_penalty,
-            presence_penalty
+            presence_penalty, 
+            userId = null
         } = params
         if (!platform) {
             throw new Error("参数错误");
@@ -257,7 +258,8 @@ class AILmService {
                     repeat_penalty,
                     frequency_penalty,
                     presence_penalty,
-                    is_stream
+                    is_stream,
+                    userId
                 });
                 break;
             case AI_LM_PLATFORM_MAP.openai.value:
@@ -267,7 +269,8 @@ class AILmService {
                     temperature: temperature,
                     top_p: top_p,
                     max_tokens: max_tokens,
-                    is_stream
+                    is_stream,
+                    userId
                 });
                 break;
             default:
@@ -280,7 +283,7 @@ class AILmService {
 
     // 对话补全
     static async generateAILm(params: any) {
-        const { platform, model, prompt, images, is_stream, } = params
+        const { platform, model, prompt, images, is_stream, userId = null} = params
         if (!platform) {
             throw new Error("参数错误");
         }
@@ -303,6 +306,7 @@ class AILmService {
                     prompt,
                     images,
                     is_stream,
+                    userId
                 });
                 break;
             case AI_LM_PLATFORM_MAP.openai.value:
@@ -311,6 +315,7 @@ class AILmService {
                     prompt,
                     images,
                     is_stream,
+                    userId
                 })
                 break;
             default:
@@ -323,7 +328,7 @@ class AILmService {
 
     // 生成嵌入向量
     static async embeddingVector(params: any) {
-        const { platform, model, input } = params
+        const { platform, model, input, userId = null } = params
         if (!platform) {
             throw new Error("参数错误");
         }
@@ -347,12 +352,14 @@ class AILmService {
                 return await new OllamaAPI(platformConfig?.toJSON()).getAILmEmbeddings({
                     model,
                     input,
+                    userId
                 });
                 break;
             case AI_LM_PLATFORM_MAP.openai.value:
                 return await new OpenAIAPI(platformConfig?.toJSON()).getAILmEmbeddings({
                     model,
-                    input
+                    input,
+                    userId
                 })
                 break;
             default:
@@ -364,7 +371,7 @@ class AILmService {
 
     // 生成图片
     static async generateImage(params: any) {
-        const { platform, model, prompt, is_stream, quality, response_format, style, size, n } = params
+        const { platform, model, prompt, is_stream, quality, response_format, style, size, n, userId = null } = params
 
         if (!platform) {
             throw new Error("参数错误");
@@ -397,7 +404,8 @@ class AILmService {
                     response_format,
                     style,
                     size,
-                    n
+                    n,
+                    userId
                 })
                 break;
             default:
