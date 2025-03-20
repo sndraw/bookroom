@@ -98,7 +98,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     let responseData = '';
     try {
       setLoading(true);
-      await customRequest(
+      const res= await customRequest(
         {
           messages: newMessageList,
         },
@@ -107,12 +107,12 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         },
       ).then(async (res) => {
         const { response, reader, decoder } = res as any;
-
         // 判定非流式输出
         if (!response) {
           // 如果res是string格式，直接解析
           if (!res?.ok) {
-            responseData = res?.statusText;
+            const resObj = await res?.json?.();
+            responseData = resObj?.message || res?.statusText || '生成失败';
           } else {
             let resObj: any = res;
             const contentType = res.headers.get('content-type');
@@ -178,7 +178,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         // 开始读取流数据
         await reader?.read().then(updateProgress);
         return response;
-      });
+      })
     } catch (error: any) {
       let errorData = null;
       if (error?.name === 'AbortError') {

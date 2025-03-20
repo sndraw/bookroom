@@ -1,6 +1,12 @@
 import minioConfig from "@/config/minio.conf"
-
 import MinioApi from "@/SDK/minio";
+import CryptoJS from "crypto-js";
+
+export const getObjectName=(object_id: string, salt?: string): string => {
+  const salted = CryptoJS.SHA1(salt || "default").toString();
+  console.log(salted, object_id)
+  return `${salted}/${object_id}`;
+}
 
 export const createFileClient = (config?: any) => {
   if (!config) {

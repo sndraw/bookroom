@@ -31,7 +31,6 @@ const UserMessage: React.FC<UserMessageType> = (props) => {
 
   return (
     <div
-      key={msgObj?.id}
       className={classNames(styles.messageItemWrapper, className)}
     >
       <div className={classNames(styles.messageItem, styles.messageUser)}>
@@ -41,7 +40,7 @@ const UserMessage: React.FC<UserMessageType> = (props) => {
             styles.messageContentUser,
           )}
         >
-          <MessageContent msgObj={msgObj} />
+          <MessageContent msgObj={msgObj}/>
 
           {!loading && index === messageList?.length - 1 && (
             <div className={styles.messageFooter}>

@@ -1,7 +1,7 @@
 import { Ollama } from 'ollama';
 import { StatusEnum } from '@/constants/DataMap';
 import { MD5 } from 'crypto-js';
-import { createFileClient } from '@/common/file';
+import { createFileClient, getObjectName } from '@/common/file';
 
 export const OLLAMA_CONFIG = {
     keep_alive: "5m",
@@ -109,11 +109,13 @@ class OllamaApi {
             num_predict = 4096,
             repeat_penalty = 1.0,
             frequency_penalty = 0.0,
-            presence_penalty = 0.0
+            presence_penalty = 0.0,
+            userId
         } = params;
         try {
             const newMessageList = await this.convertMessagesToVLModelInput({
                 messages,
+                userId
             });
             const chat = await this.ollama.chat({
                 model,
@@ -138,9 +140,17 @@ class OllamaApi {
     }
 
     async getAILmGenerate(params: any): Promise<any> {
-        const { model, prompt, images, is_stream, keep_alive = OLLAMA_CONFIG?.keep_alive } = params;
+        const {
+            model,
+            prompt,
+            images,
+            is_stream,
+            keep_alive = OLLAMA_CONFIG?.keep_alive,
+            userId
+        } = params;
         const newImages = await this.convertImagesToVLModelInput({
             images,
+            userId
         });
         const generate = await this.ollama.generate({
             model,
@@ -153,7 +163,7 @@ class OllamaApi {
     }
 
     async getAILmEmbeddings(params: any): Promise<any> {
-        const { model, input, truncate = false, keep_alive } = params;
+        const { model, input, truncate = false, keep_alive, userId } = params;
         const embeddings = await this.ollama.embed({ model, input, truncate, keep_alive });
         return embeddings;
     }
@@ -200,8 +210,9 @@ class OllamaApi {
     // 转换图片列表为模型输入格式
     async convertImagesToVLModelInput(params: {
         images: string;
+        userId?: string;
     }): Promise<any> {
-        const { images } = params;
+        const { images, userId } = params;
         if (!images) {
             return null;
         };
@@ -211,11 +222,12 @@ class OllamaApi {
             for (let i = 0; i < newImages.length; i++) {
                 const imageId = newImages[i];
                 if (typeof imageId === "string") {
-                    const imageData = await createFileClient().getObjectData({
-                        objectName: imageId,
+                    const objectName = getObjectName(imageId, userId);
+                    const imageObj: any = await createFileClient().getObjectData({
+                        objectName,
                         encodingType: "base64"
                     });
-                    newImages[i] = imageData;
+                    newImages[i] = imageObj?.dataStr;
                 }
             }
         }
@@ -225,8 +237,9 @@ class OllamaApi {
     // 转换messages为模型输入格式
     async convertMessagesToVLModelInput(params: {
         messages: any[];
+        userId?: string;
     }): Promise<any> {
-        const { messages } = params;
+        const { messages, userId } = params;
         if (!messages || !Array.isArray(messages)) {
             return null;
         }
@@ -236,13 +249,14 @@ class OllamaApi {
                 for (let i = 0; i < message.images.length; i++) {
                     const imageId = message.images[i];
                     if (typeof imageId === "string") {
-                        const imageData = await createFileClient().getObjectData(
+                        const objectName = getObjectName(imageId, userId);
+                        const imageObj: any = await createFileClient().getObjectData(
                             {
-                                objectName: imageId,
+                                objectName,
                                 encodingType: "base64"
                             },
                         );
-                        message.images[i] = imageData;
+                        message.images[i] = imageObj?.dataStr;
                     }
                 }
             }

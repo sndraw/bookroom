@@ -103,12 +103,13 @@ services:
       COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
       COOKIE_HTTPONLY: ${COOKIE_HTTPONLY:-true}
-      CRYPTO_SECRETKEY: ${CRYPTO_SECRETKEY:-}
       OAUTH2_SECRET: ${OAUTH2_SECRET:-test-secret}
       OAUTH2_BEARER: ${OAUTH2_BEARER:-Bearer}
       OAUTH2_EXPIRES_IN: ${OAUTH2_EXPIRES_IN:-86400}
       LOGIN_MAX_ERROR_COUNT: ${LOGIN_MAX_ERROR_COUNT:-3}
       LOGIN_LOCK_TIME: ${LOGIN_LOCK_TIME:-5}
+      USER_TOKEN_KEY: ${USER_TOKEN_KEY:-}
+      CRYPTO_SECRETKEY: ${CRYPTO_SECRETKEY:-}
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./init/bookroom-api/pm2.config.js:/app/pm2.config.js:ro

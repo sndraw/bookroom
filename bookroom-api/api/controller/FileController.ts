@@ -5,26 +5,26 @@ import fs from "fs";
 import { UPLOAD_FILE_TYPE } from "@/common/ai";
 import FileLogService from "@/service/FileLogService";
 import { StatusEnum } from "@/constants/DataMap";
-import { createFileClient } from "@/common/file";
+import { createFileClient, getObjectName } from "@/common/file";
+
 /**
  * 文件-接口
  **/
 class FileController extends BaseController {
-
     // 获取上传URL
     static async getUploadUrl(ctx: Context) {
         const { object_id } = ctx.params;
         const { name, size, mimetype } = ctx.request.query;
         // 初始化文件上传客户端
         const fileClient = createFileClient();
-        
         let uploadUrl = "";
         try {
             if (!object_id) {
                 throw new Error("缺少对象ID参数");
             }
+            const objectName = getObjectName(object_id, ctx?.userId);
             // 获取上传地址
-            uploadUrl = await fileClient.presignedPutObject({ objectName: object_id });
+            uploadUrl = await fileClient.presignedPutObject({ objectName });
             ctx.status = 200;
             // 返回上传地址
             ctx.body = {
@@ -99,11 +99,12 @@ class FileController extends BaseController {
                 if (!file?.filepath || !fs.existsSync(file?.filepath)) {
                     throw new Error("上传的文件不存在");
                 }
-                const objectId = crypto.randomUUID();
+                const object_id = crypto.randomUUID();
+                const objectName = getObjectName(object_id, ctx?.userId);
                 try {
                     const result = await fileClient.fPutObject(
                         {
-                            objectName: objectId,
+                            objectName: objectName,
                             filePath: file.filepath,
                             metaData: {
                                 'Content-Type': file.mimetype
@@ -113,19 +114,19 @@ class FileController extends BaseController {
                     if (result) {
                         FileLogService.addFileLog({
                             name: file.originalFilename,
-                            objectId: objectId,
+                            objectId: object_id,
                             path: fileClient.bucketName,
                             size: file.size,
                             mimetype: file.mimetype,
                             userId: ctx.userId
                         })
 
-                        const downloadUrl = await fileClient.presignedGetObject({ objectName: objectId });
+                        const downloadUrl = await fileClient.presignedGetObject({ objectName });
 
-                        const previewUrl = await fileClient.presignedGetObject({ objectName: objectId });
+                        const previewUrl = await fileClient.presignedGetObject({ objectName });
                         resultList.push({
                             filename: file.originalFilename,
-                            objectId: objectId,
+                            objectId: object_id,
                             downloadUrl,
                             previewUrl
                         });
@@ -179,14 +180,15 @@ class FileController extends BaseController {
             if (!object_id) {
                 throw new Error("缺少对象ID参数");
             }
+            const objectName = getObjectName(object_id, ctx?.userId);
             // 下载文件流
             if (stream) {
-                const result = await fileClient.getObjectStream(object_id);
+                const result = await fileClient.getObjectStream({ objectName });
                 ctx.status = 200;
                 ctx.body = result;
                 return
             }
-            const result = await fileClient.presignedGetObject({ objectName: object_id });
+            const result = await fileClient.presignedGetObject({ objectName });
             ctx.status = 200;
             ctx.body = {
                 url: result,
@@ -213,14 +215,15 @@ class FileController extends BaseController {
             if (!object_id) {
                 throw new Error("缺少对象ID参数");
             }
+            const objectName = getObjectName(object_id, ctx?.userId);
             // 下载文件流
             if (stream) {
-                const result = await fileClient.getObjectStream(object_id);
+                const result = await fileClient.getObjectStream({ objectName });
                 ctx.status = 200;
                 ctx.body = result;
                 return
             }
-            const result = await fileClient.presignedGetObject({ objectName: object_id });
+            const result = await fileClient.presignedGetObject({ objectName });
             ctx.status = 200;
             ctx.body = {
                 url: result,
