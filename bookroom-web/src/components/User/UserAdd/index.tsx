@@ -6,7 +6,7 @@ import { Button, Drawer, Flex } from 'antd';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 
-interface PlatformAddProps {
+interface UserAddProps {
     title?: string;
     columns: any;
     onFinished: (values: any) => Promise<boolean>;
@@ -15,10 +15,10 @@ interface PlatformAddProps {
     className?: string;
 }
 
-const PlatformAdd: React.FC<PlatformAddProps> = (props) => {
+const UserAdd: React.FC<UserAddProps> = (props) => {
     const { title, columns, onFinished, refresh, disabled, className } = props;
     const [modalVisible, setModalVisible] = useState(false);
-    const titleStr = title || "添加平台";
+    const titleStr = title || "添加用户";
     return (
         <>
             <Button
@@ -77,4 +77,4 @@ const PlatformAdd: React.FC<PlatformAddProps> = (props) => {
     );
 };
 
-export default PlatformAdd;
+export default UserAdd;

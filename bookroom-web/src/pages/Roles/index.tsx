@@ -14,7 +14,6 @@ import {
   EditableFormInstance,
   EditableProTable,
   ProDescriptionsItemProps,
-  ProTable,
 } from '@ant-design/pro-components';
 import {
   Button,
@@ -26,8 +25,8 @@ import {
   message,
 } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
-import CreateForm from './components/CreateForm';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
+import RoleAdd from '@/components/Role/RoleAdd';
 
 const RolesPage: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();
@@ -35,13 +34,11 @@ const RolesPage: React.FC<unknown> = () => {
   const [loading, setLoading] = useState<string | boolean | number>(false);
   const headerHeight = useHeaderHeight();
   // 计算样式
-  const containerHeight  = useCallback(() => {
+  const containerHeight = useCallback(() => {
     return `calc(100vh - ${headerHeight + 320}px)`;
   }, [headerHeight]);
 
-  // 创建节点
-  const [createModalVisible, handleCreateModalVisible] =
-    useState<boolean>(false);
+
   /**
    * 添加节点
    * @param fields
@@ -157,9 +154,25 @@ const RolesPage: React.FC<unknown> = () => {
       editable: false,
     },
     {
+      title: "序号",
+      key: 'index',
+      dataIndex: 'index',
+      //@ts-ignore
+      width: 50,
+      render: (text, record, index, action) => {
+        if (action?.pageInfo?.current) {
+          const baseIndex = (action?.pageInfo?.current - 1) * action?.pageInfo?.pageSize;
+          return baseIndex + index + 1
+        }
+        return index + 1
+      }
+    },
+    {
       title: '角色名称',
       key: 'name',
       dataIndex: 'name',
+      //@ts-ignore
+      width: 100,
       // editable: false,
       formItemProps: {
         rules: [
@@ -319,13 +332,13 @@ const RolesPage: React.FC<unknown> = () => {
             showSizeChanger: true,
           }}
           toolBarRender={() => [
-            <Button
-              key="1"
-              type="primary"
-              onClick={() => handleCreateModalVisible(true)}
-            >
-              新建
-            </Button>,
+            <RoleAdd
+              key="add"
+              columns={columns}
+              disabled={!!loading}
+              onFinished={(values) => handleAdd(values)}
+              refresh={() => actionRef?.current?.reload()}
+            />,
           ]}
           request={async (params, sorter, filter) => {
             const { data } = await queryRoleList({
@@ -369,11 +382,11 @@ const RolesPage: React.FC<unknown> = () => {
           //   console.log(value)
           // }}
           recordCreatorProps={false}
-          rowSelection={{
-            // 注释该行则默认不显示下拉选项
-            selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-            defaultSelectedRowKeys: [],
-          }}
+          // rowSelection={{
+          //   // 注释该行则默认不显示下拉选项
+          //   selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+          //   defaultSelectedRowKeys: [],
+          // }}
           tableAlertRender={({ selectedRowKeys, onCleanSelected }) => {
             return (
               <Space size={24}>
@@ -387,26 +400,6 @@ const RolesPage: React.FC<unknown> = () => {
             );
           }}
         />
-        <CreateForm
-          onCancel={() => handleCreateModalVisible(false)}
-          modalVisible={createModalVisible}
-        >
-          <ProTable<API.RoleInfo, API.RoleInfo>
-            onSubmit={async (value: API.RoleInfo) => {
-              const success = await handleAdd(value);
-              if (success) {
-                handleCreateModalVisible(false);
-                if (actionRef.current) {
-                  actionRef.current.reload();
-                }
-              }
-            }}
-            rowKey="id"
-            type="form"
-            // @ts-ignore
-            columns={columns}
-          />
-        </CreateForm>
       </>
     </DefaultLayout>
   );

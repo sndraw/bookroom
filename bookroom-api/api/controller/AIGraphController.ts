@@ -2,7 +2,7 @@ import { Context } from "koa";
 import { resultError, resultSuccess } from "@/common/resultFormat";
 import BaseController from "./BaseController";
 import PlatformService from "@/service/PlatformService"
-import { AI_GRAPH_MODE_ENUM, AI_GRAPH_PLATFORM_MAP, AI_GRAPH_UPLOAD_FILE_TYPE } from "@/common/ai";
+import { AI_GRAPH_MODE_ENUM, AI_GRAPH_UPLOAD_FILE_TYPE } from "@/common/ai";
 import { responseStream } from "@/utils/streamHelper";
 import FormData from "form-data";
 import fs from "fs";
@@ -10,7 +10,6 @@ import AIChatLogService from "@/service/AIChatLogService";
 import LightragAPI from "@/SDK/lightrag";
 import { GRAPH_WORKSPACE_RULE } from "@/common/rule";
 import path from "path";
-import { StatusEnum } from "@/constants/DataMap";
 import { PLATFORM_TYPE_MAP } from "@/common/platform";
 
 

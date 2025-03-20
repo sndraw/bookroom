@@ -16,7 +16,9 @@ class OpenAIApi {
         }
         this.openai = new OpenAI({
             apiKey: apiKey,
-            baseURL: host
+            baseURL: host,
+            timeout: 10000,
+            maxRetries:2
         });
     }
     // 获取模型列表
@@ -144,7 +146,7 @@ class OpenAIApi {
                         file: audioData,
                         model,
                         language,
-                        task
+                        task,
                     })
                     break;
                 default:

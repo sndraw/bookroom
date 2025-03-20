@@ -203,7 +203,7 @@ class AgentService {
             });
             const queryParams = {
                 query: query, // 查询内容
-                max_results: 10
+                max_results: Number(searchEngineConfig?.max_results || 10), // 最大返回结果数
             }
             switch (searchEngineConfig?.code) {
                 case SEARCH_API_MAP.tavily.value:

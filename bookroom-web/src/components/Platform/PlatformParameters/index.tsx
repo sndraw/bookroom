@@ -3,7 +3,7 @@ import {
   DrawerForm,
   ProFormTextArea,
 } from '@ant-design/pro-components';
-import { Button, Form, message } from 'antd';
+import { Button, Form, message, Typography } from 'antd';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 
@@ -79,6 +79,7 @@ const PlatformParameters: React.FC<PlatformParametersProps> = (props) => {
         return true;
       }}
     >
+      <Typography.Title level={5}>{data?.name}</Typography.Title>
       <ProFormTextArea
         name="parameters"
         label="参数配置"
