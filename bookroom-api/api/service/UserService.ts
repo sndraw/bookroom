@@ -12,9 +12,9 @@ class UserService {
         if (!params) {
             return false;
         }
-        let { page, pageSize, orders } = params;
+        let { current, pageSize, orders } = params;
         const { username, email, status, roleId, startDate, endDate } = params;
-        page = page ? Number.parseInt(page) : 1;
+        current = current ? Number.parseInt(current) : 1;
         pageSize = pageSize ? Number.parseInt(pageSize) : 10;
         let orderArray = [];
         if (orders) {
@@ -85,7 +85,7 @@ class UserService {
         const result = await UserModel.findAndCountAll({
             where: where,
             attributes: { exclude: ["password", "salt"] }, // 过滤字段
-            offset: (page - 1) * pageSize,
+            offset: (current - 1) * pageSize,
             limit: pageSize,
             order: orderArray,
             include: [
@@ -101,7 +101,7 @@ class UserService {
             ],
         }).then((data) => {
             return Promise.resolve({
-                page: page,
+                current: current,
                 pageSize: pageSize,
                 total: data?.count,
                 list: data?.rows

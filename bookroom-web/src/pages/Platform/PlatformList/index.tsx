@@ -26,8 +26,6 @@ import {
   Popconfirm,
   Space,
   Switch,
-  Table,
-  Typography,
   message,
 } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
@@ -207,9 +205,25 @@ const PlatformPage: React.FC<unknown> = () => {
       editable: false,
     },
     {
+      title: "序号",
+      key: 'index',
+      dataIndex: 'index',
+      //@ts-ignore
+      width: 50,
+      render: (text, record, index, action) => {
+        if (action?.pageInfo?.current) {
+          const baseIndex = (action?.pageInfo?.current - 1) * action?.pageInfo?.pageSize;
+          return baseIndex + index + 1
+        }
+        return index + 1
+      }
+    },
+    {
       title: '平台名称',
       key: 'name',
       dataIndex: 'name',
+      //@ts-ignore
+      width: 100,
       // editable: false,
       formItemProps: {
         rules: [
@@ -389,6 +403,8 @@ const PlatformPage: React.FC<unknown> = () => {
       title: 'API Key',
       key: 'apiKey',
       dataIndex: 'apiKey',
+      // @ts-ignore
+      width: 100,
       // editable: false,
       hideInSearch: true,
       formItemProps: {
@@ -408,6 +424,8 @@ const PlatformPage: React.FC<unknown> = () => {
       valueType: 'textarea',
       hideInSearch: true,
       hideInForm: true,
+      // @ts-ignore
+      width: 150,
       // 数值转换
       renderText: (value) => {
         let text = String(value);
@@ -582,6 +600,7 @@ const PlatformPage: React.FC<unknown> = () => {
             refresh={() => actionRef?.current?.reload()}
           />,
         ]}
+        showSorterTooltip={{ target: 'full-header' }}
         request={async (params, sorter, filter) => {
           const { data } = await queryPlatformList({
             ...params,
@@ -621,11 +640,11 @@ const PlatformPage: React.FC<unknown> = () => {
           // },
         }}
         recordCreatorProps={false}
-        rowSelection={{
-          // 注释该行则默认不显示下拉选项
-          selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-          defaultSelectedRowKeys: [],
-        }}
+        // rowSelection={{
+        //   // 注释该行则默认不显示下拉选项
+        //   selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+        //   defaultSelectedRowKeys: [],
+        // }}
         tableAlertRender={({ selectedRowKeys, onCleanSelected }) => {
           return (
             <Space size={24}>

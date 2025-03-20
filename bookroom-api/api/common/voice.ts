@@ -1,5 +1,5 @@
 // 支持的语音识别-接口类型-MAP
-export const VOICE_RECOGNIZE_API_MAP = {
+export const VOICE_RECOGNIZE_API_MAP: Record<string, { value: string; text: string }>  = {
     openai: {
         value: 'OpenAI',
         text: 'OpenAI'
@@ -9,8 +9,9 @@ export const VOICE_RECOGNIZE_API_MAP = {
         text: 'Google'
     },
 }
+
 // 支持的语音识别-任务类型-MAP
-export const VOICE_RECOGNIZE_TASK_MAP = {
+export const VOICE_RECOGNIZE_TASK_MAP: Record<string, { value: string; text: string }> = {
     transcribe: {
         value: 'transcribe',
         text: '语音识别'
@@ -21,8 +22,9 @@ export const VOICE_RECOGNIZE_TASK_MAP = {
     },
 }
 
+
 // 支持的语音识别-语言类型-MAP
-export const VOICE_RECOGNIZE_LANGUAGE_MAP = {
+export const VOICE_RECOGNIZE_LANGUAGE_MAP: Record<string, { value: string; text: string }> = {
     zh: {
         value: 'zh',
         text: '中文'

@@ -98,7 +98,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     let responseData = '';
     try {
       setLoading(true);
-      const res= await customRequest(
+      const res = await customRequest(
         {
           messages: newMessageList,
         },
@@ -111,8 +111,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         if (!response) {
           // 如果res是string格式，直接解析
           if (!res?.ok) {
-            const resObj = await res?.json?.();
-            responseData = resObj?.message || res?.statusText || '生成失败';
+            responseData = res?.statusText || '生成失败';
           } else {
             let resObj: any = res;
             const contentType = res.headers.get('content-type');
@@ -184,14 +183,18 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       if (error?.name === 'AbortError') {
         errorData = { message: '请求被终止' };
       } else {
-        errorData = (await error?.json?.()) || error?.info || error;
+        try {
+          errorData = (await error?.json?.());
+        } catch (e) {
+          errorData = error?.info || error;
+        }
       }
       // 查找并更新消息列表
       if (
         !newMessageList.find((item: { id: string }) => item.id === answerId)
       ) {
         responseData =
-          '消息未得到正确回复：' + (errorData?.message || errorData?.error);
+          '消息未得到正确回复：' + (errorData?.message || errorData?.error || errorData || "未知错误");
         const resMessage = {
           id: btoa(Math.random().toString()),
           role: 'assistant',
@@ -283,7 +286,11 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     if (loading) {
       return;
     }
-    const { msg } = values;
+    const { msg, voice } = values;
+    // 如果没有语音输入，且没有文本输入，则不提交
+    if (!msg?.trim() && !voice) {
+      return;
+    }
     if (!msg?.trim() && !imageList?.length && !videoList?.length) {
       return;
     }
@@ -304,6 +311,10 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       newMessage.images = [...objectIds];
       setImageList([]);
     }
+    if (voice) {
+      newMessage.audios = [voice];
+    }
+
     // if (supportVideos && videoList?.length > 0) {
     //   // 循环获取objectID
     //   const objectIds = videoList.map((item) => {
@@ -342,8 +353,18 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         if (!isUploaded) {
           return;
         }
+        if (!voiceParams?.apiMode) {
+          // 提交消息
+          setTimeout(() => {
+            handleSubmit({
+              msg: form.getFieldValue('msg') || '请识别该语音并回复消息',
+              voice: objectId,
+            });
+          }, 500);
+          return;
+        }
         if (!voiceParams?.id) {
-          message.error("请先配置语音输入参数");
+          message.error("请先配置语音识别参数");
           return;
         }
         // 调用语音识别接口
@@ -356,10 +377,9 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
           task: voiceParams?.task
         });
         if (!response?.ok) {
-          const res = await response.json();
-          throw res;
+          throw response?.statusText;
         } else {
-          const res = await response.json();
+          const res = await response?.json();
           if (res?.data) {
             let msg = form.getFieldValue('msg') || "";
             if (msg) {
@@ -371,7 +391,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         }
       }
     } catch (error: any) {
-      message.error(error?.message || "语音识别失败");
+      message.error(error?.message || error?.info || error || "语音识别失败");
     } finally {
       setVoiceLoading(false)
     }
@@ -523,16 +543,15 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         disabled={disabled}
       >
         <div className={styles.inputTextAreaWrapper}>
-          {voiceParams && (
-            <VoiceChat
-              className={styles?.voiceChat}
-              disabled={disabled || voiceLoading}
-              onRecordStart={() => { }}
-              onRecordStop={(audioBlob) => {
-                handleVoiceMessage(audioBlob);
-              }}
-            />
-          )}
+          <VoiceChat
+            voiceParams={voiceParams}
+            className={styles?.voiceChat}
+            disabled={disabled || loading || voiceLoading}
+            onRecordStart={() => { }}
+            onRecordStop={(audioBlob) => {
+              handleVoiceMessage(audioBlob);
+            }}
+          />
           <Form.Item name="msg" className={styles.inputTextAreaItem}>
             <Input.TextArea
               placeholder={sendOptions?.placeholder || "请发送一条消息..."}
@@ -552,7 +571,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
               type="primary"
               htmlType="submit"
               loading={loading}
-              disabled={disabled}
+              disabled={disabled || voiceLoading}
               title="发送"
             >
               <SendOutlined />

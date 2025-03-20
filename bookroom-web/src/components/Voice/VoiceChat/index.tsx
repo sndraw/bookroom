@@ -1,10 +1,12 @@
-import { AudioMutedOutlined, AudioOutlined } from '@ant-design/icons';
+import { AudioMutedOutlined, AudioOutlined, CustomerServiceOutlined } from '@ant-design/icons';
 import { Button, message } from 'antd';
 import classNames from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './index.less';
+import { VOICE_RECOGNIZE_TASK_MAP } from '@/common/voice';
 
 interface VoiceChatProps {
+  voiceParams?: API.VoiceParametersType,
   className?: string;
   onRecordStart?: () => void;
   onRecordStop?: (audioBlobUrl: string | Blob | null) => void;
@@ -12,7 +14,7 @@ interface VoiceChatProps {
 }
 
 const VoiceChat: React.FC<VoiceChatProps> = (props) => {
-  const { className, onRecordStart, onRecordStop, disabled } = props;
+  const { voiceParams, className, onRecordStart, onRecordStop, disabled } = props;
 
   const [isRecording, setIsRecording] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -75,7 +77,7 @@ const VoiceChat: React.FC<VoiceChatProps> = (props) => {
       };
       setAudioBlobUrl(null); // 初始化音频URL为空
       mediaRecorderRef.current?.start();
-    } catch (err:any) {
+    } catch (err: any) {
       const msg = "无法访问麦克风"
       setIsRecording(false);
       message.error(msg);
@@ -114,7 +116,18 @@ const VoiceChat: React.FC<VoiceChatProps> = (props) => {
       }
     };
   }, []);
-
+  const icons = {
+    start: voiceParams?.apiMode ? <CustomerServiceOutlined /> : <AudioOutlined />,
+    stop: voiceParams?.apiMode ? <CustomerServiceOutlined style={{ color: 'red' }} /> : <AudioMutedOutlined style={{ color: 'red' }} />,
+  };
+  let titleText = "语音录制"
+  if (voiceParams?.apiMode && voiceParams?.task) {
+    titleText = VOICE_RECOGNIZE_TASK_MAP?.[voiceParams.task]?.text || "语音识别"
+  }
+  const btnTitle = {
+    start: voiceParams?.apiMode ? `开始${titleText}` : `开始${titleText}`,
+    stop: voiceParams?.apiMode ? `停止${titleText}` : `停止${titleText}`,
+  }
   return (
     <div className={classNames(styles.voiceChatContainer, className)}>
       <Button
@@ -122,10 +135,10 @@ const VoiceChat: React.FC<VoiceChatProps> = (props) => {
         type="link"
         size={'large'}
         className={styles.voiceChatBtn}
-        title={isRecording ? '停止录音' : '开始录音'}
-        onClick={isRecording ? stopRecording : startRecording}
+        title={!isRecording ? btnTitle.start : btnTitle.stop}
+        onClick={!isRecording ? startRecording : stopRecording}
       >
-        {isRecording ? <AudioMutedOutlined /> : <AudioOutlined />}
+        {!isRecording ? icons?.start : icons?.stop}
       </Button>
       {/* {audioBlobUrl && (
         <video className={styles.voiceChatVideo} controls autoPlay src={audioBlobUrl} />

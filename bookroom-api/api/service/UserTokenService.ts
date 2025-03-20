@@ -6,9 +6,9 @@ class UserTokenService {
         if (!params) {
             return false;
         }
-        let { page, pageSize, orders } = params;
+        let { current, pageSize, orders } = params;
         const { userIdKey, status, startDate, endDate } = params;
-        page = page ? Number.parseInt(page) : 1;
+        current = current ? Number.parseInt(current) : 1;
         pageSize = pageSize ? Number.parseInt(pageSize) : 10;
         let orderArray = [];
         if (orders) {
@@ -58,12 +58,12 @@ class UserTokenService {
         const result = await UserTokenModel.findAndCountAll({
             where: where,
             attributes: { exclude: [] }, // 过滤字段
-            offset: (page - 1) * pageSize,
+            offset: (current - 1) * pageSize,
             limit: pageSize,
             order: orderArray,
         }).then((data) => {
             return Promise.resolve({
-                page: page,
+                current: current,
                 pageSize: pageSize,
                 data: data,
             });

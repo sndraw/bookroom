@@ -1,15 +1,9 @@
 import { Context } from "koa";
 import { resultError, resultSuccess } from "@/common/resultFormat";
 import BaseController from "./BaseController";
-import PlatformService from "@/service/PlatformService";
 import AgentService from "@/service/AgentService";
-import { PLATFORM_TYPE_MAP } from "@/common/platform";
 import { StatusEnum } from "@/constants/DataMap";
-import TavilyAPI from "@/SDK/tavily";
 import { responseStream } from "@/utils/streamHelper";
-import AIChatLogService from "@/service/AIChatLogService";
-import { AGENT_API_MAP } from "@/common/agent";
-import { platform } from "os";
 import AgentLogService from "@/service/AgentLogService";
 
 class AgentController extends BaseController {

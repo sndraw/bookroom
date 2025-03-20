@@ -153,9 +153,25 @@ const UsersPage: React.FC<unknown> = () => {
       editable: false,
     },
     {
+      title: "序号",
+      key: 'index',
+      dataIndex: 'index',
+      //@ts-ignore
+      width: 50,
+      render: (text, record, index, action) => {
+        if (action?.pageInfo?.current) {
+          const baseIndex = (action?.pageInfo?.current - 1) * action?.pageInfo?.pageSize;
+          return baseIndex + index + 1
+        }
+        return index + 1
+      }
+    },
+    {
       title: '用户名',
       key: 'username',
       dataIndex: 'username',
+      //@ts-ignore
+      width: 100,
       editable: false,
       formItemProps: {
         rules: [
@@ -403,11 +419,11 @@ const UsersPage: React.FC<unknown> = () => {
           //   console.log(value)
           // }}
           recordCreatorProps={false}
-          rowSelection={{
-            // 注释该行则默认不显示下拉选项
-            selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-            defaultSelectedRowKeys: [],
-          }}
+          // rowSelection={{
+          //   // 注释该行则默认不显示下拉选项
+          //   selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+          //   defaultSelectedRowKeys: [],
+          // }}
           tableAlertRender={({ selectedRowKeys, onCleanSelected }) => {
             return (
               <Space size={24}>
@@ -459,26 +475,6 @@ const UsersPage: React.FC<unknown> = () => {
         //   );
         // }}
         />
-        {/* <CreateForm
-          onCancel={() => handleCreateModalVisible(false)}
-          modalVisible={createModalVisible}
-        >
-          <ProTable<API.UserInfo, API.UserInfo>
-            onSubmit={async (value: API.UserInfo) => {
-              const success = await handleAdd(value);
-              if (success) {
-                handleCreateModalVisible(false);
-                if (actionRef.current) {
-                  actionRef.current.reload();
-                }
-              }
-            }}
-            rowKey="id"
-            type="form"
-            // @ts-ignore
-            columns={columns}
-          />
-        </CreateForm> */}
       </>
     </DefaultLayout>
   );
