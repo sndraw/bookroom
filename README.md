@@ -24,7 +24,7 @@
   - [LightRAG_Multi(多图谱空间版本)](https://github.com/sndraw/LightRAG-Multi)
 
 - ### 智能助手（多智能助手管理、自动执行任务）- 功能架构中
-  - [BookRoom MCP](https://github.com/sndraw/bookroom-mcp)
+  - [BookRoom Agents](https://github.com/sndraw/bookroom-agents)
 
 - ### 语音识别（本地语音识别、云端语音识别）- 功能架构中
   - [BookRoom Audio](https://github.com/sndraw/bookroom-audio)
