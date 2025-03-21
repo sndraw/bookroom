@@ -78,6 +78,8 @@
 ![系统配置](./docs/assets/系统配置.png)  
 ### 模型管理
 ![模型管理](./docs/assets/模型管理.png) 
+### 模型配置
+![模型配置](./docs/assets/模型配置.png)  
 ### 模型对话
 ![模型对话](./docs/assets/模型对话.png)  
 ### 图谱空间
@@ -88,6 +90,8 @@
 ![图谱展示](./docs/assets/图谱展示.png)
 ### 智能助手
 ![智能助手](./docs/assets/智能助手.png)
+### 语音识别
+![语音识别](./docs/assets/语音识别.png)
 
 ## 相关文档
 ### LightRAG-运行流程
