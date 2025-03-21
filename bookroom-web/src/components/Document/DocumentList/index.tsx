@@ -98,6 +98,7 @@ const DocumentList: React.FC<DocumentListProps> = (props) => {
       key: 'num',
       hideInForm: true,
       editable: false,
+      hideInSearch:true,
     },
     {
       title: '摘要',

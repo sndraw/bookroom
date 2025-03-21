@@ -159,6 +159,7 @@ const RolesPage: React.FC<unknown> = () => {
       dataIndex: 'index',
       hideInForm: true,
       editable: false,
+      hideInSearch:true,
       //@ts-ignore
       width: 50,
       render: (text, record, index, action) => {

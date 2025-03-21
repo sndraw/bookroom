@@ -123,6 +123,7 @@ const GraphTable: React.FC<GraphTablePropsType> = (props) => {
       key: 'num',
       hideInForm: true,
       editable: false,
+      hideInSearch:true,
     },
     {
       title: '节点',
