@@ -96,6 +96,8 @@ const DocumentList: React.FC<DocumentListProps> = (props) => {
       dataIndex: 'num',
       width: 50,
       key: 'num',
+      hideInForm: true,
+      editable: false,
     },
     {
       title: '摘要',

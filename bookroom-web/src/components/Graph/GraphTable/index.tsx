@@ -121,6 +121,8 @@ const GraphTable: React.FC<GraphTablePropsType> = (props) => {
       title: '序号',
       dataIndex: 'num',
       key: 'num',
+      hideInForm: true,
+      editable: false,
     },
     {
       title: '节点',

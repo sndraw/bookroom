@@ -156,6 +156,8 @@ const UsersPage: React.FC<unknown> = () => {
       title: "序号",
       key: 'index',
       dataIndex: 'index',
+      hideInForm: true,
+      editable: false,
       //@ts-ignore
       width: 50,
       render: (text, record, index, action) => {
