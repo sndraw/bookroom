@@ -47,46 +47,6 @@ class RoleController extends BaseController {
    */
   static async queryRoleList(ctx: Context) {
     const params = ctx.request.query;
-    ctx.verifyParams({
-      name: {
-        type: "string",
-        required: false,
-        format: ROLE_RULE.name.RegExp,
-        message: {
-          required: "角色名称不能为空",
-          format: ROLE_RULE.name.message,
-        },
-      },
-      code: {
-        type: "string",
-        required: false,
-        format: ROLE_RULE.code.RegExp,
-        message: {
-          required: "角色标识不能为空",
-          format: ROLE_RULE.code.message,
-        },
-      },
-      status: {
-        type: "enum",
-        required: false,
-        convertType: "int",
-        values: [StatusEnum.ENABLE, StatusEnum.DISABLE],
-        message: {
-          required: "状态不能为空",
-          type: "状态不合法"
-        },
-      },
-      startDate: {
-        type: "dateTime",
-        required: false,
-        message: "开始时间不合法",
-      },
-      endDate: {
-        type: "dateTime",
-        required: false,
-        message: "结束时间不合法",
-      },
-    }, params);
     try {
       const records = await RoleService.queryRecords(params);
       // 注册成功处理

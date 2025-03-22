@@ -21,61 +21,6 @@ class UserController extends BaseController {
    */
   static async queryUserList(ctx: Context) {
     const params = ctx.request.query;
-    ctx.verifyParams({
-      username: {
-        type: "string",
-        required: false,
-        min: 1,
-        max: 64,
-        message: {
-          required: "用户名不能为空",
-          min: "用户名长度不能小于1",
-          max: "用户名长度不能超过64",
-        },
-      },
-      email: {
-        type: "string",
-        required: false,
-        min: 1,
-        max: 255,
-        message: {
-          required: "邮箱不能为空",
-          min: "邮箱长度不能小于1",
-          max: "邮箱长度不能超过255",
-        },
-      },
-      role: {
-        type: "string",
-        required: false,
-        min: 1,
-        max: 40,
-        message: {
-          required: "角色不能为空",
-          min: "角色长度不能小于1",
-          max: "角色长度不能超过40",
-        },
-      },
-      status: {
-        type: "enum",
-        required: false,
-        convertType: "int",
-        values: [StatusEnum.ENABLE, StatusEnum.DISABLE],
-        message: {
-          required: "状态不能为空",
-          type: "状态不合法"
-        },
-      },
-      startDate: {
-        type: "dateTime",
-        required: false,
-        message: "开始时间不合法",
-      },
-      endDate: {
-        type: "dateTime",
-        required: false,
-        message: "结束时间不合法",
-      },
-    }, params);
     try {
       const records = await UserService.queryRecords(params);
       // 注册成功处理
