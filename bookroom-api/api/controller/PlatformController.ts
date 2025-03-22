@@ -13,21 +13,6 @@ class PlatformController extends BaseController {
 */
   static async queryActivedPlatformList(ctx: Context) {
     const params = ctx.request.query;
-    ctx.verifyParams({
-      type: {
-        type: "string",
-        required: false,
-        min: 2,
-        max: 40,
-        message: {
-          required: "平台类型不能为空",
-          min: "平台类型长度不能小于2",
-          max: "平台类型长度不能超过40"
-        },
-      },
-    }, {
-      ...params
-    })
     try {
       const records = await PlatformService.queryActivedRecords(params);
       // 注册成功处理
@@ -49,61 +34,6 @@ class PlatformController extends BaseController {
   // 查询平台列表
   static async queryPlatformList(ctx: Context) {
     const params = ctx.request.query;
-    ctx.verifyParams({
-      name: {
-        type: "string",
-        required: false,
-        min: 2,
-        max: 40,
-        message: {
-          required: "平台名称不能为空",
-          min: "平台名称长度不能小于2",
-          max: "平台名称长度不能超过40"
-        },
-      },
-      code: {
-        type: "string",
-        required: false,
-        min: 2,
-        max: 40,
-        message: {
-          required: "接口类型不能为空",
-          min: "接口类型长度不能小于2",
-          max: "接口类型长度不能超过40"
-        },
-      },
-      type: {
-        type: "string",
-        required: false,
-        min: 2,
-        max: 40,
-        message: {
-          required: "平台类型不能为空",
-          min: "平台类型长度不能小于2",
-          max: "平台类型长度不能超过40"
-        },
-      },
-      status: {
-        type: "enum",
-        required: false,
-        convertType: "int",
-        values: [StatusEnum.ENABLE, StatusEnum.DISABLE],
-        message: {
-          required: "状态不能为空",
-          type: "状态不合法"
-        },
-      },
-      startDate: {
-        type: "dateTime",
-        required: false,
-        message: "开始时间不合法",
-      },
-      endDate: {
-        type: "dateTime",
-        required: false,
-        message: "结束时间不合法",
-      },
-    }, params);
     try {
       // 查询平台列表
       const result = await PlatformService.queryPlatformList(params, { safe: false });

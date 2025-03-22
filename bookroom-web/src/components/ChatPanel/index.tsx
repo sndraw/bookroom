@@ -25,6 +25,8 @@ type ChatPanelPropsType = {
   defaultMessageList?: ChatMessageType[];
   // 是否支持images
   supportImages?: boolean;
+  // 是否支持语音识别
+  supportVoice?: boolean;
   // 语音识别参数
   voiceParams?: API.VoiceParametersType;
   // 请求方法
@@ -51,6 +53,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     title,
     defaultMessageList,
     supportImages,
+    supportVoice,
     voiceParams,
     customRequest,
     onSend,
@@ -111,7 +114,12 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         if (!response) {
           // 如果res是string格式，直接解析
           if (!res?.ok) {
-            responseData = res?.statusText || '生成失败';
+            let resObj: any = res;
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              resObj = await res?.json?.();
+            }
+            responseData = resObj?.message || res?.statusText || '生成失败';
           } else {
             let resObj: any = res;
             const contentType = res.headers.get('content-type');
@@ -543,15 +551,17 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         disabled={disabled}
       >
         <div className={styles.inputTextAreaWrapper}>
-          <VoiceChat
-            voiceParams={voiceParams}
-            className={styles?.voiceChat}
-            disabled={disabled || loading || voiceLoading}
-            onRecordStart={() => { }}
-            onRecordStop={(audioBlob) => {
-              handleVoiceMessage(audioBlob);
-            }}
-          />
+          {supportVoice && (
+            <VoiceChat
+              voiceParams={voiceParams}
+              className={styles?.voiceChat}
+              disabled={disabled || loading || voiceLoading}
+              onRecordStart={() => { }}
+              onRecordStop={(audioBlob) => {
+                handleVoiceMessage(audioBlob);
+              }}
+            />
+          )}
           <Form.Item name="msg" className={styles.inputTextAreaItem}>
             <Input.TextArea
               placeholder={sendOptions?.placeholder || "请发送一条消息..."}

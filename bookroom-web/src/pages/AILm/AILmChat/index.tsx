@@ -9,7 +9,6 @@ import { AILmChat, getAILmInfo } from '@/services/common/ai/lm';
 import { Access, useAccess, useModel, useParams, useRequest } from '@umijs/max';
 import { Divider, Space, Tag } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import styles from './index.less';
 import { queryAIChatList, saveAIChat } from '@/services/common/ai/chat';
 
@@ -114,6 +113,7 @@ const AILmChatPage: React.FC = () => {
       disabled={isLoading}
       defaultMessageList={chatInfo?.messages}
       supportImages={parameters?.supportImages}
+      supportVoice={true}
       voiceParams={parameters?.voiceParams}
       customRequest={sendMsgRequest}
       onSend={(messageList) => {
@@ -133,7 +133,7 @@ const AILmChatPage: React.FC = () => {
           {
             platform,
             model,
-            name:"",
+            name: "",
             type: 1,
             parameters,
             prompt,
