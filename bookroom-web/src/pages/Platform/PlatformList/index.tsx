@@ -294,6 +294,8 @@ const PlatformPage: React.FC<unknown> = () => {
       // editable: false,
       // @ts-ignore
       // initialValue: AI_LM_PLATFORM_MAP.ollama.value,
+      //@ts-ignore
+      width: 100,
       valueType: 'select',
       dependencies: ['type'],
       hideInSearch: true,
