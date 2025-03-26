@@ -46,7 +46,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     if (parameters) {
       setIsStream(parameters?.isStream);
       setSearchEngine(parameters?.searchEngine);
-      setModelConfig(parameters?.modeConfig);
+      setModelConfig(parameters?.modelConfig);
       setGraphConfig(parameters?.graphConfig);
     }
   }, [parameters]);

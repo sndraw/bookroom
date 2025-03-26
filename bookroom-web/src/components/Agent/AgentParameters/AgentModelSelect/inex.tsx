@@ -49,27 +49,13 @@ const AgentModelSelect: React.FC<AgentModelSelectPropsType> = (props) => {
 
     useEffect(() => {
         if (platform) {
-            lmRun().then((resData) => {
-                const list = resData?.list;
-                if (list && list.length > 0) {
-                    // 如果model存在且在列表中，则保持不变，否则设置为第一个模型
-                    if (!model) {
-                        setModel(undefined)
-                        return;
-                    }
-                    if (list.find(item => item.model === model)) {
-                        setModel(model)
-                        return;
-                    }
-                    setModel(undefined)
-                }
-                setModel(undefined)
-
-            }).catch(() => {
-                setModel(undefined);
-            })
+            lmRun()
         }
     }, [platform]);
+
+    useEffect(() => {
+        onChange({ platform, model });
+    }, [platform, model]);
 
     return (
         <Space wrap size={10} direction={'vertical'} className={classNames(styles.selectContainer, className)}>
@@ -109,11 +95,6 @@ const AgentModelSelect: React.FC<AgentModelSelectPropsType> = (props) => {
                 })) : undefined}
                 onChange={(value) => {
                     setModel(value);
-                    const selected = value ? {
-                        platform: platform,
-                        model: value,
-                    } : {};
-                    onChange(selected);
                 }}
             />
         </Space>

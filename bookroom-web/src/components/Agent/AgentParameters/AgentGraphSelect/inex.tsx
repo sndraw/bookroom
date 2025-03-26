@@ -49,27 +49,14 @@ const AgentGraphSelect: React.FC<AgentGraphSelectPropsType> = (props) => {
 
     useEffect(() => {
         if (graph) {
-            workspaceRun().then((resData) => {
-                const list = resData?.list;
-                if (list && list.length > 0) {
-                    // 如果workspace存在且在列表中，则保持不变，否则设置为第一个模型
-                    if (!workspace) {
-                        setWorkspace(undefined)
-                        return;
-                    }
-                    if (list.find(item => item.workspace === workspace)) {
-                        setWorkspace(workspace)
-                        return;
-                    }
-                    setWorkspace(undefined)
-                }
-                setWorkspace(undefined)
-
-            }).catch(() => {
-                setWorkspace(undefined);
-            })
+            workspaceRun()
         }
     }, [graph]);
+
+    useEffect(() => {
+        onChange({ graph, workspace });
+    }, [graph, workspace]);
+
 
     return (
         <Space wrap size={10} direction={'vertical'} className={classNames(styles.selectContainer, className)}>
@@ -109,11 +96,6 @@ const AgentGraphSelect: React.FC<AgentGraphSelectPropsType> = (props) => {
                 })) : undefined}
                 onChange={(value) => {
                     setWorkspace(value);
-                    const selected = value ? {
-                        graph: graph,
-                        workspace: value,
-                    } : {};
-                    onChange(selected);
                 }}
             />
         </Space>
