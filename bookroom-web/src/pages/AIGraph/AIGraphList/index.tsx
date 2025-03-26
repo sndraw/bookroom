@@ -3,12 +3,15 @@ import { MODE_ENUM } from '@/constants/DataMap';
 import Page404 from '@/pages/404';
 import ROUTE_MAP from '@/routers/routeMap';
 import { queryGraphWorkspaceList } from '@/services/common/ai/graph';
-import { generatePath, useNavigate, useParams, useRequest } from '@umijs/max';
+import { generatePath, useModel, useNavigate, useParams, useRequest } from '@umijs/max';
 import { useEffect } from 'react';
 import styles from './index.less';
 
 const AIGraphListPage: React.FC = () => {
   const { graph } = useParams();
+
+  const { graphList } = useModel('graphList');
+
   const navigate = useNavigate();
 
   // 图谱空间列表-请求
@@ -36,6 +39,7 @@ const AIGraphListPage: React.FC = () => {
     <GraphList
       className={styles.pageContainer}
       mode={MODE_ENUM.EDIT}
+      graphList={graphList}
       graph={graph}
       changeGraph={(newGraph) => {
         navigate(generatePath(ROUTE_MAP.AI_GRAPH_LIST, { graph: newGraph }));

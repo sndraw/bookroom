@@ -1,18 +1,12 @@
-import ROUTE_MAP from '@/routers/routeMap';
 import {
-  generatePath,
   Outlet,
   useModel,
-  useNavigate,
-  useParams,
   useRequest,
 } from '@umijs/max';
-import { Alert, Empty, Spin } from 'antd';
+import { Alert, Spin } from 'antd';
 import { useEffect } from 'react';
 import DefaultLayout from '../DefaultLayout';
-import { queryAgentList, queryAgentPlatformList } from '@/services/common/agent';
-import { platform } from 'os';
-import { querySearchEngineList } from '@/services/common/search';
+import { queryAgentPlatformList } from '@/services/common/agent';
 
 export type PropsType = {
   children: JSX.Element;
@@ -52,10 +46,11 @@ const AgentLayout: React.FC<PropsType> = (props: PropsType) => {
         )}
         {!loading && !error && (
           <>
-            {data && data?.length > 0 && <Outlet />}
+            <Outlet />
+            {/* {data && data?.length > 0 && <Outlet />}
             {(!data || data?.length < 1) && (
               <Empty description="请前往【系统配置】添加【智能助手-接口类型】" />
-            )}
+            )} */}
           </>
         )}
       </>

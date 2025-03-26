@@ -2,8 +2,9 @@
   "name": "bookroom-web",
   "version": "0.0.3",
   "private": true,
-  "author": "sndraw@github.com",
+  "author": "sndraw",
   "license": "Apache-2.0",
+  "homepage": "https://github.com/sndraw/bookroom",
   "scripts": {
     "build": "max build",
     "dev": "cross-env PORT=$npm_config_port HOST=$npm_config_host max dev COMPRESS=none",

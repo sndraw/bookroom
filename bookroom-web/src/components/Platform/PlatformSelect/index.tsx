@@ -6,6 +6,7 @@ import styles from './index.less';
 
 type PlatformSelectPropsType = {
   title?: string;
+  dataList?:API.PlatformInfo[] | null;
   platform?: string;
   changePlatform: (platform: string) => void;
   allowClear?: boolean;
@@ -15,22 +16,13 @@ type PlatformSelectPropsType = {
 const PlatformSelect: React.FC<PlatformSelectPropsType> = (props) => {
   const {
     title,
+    dataList,
     platform,
     allowClear = false,
     changePlatform,
     className,
   } = props;
 
-  const { platformList } = useModel('lmplatformList');
-
-  useEffect(() => {
-    if (platform) {
-      return;
-    }
-    if (platformList?.[0]?.name) {
-      changePlatform(platformList?.[0]?.name);
-    }
-  }, []);
 
   return (
     <Space size={0} className={classNames(styles.selectContainer, className)}>
@@ -43,7 +35,7 @@ const PlatformSelect: React.FC<PlatformSelectPropsType> = (props) => {
         value={platform}
         placeholder="请选择平台"
         allowClear={allowClear}
-        options={(platformList as any)?.map((item: any) => ({
+        options={dataList?.map((item: any) => ({
           label: item.name,
           value: item.id,
         }))}

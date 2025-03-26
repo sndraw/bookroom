@@ -183,6 +183,7 @@ class OpenAIApi {
             prompt,
             images,
             is_stream,
+            top_p = 0.8,
             temperature = 0.7,
             max_tokens = 4096,
             userId
@@ -212,7 +213,7 @@ class OpenAIApi {
                 stream: is_stream,
                 stream_options: is_stream ? { include_usage: true } : undefined,
                 temperature: temperature,
-                top_p: 0.8,
+                top_p: top_p,
                 n: 1,
                 max_tokens: max_tokens
             });

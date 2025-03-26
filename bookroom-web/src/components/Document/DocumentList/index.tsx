@@ -26,6 +26,8 @@ interface DocumentListProps {
 
 const DocumentList: React.FC<DocumentListProps> = (props) => {
   const { graph, workspace, dataList, loading = false, refresh, className } = props;
+  const { getGraphName } = useModel('graphList');
+
   const [searchText, setSearchText] = useState<string>('' as string);
   const timeoutObj = useRef<NodeJS.Timeout | null>(null);
 
@@ -216,7 +218,7 @@ const DocumentList: React.FC<DocumentListProps> = (props) => {
     >
       <Space size={0} wrap className={styles.header}>
         <Space size={0} wrap className={styles.documentTags}>
-          <span>{graph}</span>
+          <span>{getGraphName(graph)}</span>
         </Space>
         <Divider type="vertical" />
         <Space size={0} wrap className={styles.documentTitle}>

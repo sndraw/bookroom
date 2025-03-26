@@ -3,13 +3,14 @@ import { MODE_ENUM } from '@/constants/DataMap';
 import Page404 from '@/pages/404';
 import ROUTE_MAP from '@/routers/routeMap';
 import { queryAILmList } from '@/services/common/ai/lm';
-import { generatePath, useNavigate, useParams, useRequest } from '@umijs/max';
+import { generatePath, useModel, useNavigate, useParams, useRequest } from '@umijs/max';
 import { useEffect } from 'react';
 import styles from './index.less';
 
 const AILmListPage: React.FC = () => {
   const { platform } = useParams();
   const navigate = useNavigate();
+  const { platformList } = useModel('lmplatformList');
 
   // 模型列表-请求
   const { data, loading, run } = useRequest(
@@ -36,6 +37,7 @@ const AILmListPage: React.FC = () => {
     <LmList
       mode={MODE_ENUM.EDIT}
       className={styles.pageContainer}
+      platformList={platformList}
       platform={platform}
       changePlatform={(newPlatform) => {
         navigate(generatePath(ROUTE_MAP.AI_LM_LIST, { platform: newPlatform }));

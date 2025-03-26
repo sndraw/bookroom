@@ -37,6 +37,7 @@ const GraphDisplay: React.FC<GraphDisplayPropsType> = (props) => {
   const [displayMode, setDisplayMode] = useState<'2d' | '3d'>('2d');
   // 操作状态管理
   const { operation, setOperation, resetOperation } = useModel('graphOperation');
+  const { getGraphName } = useModel('graphList');
 
   const headerHeight = useHeaderHeight();
   const containerStyle = useCallback(() => {
@@ -62,7 +63,7 @@ const GraphDisplay: React.FC<GraphDisplayPropsType> = (props) => {
         <Flex className={styles.graphHeader} wrap>
           <Space size={0} wrap className={classNames(styles.graphTitle)}>
             <Space size={16} wrap className={styles.chatTags}>
-              {graph}
+              {getGraphName(graph)}
             </Space>
             <Divider type="vertical" />
             <Space size={0} wrap className={styles.chatTitle}>

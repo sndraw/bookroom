@@ -367,11 +367,10 @@ class AgentController extends BaseController {
             const agentInfo = agent.toJSON();
             queryParams = {
                 platformId: agentInfo?.platformId,
-                stream: !!is_stream, // 是否流式返回数据
+                is_stream, // 是否流式返回数据
                 query: query, // 查询内容
             }
-            const dataStream = await AgentService.agentChat(agent_id, queryParams);
-
+            const dataStream: any = await AgentService.agentChat(agent_id, queryParams);
             if (is_stream) {
                 responseText = await responseStream(ctx, dataStream);
                 return;

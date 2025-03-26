@@ -6,6 +6,9 @@ const GrpahInfoList = () => {
   return {
     namespace: 'graphList',
     graphList,
+    getGraphName: (graph: string) => {
+      return graphList?.find((item) => item.id === graph || item.name === graph)?.name;
+    },
     getGraphInfo: (graph: string) => {
       return graphList?.find((item) => item.id === graph || item.name === graph);
     },

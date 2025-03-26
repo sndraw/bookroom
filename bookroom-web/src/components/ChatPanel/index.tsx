@@ -126,7 +126,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
             if (contentType && contentType.includes('application/json')) {
               resObj = await res?.json?.();
             }
-            responseData = resObj?.data || resObj?.results || '生成失败';
+            responseData = resObj?.data || resObj?.results || resObj?.content  || '生成失败';
           }
           // 如果responseData是JSON格式，直接解析
           if (typeof responseData === 'string') {

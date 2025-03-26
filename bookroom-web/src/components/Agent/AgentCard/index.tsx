@@ -102,11 +102,11 @@ const AgentCard: React.FC<AgentCardPropsType> = (props: AgentCardPropsType) => {
               </div> */}
               <div className={styles?.cardItemNode}>
                 <div className={styles?.nodeLabel}>接口名称：</div>
-                <div className={styles?.nodeContent}>{getPlatformName(item?.platformId ||'')}</div>
+                <div className={styles?.nodeContent}>{getPlatformName(item?.platformId || '') || '-'}</div>
               </div>
               <div className={styles?.cardItemNode}>
                 <div className={styles?.nodeLabel}>接口类型：</div>
-                <div className={styles?.nodeContent}>{getPlatformCode(item?.platformId ||'')}</div>
+                <div className={styles?.nodeContent}>{getPlatformCode(item?.platformId || '') || '-'}</div>
               </div>
               {item?.createdAt && (
                 <div className={styles?.cardItemNode}>

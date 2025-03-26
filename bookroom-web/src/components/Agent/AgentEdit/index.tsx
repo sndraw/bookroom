@@ -36,12 +36,11 @@ const AgentEdit: React.FC<AgentEditProps> = (props) => {
         },
         {
           name: values?.name,
-          platformId: values?.platformId,
+          platformId: values?.platformId || "",
           description: values?.description,
         }
       ).then((response) => {
         message.success('智能助手修改成功');
-        refresh?.();
       });
       return true;
     } catch (e) {
@@ -110,12 +109,13 @@ const AgentEdit: React.FC<AgentEditProps> = (props) => {
         label="接口名称"
         rules={[
           {
-            required: true,
+            required: false,
             message: '请选择接口名称',
           },
         ]}
         placeholder="请选择接口名称"
         options={getPlatformOptions()}
+        allowClear
       />
       <ProFormTextArea
         name="description"

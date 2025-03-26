@@ -4,6 +4,13 @@ import AgentModel from '@/models/AgentModel';
 import PlatformService from './PlatformService';
 import TavilyAPI from '@/SDK/tavily';
 import { SEARCH_API_MAP } from '@/common/search';
+import { AGENT_API_MAP } from '@/common/agent';
+import ToolCallApi from '@/SDK/tool_call';
+import { Tool } from '@/SDK/mcp/tool/typings';
+import SearchTool from '@/SDK/mcp/tool/SearchTool';
+import WeatherTool from '@/SDK/mcp/tool/WeatherTool';
+import GraphDBTool from '@/SDK/mcp/tool/GraphDBTool';
+
 
 class AgentService {
 
@@ -165,60 +172,68 @@ class AgentService {
 
     // 智能助手对话
     static async agentChat(agent_id: string, params: any) {
-        const { platformId, query, stream } = params
-        if (!agent_id || !platformId || !query) {
+        const { platformId, query } = params
+        if (!agent_id || !query) {
             throw new Error("参数错误");
         }
         const agent = await AgentModel.findByPk(agent_id);
         if (!agent) {
             throw new Error("智能助手不存在或已删除");
         }
-        // 获取平台
-        const platformConfig: any = await PlatformService.findPlatformById(platformId, {
-            safe: false
-        });
-        if (!platformConfig) {
-            throw new Error("接口名称不存在");
-        }
-
         // 查询Agent
-        const result = await AgentService.getAgentById(agent_id);
-        if (!result) {
+        const agentRes = await AgentService.getAgentById(agent_id);
+        if (!agentRes) {
             throw new Error("未找到指定的智能助手");
         }
 
-        const data = result.toJSON();
+        const agentInfo = agentRes.toJSON();
 
-        const { parameters } = data;
+        const { parameters } = agentInfo;
         if (!parameters) {
             throw new Error("智能助手参数配置错误");
         }
-        const { searchEngine } = parameters;
-        let response: any;
+        const { searchEngine, modelConfig, graphConfig } = parameters;
+        const tools: Tool[] = [
+            WeatherTool
+        ]
 
+        if (!modelConfig || !modelConfig.platform || !modelConfig.model) {
+            throw new Error("模型配置错误")
+        }
+        // 获取模型平台配置
+        const lmPlatformConfig: any = await PlatformService.findPlatformByIdOrName(modelConfig?.platform, {
+            safe: false
+        });
+        if (!lmPlatformConfig) {
+            throw new Error("模型平台不存在");
+        }
+        if (graphConfig && graphConfig?.graph) {
+            // 获取图数据库配置
+            const graphDbConfig: any = await PlatformService.findPlatformByIdOrName(graphConfig?.graph, {
+                safe: false
+            });
+            if (!graphDbConfig) {
+                throw new Error("知识图谱不存在");
+            }
+            tools.push(new GraphDBTool(graphDbConfig?.toJSON() || {}, graphConfig?.workspace || ''));
+        }
         if (searchEngine) {
             // 获取搜索引擎配置
             const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchEngine, {
                 safe: false
             });
-            const queryParams = {
-                query: query, // 查询内容
-                max_results: Number(searchEngineConfig?.max_results || 10), // 最大返回结果数
-            }
-            switch (searchEngineConfig?.code) {
-                case SEARCH_API_MAP.tavily.value:
-                    response = await new TavilyAPI({
-                        host: searchEngineConfig?.host,
-                        apiKey: searchEngineConfig?.apiKey,
-                    }).search(queryParams);
-                    break;
-                default:
-                    break;
-            }
+            tools.push(new SearchTool(searchEngineConfig?.toJSON()));
         }
 
-        return response
+        const result = await new ToolCallApi(lmPlatformConfig?.toJSON()).questionChat({
+            model: modelConfig.model,
+            ...params,
+        }, tools);
 
+        if (result?.isError) {
+            throw new Error(result.content)
+        }
+        return result
     }
 }
 

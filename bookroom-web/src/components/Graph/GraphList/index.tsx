@@ -16,6 +16,7 @@ import { AI_GRAPH_PLATFORM_MAP } from '@/common/ai';
 
 type GraphListPropsType = {
   mode?: MODE_ENUM;
+  graphList?:API.AIGraphInfo[] | null;
   graph: string;
   changeGraph?: (graph: string) => void;
   dataList: any;
@@ -29,6 +30,7 @@ const GraphList: React.FC<GraphListPropsType> = (props) => {
   const [searchText, setSearchText] = useState<string>('' as string);
   const {
     mode = MODE_ENUM.VIEW,
+    graphList,
     graph,
     changeGraph,
     dataList,
@@ -63,6 +65,7 @@ const GraphList: React.FC<GraphListPropsType> = (props) => {
       <Space size={16} wrap className={styles.header}>
         <GraphSelect
           title={'知识图谱'}
+          datalist={graphList}
           graph={graph}
           changeGraph={changeGraph}
         />

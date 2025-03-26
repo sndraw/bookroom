@@ -17,6 +17,7 @@ import useHeaderHeight from '@/hooks/useHeaderHeight';
 
 type LmListPropsType = {
   mode?: MODE_ENUM;
+  platformList: API.PlatformInfo[] | null;
   platform: string;
   changePlatform: (platform: string) => void;
   dataList: any;
@@ -29,6 +30,7 @@ const LmList: React.FC<LmListPropsType> = (props) => {
   const [searchText, setSearchText] = useState<string>('' as string);
   const {
     mode = MODE_ENUM.VIEW,
+    platformList,
     platform,
     changePlatform,
     dataList,
@@ -83,6 +85,7 @@ const LmList: React.FC<LmListPropsType> = (props) => {
       <Space size={16} wrap className={styles.header}>
         <PlatformSelect
           title={'模型平台'}
+          dataList={platformList}
           platform={platform}
           changePlatform={changePlatform}
           allowClear={false}

@@ -180,7 +180,7 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
                 if (!item?.graph) return false;
                 if (!item?.name) return false;
                 const result = await handleDelete({
-                  graph: item?.graph,
+                  graph: item?.graphId,
                   workspace: item?.name,
                 }); // 刷新图谱空间列表
                 if (result) {
@@ -202,7 +202,7 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
             title={'图谱对话'}
             to={{
               pathname: generatePath(ROUTE_MAP.AI_GRAPH_CHAT, {
-                graph: item?.graph,
+                graph: item?.graphId,
                 workspace: encodeURIComponent(item?.name),
               }),
             }}
@@ -221,7 +221,7 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
             title={'文档列表'}
             to={{
               pathname: generatePath(ROUTE_MAP.AI_DOCUMENT, {
-                graph: item?.graph,
+                graph: item?.graphId,
                 workspace: encodeURIComponent(item?.name),
               }),
             }}
@@ -240,7 +240,7 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
             title={'图谱表格'}
             to={{
               pathname: generatePath(ROUTE_MAP.AI_GRAPH_TABLE, {
-                graph: item?.graph,
+                graph: item?.graphId,
                 workspace: encodeURIComponent(item?.name),
               }),
             }}
@@ -259,7 +259,7 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
             title={'图谱展示'}
             to={{
               pathname: generatePath(ROUTE_MAP.AI_GRAPH_SHOW, {
-                graph: item?.graph,
+                graph: item?.graphId,
                 workspace: encodeURIComponent(item?.name),
               }),
             }}

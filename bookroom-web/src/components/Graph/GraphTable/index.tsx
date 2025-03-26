@@ -47,6 +47,7 @@ const GraphTable: React.FC<GraphTablePropsType> = (props) => {
   const [searchText, setSearchText] = useState<string>('' as string);
   // 操作状态管理
   const { operation, setOperation, resetOperation } = useModel('graphOperation');
+  const { getGraphName } = useModel('graphList');
 
   const listRef = useRef<any>(null);
   const headerHeight = useHeaderHeight();
@@ -254,7 +255,7 @@ const GraphTable: React.FC<GraphTablePropsType> = (props) => {
     >
       <Space size={0} wrap className={styles.header}>
         <Space size={0} wrap className={styles.documentTags}>
-          <span>{graph}</span>
+          <span>{getGraphName(graph)}</span>
         </Space>
         <Divider type="vertical" />
         <Space size={0} wrap className={styles.documentTitle}>

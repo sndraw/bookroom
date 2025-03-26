@@ -31,12 +31,11 @@ const AgentAdd: React.FC<AgentAddProps> = (props) => {
       await addAgent(
         {
           name: values?.name,
-          platformId: values?.platformId,
+          platformId: values?.platformId || "",
           description: values?.description,
         }
       ).then((response) => {
         message.success('智能助手添加成功');
-        refresh?.();
       });
       return true;
     } catch (e) {
@@ -104,12 +103,13 @@ const AgentAdd: React.FC<AgentAddProps> = (props) => {
         label="接口名称"
         rules={[
           {
-            required: true,
+            required: false,
             message: '请选择接口名称',
           },
         ]}
         placeholder="请选择接口名称"
         options={getPlatformOptions()}
+        allowClear
       />
       <ProFormTextArea
         name="description"
