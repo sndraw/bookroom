@@ -28,11 +28,15 @@ class AILmController extends BaseController {
         platformList.push(platform)
       }
       for (const platformItem of platformList) {
-        const platformModels: any = await AILmThirdService.queryAILmList({
-          platform: platformItem,
-          query
-        });
-        models = models.concat(platformModels);
+        try {
+          const platformModels: any = await AILmThirdService.queryAILmList({
+            platform: platformItem,
+            query
+          });
+          models = models.concat(platformModels);
+        } catch (e) {
+          ctx.logger.error(`查询平台 ${platformItem} 的AI模型列表异常`, e); // 记录错误日志
+        }
       }
       ctx.status = 200;
       ctx.body = resultSuccess({

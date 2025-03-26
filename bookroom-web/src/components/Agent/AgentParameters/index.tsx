@@ -10,15 +10,21 @@ import {
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
 import SearchEngineSelect from '@/components/Search/SearchEngineSelect';
+import AgentModelSelect from './AgentModelSelect/inex';
+import AgentGraphSelect from './AgentGraphSelect/inex';
 
 export interface ParametersType {
   isStream: boolean;
   searchEngine?: string;
+  modelConfig?: object;
+  graphConfig?: object;
 }
 
 export const defaultParameters: ParametersType = {
   isStream: true,
-  searchEngine: undefined
+  searchEngine: undefined,
+  modelConfig: undefined,
+  graphConfig: undefined,
 };
 
 interface AgentParametersProps {
@@ -31,14 +37,17 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isStream, setIsStream] = useState<boolean>(true);
   const [searchEngine, setSearchEngine] = useState<string>();
-
+  const [modelConfig, setModelConfig] = useState<object>();
+  const [graphConfig, setGraphConfig] = useState<object>();
   const { data, parameters, changeParameters } = props;
   const { token } = useToken();
 
   useEffect(() => {
     if (parameters) {
-      setIsStream(parameters.isStream);
-      setSearchEngine(parameters.searchEngine);
+      setIsStream(parameters?.isStream);
+      setSearchEngine(parameters?.searchEngine);
+      setModelConfig(parameters?.modeConfig);
+      setGraphConfig(parameters?.graphConfig);
     }
   }, [parameters]);
 
@@ -46,6 +55,8 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     const newParameters: ParametersType = {
       isStream,
       searchEngine,
+      modelConfig,
+      graphConfig,
     };
     changeParameters(newParameters);
   };
@@ -70,6 +81,30 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
         }}
       >
         <div className={styles.formPanel}>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="top"
+          >
+            <label className={styles.formLabel} >模型选择：</label>
+            <AgentModelSelect
+              className={styles.selectElement}
+              values={modelConfig}
+              onChange={(values: object) => setModelConfig(values)}
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="top"
+          >
+            <label className={styles.formLabel} >图谱选择：</label>
+            <AgentGraphSelect
+              className={styles.selectElement}
+              values={graphConfig}
+              onChange={(values: object) => setGraphConfig(values)}
+            />
+          </Flex>
           <Flex
             className={styles.formItem}
             justify="justifyContent"

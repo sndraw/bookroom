@@ -22,7 +22,7 @@ export async function queryAILmPlatformList(options?: { [key: string]: any }) {
 }
 /** GET /ai/lm */
 export async function queryAllAILmList(
-  params: {
+  params?: {
     platform?: string;
     /** current */
     current?: number;
@@ -34,7 +34,7 @@ export async function queryAllAILmList(
   return request<API.Result_PageInfo_AILmInfo__>(`/ai/lm`, {
     method: 'GET',
     params: {
-      ...params,
+      ...(params || {}),
     },
     ...(options || {}),
   });
