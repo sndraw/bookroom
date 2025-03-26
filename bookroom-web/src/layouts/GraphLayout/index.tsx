@@ -39,7 +39,7 @@ const GraphLayout: React.FC<PropsType> = (props: PropsType) => {
   useEffect(() => {
     if (data && data?.[0]?.name && !graph) {
       navigate(
-        generatePath(ROUTE_MAP.AI_GRAPH_LIST, { graph: data?.[0]?.name }),
+        generatePath(ROUTE_MAP.AI_GRAPH_LIST, { graph: data?.[0]?.id }),
       );
     }
   }, [data, graph]);

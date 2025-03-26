@@ -1,26 +1,22 @@
-import BaseTool from "./BaseTool";
+interface WeatherInput {
+    province?: string;
+    city: string;
+}
 
-class WeatherTool extends BaseTool  {
-    
-    constructor(name: string, version: string) {
-        super();
-        this.name = name;
-        this.version = version;
-        this.description = "Get weather information";
-        this.inputSchema = {
-            type: "object",
-            properties: {
-                query: {
-                    type: "string",
-                    description: "Query information",
-                },
-            },
-            required: ["query"],
-        }
-        this.execute = this.getWeather.bind(this);
-    }
-    async getWeather(args: object): Promise<any> {
-        const { province, city } = args as { province: string, city: string };
+const WeatherTool = {
+    name: "weather_tool",
+    version: "1.0",
+    description: "Get weather information",
+    parameters: {
+        type: "object",
+        properties: {
+            province: { type: "string" },
+            city: { type: "string" }
+        },
+        required: ["city"],
+    },
+    execute: async (args: WeatherInput): Promise<any> => {
+        const { city } = args;
         const res = await fetch(`https://uapis.cn/api/weather?name=${city}`);
         const data: any = await res.json();
         if (typeof data === 'object' && data !== null && data?.code !== 200) {
@@ -36,6 +32,7 @@ class WeatherTool extends BaseTool  {
             isError: true,
         };
     }
+
 }
 
 export default WeatherTool;

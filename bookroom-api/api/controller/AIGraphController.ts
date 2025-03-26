@@ -88,7 +88,7 @@ class AIGraphController extends BaseController {
                     values.createdAt = item?.birthtime * 1000
                 }
                 values.graph = graphInfo?.name;
-                values.graphId = graphInfo?.graph;
+                values.graphId = graphInfo?.id;
                 values.graphCode = graphInfo?.code
                 return values
             })
@@ -137,7 +137,7 @@ class AIGraphController extends BaseController {
                 values.createdAt = item?.birthtime * 1000
             }
             values.graph = graphInfo?.name;
-            values.graphId = graphInfo?.graph;
+            values.graphId = graphInfo?.id;
             values.graphCode = graphInfo?.code
 
             ctx.status = 200;

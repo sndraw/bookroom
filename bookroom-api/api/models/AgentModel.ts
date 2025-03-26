@@ -62,12 +62,12 @@ AgentModel.init(
         platformId: {
             field: "platform_id",
             type: DataTypes.UUID,
-            allowNull: false,
-            validate: {
-                notEmpty: {
-                    msg: "请填入接口名称ID",
-                },
-            },
+            allowNull: true,
+            // validate: {
+            //     notEmpty: {
+            //         msg: "请填入接口名称ID",
+            //     },
+            // },
         },
         // 描述
         description: {

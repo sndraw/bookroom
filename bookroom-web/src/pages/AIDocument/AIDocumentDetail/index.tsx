@@ -1,13 +1,14 @@
 import DocumentDetail from '@/components/Document/DocumentDetail';
 import Page404 from '@/pages/404';
 import { getGraphDocument } from '@/services/common/ai/document';
-import { useParams, useRequest } from '@umijs/max';
+import { useModel, useParams, useRequest } from '@umijs/max';
 import { Alert, Divider, Empty, Space, Spin } from 'antd';
 import { useEffect } from 'react';
 import styles from './index.less';
 
 const AIDocumentDetailPage: React.FC = () => {
   const { graph, workspace, document_id } = useParams();
+  const { getGraphName } = useModel('graphList');
 
   // 文档详情
   const { data, loading, error, run } = useRequest(
@@ -57,7 +58,7 @@ const AIDocumentDetailPage: React.FC = () => {
     <div className={styles.container}>
       <Space size={0} wrap className={styles.header}>
         <Space size={0} wrap className={styles.documentTags}>
-          <span>{graph}</span>
+          <span>{getGraphName(graph)}</span>
         </Space>
         <Divider type="vertical" />
         <Space size={0} wrap className={styles.documentTitle}>

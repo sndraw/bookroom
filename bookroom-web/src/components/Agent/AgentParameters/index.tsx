@@ -1,6 +1,5 @@
 import { SettingOutlined } from '@ant-design/icons';
 import { useToken } from '@ant-design/pro-components';
-import { useModel } from '@umijs/max';
 import {
   Button,
   Drawer,

@@ -2,7 +2,6 @@ import DocumentList from '@/components/Document/DocumentList';
 import Page404 from '@/pages/404';
 import { queryGraphDocumentList } from '@/services/common/ai/document';
 import { useParams, useRequest } from '@umijs/max';
-import { Alert, Empty, Spin } from 'antd';
 import { useEffect } from 'react';
 import styles from './index.less';
 const AIDocumentListPage: React.FC = () => {

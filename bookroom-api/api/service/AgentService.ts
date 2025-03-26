@@ -4,6 +4,9 @@ import AgentModel from '@/models/AgentModel';
 import PlatformService from './PlatformService';
 import TavilyAPI from '@/SDK/tavily';
 import { SEARCH_API_MAP } from '@/common/search';
+import { AGENT_API_MAP } from '@/common/agent';
+
+const AgentClients = new Map<string, any>()
 
 class AgentService {
 
@@ -182,42 +185,55 @@ class AgentService {
         }
 
         // 查询Agent
-        const result = await AgentService.getAgentById(agent_id);
-        if (!result) {
+        const agentRes = await AgentService.getAgentById(agent_id);
+        if (!agentRes) {
             throw new Error("未找到指定的智能助手");
         }
 
-        const data = result.toJSON();
+        const agentInfo = agentRes.toJSON();
 
-        const { parameters } = data;
+        const { parameters } = agentInfo;
         if (!parameters) {
             throw new Error("智能助手参数配置错误");
         }
-        const { searchEngine } = parameters;
-        let response: any;
-
-        if (searchEngine) {
-            // 获取搜索引擎配置
-            const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchEngine, {
-                safe: false
-            });
-            const queryParams = {
-                query: query, // 查询内容
-                max_results: Number(searchEngineConfig?.max_results || 10), // 最大返回结果数
-            }
-            switch (searchEngineConfig?.code) {
-                case SEARCH_API_MAP.tavily.value:
-                    response = await new TavilyAPI({
-                        host: searchEngineConfig?.host,
-                        apiKey: searchEngineConfig?.apiKey,
-                    }).search(queryParams);
-                    break;
-                default:
-                    break;
-            }
+        let client: any;
+        switch (platformConfig?.code) {
+            case AGENT_API_MAP.mcp.value:
+              
+                break;
+            default:
+                break;
         }
+        let result: any;
+        // await client.start_sse(agent_id);
+        // const tools = await client.listTools();
+        // console.log(tools);
 
-        return response
+
+        // const { searchEngine } = parameters;
+
+        // if (searchEngine) {
+        //     // 获取搜索引擎配置
+        //     const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchEngine, {
+        //         safe: false
+        //     });
+        //     const queryParams = {
+        //         query: query, // 查询内容
+        //         max_results: Number(searchEngineConfig?.max_results || 10), // 最大返回结果数
+        //     }
+        //     switch (searchEngineConfig?.code) {
+        //         case SEARCH_API_MAP.tavily.value:
+        //             response = await new TavilyAPI({
+        //                 host: searchEngineConfig?.host,
+        //                 apiKey: searchEngineConfig?.apiKey,
+        //             }).search(queryParams);
+        //             break;
+        //         default:
+        //             break;
+        //     }
+        // }
+
+        return result
 
     }
 }

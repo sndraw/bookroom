@@ -2,7 +2,7 @@ import { AI_GRAPH_MODE_ENUM } from '@/common/ai';
 import ChatPanel from '@/components/ChatPanel';
 import Page404 from '@/pages/404';
 import { graphChat } from '@/services/common/ai/graph';
-import { useParams } from '@umijs/max';
+import { useModel, useParams } from '@umijs/max';
 import { Divider, Flex, Radio, Slider, Space, Switch } from 'antd';
 import { useState } from 'react';
 import styles from './index.less';
@@ -17,6 +17,7 @@ const AIGraphChatPage: React.FC = () => {
   const [onlyNeedPrompt, setOnlyNeedPrompt] = useState<boolean>(false);
   const [topK, setTopK] = useState<number>(10);
   const [isStream, setIsStream] = useState<boolean>(true);
+  const { getGraphName } = useModel('graphList');
 
   // 将AI_GRAPH_MODE_ENUM解析成options
   const modeOptions = () => {
@@ -64,7 +65,7 @@ const AIGraphChatPage: React.FC = () => {
     >
       <div>
         <Space size={0} wrap className={styles.chatTags}>
-          <span>{graph}</span>
+          <span>{getGraphName(graph)}</span>
         </Space>
         <Divider type="vertical" />
         <Space size={0} wrap className={styles.chatTitle}>

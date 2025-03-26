@@ -210,7 +210,7 @@ const PlatformPage: React.FC<unknown> = () => {
       dataIndex: 'index',
       hideInForm: true,
       editable: false,
-      hideInSearch:true,
+      hideInSearch: true,
       //@ts-ignore
       width: 50,
       render: (text, record, index, action) => {
@@ -250,6 +250,8 @@ const PlatformPage: React.FC<unknown> = () => {
       // 默认值
       // @ts-ignore
       // initialValue: PLATFORM_TYPE_MAP.model.value,
+      //@ts-ignore
+      width: 100,
       request: async () => {
         const options: any = Object.entries(PLATFORM_TYPE_MAP).map(
           (item) => {

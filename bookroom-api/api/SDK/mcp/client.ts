@@ -1,7 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
-const transports: { [sessionId: string]: SSEClientTransport } = {};
+const transports: { [sessionId: string]: any } = {};
 
 class McpClient {
     private client: Client;
@@ -9,10 +9,9 @@ class McpClient {
     constructor(ops: any) {
         const { name, apiKey, host, version = "1.0.0" } = ops;
         if (!name) throw new Error("缺少客户端名称");
-        if (!apiKey) throw new Error("缺少API密钥");
         if (!host) throw new Error("缺少主机地址");
         this.sseUrl = host;
-        const client = new Client(
+        this.client = new Client(
             {
                 name,
                 version,
@@ -25,9 +24,14 @@ class McpClient {
                 },
             },
         );
-        this.client = client;
     }
     async start_sse(sessionId: string) {
+        if (!sessionId) {
+            throw new Error("缺少会话ID");
+        }
+        if (transports[sessionId]) {
+            await this.stop_sse(sessionId); // Stop any existing connection
+        }
         const transport = new SSEClientTransport(new URL(this.sseUrl));
         transports[sessionId] = transport;
         await this.client.connect(transport);
@@ -53,7 +57,7 @@ class McpClient {
     async disconnect() {
         await this.stop_all_sse();
         if (this.client) {
-            this.client.close();
+            await this.client.close();
         }
     }
 }
