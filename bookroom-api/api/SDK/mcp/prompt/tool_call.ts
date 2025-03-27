@@ -7,7 +7,7 @@ export const createPrompt = (tools: Tool[], prompt?: string) => {
     `你有以下工具可供使用：\n` +
     `${toolDescriptions}\n`;
   if (prompt) {
-    formattedPrompt += `\n\n${prompt}`;
+    formattedPrompt += `\n\n${prompt}\n`;
   }
   return formattedPrompt;
 }
