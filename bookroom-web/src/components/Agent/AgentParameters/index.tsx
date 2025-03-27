@@ -1,11 +1,14 @@
-import { SettingOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { useToken } from '@ant-design/pro-components';
 import {
   Button,
+  Divider,
   Drawer,
   Flex,
+  Input,
   Select,
   Switch,
+  Tooltip,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
@@ -14,6 +17,7 @@ import AgentModelSelect from './AgentModelSelect/inex';
 import AgentGraphSelect from './AgentGraphSelect/inex';
 
 export interface ParametersType {
+  prompt: string;
   isStream: boolean;
   searchEngine?: string;
   modelConfig?: object;
@@ -21,6 +25,7 @@ export interface ParametersType {
 }
 
 export const defaultParameters: ParametersType = {
+  prompt: '',
   isStream: true,
   searchEngine: undefined,
   modelConfig: undefined,
@@ -35,6 +40,7 @@ interface AgentParametersProps {
 
 const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [prompt, setPrompt] = useState<string>('');
   const [isStream, setIsStream] = useState<boolean>(true);
   const [searchEngine, setSearchEngine] = useState<string>();
   const [modelConfig, setModelConfig] = useState<object>();
@@ -44,6 +50,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
 
   useEffect(() => {
     if (parameters) {
+      setPrompt(parameters?.prompt);
       setIsStream(parameters?.isStream);
       setSearchEngine(parameters?.searchEngine);
       setModelConfig(parameters?.modelConfig);
@@ -53,6 +60,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
 
   const handleSave = () => {
     const newParameters: ParametersType = {
+      prompt,
       isStream,
       searchEngine,
       modelConfig,
@@ -86,7 +94,11 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="top"
           >
-            <label className={styles.formLabel} >模型选择：</label>
+            <label className={styles.formLabel} >工具模型<Tooltip title={"平台及模型需要支持工具调用"}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip></label>
             <AgentModelSelect
               className={styles.selectElement}
               values={modelConfig}
@@ -98,7 +110,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="top"
           >
-            <label className={styles.formLabel} >图谱选择：</label>
+            <label className={styles.formLabel} >知识图谱</label>
             <AgentGraphSelect
               className={styles.selectElement}
               values={graphConfig}
@@ -110,7 +122,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="center"
           >
-            <label className={styles.formLabel} >搜索引擎：</label>
+            <label className={styles.formLabel} >搜索引擎</label>
             <SearchEngineSelect
               value={searchEngine}
               onChange={(value: string) => setSearchEngine(value)}
@@ -121,7 +133,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="center"
           >
-            <label className={styles.formLabel}>流式输出：</label>
+            <label className={styles.formLabel}>流式输出</label>
             <Switch
               value={isStream}
               onChange={(checked: boolean) => {
@@ -134,7 +146,31 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
               unCheckedChildren="禁用"
             />
           </Flex>
-
+          <Flex
+            className={styles.formItem}
+            vertical
+            justify="justifyContent"
+            align="top"
+          >
+            <Divider orientation="center" plain>
+              追加提示词<Tooltip title={"如无追加提示词，模型将根据用户的指令和自己的理解来决定工具调用"}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip>
+            </Divider>
+            <Input.TextArea
+              className={styles.textAreaInput}
+              placeholder={'请输入提示词'}
+              value={prompt}
+              maxLength={1024}
+              showCount
+              onChange={(event) => {
+                setPrompt(event.target.value);
+              }}
+              rows={3}
+            />
+          </Flex>
         </div>
       </Drawer>
     </>

@@ -8,7 +8,7 @@ class SearchTool {
     private config: any;
     public name = "search_tool";
     public version = "1.0";
-    public description = "Get search information";
+    public description = "Search internet information | 搜索互联网信息";
     public parameters = {
         type: "object",
         properties: {

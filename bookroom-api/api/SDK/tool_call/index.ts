@@ -27,6 +27,7 @@ class ToolCallApi {
         try {
             const {
                 model,
+                prompt,
                 query,
                 is_stream,
                 temperature = 0.7,
@@ -47,14 +48,15 @@ class ToolCallApi {
                     },
                 }
             });
-
+            const formattedPrompt = createPrompt(tools,prompt);
+            console.log("Agent提示词：",formattedPrompt);
             const messages = [
                 {
                     role: 'system',
                     content: [
                         {
                             type: "text",
-                            text: createPrompt(tools),
+                            text: createPrompt(tools,prompt),
                         }
                     ]
                 },
