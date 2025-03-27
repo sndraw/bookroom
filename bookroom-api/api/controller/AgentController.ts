@@ -82,17 +82,6 @@ class AgentController extends BaseController {
             userId: ctx?.userId
         }
         ctx.verifyParams({
-            platformId: {
-                type: "string",
-                required: true,
-                min: 2,
-                max: 40,
-                message: {
-                    required: "接口名称不能为空",
-                    min: "接口名称长度不能小于2",
-                    max: "接口名称长度不能超过40",
-                }
-            },
             name: {
                 type: "string",
                 required: true,
@@ -164,17 +153,6 @@ class AgentController extends BaseController {
             userId: ctx?.userId
         }
         ctx.verifyParams({
-            platformId: {
-                type: "string",
-                required: false,
-                min: 2,
-                max: 40,
-                message: {
-                    required: "接口名称不能为空",
-                    min: "接口名称长度不能小于2",
-                    max: "接口名称长度不能超过40",
-                }
-            },
             name: {
                 type: "string",
                 required: false,

@@ -58,17 +58,6 @@ AgentModel.init(
                 },
             },
         },
-        // 接口名称ID
-        platformId: {
-            field: "platform_id",
-            type: DataTypes.UUID,
-            allowNull: true,
-            // validate: {
-            //     notEmpty: {
-            //         msg: "请填入接口名称ID",
-            //     },
-            // },
-        },
         // 描述
         description: {
             field: "description",

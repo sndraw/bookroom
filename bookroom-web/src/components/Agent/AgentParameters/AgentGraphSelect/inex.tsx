@@ -31,7 +31,7 @@ const AgentGraphSelect: React.FC<AgentGraphSelectPropsType> = (props) => {
             manual: true,
         },
     );
-    // 图片空间列表-请求
+    // 图谱空间列表-请求
     const { data: workspaceData, loading: workspaceLoading, run: workspaceRun } = useRequest(
         () => {
             return queryGraphWorkspaceList({

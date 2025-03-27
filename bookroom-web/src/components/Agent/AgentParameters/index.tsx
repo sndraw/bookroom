@@ -6,7 +6,6 @@ import {
   Drawer,
   Flex,
   Input,
-  Select,
   Switch,
   Tooltip,
 } from 'antd';
@@ -15,6 +14,7 @@ import styles from './index.less';
 import SearchEngineSelect from '@/components/Search/SearchEngineSelect';
 import AgentModelSelect from './AgentModelSelect/inex';
 import AgentGraphSelect from './AgentGraphSelect/inex';
+import AgentSDKSelect from './AgentSDKSelect/inex';
 
 export interface ParametersType {
   prompt: string;
@@ -22,6 +22,7 @@ export interface ParametersType {
   searchEngine?: string;
   modelConfig?: object;
   graphConfig?: object;
+  agentSDK?: string;
 }
 
 export const defaultParameters: ParametersType = {
@@ -44,6 +45,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [isStream, setIsStream] = useState<boolean>(true);
   const [searchEngine, setSearchEngine] = useState<string>();
   const [modelConfig, setModelConfig] = useState<object>();
+  const [agentSDK, setAgentSDK] = useState<string>();
   const [graphConfig, setGraphConfig] = useState<object>();
   const { data, parameters, changeParameters } = props;
   const { token } = useToken();
@@ -55,6 +57,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
       setSearchEngine(parameters?.searchEngine);
       setModelConfig(parameters?.modelConfig);
       setGraphConfig(parameters?.graphConfig);
+      setAgentSDK(parameters?.agentSDK);
     }
   }, [parameters]);
 
@@ -65,6 +68,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
       searchEngine,
       modelConfig,
       graphConfig,
+      agentSDK,
     };
     changeParameters(newParameters);
   };
@@ -95,10 +99,10 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             align="top"
           >
             <label className={styles.formLabel} >工具模型<Tooltip title={"平台及模型需要支持工具调用"}>
-                <QuestionCircleOutlined
-                  style={{ marginLeft: 4, color: token.colorLink }}
-                />
-              </Tooltip></label>
+              <QuestionCircleOutlined
+                style={{ marginLeft: 4, color: token.colorLink }}
+              />
+            </Tooltip></label>
             <AgentModelSelect
               className={styles.selectElement}
               values={modelConfig}
@@ -124,8 +128,25 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
           >
             <label className={styles.formLabel} >搜索引擎</label>
             <SearchEngineSelect
+              className={styles.selectElement}
               value={searchEngine}
               onChange={(value: string) => setSearchEngine(value)}
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel} >智能接口<Tooltip title={"通过该接口获取额外的上下文数据及工具"}>
+              <QuestionCircleOutlined
+                style={{ marginLeft: 4, color: token.colorLink }}
+              />
+            </Tooltip></label>
+            <AgentSDKSelect
+              className={styles.selectElement}
+              value={agentSDK}
+              onChange={(value: string) => setAgentSDK(value)}
             />
           </Flex>
           <Flex

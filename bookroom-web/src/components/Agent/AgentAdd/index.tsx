@@ -2,14 +2,12 @@ import { addAgent } from '@/services/common/agent';
 import { PlusOutlined } from '@ant-design/icons';
 import {
   DrawerForm,
-  ProFormSelect,
   ProFormText,
   ProFormTextArea,
 } from '@ant-design/pro-components';
-import { useModel } from '@umijs/max';
 import { Button, Form, message } from 'antd';
 import classNames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 interface AgentAddProps {
   refresh?: () => void;
@@ -23,15 +21,12 @@ const AgentAdd: React.FC<AgentAddProps> = (props) => {
 
   const [loading, setLoading] = useState(false);
 
-  const { getPlatformOptions } = useModel('agentplatformList');
-
   const handleAdd = async (values: any) => {
     setLoading(true);
     try {
       await addAgent(
         {
           name: values?.name,
-          platformId: values?.platformId || "",
           description: values?.description,
         }
       ).then((response) => {
@@ -97,19 +92,6 @@ const AgentAdd: React.FC<AgentAddProps> = (props) => {
           },
         ]}
         placeholder="请输入名称"
-      />
-      <ProFormSelect
-        name="platformId"
-        label="接口名称"
-        rules={[
-          {
-            required: false,
-            message: '请选择接口名称',
-          },
-        ]}
-        placeholder="请选择接口名称"
-        options={getPlatformOptions()}
-        allowClear
       />
       <ProFormTextArea
         name="description"

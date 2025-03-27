@@ -5,8 +5,6 @@ declare namespace API {
   interface AgentInfo {
     id: string;
     name: string;
-    platformId?: string;
-    platformCode?:string;
     description?: string;
     type?: string;
     parameters?: any;
@@ -18,8 +16,6 @@ declare namespace API {
 
   interface AgentInfoVO {
     name?: string;
-    platformId?: string;
-    platformCode?:string;
     description?: string;
     type?: string;
     code?:string;

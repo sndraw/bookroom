@@ -2,9 +2,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
 import AgentModel from '@/models/AgentModel';
 import PlatformService from './PlatformService';
-import TavilyAPI from '@/SDK/tavily';
-import { SEARCH_API_MAP } from '@/common/search';
-import { AGENT_API_MAP } from '@/common/agent';
 import ToolCallApi from '@/SDK/tool_call';
 import { Tool } from '@/SDK/mcp/tool/typings';
 import SearchTool from '@/SDK/mcp/tool/SearchTool';
@@ -57,19 +54,8 @@ class AgentService {
 
     // 添加智能助手
     static async addAgent(params: any) {
-        const { agent_id, platformId } = params
-        if (!platformId) {
-            throw new Error("参数错误");
-        }
-        // 获取平台
-        const platformConfig: any = await PlatformService.findPlatformById(platformId, {
-            safe: false
-        });
-        if (!platformConfig) {
-            throw new Error("接口名称不存在");
-        }
+        const { agent_id } = params
         const data = {
-            platformId: platformConfig?.id,
             name: params?.name || "",
             description: params?.description || "",
             type: params?.type || 1,
@@ -93,21 +79,11 @@ class AgentService {
     }
     // 更新智能助手
     static async updateAgent(agent_id: string, params: any) {
-        const { platformId } = params
         if (!agent_id) {
             throw new Error("参数错误");
         }
 
         try {
-            if (platformId) {
-                // 获取平台
-                const platformConfig: any = await PlatformService.findPlatformById(platformId, {
-                    safe: false
-                });
-                if (!platformConfig) {
-                    throw new Error("接口名称不存在");
-                }
-            }
             const agent = await AgentModel.findByPk(agent_id);
 
             if (!agent) {
@@ -172,7 +148,7 @@ class AgentService {
 
     // 智能助手对话
     static async agentChat(agent_id: string, params: any) {
-        const { platformId, query } = params
+        const { query } = params
         if (!agent_id || !query) {
             throw new Error("参数错误");
         }
