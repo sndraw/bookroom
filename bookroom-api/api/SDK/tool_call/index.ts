@@ -3,7 +3,6 @@ import { createPrompt } from "../mcp/prompt/tool_call";
 import { ChatCompletionCreateParams, ChatCompletionTool } from "openai/resources/chat/completions";
 import { Tool } from "../mcp/tool/typings";
 import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "../mcp/message";
-import { finished } from "stream";
 
 class ToolCallApi {
     private readonly openai: any;
@@ -119,9 +118,9 @@ class ToolCallApi {
             if (message?.tool_calls) {
                 // 创建一个新的消息，包含原始内容和工具调用
                 messages.push(createAssistantMessage({
-                    content: message.content,
+                    content: message?.content,
                     tool_calls: [
-                        ...message.tool_calls
+                        ...message?.tool_calls
                     ]
                 }));
                 const results = await this.handleToolCalls(message, messages, tools);
@@ -201,11 +200,12 @@ class ToolCallApi {
                 content: error?.message || "理问题时出错！",
             }));
             return { content: error?.message || "处理问题时出错！", isError: true };
-        } finally {
-            console.log("————————————————————————————————————")
-            console.log("最终消息列表：")
-            console.log(messages);
         }
+        // finally {
+        //     console.log("————————————————————————————————————")
+        //     console.log("最终消息列表：")
+        //     console.log(messages);
+        // }
     }
 }
 export default ToolCallApi;
