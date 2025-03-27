@@ -10,7 +10,7 @@ class GraphDBTool {
     private workspace?: string; // 工作空间路径
     public name = "graph_db_tool";
     public version = "1.0";
-    public description = "Get knowledge graph information";
+    public description = "Search knowledge graph | 查询知识图谱";
     public parameters = {
         type: "object",
         properties: {

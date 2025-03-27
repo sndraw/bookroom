@@ -11,6 +11,7 @@ import { generatePath, Link, useAccess, useModel } from '@umijs/max';
 import {
   Avatar,
   Button,
+  Divider,
   List,
   message,
   Popconfirm,
@@ -125,7 +126,9 @@ const AgentCard: React.FC<AgentCardPropsType> = (props: AgentCardPropsType) => {
                 </div>
               )}
               <div className={styles?.cardItemNode}>
-                <div className={styles?.nodeLabel}>描述：</div>
+                <Divider orientation="center" plain className={styles?.dividerLabel}>
+                  描述
+                </Divider>
                 <div className={classNames(styles?.nodeContent, styles?.description)} title={item?.description}>
                   {item?.description || '-'}
                 </div>

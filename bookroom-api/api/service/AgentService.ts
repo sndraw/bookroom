@@ -192,7 +192,7 @@ class AgentService {
         if (!parameters) {
             throw new Error("智能助手参数配置错误");
         }
-        const { searchEngine, modelConfig, graphConfig } = parameters;
+        const { prompt,searchEngine, modelConfig, graphConfig } = parameters;
         const tools: Tool[] = [
             WeatherTool
         ]
@@ -227,6 +227,7 @@ class AgentService {
 
         const result = await new ToolCallApi(lmPlatformConfig?.toJSON()).questionChat({
             model: modelConfig.model,
+            prompt,
             ...params,
         }, tools);
 

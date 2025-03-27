@@ -6,7 +6,7 @@ interface WeatherInput {
 const WeatherTool = {
     name: "weather_tool",
     version: "1.0",
-    description: "获取指定地区的天气信息，支持省份和城市查询，需要提供城市名称并带上市县，可选省份名称。",
+    description: "获取指定地区的天气信息，支持省份和城市查询，需要提供城市名称并带上市县，可选省份名称",
     parameters: {
         type: "object",
         properties: {

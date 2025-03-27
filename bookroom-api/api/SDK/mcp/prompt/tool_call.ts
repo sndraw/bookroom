@@ -1,11 +1,13 @@
 import { Tool } from "@/SDK/mcp/tool/typings";
 
 
-export const createPrompt = (tools: Tool[]) => {
-  const toolDescriptions = tools.map((tool) => `${tool.name}: ${tool.description}.`).join("\n");
-  return `
-你是一个智能助手，可以根据用户的问题选择合适的工具来回答。
-以下是可用工具的列表：
-${toolDescriptions}
-`
+export const createPrompt = (tools: Tool[], prompt?: string) => {
+  const toolDescriptions = tools.map((tool) => `${tool.name}: ${tool.description}`).join("\n");
+  let formattedPrompt = `你是一个智能助手，可以根据用户的指令和自己的理解，选择合适的工具帮你完成任务。\n\n` +
+    `你有以下工具可供使用：\n` +
+    `${toolDescriptions}\n`;
+  if (prompt) {
+    formattedPrompt += `\n\n${prompt}`;
+  }
+  return formattedPrompt;
 }
