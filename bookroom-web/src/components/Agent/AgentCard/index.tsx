@@ -43,8 +43,6 @@ const AgentCard: React.FC<AgentCardPropsType> = (props: AgentCardPropsType) => {
   const { token } = useToken();
   const [loading, setLoading] = useState(false);
 
-  const { getPlatformName, getPlatformCode } = useModel('agentplatformList');
-
   // 删除智能助手
   const handleDelete = async ({
     agent,
@@ -95,20 +93,6 @@ const AgentCard: React.FC<AgentCardPropsType> = (props: AgentCardPropsType) => {
           }
           description={
             <div className={styles.cardItemContent} key={item?.name}>
-              {/* <div className={styles?.cardItemNode}>
-                <div className={styles?.nodeLabel}>转义名称：</div>
-                <div className={styles?.nodeContent}>
-                  {encodeURIComponent(item?.name)}
-                </div>
-              </div> */}
-              <div className={styles?.cardItemNode}>
-                <div className={styles?.nodeLabel}>接口名称：</div>
-                <div className={styles?.nodeContent}>{getPlatformName(item?.platformId || '') || '-'}</div>
-              </div>
-              <div className={styles?.cardItemNode}>
-                <div className={styles?.nodeLabel}>接口类型：</div>
-                <div className={styles?.nodeContent}>{getPlatformCode(item?.platformId || '') || '-'}</div>
-              </div>
               {item?.createdAt && (
                 <div className={styles?.cardItemNode}>
                   <div className={styles?.nodeLabel}>创建时间：</div>
