@@ -90,7 +90,7 @@ const AgentTaskPage: React.FC = () => {
             className={styles?.pageContainer}
             sendOptions={
                 {
-                    placeholder: '请输入任务提示以启动新任务',
+                    placeholder: '请输入任务指令以启动新任务',
                 }
             }
             defaultMessageList={data?.messages}
