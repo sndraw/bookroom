@@ -1,5 +1,5 @@
 # BookRoom
-> 私有化智能图书室
+> 智能图书室
 > 
 > [https://github.com/sndraw/bookroom](https://github.com/sndraw/bookroom) 
 
