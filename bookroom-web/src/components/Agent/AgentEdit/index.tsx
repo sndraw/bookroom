@@ -1,12 +1,10 @@
-import { addAgent, updateAgent } from '@/services/common/agent';
+import { updateAgent } from '@/services/common/agent';
 import { EditOutlined } from '@ant-design/icons';
 import {
   DrawerForm,
-  ProFormSelect,
   ProFormText,
   ProFormTextArea,
 } from '@ant-design/pro-components';
-import { useModel } from '@umijs/max';
 import { Button, Form, message } from 'antd';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
@@ -25,8 +23,6 @@ const AgentEdit: React.FC<AgentEditProps> = (props) => {
 
   const [loading, setLoading] = useState(false);
 
-  const { getPlatformOptions } = useModel('agentplatformList');
-
   const handleEdit = async (values: any) => {
     setLoading(true);
     try {
@@ -36,7 +32,6 @@ const AgentEdit: React.FC<AgentEditProps> = (props) => {
         },
         {
           name: values?.name,
-          platformId: values?.platformId || "",
           description: values?.description,
         }
       ).then((response) => {
@@ -103,19 +98,6 @@ const AgentEdit: React.FC<AgentEditProps> = (props) => {
           },
         ]}
         placeholder="请输入名称"
-      />
-      <ProFormSelect
-        name="platformId"
-        label="接口名称"
-        rules={[
-          {
-            required: false,
-            message: '请选择接口名称',
-          },
-        ]}
-        placeholder="请选择接口名称"
-        options={getPlatformOptions()}
-        allowClear
       />
       <ProFormTextArea
         name="description"

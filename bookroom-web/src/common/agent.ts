@@ -1,5 +1,5 @@
 
-// 支持的智能助手-接口类型-MAP
+// 支持的智能接口-接口类型-MAP
 export const AGENT_API_MAP = {
   mcp: {
     value: 'MCP-SDK',
