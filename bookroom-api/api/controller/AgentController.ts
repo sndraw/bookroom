@@ -14,7 +14,10 @@ class AgentController extends BaseController {
         try {
             // 查询智能助手列表
             const agentList = await AgentService.queryAgentList({
-                query,
+                query: {
+                    ...query,
+                    userId: ctx.userId,
+                }
             });
 
             ctx.status = 200;
@@ -44,7 +47,9 @@ class AgentController extends BaseController {
         }
         try {
             // 查询Agent
-            const result = await AgentService.getAgentById(agent_id);
+            const result = await AgentService.getAgentById(agent_id, {
+                userId: ctx.userId,
+            });
             if (!result) {
                 throw new Error("未找到指定的智能助手");
             }
@@ -190,11 +195,22 @@ class AgentController extends BaseController {
             if (!agent_id) {
                 throw new Error("ID参数错误");
             }
-            const record = await AgentService.updateAgent(agent_id, newParams);
-
-            if (!record) {
-                throw new Error("智能助手信息修改失败");
+            // 查询是否存在
+            const agentInfo = await AgentService.getAgentById(agent_id, {
+                userId: ctx?.userId
+            });
+            if (!agentInfo) {
+                throw new Error("智能助手不存在");
             }
+            if (agentInfo.getDataValue('userId') !== ctx.userId) {
+                throw new Error("无权限修改该智能助手状态");
+            }
+            agentInfo.setAttributes({
+                ...newParams,
+                userId: ctx.userId,
+                updatedAt: new Date().getTime(),
+            });
+            await agentInfo.save();
             ctx.body = resultSuccess({
                 data: "ok"
             });
@@ -239,12 +255,22 @@ class AgentController extends BaseController {
             if (!agent_id) {
                 throw new Error("ID参数错误");
             }
-            const { status } = params;
-            const record = await AgentService.updateAgentStatus(agent_id, status);
-
-            if (!record) {
-                throw new Error("智能助手状态修改失败");
+            // 查询是否存在
+            const agentInfo = await AgentService.getAgentById(agent_id, {
+                userId: ctx?.userId
+            });
+            if (!agentInfo) {
+                throw new Error("智能助手不存在");
             }
+            if (agentInfo.getDataValue('userId') !== ctx.userId) {
+                throw new Error("无权限修改该智能助手状态");
+            }
+            agentInfo.setAttributes({
+                status: params.status,
+                userId: ctx.userId,
+                updatedAt: new Date().getTime(),
+            });
+            await agentInfo.save();
             ctx.body = resultSuccess({
                 data: "ok"
             });
@@ -267,6 +293,16 @@ class AgentController extends BaseController {
         try {
             if (!agent_id) {
                 throw new Error("ID参数错误");
+            }
+            // 查询是否存在
+            const agentInfo = await AgentService.getAgentById(agent_id, {
+                userId: ctx?.userId
+            });
+            if (!agentInfo) {
+                throw new Error("智能助手不存在");
+            }
+            if (agentInfo.getDataValue('userId') !== ctx.userId) {
+                throw new Error("无权限删除该智能助手");
             }
             const result = await AgentService.deleteAgentById(agent_id);
             if (!result) {
@@ -297,8 +333,9 @@ class AgentController extends BaseController {
             params = JSON.parse(params);
         }
         const newParams = {
+            ...params,
             agent_id,
-            ...params
+            userId: ctx.userId,
         }
         ctx.verifyParams({
             agent_id: {
@@ -338,7 +375,9 @@ class AgentController extends BaseController {
 
         try {
             const { is_stream, query } = newParams;
-            const agent = await AgentService.getAgentById(agent_id)
+            const agent = await AgentService.getAgentById(agent_id, {
+                userId: ctx.userId,
+            })
             if (!agent) {
                 throw new Error("智能助手不存在或已删除");
             }

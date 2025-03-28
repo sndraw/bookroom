@@ -27,11 +27,16 @@ class AgentService {
     }
 
     // 查询智能助手详情
-    static async getAgentById(agent: string) {
+    static async getAgentById(agent: string, where: any = {}) {
         if (!agent) {
             throw new Error("ID不能为空");
         }
-        return await AgentModel.findByPk(agent)
+        return await AgentModel.findOne({
+            where: {
+                id: agent,
+                ...where,
+            },
+        });
     }
     // 添加或者更新智能助手
     static async addOrUpdateAgent(params: any) {
@@ -168,7 +173,7 @@ class AgentService {
         if (!parameters) {
             throw new Error("智能助手参数配置错误");
         }
-        const { prompt,searchEngine, modelConfig, graphConfig } = parameters;
+        const { prompt, searchEngine, modelConfig, graphConfig } = parameters;
         const tools: Tool[] = [
             WeatherTool
         ]

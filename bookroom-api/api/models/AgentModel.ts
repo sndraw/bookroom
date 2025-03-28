@@ -9,7 +9,7 @@ class AgentModel extends Model {
             return false;
         }
         const andWhereArray: { [x: string]: any; }[] = [];
-        const fieldKeys = ["name"];
+        const fieldKeys = ["name","userId"];
         // 筛选唯一项
         Object.keys(data).forEach((key) => {
             if (data[key] && fieldKeys.includes(key)) {
@@ -173,7 +173,7 @@ AgentModel.init(
                 // 唯一
                 unique: true,
                 // 字段集合
-                fields: ["name"]
+                fields: ["name","user_id"]
             }
         ],
         timestamps: true,

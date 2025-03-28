@@ -114,7 +114,7 @@ const AgentCard: React.FC<AgentCardPropsType> = (props: AgentCardPropsType) => {
                   描述
                 </Divider>
                 <div className={classNames(styles?.nodeContent, styles?.description)} title={item?.description}>
-                  {item?.description || '-'}
+                  {item?.description || '无'}
                 </div>
               </div>
             </div>
