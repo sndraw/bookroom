@@ -4,7 +4,7 @@ import Page404 from '@/pages/404';
 import AgentPanel from '@/components/Agent/AgentPanel';
 import styles from './index.less';
 import { agentChat, getAgentInfo, updateAgent } from '@/services/common/agent';
-import { Alert, Divider, Empty, Space, Spin } from 'antd';
+import { Alert, Divider, Empty, Space, Spin, Tag } from 'antd';
 import ChatPanel from '@/components/ChatPanel';
 import { RobotOutlined } from '@ant-design/icons';
 import AgentParameters, { defaultParameters, ParametersType } from '@/components/Agent/AgentParameters';
@@ -121,6 +121,7 @@ const AgentTaskPage: React.FC = () => {
                 </Space>
                 <Divider type="vertical" />
                 <Space size={0} wrap className={styles.chatTags}>
+                    <Tag color="default">无记忆模式</Tag>
                     <AgentParameters
                         data={data}
                         parameters={parameters}

@@ -63,20 +63,20 @@ const routes = [
         access: 'canSeeUser',
         wrappers: ['@/wrappers/auth'],
       },
-      {
-        name: '图片生成',
-        path: ROUTE_MAP.AI_LM_IMAGE,
-        icon: 'FileImage',
-        component: './AILm/AILmImage',
-        hideInMenu: true,
-        hideInBreadcrumb: false,
-        // // 不展示菜单
-        // menuRender: false,
-        // // 不使用父模板
-        // layout: false,
-        access: 'canSeeUser',
-        wrappers: ['@/wrappers/auth'],
-      },
+      // {
+      //   name: '图片生成',
+      //   path: ROUTE_MAP.AI_LM_IMAGE,
+      //   icon: 'FileImage',
+      //   component: './AILm/AILmImage',
+      //   hideInMenu: true,
+      //   hideInBreadcrumb: false,
+      //   // // 不展示菜单
+      //   // menuRender: false,
+      //   // // 不使用父模板
+      //   // layout: false,
+      //   access: 'canSeeUser',
+      //   wrappers: ['@/wrappers/auth'],
+      // },
       {
         name: '嵌入向量',
         path: ROUTE_MAP.AI_LM_EMBED,
