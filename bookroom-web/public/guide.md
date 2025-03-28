@@ -1,5 +1,5 @@
 # BookRoom
-> 智能书库
+> A book room based Agent | 智能书库
 > 
 > [https://github.com/sndraw/bookroom](https://github.com/sndraw/bookroom) 
 

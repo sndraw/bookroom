@@ -231,7 +231,9 @@ class AIChatController extends BaseController {
         throw new Error("请传入对话ID");
       }
       // 查询是否存在
-      const chat = await AIChatService.getAIChatById(chat_id);
+      const chat = await AIChatService.getAIChatById(chat_id,{
+        userId: ctx.userId,
+      });
       if (!chat) {
         throw new Error("对话不存在");
       }
