@@ -63,13 +63,13 @@ const AILmEmbedPage: React.FC = () => {
       disabled={isLoading}
       // supportImages={supportImages}
       customRequest={sendMsgRequest}
-      onSend={() => {}}
-      onStop={() => {}}
-      onClear={() => {}}
+      onSend={() => { }}
+      onStop={() => { }}
+      onClear={() => { }}
     >
       <div>
         <Space size={0} wrap className={styles.chatTags}>
-        <span>{getPlatformName(platform)}</span>
+          <span>{getPlatformName(platform)}</span>
         </Space>
         <Divider type="vertical" />
         <Space size={0} wrap className={styles.chatTitle}>
@@ -77,6 +77,7 @@ const AILmEmbedPage: React.FC = () => {
         </Space>
         <Divider type="vertical" />
         <Space size={0} wrap className={styles.chatTags}>
+          <Tag color="default">无记录模式</Tag>
           <Access accessible={access.canSeeAdmin}>
             <Tag color="default">接口类型：{data?.platformCode}</Tag>
             {data?.platformHost && (

@@ -17,7 +17,6 @@ const AILmChatPage: React.FC = () => {
   const { platform, model } = useParams();
   const [parameters, setParameters] = useState<ParametersType>(defaultParameters);
   const [prompt, setPrompt] = useState<string>('');
-  const [chatInfo, setChatInfo] = useState<API.AIChatInfo | null>(null);
   const { getPlatformName } = useModel('lmplatformList');
 
   // 模型信息-请求
@@ -76,7 +75,6 @@ const AILmChatPage: React.FC = () => {
     );
   };
 
-  const isLoading = loading || chatListLoading;
 
   useEffect(() => {
     if (model) {
@@ -86,32 +84,27 @@ const AILmChatPage: React.FC = () => {
   }, [model]);
 
   useEffect(() => {
-    const chatInfo = chatList?.record;
-    if (chatInfo) {
-      setChatInfo(chatInfo);
-    }
-  }, [chatList]);
-
-  useEffect(() => {
-    if (chatInfo) {
+    if (chatList?.record) {
       setParameters({
         ...parameters,
-        ...(chatInfo?.parameters || {}),
+        ...(chatList?.record?.parameters || {}),
       });
-      setPrompt(chatInfo?.prompt || "");
+      setPrompt(chatList?.record?.prompt || "");
     }
-  }, [chatInfo]);
+  }, [chatList?.record]);
 
   // 检查参数是否有效
   if (!platform || !model) {
     return <Page404 title={'非法访问'} />;
   }
 
+  const isLoading = loading || chatListLoading;
+
   return (
     <ChatPanel
       className={styles?.chatContainer}
       disabled={isLoading}
-      defaultMessageList={chatInfo?.messages}
+      defaultMessageList={chatList?.record?.messages}
       supportImages={parameters?.supportImages}
       supportVoice={true}
       voiceParams={parameters?.voiceParams}
