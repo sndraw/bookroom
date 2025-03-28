@@ -124,12 +124,14 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
                 <div className={styles?.nodeLabel}>图谱名称：</div>
                 <div className={styles?.nodeContent}>{item?.graph}</div>
               </div>
-              {item?.graphCode && (
-                <div className={styles?.cardItemNode}>
-                  <div className={styles?.nodeLabel}>接口类型：</div>
-                  <div className={styles?.nodeContent}>{item?.graphCode}</div>
-                </div>
-              )}
+              <Access accessible={access.canSeeAdmin}>
+                {item?.graphCode && (
+                  <div className={styles?.cardItemNode}>
+                    <div className={styles?.nodeLabel}>接口类型：</div>
+                    <div className={styles?.nodeContent}>{item?.graphCode}</div>
+                  </div>
+                )}
+              </Access>
               {/* admin权限 */}
               <Access accessible={canEdit}>
                 {item?.graphHost && (

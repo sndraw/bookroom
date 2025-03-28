@@ -87,8 +87,6 @@ const AgentCard: React.FC<AgentCardPropsType> = (props: AgentCardPropsType) => {
               >
                 {item?.name}
               </Typography.Text>
-              {/* 复制 */}
-              <CopyToClipboard content={item?.name} />
             </div>
           }
           description={
