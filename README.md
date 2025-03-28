@@ -1,5 +1,5 @@
 # BookRoom
-> 智能图书室
+> 智能书库
 > 
 > [https://github.com/sndraw/bookroom](https://github.com/sndraw/bookroom) 
 
