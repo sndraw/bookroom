@@ -2,11 +2,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
 import AgentModel from '@/models/AgentModel';
 import PlatformService from './PlatformService';
-import ToolCallApi from '@/SDK/tool_call';
-import { Tool } from '@/SDK/mcp/tool/typings';
-import SearchTool from '@/SDK/mcp/tool/SearchTool';
-import WeatherTool from '@/SDK/mcp/tool/WeatherTool';
-import GraphDBTool from '@/SDK/mcp/tool/GraphDBTool';
+import ToolCallApi from '@/SDK/agent/tool_call';
+import { Tool } from '@/SDK/agent/tool/typings';
+import SearchTool from '@/SDK/agent/tool/SearchTool';
+import WeatherTool from '@/SDK/agent/tool/WeatherTool';
+import GraphDBTool from '@/SDK/agent/tool/GraphDBTool';
 
 
 class AgentService {

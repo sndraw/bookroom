@@ -1,8 +1,8 @@
 import OpenAI from "openai";
-import { createPrompt } from "../mcp/prompt/tool_call";
+import { createPrompt } from "./../prompt/tool_call";
 import { ChatCompletionCreateParams, ChatCompletionTool } from "openai/resources/chat/completions";
-import { Tool } from "../mcp/tool/typings";
-import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "../mcp/message";
+import { Tool } from "./../tool/typings";
+import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "./../message";
 
 class ToolCallApi {
     private readonly openai: any;
