@@ -1,4 +1,4 @@
-import { Tool } from "@/SDK/mcp/tool/typings";
+import { Tool } from "./../tool/typings";
 
 
 export const createPrompt = (tools: Tool[], prompt?: string) => {
