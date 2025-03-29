@@ -271,19 +271,23 @@ const PlatformPage: React.FC<unknown> = () => {
         return newText
       },
       renderFormItem: (item, { defaultRender, ...rest }, form) => {
-        // 如果不存在，置空
-        const newOptions = getPlatformTypeList({ type: form.getFieldValue('type'), code: form?.getFieldValue('code') })
-        if (!newOptions?.length) {
+        // 如果type不存在，置空
+        if (!form.getFieldValue('type')) {
           form.setFieldsValue({ code: '' });
+        } else {
+          // 如果code不在平台类型列表中，置空
+          const newOptions = getPlatformTypeList({ type: form.getFieldValue('type'), code: form?.getFieldValue('code') })
+          if (!newOptions?.length) {
+            form.setFieldsValue({ code: '' });
+          }
         }
-        console.log()
         return (
           <Select
             {...rest}
             onChange={(value) => {
               form.setFieldsValue({ code: value });
             }}
-            options={getPlatformTypeList({ type: form.getFieldValue('type') })}
+            options={form.getFieldValue('type')?getPlatformTypeList({ type: form.getFieldValue('type') }):[]}
           />
         );
       },
