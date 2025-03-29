@@ -1,17 +1,19 @@
 import AgentLogModel from "@/models/AgentLogModel";
 import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
+import { getOrderArray } from "@/utils/query";
 
 
 class AgentLogService {
 
     // 查询智能助手日志列表
     static async queryAgentLogList(params: any) {
-        const { query } = params
+        const { query,sorter} = params
         const list: any = await AgentLogModel.findAll({
             where: {
                 ...(query || {})
-            }
+            },
+            order: getOrderArray(sorter)
         })
 
         if (!list || list?.length < 1) {

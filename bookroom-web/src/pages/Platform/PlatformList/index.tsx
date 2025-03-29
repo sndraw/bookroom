@@ -1,7 +1,3 @@
-import {
-  AI_GRAPH_PLATFORM_MAP,
-  AI_LM_PLATFORM_MAP,
-} from '@/common/ai';
 import { PLATFORM_RULE, URL_RULE } from '@/common/rule';
 import { STATUS_MAP } from '@/constants/DataMap';
 import DefaultLayout from '@/layouts/DefaultLayout';
@@ -12,6 +8,7 @@ import {
   updatePlatformStatus,
   queryPlatformList,
   updatePlatformParameters,
+  getPlatformTypeList,
 } from '@/services/common/platform';
 import { reverseStatus, statusToBoolean } from '@/utils/format';
 import {
@@ -24,6 +21,7 @@ import {
   Button,
   Divider,
   Popconfirm,
+  Select,
   Space,
   Switch,
   message,
@@ -31,11 +29,9 @@ import {
 import React, { useCallback, useRef, useState } from 'react';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
 import { PLATFORM_TYPE_MAP } from '@/common/platform';
-import { AGENT_API_MAP } from '@/common/agent';
-import { SEARCH_API_MAP } from '@/common/search';
 import ParametersEdit from '@/components/Platform/PlatformParameters';
 import PlatformAdd from '@/components/Platform/PlatformAdd';
-import { VOICE_RECOGNIZE_API_MAP } from '@/common/voice';
+import PlatformEdit from '@/components/Platform/PlatformEdit';
 
 const PlatformPage: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();
@@ -55,7 +51,7 @@ const PlatformPage: React.FC<unknown> = () => {
   const handleAdd = async (fields: API.PlatformInfoVO) => {
     setLoading('正在添加');
     try {
-      // 如果params_config是字符串
+      // 如果parameters是字符串
       if (fields?.parameters && typeof fields?.parameters === 'string') {
         fields.parameters = JSON.parse(fields.parameters);
       }
@@ -78,9 +74,13 @@ const PlatformPage: React.FC<unknown> = () => {
       if (!platformId) return false;
       setLoading('正在修改');
       try {
-        // 如果params_config是字符串
+        // 如果parameters是字符串
         if (fields?.parameters && typeof fields?.parameters === 'string') {
           fields.parameters = JSON.parse(fields.parameters);
+        }
+        // 如果status存在
+        if (fields?.status) {
+          fields.status = Number(fields.status);
         }
         const result = await updatePlatform(
           {
@@ -88,41 +88,6 @@ const PlatformPage: React.FC<unknown> = () => {
           },
           {
             ...fields,
-          },
-        );
-        setLoading(false);
-
-        if (!result?.data) {
-          throw `修改${fields?.name}失败`;
-        }
-        message.success('修改成功');
-        return true;
-      } catch (error: any) {
-        setLoading(false);
-        // message.error(error?.message || '修改失败');
-        return false;
-      }
-    },
-    [],
-  );
-  /**
-   * 更新配置
-   */
-  const handleUpdateParameters = useCallback(
-    async (platformId: string, fields: API.PlatformInfoVO) => {
-      if (!platformId) return false;
-      setLoading('正在修改');
-      try {
-        // 如果params_config是字符串
-        if (fields?.parameters && typeof fields?.parameters === 'string') {
-          fields.parameters = JSON.parse(fields.parameters);
-        }
-        const result = await updatePlatformParameters(
-          {
-            platform: platformId || '',
-          },
-          {
-            parameters: fields.parameters || {},
           },
         );
         setLoading(false);
@@ -228,6 +193,7 @@ const PlatformPage: React.FC<unknown> = () => {
       //@ts-ignore
       width: 100,
       // editable: false,
+      sorter: true, // 启用排序功能
       formItemProps: {
         rules: [
           {
@@ -252,6 +218,7 @@ const PlatformPage: React.FC<unknown> = () => {
       // initialValue: PLATFORM_TYPE_MAP.model.value,
       //@ts-ignore
       width: 100,
+      sorter: true, // 启用排序功能
       request: async () => {
         const options: any = Object.entries(PLATFORM_TYPE_MAP).map(
           (item) => {
@@ -292,74 +259,33 @@ const PlatformPage: React.FC<unknown> = () => {
       key: 'code',
       dataIndex: 'code',
       // editable: false,
-      // @ts-ignore
-      // initialValue: AI_LM_PLATFORM_MAP.ollama.value,
       //@ts-ignore
       width: 100,
+      sorter: true, // 启用排序功能
       valueType: 'select',
       dependencies: ['type'],
       hideInSearch: true,
-      request: async (params: any, props: any) => {
-        if (!params?.type) {
-          return [];
+      // initialValue: AI_LM_PLATFORM_MAP.ollama.value,
+      renderText: (text, record) => {
+        const newText = getPlatformTypeList({ code: record?.code })?.[0]?.label || text
+        return newText
+      },
+      renderFormItem: (item, { defaultRender, ...rest }, form) => {
+        // 如果不存在，置空
+        const newOptions = getPlatformTypeList({ type: form.getFieldValue('type'), code: form?.getFieldValue('code') })
+        if (!newOptions?.length) {
+          form.setFieldsValue({ code: '' });
         }
-        if (params?.type === PLATFORM_TYPE_MAP.model.value) {
-          const options: any = Object.entries(AI_LM_PLATFORM_MAP).map(
-            (item) => {
-              return {
-                label: item[1]?.text,
-                value: item[1]?.value,
-              };
-            },
-          );
-          return options;
-        }
-        if (params?.type === PLATFORM_TYPE_MAP.graph.value) {
-          const options: any = Object.entries(AI_GRAPH_PLATFORM_MAP).map(
-            (item) => {
-              return {
-                label: item[1]?.text,
-                value: item[1]?.value,
-              };
-            },
-          );
-          return options;
-        }
-        if (params?.type === PLATFORM_TYPE_MAP.agent.value) {
-          const options: any = Object.entries(AGENT_API_MAP).map(
-            (item) => {
-              return {
-                label: item[1]?.text,
-                value: item[1]?.value,
-              };
-            },
-          );
-          return options;
-        }
-        if (params?.type === PLATFORM_TYPE_MAP.search.value) {
-          const options: any = Object.entries(SEARCH_API_MAP).map(
-            (item) => {
-              return {
-                label: item[1]?.text,
-                value: item[1]?.value,
-              };
-            },
-          );
-          return options;
-        }
-        if (params?.type === PLATFORM_TYPE_MAP.voice_recognize.value) {
-          const options: any = Object.entries(VOICE_RECOGNIZE_API_MAP).map(
-            (item) => {
-              return {
-                label: item[1]?.text,
-                value: item[1]?.value,
-              };
-            },
-          );
-          return options;
-        }
-
-        return [];
+        console.log()
+        return (
+          <Select
+            {...rest}
+            onChange={(value) => {
+              form.setFieldsValue({ code: value });
+            }}
+            options={getPlatformTypeList({ type: form.getFieldValue('type') })}
+          />
+        );
       },
       formItemProps: {
         rules: [
@@ -430,7 +356,7 @@ const PlatformPage: React.FC<unknown> = () => {
       editable: false,
       valueType: 'textarea',
       hideInSearch: true,
-      hideInForm: true,
+      hideInForm: false,
       // @ts-ignore
       width: 150,
       // 数值转换
@@ -448,6 +374,7 @@ const PlatformPage: React.FC<unknown> = () => {
         return <pre>{text}</pre>;
       },
       formItemProps: {
+        initialValue: JSON.stringify({}),
         rules: [
           {
             required: false,
@@ -473,14 +400,16 @@ const PlatformPage: React.FC<unknown> = () => {
       dataIndex: 'status',
       editable: false,
       // @ts-ignore
-      fixed: 'right',
       width: 80,
+      sorter: true,
+      fixed: 'right',
       align: 'center',
       // 数值转换
       renderText: (value) => {
         return String(value);
       },
       formItemProps: {
+        initialValue: String(STATUS_MAP.ENABLE.value),
         rules: [
           {
             required: true,
@@ -489,8 +418,6 @@ const PlatformPage: React.FC<unknown> = () => {
         ],
       },
       valueType: 'select',
-      // @ts-ignore
-      initialValue: String(STATUS_MAP.ENABLE.value),
       hideInSearch: true,
       valueEnum: {
         [String(STATUS_MAP.ENABLE.value)]: {
@@ -523,6 +450,38 @@ const PlatformPage: React.FC<unknown> = () => {
         );
       },
     },
+    // 创建时间
+    {
+      title: '创建时间',
+      key: 'createdAt',
+      dataIndex: 'createdAt',
+      editable: false,
+      // @ts-ignore
+      width: 150,
+      hideInSearch: true,
+      hideInForm: true,
+      render: (dom, entity) => {
+        return (
+          <span>{new Date(entity?.createdAt || "").toLocaleString()}</span>
+        )
+      }
+    },
+    // 修改时间
+    {
+      title: '修改时间',
+      key: 'updatedAt',
+      dataIndex: 'updatedAt',
+      editable: false,
+      // @ts-ignore
+      width: 150,
+      hideInSearch: true,
+      hideInForm: true,
+      render: (dom, entity) => {
+        return (
+          <span>{new Date(entity?.updatedAt || "").toLocaleString()}</span>
+        )
+      }
+    },
     {
       title: '操作',
       dataIndex: 'option',
@@ -533,22 +492,13 @@ const PlatformPage: React.FC<unknown> = () => {
       width: 120,
       render: (_: any, row, index, action) => (
         <>
-          <ParametersEdit
+          <PlatformEdit
             data={row}
-            onFinished={(values) => {
-              return handleUpdateParameters(row.id, values);
-            }}
+            columns={columns}
+            onFinished={(values) => handleUpdate(row.id, values)}
+
             refresh={() => action?.reload()}
           />
-          <Divider type="vertical" />
-          <a
-            key={row?.id}
-            onClick={() => {
-              action?.startEditable(row?.id);
-            }}
-          >
-            编辑
-          </a>
           <Divider type="vertical" />
           <Popconfirm
             key="option-delete"
@@ -607,7 +557,6 @@ const PlatformPage: React.FC<unknown> = () => {
             refresh={() => actionRef?.current?.reload()}
           />,
         ]}
-        showSorterTooltip={{ target: 'full-header' }}
         request={async (params, sorter, filter) => {
           const { data } = await queryPlatformList({
             ...params,
@@ -626,26 +575,6 @@ const PlatformPage: React.FC<unknown> = () => {
         // rowSelection={{
         //   onChange: (_, selectedRows) => setSelectedRows(selectedRows),
         // }}
-        editable={{
-          type: 'single',
-          onSave: async (rowKey, data, originRow) => {
-            const result = await handleUpdate(originRow.id, data);
-            if (!result) {
-              // actionRef?.current?.cancelEditable(rowKey);
-              throw new Error('修改失败');
-            }
-          },
-          actionRender: (_row, _config, defaultDom) => [
-            defaultDom.save,
-            defaultDom.cancel,
-          ],
-          // onDelete: async (rowKey, row) => {
-          //   const result = await handleRemove(row.id);
-          //   if (!result) {
-          //     throw `删除${rowKey}错误`;
-          //   }
-          // },
-        }}
         recordCreatorProps={false}
         // rowSelection={{
         //   // 注释该行则默认不显示下拉选项

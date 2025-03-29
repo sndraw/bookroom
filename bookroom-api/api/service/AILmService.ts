@@ -2,13 +2,14 @@ import AILmModel from "@/models/AILmModel";
 import { AI_LM_TYPE_MAP } from "@/common/ai";
 import PlatformService from "./PlatformService";
 import { StatusEnum } from "@/constants/DataMap";
+import { getOrderArray } from "@/utils/query";
 
 
 class AILmService {
 
     // 查询AI模型列表
     static async queryAILmList(params: any, safe: boolean = true) {
-        const { platform, query } = params
+        const { platform, query, sorter } = params
         if (!platform) {
             throw new Error("参数错误");
         }
@@ -23,7 +24,8 @@ class AILmService {
             where: {
                 ...query,  // 查询条件
                 platform_id: platformConfig.id
-            }
+            },
+            order: getOrderArray(sorter),
         })
 
         if (!list || list?.length < 1) {

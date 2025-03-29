@@ -87,6 +87,7 @@ class ToolCallApi {
                     console.log("执行工具中:", functionName);
                     const result = await selectedTool.execute(functionArgs);
                     console.log("执行工具完成:", functionName);
+                    console.log('工具调用结果:', result);
                     return { name: functionName, content: result?.content, tool_call_id: toolCallId, isError: result?.isError }
                 } catch (error: any) {
                     console.error(`执行工具 ${functionName} 时出错:`, error);

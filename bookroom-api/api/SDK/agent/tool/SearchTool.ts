@@ -1,4 +1,6 @@
-import TavilyAPI from "@/SDK/tavily";
+import { SEARCH_API_MAP } from "@/common/search";
+import CustomSearchApi from "@/SDK/custom_search";
+import TavilyApi from "@/SDK/tavily";
 
 interface SearchInput {
     query: string;
@@ -33,26 +35,41 @@ class SearchTool {
     }
     async execute(params: SearchInput): Promise<any> {
         const { query } = params;
-        const { host, apiKey, parameters } = this.config;
+        const { host, apiKey, code, parameters } = this.config;
         const queryParams = {
             query: query, // 查询内容
             max_results: Number(parameters?.max_results || 10), // 最大返回结果数
         }
+        let data: any = null;
+        switch (code) {
+            case SEARCH_API_MAP.tavily.value:
+                data = await new TavilyApi({
+                    host: host,
+                    apiKey: apiKey,
+                }).search(queryParams);
+                break;
+            case SEARCH_API_MAP.custom.value:
+                data = await new CustomSearchApi({
+                    host: host,
+                    apiKey: apiKey,
+                }).search(queryParams);
+                break;
+            default:
+                data = {
+                    code: 404,
+                    message: "API暂不支持。",
+                }
 
-        const res = await new TavilyAPI({
-            host: host,
-            apiKey: apiKey,
-        }).search(queryParams);
-        const data: any = res?.results
-        if (typeof data === 'object' && data !== null) {
+        }
+        if (data && typeof data === 'object' && !data?.isError) {
             return {
-                content: [{ type: "text", text: `搜索互联网结果：${JSON.stringify(data)}` }],
+                content: [{ type: "text", text: `${JSON.stringify(data || {})}` }],
                 isError: false,
             };
         }
         return {
             content: [
-                { type: "text", text: `搜索互联网失败` },
+                { type: "text", text: `${data?.message || data?.content || '未知错误'}` },
             ],
             isError: true,
         };

@@ -15,5 +15,9 @@ export const SEARCH_API_MAP = {
     tavily: {
         value: 'Tavily',
         text: 'Tavily'
+    },
+    custom: {
+        value: 'CustomSearch',
+        text: '自定义搜索'
     }
 }

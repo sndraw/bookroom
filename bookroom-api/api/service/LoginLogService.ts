@@ -1,6 +1,7 @@
 import { StatusEnum } from "@/constants/DataMap";
 import LoginLogModel from "../models/LoginLogModel";
 import { Identifier, Op } from "sequelize";
+import { getOrderArray } from "@/utils/query";
 // 登录错误最大尝试次数
 const LOGIN_MAX_ERROR_COUNT = Number(process.env?.LOGIN_MAX_ERROR_COUNT || 3);
 // 登录错误锁定时间(分钟)
@@ -12,27 +13,10 @@ class LoginLogService {
         if (!params) {
             return false;
         }
-        let { current, pageSize, orders } = params;
+        let { current, pageSize, sorter } = params;
         const { status, startDate, endDate } = params;
         current = current ? Number.parseInt(current) : 1;
         pageSize = pageSize ? Number.parseInt(pageSize) : 10;
-        let orderArray = [];
-        if (orders) {
-            const orderObject = JSON.parse(orders);
-            if (
-                orderObject &&
-                typeof orderObject === "object" &&
-                !Array.isArray(orderObject)
-            ) {
-                Object.keys(orderObject).forEach((key) => {
-                    const item = orderObject[key];
-                    orderArray.push([key, item]);
-                });
-            }
-            if (Array.isArray(orderObject)) {
-                orderArray = orderObject;
-            }
-        }
         const where: any = {};
         if (status) {
             where.status = status;
@@ -61,7 +45,7 @@ class LoginLogService {
             attributes: { exclude: [] }, // 过滤字段
             offset: (current - 1) * pageSize,
             limit: pageSize,
-            order: orderArray,
+            order: getOrderArray(sorter),
         }).then((data) => {
             return Promise.resolve({
                 current: current,

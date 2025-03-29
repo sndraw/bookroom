@@ -159,7 +159,7 @@ const RolesPage: React.FC<unknown> = () => {
       dataIndex: 'index',
       hideInForm: true,
       editable: false,
-      hideInSearch:true,
+      hideInSearch: true,
       //@ts-ignore
       width: 50,
       render: (text, record, index, action) => {
@@ -176,6 +176,7 @@ const RolesPage: React.FC<unknown> = () => {
       dataIndex: 'name',
       //@ts-ignore
       width: 100,
+      sorter: true,
       // editable: false,
       formItemProps: {
         rules: [
@@ -194,6 +195,9 @@ const RolesPage: React.FC<unknown> = () => {
       title: '角色标识',
       key: 'code',
       dataIndex: 'code',
+      // @ts-ignore
+      width: 150,
+      sorter: true,
       // editable: false,
       formItemProps: {
         rules: [
@@ -214,14 +218,16 @@ const RolesPage: React.FC<unknown> = () => {
       dataIndex: 'status',
       editable: false,
       // @ts-ignore
-      fixed: 'right',
       width: 80,
+      sorter: true,
+      fixed: 'right',
       align: 'center',
       // 数值转换
       renderText: (value) => {
         return String(value);
       },
       formItemProps: {
+        initialValue: String(ROLE_STATUS_MAP.ENABLE.value),
         rules: [
           {
             required: true,
@@ -230,8 +236,6 @@ const RolesPage: React.FC<unknown> = () => {
         ],
       },
       valueType: 'select',
-      // @ts-ignore
-      initialValue: String(ROLE_STATUS_MAP.ENABLE.value),
       hideInSearch: true,
       valueEnum: {
         [String(ROLE_STATUS_MAP.ENABLE.value)]: {

@@ -17,8 +17,8 @@ class OpenAIApi {
         this.openai = new OpenAI({
             apiKey: apiKey,
             baseURL: host,
-            timeout: 10000,
-            maxRetries:2
+            timeout: 20000,
+            maxRetries: 2
         });
     }
     // 获取模型列表
@@ -47,6 +47,14 @@ class OpenAIApi {
                 ...modelItem,
                 name: modelItem.id, // 使用id作为name字段
                 model: modelItem.id, // 使用id作为model字段
+            }
+            // 如果created是number类型，但却是秒数，则转换为毫秒
+            if (typeof modelItem.created === 'number'){
+                if (modelItem.created < 10000000000) {
+                    modelInfo.createdAt = modelItem.created * 1000;
+                }else{
+                    modelInfo.createdAt = modelItem.created;
+                }
             }
             return modelInfo
         })

@@ -1,4 +1,4 @@
-import { PlusOutlined } from '@ant-design/icons';
+import { EditOutlined } from '@ant-design/icons';
 import {
     ProTable,
 } from '@ant-design/pro-components';
@@ -6,8 +6,9 @@ import { Button, Drawer, Flex } from 'antd';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 
-interface PlatformAddProps {
+interface PlatformEditProps {
     title?: string;
+    data: API.PlatformInfo;
     columns: any;
     onFinished: (values: any) => Promise<boolean>;
     refresh?: () => void;
@@ -15,17 +16,26 @@ interface PlatformAddProps {
     className?: string;
 }
 
-const PlatformAdd: React.FC<PlatformAddProps> = (props) => {
-    const { title, columns, onFinished, refresh, disabled, className } = props;
+const PlatformEdit: React.FC<PlatformEditProps> = (props) => {
+    const { title, data, columns, onFinished, refresh, disabled, className } = props;
     const [modalVisible, setModalVisible] = useState(false);
-    const titleStr = title || "添加平台";
-    
+    const titleStr = title || "修改平台";
+    const fieldValues = {
+        ...data
+    }
+    if (data?.parameters && typeof data.parameters === "object") {
+        fieldValues.parameters = JSON.stringify(data.parameters, null, 2);
+    }
+    if(data?.status){
+        fieldValues.status =data.status.toString();
+    }
+
     return (
         <>
             <Button
                 title={titleStr}
-                type="primary"
-                icon={<PlusOutlined />}
+                type="text"
+                icon={<EditOutlined />}
                 onClick={() => {
                     setModalVisible(true);
                 }}
@@ -58,6 +68,8 @@ const PlatformAdd: React.FC<PlatformAddProps> = (props) => {
                         layout: 'horizontal', // 设置表单布局为水平布局
                         labelCol: { span: 6 }, // 标签占据的列数
                         wrapperCol: { span: 18 }, // 输入框占据的列数
+                        // 默认值
+                        initialValues: { ...fieldValues },
                         submitter: {
                             render: (_, dom) => (
                                 <Flex gap={16} justify={'flex-end'}>
@@ -72,4 +84,4 @@ const PlatformAdd: React.FC<PlatformAddProps> = (props) => {
     );
 };
 
-export default PlatformAdd;
+export default PlatformEdit;

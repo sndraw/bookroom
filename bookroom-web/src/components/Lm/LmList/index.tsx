@@ -1,13 +1,13 @@
 import { AI_LM_PLATFORM_MAP } from '@/common/ai';
 import PlatformSelect from '@/components/Platform/PlatformSelect';
 // import PlatformSetting from '@/components/Platform/PlatformSetting';
-import { MODE_ENUM } from '@/constants/DataMap';
+import { MODE_ENUM, STATUS_MAP } from '@/constants/DataMap';
 import { deleteAILm, pullAILm, runAILm } from '@/services/common/ai/lm';
 import { getPlatformInfo } from '@/services/common/platform';
 import { ReloadOutlined } from '@ant-design/icons';
 import { ProList } from '@ant-design/pro-components';
 import { Access, Outlet, useAccess, useRequest } from '@umijs/max';
-import { FloatButton, Input, Space } from 'antd';
+import { FloatButton, Input, Select, Space } from 'antd';
 import classNames from 'classnames';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import LmPull from '../LmPull';
@@ -28,6 +28,7 @@ type LmListPropsType = {
 };
 const LmList: React.FC<LmListPropsType> = (props) => {
   const [searchText, setSearchText] = useState<string>('' as string);
+  const [lmStatus, setLmStatus] = useState<number | null>(null);
   const {
     mode = MODE_ENUM.VIEW,
     platformList,
@@ -62,11 +63,33 @@ const LmList: React.FC<LmListPropsType> = (props) => {
       height: `calc(100vh - ${headerHeight + 40}px)`,
     };
   }, [headerHeight]);
-  
+
   const filterData = useMemo(() => {
-    if (!searchText) return dataList;
-    return dataList?.filter((item: any) => item.name?.toLowerCase()?.includes(searchText?.toLowerCase()));
-  }, [dataList, searchText]);
+    const newDataList = [
+      ...(dataList || [])
+    ]
+    // // 按运行状态排序
+    // newDataList.sort((a, b) => {
+    //   if (a.status === b.status) {
+    //     return 0;
+    //   } else if (a.status === STATUS_MAP.DISABLE.value) {
+    //     return 1;
+    //   } else {
+    //     return -1;
+    //   }
+    // });
+    if (!searchText && !lmStatus) return newDataList;
+    return newDataList?.filter((item: any) => {
+      let flag = true;
+      if (searchText) {
+        flag = flag && item.name?.includes(searchText)
+      }
+      if (lmStatus) {
+        flag = flag && item.status === lmStatus
+      }
+      return flag
+    });
+  }, [dataList, searchText, lmStatus]);
 
   useEffect(() => {
     if (platform) {
@@ -98,6 +121,26 @@ const LmList: React.FC<LmListPropsType> = (props) => {
           onSearch={(value) => {
             setSearchText(value);
           }}
+        />
+        {/* 运行状态 */}
+        <Select
+          className={styles.selectElement}
+          value={lmStatus}
+          allowClear
+          placeholder={'运行状态'}
+          onChange={(value) => {
+            setLmStatus(value);
+          }}
+          options={[
+            {
+              label: STATUS_MAP.ENABLE.text,
+              value: STATUS_MAP.ENABLE.value,
+            },
+            {
+              label: STATUS_MAP.DISABLE.text,
+              value: STATUS_MAP.DISABLE.value,
+            }
+          ]}
         />
         <FloatButton.Group key={'addLmGroup'}>
           <Access

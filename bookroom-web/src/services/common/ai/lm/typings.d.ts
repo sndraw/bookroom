@@ -25,8 +25,9 @@ declare namespace API {
     typeName?: string;
     // 状态：0停止，1运行
     status?: number | string;
-    updatedAt?: Date;
-    createdAt?: Date;
+    updatedAt?: Date | number;
+    createdAt?: Date | number;
+    created?: Date | number;
   }
 
   interface AILmInfoVO {
@@ -51,8 +52,9 @@ declare namespace API {
     typeName?: string;
     // 状态：0停止，1运行
     status?: number | string;
-    updatedAt?: Date;
-    createdAt?: Date;
+    updatedAt?: Date | number;
+    createdAt?: Date | number;
+    created?: Date | number;
   }
 
   interface Result_AILmInfo_ {

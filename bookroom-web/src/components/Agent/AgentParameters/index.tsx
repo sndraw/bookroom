@@ -20,6 +20,7 @@ export interface ParametersType {
   prompt: string;
   isStream: boolean;
   searchEngine?: string;
+  weatherEngine?: string;
   modelConfig?: object;
   graphConfig?: object;
   agentSDK?: string;
@@ -29,6 +30,7 @@ export const defaultParameters: ParametersType = {
   prompt: '',
   isStream: true,
   searchEngine: undefined,
+  weatherEngine: undefined,
   modelConfig: undefined,
   graphConfig: undefined,
 };
@@ -44,6 +46,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [prompt, setPrompt] = useState<string>('');
   const [isStream, setIsStream] = useState<boolean>(true);
   const [searchEngine, setSearchEngine] = useState<string>();
+  const [weatherEngine, setWeatherEngine] = useState<string>();
   const [modelConfig, setModelConfig] = useState<object>();
   const [agentSDK, setAgentSDK] = useState<string>();
   const [graphConfig, setGraphConfig] = useState<object>();
@@ -55,6 +58,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
       setPrompt(parameters?.prompt);
       setIsStream(parameters?.isStream);
       setSearchEngine(parameters?.searchEngine);
+      setWeatherEngine(parameters?.weatherEngine);
       setModelConfig(parameters?.modelConfig);
       setGraphConfig(parameters?.graphConfig);
       setAgentSDK(parameters?.agentSDK);
@@ -66,6 +70,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
       prompt,
       isStream,
       searchEngine,
+      weatherEngine,
       modelConfig,
       graphConfig,
       agentSDK,
@@ -131,6 +136,18 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
               className={styles.selectElement}
               value={searchEngine}
               onChange={(value: string) => setSearchEngine(value)}
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel} >天气搜索</label>
+            <SearchEngineSelect
+              className={styles.selectElement}
+              value={weatherEngine}
+              onChange={(value: string) => setWeatherEngine(value)}
             />
           </Flex>
           <Flex
