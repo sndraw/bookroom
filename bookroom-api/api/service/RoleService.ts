@@ -3,6 +3,7 @@ import { Identifier, Op } from "sequelize";
 import UserRolesService from "./UserRoleService";
 import { USER_ROLE_ENUM } from "@/constants/RoleMap";
 import { StatusEnum } from "@/constants/DataMap";
+import { getOrderArray } from "@/utils/query";
 
 class RoleService {
 
@@ -24,27 +25,10 @@ class RoleService {
         if (!params) {
             return false;
         }
-        let { current, pageSize, orders } = params;
+        let { current, pageSize, sorter } = params;
         const { name, code, status, startDate, endDate } = params;
         current = current ? Number.parseInt(current) : 1;
         pageSize = pageSize ? Number.parseInt(pageSize) : 10;
-        let orderArray = [];
-        if (orders) {
-            const orderObject = JSON.parse(orders);
-            if (
-                orderObject &&
-                typeof orderObject === "object" &&
-                !Array.isArray(orderObject)
-            ) {
-                Object.keys(orderObject).forEach((key) => {
-                    const item = orderObject[key];
-                    orderArray.push([key, item]);
-                });
-            }
-            if (Array.isArray(orderObject)) {
-                orderArray = orderObject;
-            }
-        }
         const where: any = {
             code: {
                 [Op.ne]: USER_ROLE_ENUM.ADMIN
@@ -87,7 +71,7 @@ class RoleService {
             attributes: { exclude: [] }, // 过滤字段
             offset: (current - 1) * pageSize,
             limit: pageSize,
-            order: orderArray,
+            order: getOrderArray(sorter)
         }).then((data) => {
             return Promise.resolve({
                 current: current,

@@ -1,17 +1,19 @@
 import FileLogModel from "@/models/FileLogModel";
 import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
+import { getOrderArray } from "@/utils/query";
 
 
 class FileLogService {
 
     // 查询文件日志列表
     static async queryFileLogList(params: any) {
-        const { query } = params
+        const { query, sorter } = params
         const list: any = await FileLogModel.findAll({
             where: {
                 ...(query || {})
-            }
+            },
+            order: getOrderArray(sorter),
         })
 
         if (!list || list?.length < 1) {
@@ -39,7 +41,7 @@ class FileLogService {
         const result = await FileLogModel.create({
             id: uuid,
             name: params?.name || "",
-            objectId:params?.objectId,
+            objectId: params?.objectId,
             path: params?.path || "",
             size: params?.size || 0,
             mimetype: params?.mimetype || "",

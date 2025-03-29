@@ -2,11 +2,11 @@
 export const AI_LM_PLATFORM_MAP = {
   ollama: {
     value: 'ollama',
-    text: 'ollama',
+    text: 'Ollama',
   },
   openai: {
     value: 'openai',
-    text: 'openai',
+    text: 'OpenAI',
   },
 };
 

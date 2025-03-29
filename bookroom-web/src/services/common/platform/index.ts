@@ -1,5 +1,10 @@
 /* eslint-disable */
 // 该文件由 OneAPI 自动生成，请勿手动修改！
+import { AGENT_API_MAP } from '@/common/agent';
+import { AI_GRAPH_PLATFORM_MAP, AI_LM_PLATFORM_MAP } from '@/common/ai';
+import { PLATFORM_TYPE_MAP } from '@/common/platform';
+import { SEARCH_API_MAP } from '@/common/search';
+import { VOICE_RECOGNIZE_API_MAP } from '@/common/voice';
 import { request } from '@umijs/max';
 
 /** GET /platform/actived */
@@ -136,5 +141,79 @@ export async function updatePlatformStatus(
     method: 'PUT',
     data: body,
     ...(options || {}),
+  });
+}
+
+
+// 获取平台类型选项集合
+export function getPlatformTypeList(
+  params?: {
+    type?: string;
+    code?: string;
+  }
+) {
+  const dataList: Array<{
+    label: string;
+    value: string;
+    type: string;
+  }> = []
+  Object.entries(AI_LM_PLATFORM_MAP).forEach(
+    (item) => {
+      dataList.push({
+        label: item[1]?.text,
+        value: item[1]?.value,
+        type: PLATFORM_TYPE_MAP.model.value
+      })
+    },
+  );
+  Object.entries(AI_GRAPH_PLATFORM_MAP).forEach(
+    (item) => {
+      dataList.push({
+        label: item[1]?.text,
+        value: item[1]?.value,
+        type: PLATFORM_TYPE_MAP.graph.value
+      })
+    },
+  );
+  Object.entries(AGENT_API_MAP).forEach(
+    (item) => {
+      dataList.push({
+        label: item[1]?.text,
+        value: item[1]?.value,
+        type: PLATFORM_TYPE_MAP.agent.value
+      })
+    },
+  );
+  Object.entries(SEARCH_API_MAP).forEach(
+    (item) => {
+      dataList.push({
+        label: item[1]?.text,
+        value: item[1]?.value,
+        type: PLATFORM_TYPE_MAP.search.value
+      })
+    },
+  );
+  Object.entries(VOICE_RECOGNIZE_API_MAP).forEach(
+    (item) => {
+      dataList.push({
+        label: item[1]?.text,
+        value: item[1]?.value,
+        type: PLATFORM_TYPE_MAP.voice_recognize.value
+      })
+    },
+  );
+  if (!params) {
+    return dataList;
+  }
+
+  return dataList.filter((item) => {
+    let flag = true;
+    if (params?.type) {
+      flag = flag && item?.type === params?.type;
+    }
+    if (params?.code) {
+      flag = flag && item?.value === params?.code;
+    }
+    return flag;
   });
 }

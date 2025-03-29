@@ -85,6 +85,7 @@ services:
     user: root
     networks:
       - bookroom_shared_network
+      - default
 
   # The bookroom api.
   bookroom_api:

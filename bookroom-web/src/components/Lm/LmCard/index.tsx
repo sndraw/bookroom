@@ -207,6 +207,14 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                   </div>
                 </div>
               )}
+              {!!item?.details?.quantization_level && (
+                <div className={styles?.cardItemNode}>
+                  <div className={styles?.nodeLabel}>量化等级：</div>
+                  <div className={styles?.nodeContent}>
+                    {item?.details?.quantization_level || '——'}
+                  </div>
+                </div>
+              )}
               <div className={styles?.cardItemNode}>
                 <div className={styles?.nodeLabel}>平台名称：</div>
                 <div className={styles?.nodeContent}>{item?.platform}</div>
@@ -235,6 +243,22 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                   </div>
                 )}
               </Access>
+              {item?.createdAt && (
+                <div className={styles?.cardItemNode}>
+                  <div className={styles?.nodeLabel}>创建时间：</div>
+                  <div className={styles?.nodeContent}>
+                    {new Date(item?.createdAt).toLocaleString() || '——'}
+                  </div>
+                </div>
+              )}
+              {item?.updatedAt && (
+                <div className={styles?.cardItemNode}>
+                  <div className={styles?.nodeLabel}>更新时间：</div>
+                  <div className={styles?.nodeContent}>
+                    {new Date(item?.updatedAt).toLocaleString() || '——'}
+                  </div>
+                </div>
+              )}
             </div>
           }
         />

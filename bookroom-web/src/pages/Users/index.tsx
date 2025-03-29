@@ -158,7 +158,7 @@ const UsersPage: React.FC<unknown> = () => {
       dataIndex: 'index',
       hideInForm: true,
       editable: false,
-      hideInSearch:true,
+      hideInSearch: true,
       //@ts-ignore
       width: 50,
       render: (text, record, index, action) => {
@@ -176,6 +176,7 @@ const UsersPage: React.FC<unknown> = () => {
       //@ts-ignore
       width: 100,
       editable: false,
+      sorter: true,
       formItemProps: {
         rules: [
           {
@@ -251,8 +252,9 @@ const UsersPage: React.FC<unknown> = () => {
       dataIndex: 'status',
       editable: false,
       // @ts-ignore
-      fixed: 'right',
       width: 80,
+      sorter: true,
+      fixed: 'right',
       align: 'center',
       // 数值转换
       renderText: (value) => {
@@ -260,6 +262,7 @@ const UsersPage: React.FC<unknown> = () => {
       },
       hideInSearch: true,
       formItemProps: {
+        initialValue: String(STATUS_MAP.ENABLE.value),
         rules: [
           {
             required: true,
@@ -268,8 +271,6 @@ const UsersPage: React.FC<unknown> = () => {
         ],
       },
       valueType: 'select',
-      // @ts-ignore
-      initialValue: String(STATUS_MAP.ENABLE.value),
       valueEnum: {
         [String(STATUS_MAP.ENABLE.value)]: {
           text: STATUS_MAP.ENABLE.text,

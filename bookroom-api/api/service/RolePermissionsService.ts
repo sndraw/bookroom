@@ -1,3 +1,4 @@
+import { getOrderArray } from "@/utils/query";
 import RolePermissionsModel from "../models/RolePermissionsModel";
 import { Identifier, Op } from "sequelize";
 
@@ -7,27 +8,11 @@ class RolePermissionsService {
         if (!params) {
             return false;
         }
-        let { current, pageSize, orders } = params;
+        let { current, pageSize, sorter } = params;
         const { permissionIdKey, roleIdKey, status, startDate, endDate } = params;
         current = current ? Number.parseInt(current) : 1;
         pageSize = pageSize ? Number.parseInt(pageSize) : 10;
-        let orderArray = [];
-        if (orders) {
-            const orderObject = JSON.parse(orders);
-            if (
-                orderObject &&
-                typeof orderObject === "object" &&
-                !Array.isArray(orderObject)
-            ) {
-                Object.keys(orderObject).forEach((key) => {
-                    const item = orderObject[key];
-                    orderArray.push([key, item]);
-                });
-            }
-            if (Array.isArray(orderObject)) {
-                orderArray = orderObject;
-            }
-        }
+
         const where: any = {};
         if (roleIdKey) {
             where.roleId = {
@@ -66,7 +51,7 @@ class RolePermissionsService {
             attributes: { exclude: [] }, // 过滤字段
             offset: (current - 1) * pageSize,
             limit: pageSize,
-            order: orderArray,
+            order: getOrderArray(sorter)
         }).then((data) => {
             return Promise.resolve({
                 current: current,
