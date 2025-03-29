@@ -75,79 +75,41 @@ services:
     volumes:
       # Mount the redis data directory to the container.
       - ./volumes/redis/data:/data
-    # Set the redis password when startup redis server.
+    # Set the redis password when startup redis server. Use env var, provide default 'test'
     command: redis-server --requirepass ${REDIS_PASSWORD:-test}
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      # Use password in healthcheck, matching the command's default or .env value
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-test}", "ping" ]
     # uncomment to expose redis port to host
     ports:
       - "${EXPOSE_REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
     user: root
     networks:
       - bookroom_shared_network
+      # Note: Redis remains primarily on the internal shared network
 
-  # The bookroom api.
-  bookroom_api:
-    image: sndraw/bookroom-api:${DOCKER_IMAGE_VERISON:-latest}
+  # The MinIO object storage.
+  bookroom_minio:
+    image: minio/minio:latest
     restart: always
     environment:
-      <<: *shared-api-worker-env
-      SERVER_TITLE: ${SERVER_TITLE:-BookRoom}
-      SERVER_PORT: ${SERVER_PORT:-5001}
-      SERVER_LOGS_PATH: ${SERVER_LOGS_PATH:-}
-      SERVER_BASE_URL: ${SERVER_BASE_URL:-/api/v1}
-      CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN:-}
-      COOKIE_KEYS: ${COOKIE_KEYS:-test-key}
-      COOKIE_MAXAGE: ${COOKIE_MAXAGE:-259200}
-      COOKIE_NAMESPACE: ${COOKIE_NAMESPACE:-bookroom_api}
-      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
-      COOKIE_SECURE: ${COOKIE_SECURE:-true}
-      COOKIE_HTTPONLY: ${COOKIE_HTTPONLY:-true}
-      OAUTH2_SECRET: ${OAUTH2_SECRET:-test-secret}
-      OAUTH2_BEARER: ${OAUTH2_BEARER:-Bearer}
-      OAUTH2_EXPIRES_IN: ${OAUTH2_EXPIRES_IN:-86400}
-      LOGIN_MAX_ERROR_COUNT: ${LOGIN_MAX_ERROR_COUNT:-3}
-      LOGIN_LOCK_TIME: ${LOGIN_LOCK_TIME:-5}
-      USER_TOKEN_KEY: ${USER_TOKEN_KEY:-}
-      CRYPTO_SECRETKEY: ${CRYPTO_SECRETKEY:-}
+      # These credentials should be set in the root .env file for security
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin} # Default user if not in .env
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin} # Default password if not in .env
     volumes:
-      # Mount the storage directory to the container, for storing user files.
-      - ./init/bookroom-api/pm2.config.js:/app/pm2.config.js:ro
-      - ./volumes/app/bookroom-api/uploads:/app/api/uploads
-    depends_on:
-      - bookroom_mysql
-      - bookroom_redis
+      - ./volumes/minio/data:/data # Persist MinIO data locally
     ports:
-      - "${EXPOSE_SERVER_PORT:-5001}:${SERVER_PORT:-5001}"
-    user: root
+      - "${EXPOSE_MINIO_API_PORT:-9000}:9000" # API Port (Connect via localhost:9000 from api/web)
+      - "${EXPOSE_MINIO_CONSOLE_PORT:-9001}:9001" # Console Port (Access UI via http://localhost:9001)
+    # Start MinIO server and expose the console on port 9001
+    command: server /data --console-address ":9001"
     networks:
       - bookroom_shared_network
-      - default
-
-  # The bookroom web.
-  bookroom_web:
-    image: sndraw/bookroom-web:${DOCKER_IMAGE_VERISON:-latest}
-    restart: always
-    volumes:
-      # - ./volumes/app/bookroom-api/uploads:/usr/share/nginx/html/uploads
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/proxy.conf:/etc/nginx/proxy.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/logs:/var/log/nginx
-      #- ./nginx/ssl:/etc/ssl
-    depends_on:
-      - bookroom_api
-    ports:
-      - "${EXPOSE_PORT:-80}:${PORT:-80}"
-      - "${EXPOSE_SSL_PORT:-443}:${SSL_PORT:-443}"
-    entrypoint: [ "/bin/bash", "/entrypoint.sh" ]
-    networks:
-      - bookroom_shared_network
-      - default
+      - default # Add to default network to allow access via localhost mapping
 
 # 定义共享网络
 networks:
   bookroom_shared_network:
     driver: bridge
-    internal: true
+    internal: false
 
