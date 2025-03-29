@@ -68,16 +68,6 @@ const LmList: React.FC<LmListPropsType> = (props) => {
     const newDataList = [
       ...(dataList || [])
     ]
-    // // 按运行状态排序
-    // newDataList.sort((a, b) => {
-    //   if (a.status === b.status) {
-    //     return 0;
-    //   } else if (a.status === STATUS_MAP.DISABLE.value) {
-    //     return 1;
-    //   } else {
-    //     return -1;
-    //   }
-    // });
     if (!searchText && !lmStatus) return newDataList;
     return newDataList?.filter((item: any) => {
       let flag = true;

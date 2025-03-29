@@ -33,7 +33,7 @@ const AgentList: React.FC<AgentListPropsType> = (props) => {
   // 计算样式
   const containerStyle = useCallback(() => {
     return {
-      height: `calc(100vh - ${headerHeight + 40}px)`,
+      height: `calc(100vh - ${headerHeight + 72}px)`,
     };
   }, [headerHeight]);
 
@@ -52,7 +52,7 @@ const AgentList: React.FC<AgentListPropsType> = (props) => {
   return (
     <div className={classNames(styles.container, className)} style={containerStyle()}>
       <Space size={0} wrap className={styles.header}>
-        <Space size={0} wrap className={styles.documentTags}>
+        <Space size={0} wrap className={styles.headerTitle}>
           <span>智能助手</span>
         </Space>
         <Divider type="vertical" />

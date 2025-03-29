@@ -48,7 +48,7 @@ PlatformModel.init(
                 },
             },
         },
-        // 平台名称
+        // 接口名称
         name: {
             field: "name",
             type: DataTypes.STRING(255),
@@ -59,7 +59,7 @@ PlatformModel.init(
                     msg: PLATFORM_RULE.name.message,
                 },
                 notEmpty: {
-                    msg: "请填入平台名称",
+                    msg: "请填入接口名称",
                 },
             },
         },
@@ -78,7 +78,7 @@ PlatformModel.init(
                 },
             },
         },
-        // 平台类型
+        // 配置类型
         type: {
             field: "type",
             type: DataTypes.STRING(255),
@@ -89,7 +89,7 @@ PlatformModel.init(
                     msg: PLATFORM_RULE.type.message,
                 },
                 notEmpty: {
-                    msg: "请填入平台类型",
+                    msg: "请填入配置类型",
                 },
             },
         },

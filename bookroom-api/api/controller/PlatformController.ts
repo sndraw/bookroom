@@ -105,7 +105,7 @@ class PlatformController extends BaseController {
         required: true,
         format: PLATFORM_RULE.name.RegExp,
         message: {
-          required: "平台名称不能为空",
+          required: "接口名称不能为空",
           format: PLATFORM_RULE.name.message,
         },
       },
@@ -124,9 +124,9 @@ class PlatformController extends BaseController {
         min: 2,
         max: 40,
         message: {
-          required: "平台类型不能为空",
-          min: "平台类型长度不能小于2",
-          max: "平台类型长度不能超过40"
+          required: "配置类型不能为空",
+          min: "配置类型长度不能小于2",
+          max: "配置类型长度不能超过40"
         },
       },
       host: {
@@ -309,7 +309,7 @@ class PlatformController extends BaseController {
   }
 
   /**
-   * 平台名称、平台状态修改
+   * 接口名称、平台状态修改
    * @param {Object} ctx 上下文对象，包含请求和响应信息
    * @returns {Object} 返回响应体，包含成功或错误信息
    */
@@ -335,7 +335,7 @@ class PlatformController extends BaseController {
         required: false,
         format: PLATFORM_RULE.name.RegExp,
         message: {
-          required: "平台名称不能为空",
+          required: "接口名称不能为空",
           format: PLATFORM_RULE.name.message,
         },
       },
@@ -354,9 +354,9 @@ class PlatformController extends BaseController {
         min: 2,
         max: 40,
         message: {
-          required: "平台类型不能为空",
-          min: "平台类型长度不能小于2",
-          max: "平台类型长度不能超过40"
+          required: "配置类型不能为空",
+          min: "配置类型长度不能小于2",
+          max: "配置类型长度不能超过40"
         },
       },
       host: {

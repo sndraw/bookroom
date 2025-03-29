@@ -25,6 +25,7 @@ const PlatformAdd: React.FC<PlatformAddProps> = (props) => {
             <Button
                 title={titleStr}
                 type="primary"
+                shape="circle"
                 icon={<PlusOutlined />}
                 onClick={() => {
                     setModalVisible(true);
