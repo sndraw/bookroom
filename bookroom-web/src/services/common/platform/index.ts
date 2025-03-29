@@ -30,9 +30,9 @@ export async function queryPlatformActivedList(
 
 /** GET /platform */
 export async function queryPlatformList(
-  params: {
-    name: string;
-    status: number | string;
+  params?: {
+    name?: string;
+    status?: number | string;
     /** current */
     current?: number;
     /** pageSize */
@@ -43,7 +43,7 @@ export async function queryPlatformList(
   return request<API.Result_PageInfo_PlatformInfo__>(`/platform`, {
     method: 'GET',
     params: {
-      ...params,
+      ...(params || {}),
     },
     ...(options || {}),
   });
@@ -145,8 +145,20 @@ export async function updatePlatformStatus(
 }
 
 
-// 获取平台类型选项集合
-export function getPlatformTypeList(
+// 获取配置类型选项集合
+export function getPlatformTypeList(type?: string) {
+  if (type) {
+    return (PLATFORM_TYPE_MAP?.[type] || null) as any;
+  } else {
+    return Object.values(PLATFORM_TYPE_MAP).map(item => ({
+      label: item.text,
+      value: item.value,
+    }))
+  }
+}
+
+// 获取接口类型选项集合
+export function getPlatformCodeList(
   params?: {
     type?: string;
     code?: string;

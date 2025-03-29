@@ -216,7 +216,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                 </div>
               )}
               <div className={styles?.cardItemNode}>
-                <div className={styles?.nodeLabel}>平台名称：</div>
+                <div className={styles?.nodeLabel}>接口名称：</div>
                 <div className={styles?.nodeContent}>{item?.platform}</div>
               </div>
               {/* admin权限 */}

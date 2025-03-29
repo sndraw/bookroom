@@ -90,13 +90,13 @@ const LmAdd: React.FC<PropsWithChildren<LmAddProps>> = (props) => {
     >
       {/* <ProFormText
         name="platform"
-        label="平台名称"
+        label="接口名称"
         disabled
         initialValue={platform}
         rules={[
           {
             required: true,
-            message: '平台名称为必填项',
+            message: '接口名称为必填项',
           },
           {
             pattern: PLATFORM_RULE.name.RegExp,

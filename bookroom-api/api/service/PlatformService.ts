@@ -27,13 +27,34 @@ class PlatformService {
 
     // 查询平台列表
     static async queryPlatformList(params: any, ops = { safe: true }) {
+
         if (!params) {
             return false;
         }
-        let { current, pageSize, sorter } = params;
+        let { current, pageSize } = params;
+        const {query, sorter} = params;
+        // 不分页查询
+        if (!pageSize && !current) {
+            const list: any = await PlatformModel.findAll({
+                where: {
+                    ...(query || {}),
+                },
+                order: getOrderArray(sorter)
+            })
+
+            if (!list || list?.length < 1) {
+                return {
+                    list: []
+                }
+            }
+            return {
+                list: list
+            }
+        }
+
+
         const { name, code, type, status, startDate, endDate } = params;
-        current = current ? Number.parseInt(current) : 1;
-        pageSize = pageSize ? Number.parseInt(pageSize) : 10;
+
         const where: any = {};
         if (name) {
             where.name = {
@@ -68,6 +89,8 @@ class PlatformService {
             }
         }
 
+        current = current ? Number.parseInt(current) : 1;
+        pageSize = pageSize ? Number.parseInt(pageSize) : 10;
         const result = await PlatformModel.findAndCountAll({
             where: where,
             attributes: ops?.safe ? { exclude: ["apiKey", "host"] } : undefined,
