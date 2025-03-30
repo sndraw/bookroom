@@ -3,8 +3,8 @@ import { resultError, resultSuccess } from "@/common/resultFormat";
 import BaseController from "./BaseController";
 import AgentService from "@/service/AgentService";
 import { StatusEnum } from "@/constants/DataMap";
-import { responseStream } from "@/utils/streamHelper";
 import AgentLogService from "@/service/AgentLogService";
+import Think from "@/SDK/agent/tool_call/think";
 
 class AgentController extends BaseController {
     // 获取智能助手列表
@@ -384,15 +384,26 @@ class AgentController extends BaseController {
             const agentInfo = agent.toJSON();
             queryParams = {
                 platformId: agentInfo?.platformId,
-                is_stream, // 是否流式返回数据
                 query: query, // 查询内容
+                is_stream: is_stream,
+                userId: ctx.userId,
             }
-            const dataStream: any = await AgentService.agentChat(agent_id, queryParams);
+
+            const think = new Think({
+                is_stream,
+            }, ctx);
             if (is_stream) {
-                responseText = await responseStream(ctx, dataStream);
+                ctx.set('Content-Type', 'text/event-stream');
+                ctx.set('Cache-Control', 'no-cache');
+                ctx.set('Connection', 'keep-alive');
+                ctx.res.setHeader('Content-Type', 'application/octet-stream');
+                ctx.body = think.getData();
+                await AgentService.agentChat(agent_id, queryParams, think);
+                ctx.res.end();
                 return;
             }
-            responseText = dataStream?.response || dataStream || '';
+            await AgentService.agentChat(agent_id, queryParams, think);
+            responseText = think.toString() || '';
             ctx.status = 200;
             ctx.body = resultSuccess({
                 data: responseText

@@ -2,9 +2,10 @@ import axios from 'axios';
 import natural from 'natural';
 import { load as cheerioLoad } from 'cheerio';
 
-export async function searchUrl(query: string, host: string = "https://www.baidu.com/s?wd=") {
-    const url = `${host}${encodeURIComponent(query)}`;
-    console.log("自定义搜索: ", url)
+export async function searchUrl(query: string, host: string = "", paramKey = "wd") {
+    const urlObj = new URL(host);
+    urlObj.searchParams.append(paramKey, query);
+    const url = urlObj.toString();
     try {
         const response = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' } });
         const body = response.data;
@@ -59,12 +60,13 @@ export async function getKeywords(query: string) {
 }
 export async function searchAndParse(params: {
     query: string,
+    paramKey?: string,
     max_results?: number,
     is_tokenizer?: boolean,
     host?: string,
 }) {
     try {
-        const { query, max_results = 5, is_tokenizer, host } = params;
+        const { query, paramKey, max_results = 5, is_tokenizer, host } = params;
         let keywords = query;
         if (is_tokenizer) {
             keywords = await getKeywords(query);
@@ -72,12 +74,10 @@ export async function searchAndParse(params: {
                 keywords = query; // 如果获取不到关键词，使用原始查询字符串
             }
         }
-        const urls = await searchUrl(keywords, host);
+        const urls = await searchUrl(keywords, host, paramKey);
         if (!Array.isArray(urls) || !urls?.length) {
             throw new Error(`Invalid URLs: ${urls}`);
         }
-        console.log(urls)
-
         // 只取前max_results个url
         urls.splice(max_results);
         const results = [];
@@ -106,7 +106,6 @@ export async function searchAndParse(params: {
 export default class CustomSearchAPI {
     protected readonly host: string = '';
     protected readonly apiKey: string = '';
-    protected readonly config: any;
     constructor(config: { host: string; apiKey: string; }) {
         if (config?.host) {
             this.host = config.host
@@ -117,12 +116,12 @@ export default class CustomSearchAPI {
     }
 
     async search(queryParams: any) {
-        const { query, max_results = 5 } = queryParams || {};
-
+        const { query, paramKey, max_results = 5 } = queryParams || {};
         try {
             const result: any = await searchAndParse({
                 query: query,
                 host: this.host,
+                paramKey: paramKey,
                 max_results,
                 is_tokenizer: false
             })

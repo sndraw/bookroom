@@ -51,7 +51,7 @@ export const createSystemMessage = (params: { id?: string, content: any }): Mess
 };
 
 
-export const createToolMessage = (params: { id: any; name: any; tool_call_id: any; content: any; }): MessageType => {
+export const createToolMessage = (params: { id?: string; name: any; tool_call_id: any; content: any; }): MessageType => {
     return {
         id: params?.id || uuidv4(),
         name: params.name,
