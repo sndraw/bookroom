@@ -86,6 +86,7 @@ services:
     user: root
     networks:
       - bookroom_shared_network
+      - default
       # Note: Redis remains primarily on the internal shared network
 
   # The MinIO object storage.

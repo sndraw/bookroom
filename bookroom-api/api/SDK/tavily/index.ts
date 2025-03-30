@@ -1,6 +1,4 @@
 import request from "@/common/request";
-import { SEARCH_API_MAP } from "@/common/search";
-import FormData from "form-data";
 export interface Config {
     host?: string;
     apiKey?: string;
@@ -10,9 +8,7 @@ export interface Config {
 export default class TavilyAPI {
     protected readonly host: string = '';
     protected readonly apiKey: string = '';
-    protected readonly code: string = '';
     protected readonly config: any;
-    private readonly searchClient: any;
 
 
     constructor(config: { host: string; apiKey: string; }) {
@@ -24,12 +20,10 @@ export default class TavilyAPI {
         }
     }
 
-
-
     async search(queryParams: any) {
-        const { query, max_results = 1, stream = false } = queryParams;
+        const { query, max_results = 5, stream = false } = queryParams || {};
         const data = {
-            query,
+            query: query,
             topic: "general",
             search_depth: "basic",
             max_results,
@@ -50,16 +44,19 @@ export default class TavilyAPI {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.apiKey}`,
                 },
-                data: queryParams,
+                data: data,
                 responseType: stream ? 'stream' : 'json'
             });
             if (stream) {
                 return result;
             }
-            return result || '';
+            return {
+                isError: false,
+                content: result,
+            };
         } catch (error: any) {
             console.error('Error in search:', error);
-            throw new Error(error?.message || error);
+            return { isError: true, content: `Search failed: ${error?.message || 'Unknown error'}` };
         }
     }
 }

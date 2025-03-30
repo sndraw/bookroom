@@ -1,8 +1,8 @@
 import OpenAI from "openai";
-import { createPrompt } from "../mcp/prompt/tool_call";
+import { createPrompt } from "./../prompt/tool_call";
 import { ChatCompletionCreateParams, ChatCompletionTool } from "openai/resources/chat/completions";
-import { Tool } from "../mcp/tool/typings";
-import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "../mcp/message";
+import { Tool } from "./../tool/typings";
+import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "./../message";
 
 class ToolCallApi {
     private readonly openai: any;
@@ -87,6 +87,7 @@ class ToolCallApi {
                     console.log("执行工具中:", functionName);
                     const result = await selectedTool.execute(functionArgs);
                     console.log("执行工具完成:", functionName);
+                    console.log('工具调用结果:', result);
                     return { name: functionName, content: result?.content, tool_call_id: toolCallId, isError: result?.isError }
                 } catch (error: any) {
                     console.error(`执行工具 ${functionName} 时出错:`, error);

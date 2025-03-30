@@ -80,7 +80,7 @@ const AILmGeneratePage: React.FC = () => {
         </Space>
         <Divider type="vertical" />
         <Space size={0} wrap className={styles.chatTags}>
-          <Tag color="default">无记录模式</Tag>
+          <Tag color="default">无痕模式</Tag>
           <Access accessible={access.canSeeAdmin}>
             <Tag color="default">接口类型：{data?.platformCode}</Tag>
             {data?.platformHost && (

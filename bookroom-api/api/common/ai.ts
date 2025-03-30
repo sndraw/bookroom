@@ -2,11 +2,11 @@
 export const AI_LM_PLATFORM_MAP = {
   ollama: {
     value: 'ollama',
-    text: 'ollama'
+    text: 'Ollama'
   },
   openai: {
     value: 'openai',
-    text: 'openai'
+    text: 'OpenAI'
   },
 }
 
@@ -40,9 +40,9 @@ export const AI_GRAPH_PLATFORM_MAP = {
     value: 'LightRAG',
     text: 'LightRAG',
   },
-  lightrag_multi: {
-    value: 'LightRAG_Multi',
-    text: 'LightRAG_Multi',
+  bookroomrag: {
+    value: 'BookRoomRAG',
+    text: 'BookRoom RAG',
   },
 };
 

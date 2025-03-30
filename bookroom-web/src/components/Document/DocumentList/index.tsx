@@ -217,7 +217,7 @@ const DocumentList: React.FC<DocumentListProps> = (props) => {
     <div className={classNames(styles.container, className)} style={containerStyle()}
     >
       <Space size={0} wrap className={styles.header}>
-        <Space size={0} wrap className={styles.documentTags}>
+        <Space size={0} wrap className={styles.headerTitle}>
           <span>{getGraphName(graph)}</span>
         </Space>
         <Divider type="vertical" />

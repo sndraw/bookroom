@@ -1,7 +1,7 @@
 import BaseController from "./BaseController";
 import { resultError, resultSuccess } from "@/common/resultFormat";
+import { searchAndParse } from "@/SDK/custom_search";
 import { Context } from "koa";
-import searchAndParse from "@/SDK/baidu";
 
 /**
  * 搜索-接口
@@ -33,7 +33,10 @@ class SearchController extends BaseController {
       ...newParams
     })
     try {
-      const result = await searchAndParse(keywordText);
+      const result = await searchAndParse({
+        query: keywordText,
+        is_tokenizer:true
+      });
       ctx.status = 200;
       ctx.body = resultSuccess({
         data: result

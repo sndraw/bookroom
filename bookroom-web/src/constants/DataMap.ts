@@ -9,3 +9,9 @@ export enum MODE_ENUM {
   EDIT = 'edit',
   VIEW = 'view',
 }
+
+// 状态-枚举
+export enum StatusEnum {
+  DISABLE = -1,
+  ENABLE = 1,
+}

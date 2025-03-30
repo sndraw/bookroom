@@ -5,6 +5,7 @@ import UserRoleModel from "../models/UserRoleModel";
 import RoleModel from "../models/RoleModel";
 import { StatusEnum } from "@/constants/DataMap";
 import { USER_ROLE_ENUM } from "@/constants/RoleMap";
+import { getOrderArray } from "@/utils/query";
 
 class UserService {
     // 获取列表
@@ -12,28 +13,10 @@ class UserService {
         if (!params) {
             return false;
         }
-        let { current, pageSize, orders } = params;
+        let { current, pageSize, sorter } = params;
         const { username, email, status, roleId, startDate, endDate } = params;
         current = current ? Number.parseInt(current) : 1;
         pageSize = pageSize ? Number.parseInt(pageSize) : 10;
-        let orderArray = [];
-        if (orders) {
-            const orderObject = JSON.parse(orders);
-            if (
-                orderObject &&
-                typeof orderObject === "object" &&
-                !Array.isArray(orderObject)
-            ) {
-                Object.keys(orderObject).forEach((key) => {
-                    const item = orderObject[key];
-                    orderArray.push([key, item]);
-                });
-            }
-            if (Array.isArray(orderObject)) {
-                orderArray = orderObject;
-            }
-        }
-
         // 查询用户角色
         const adminRoleObj = (await RoleModel.findOne({
             where: {
@@ -87,7 +70,7 @@ class UserService {
             attributes: { exclude: ["password", "salt"] }, // 过滤字段
             offset: (current - 1) * pageSize,
             limit: pageSize,
-            order: orderArray,
+            order: getOrderArray(sorter),
             include: [
                 {
                     model: RoleModel,

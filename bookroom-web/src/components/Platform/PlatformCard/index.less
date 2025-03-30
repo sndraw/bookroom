@@ -1,0 +1,144 @@
+// 卡片项
+.cardItem {
+  background: #fff;
+  padding: 35px 20px !important;
+  border-radius: @border-radius-base * 3;
+  border: 1px solid @border-color !important;
+  position: relative;
+
+  &:hover {
+    border: 1px solid @primary-color !important;
+  }
+}
+
+// 元数据
+.cardItemMeta {
+  // min-height: 240px;
+  padding: 0;
+}
+
+.cardItemTitleWrapper {
+  line-height: 16px;
+}
+
+// 标题
+.cardItemTitle {
+  width: 70%;
+  box-sizing: border-box;
+  padding: 0 10px;
+  // 不换行
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+// 描述
+.cardItemContent {
+  margin: 10px;
+  padding: 0;
+  // min-height: 200px;
+  line-height: 1.2;
+}
+
+.cardItemNode {
+  width: 100%;
+  padding: 2px 0;
+  display: flex;
+  flex-direction: row;
+
+  .nodeLabel {
+    flex: none;
+    width: 5em;
+    padding: 0;
+    text-align: justify;
+    text-align-last: justify;
+  }
+
+  .nodeContent {
+    flex: 1;
+    padding: 0;
+    // 文字超出省略
+    overflow: hidden;
+    /* 确保超出容器的文本会被裁剪 */
+    white-space: nowrap;
+    /* 确保文本在一行内显示 */
+    text-overflow: ellipsis;
+  }
+
+  .dividerLabel {
+    margin: 5px 0;
+    font-size: 12px;
+  }
+
+  .description {
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+    // 文字超出省略
+    overflow: hidden;
+    /* 确保超出容器的文本会被裁剪 */
+    white-space: nowrap;
+    /* 确保文本在一行内显示 */
+    text-overflow: ellipsis;
+  }
+
+  .nodeBox {
+    line-height: 30px;
+  }
+
+  .nodeStatus {
+    display: inline-block;
+    vertical-align: middle;
+    opacity: 0.9;
+  }
+
+  .nodeBtn {
+    padding: 0;
+    font-size: 15px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .nodeLink {
+    padding: 0;
+  }
+}
+
+// 头像/图标
+.cardItemAvatar {
+  height: 24px;
+  font-size: 24px;
+  color: @processing-color;
+}
+
+// 操作工具条
+.cardItemActions {
+  position: absolute;
+  bottom: 5px;
+  right: 20px;
+}
+
+// 按钮
+.cardItemBtn {
+  width: 20px;
+  // line-height: 30px;
+  font-size: 18px;
+  line-height: 1em;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.cardItemBtnHover {
+  &:hover {
+    font-size: 20px;
+    cursor: pointer;
+  }
+}
+
+// 卡片管理
+.cardItemManage {
+  position: absolute;
+  top: 2px;
+  right: 5px;
+  line-height: 1;
+}

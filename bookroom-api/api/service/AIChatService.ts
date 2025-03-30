@@ -2,16 +2,18 @@ import AIChatModel from "@/models/AIChatModel";
 import PlatformService from "./PlatformService";
 import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
+import { getOrderArray } from "@/utils/query";
 
 class AIChatService {
 
     // 查询AI对话列表
     static async queryAIChatList(params: any) {
-        const { query } = params
+        const { query,sorter } = params
         const list: any = await AIChatModel.findAll({
             where: {
                 ...(query || {}),
-            }
+            },
+            order: getOrderArray(sorter),
         })
 
         if (!list || list?.length < 1) {

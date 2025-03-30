@@ -1,4 +1,3 @@
-import { STATUS_MAP } from '@/constants/DataMap';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import { queryActivedRoleList } from '@/services/admin/role';
@@ -8,6 +7,7 @@ import {
   updateUserStatus,
   queryUserList,
 } from '@/services/admin/user';
+import { USER_STATUS_MAP } from '@/services/admin/user/enum';
 import { reverseStatus, statusToBoolean } from '@/utils/format';
 
 import {
@@ -71,7 +71,7 @@ const UsersPage: React.FC<unknown> = () => {
           {
             email: fields?.email || '',
             roleId: fields?.roleId || '',
-            status: fields?.status || STATUS_MAP.DISABLE.value,
+            status: fields?.status || USER_STATUS_MAP.DISABLE.value,
           },
         );
         setLoading(false);
@@ -158,7 +158,7 @@ const UsersPage: React.FC<unknown> = () => {
       dataIndex: 'index',
       hideInForm: true,
       editable: false,
-      hideInSearch:true,
+      hideInSearch: true,
       //@ts-ignore
       width: 50,
       render: (text, record, index, action) => {
@@ -176,6 +176,7 @@ const UsersPage: React.FC<unknown> = () => {
       //@ts-ignore
       width: 100,
       editable: false,
+      sorter: true,
       formItemProps: {
         rules: [
           {
@@ -251,8 +252,9 @@ const UsersPage: React.FC<unknown> = () => {
       dataIndex: 'status',
       editable: false,
       // @ts-ignore
-      fixed: 'right',
       width: 80,
+      sorter: true,
+      fixed: 'right',
       align: 'center',
       // 数值转换
       renderText: (value) => {
@@ -260,6 +262,7 @@ const UsersPage: React.FC<unknown> = () => {
       },
       hideInSearch: true,
       formItemProps: {
+        initialValue: String(USER_STATUS_MAP.ENABLE.value),
         rules: [
           {
             required: true,
@@ -268,14 +271,12 @@ const UsersPage: React.FC<unknown> = () => {
         ],
       },
       valueType: 'select',
-      // @ts-ignore
-      initialValue: String(STATUS_MAP.ENABLE.value),
       valueEnum: {
-        [String(STATUS_MAP.ENABLE.value)]: {
-          text: STATUS_MAP.ENABLE.text,
+        [String(USER_STATUS_MAP.ENABLE.value)]: {
+          text: USER_STATUS_MAP.ENABLE.text,
         },
-        [String(STATUS_MAP.DISABLE.value)]: {
-          text: STATUS_MAP.DISABLE.text,
+        [String(USER_STATUS_MAP.DISABLE.value)]: {
+          text: USER_STATUS_MAP.DISABLE.text,
         },
       },
       render: (dom, record, index, action) => {
@@ -448,7 +449,7 @@ const UsersPage: React.FC<unknown> = () => {
         //           const userIdListStr = selectedRowKeys.join(',');
         //           const result = await handleModifyUserStatus(
         //             userIdListStr,
-        //             STATUS_MAP.ENABLE,
+        //             USER_STATUS_MAP.ENABLE,
         //           );
         //           if (result) {
         //             actionRef.current?.clearSelected?.();
@@ -464,7 +465,7 @@ const UsersPage: React.FC<unknown> = () => {
         //           const userIdListStr = selectedRowKeys.join(',');
         //           const result = await handleModifyUserStatus(
         //             userIdListStr,
-        //             STATUS_MAP.DISABLE,
+        //             USER_STATUS_MAP.DISABLE,
         //           );
         //           if (result) {
         //             actionRef.current?.clearSelected?.();

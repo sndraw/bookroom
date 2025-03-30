@@ -23,35 +23,31 @@
 
 - ### 知识图谱（多知识图谱管理、2D/3D图谱展示、图谱问答）- 功能完善中
   - [LightRAG](https://github.com/HKUDS/LightRAG)
-  - [LightRAG_Multi(多图谱空间版本)](https://github.com/sndraw/LightRAG-Multi)
+  - [BookRoom RAG](https://github.com/sndraw/bookroom-rag)
 
 - ### 智能助手（多智能助手管理、自动执行任务）- 功能架构中
   - [BookRoom Agents](https://github.com/sndraw/bookroom-agents)
 
-- ### 语音识别（本地语音识别、云端语音识别）- 功能架构中
+- ### 语音识别（本地语音识别、云端语音识别）- 功能完善中
   - [BookRoom Audio](https://github.com/sndraw/bookroom-audio)
-  
+
+- ### 智能管家 （智能设备管理、任务调度设置）- 功能架构中
+  - [BookRoom Robot](https://github.com/sndraw/bookroom-robot)
+
 - ### 用户管理
   - 用户注册和登录管理
   - 权限控制和角色管理
 
 ## 使用指南
-### 知识图谱添加步骤
-> 1. 登录系统
-> 2. 进入【系统配置】页面，点击“添加平台”按钮，填写并保存相关信息
-> 3. 进入【知识图谱】页面，点击“添加图谱空间”按钮，填写并保存相关信息
-> 4. 在图谱空间中上传文档，进行知识提取和图谱构建
-> 5. 完成后，系统会自动生成图谱，用户可以查看和管理生成的图谱，并进行相关问答
 
-
-### 系统配置示例
+## 系统配置示例
 #### 模型平台-接口类型
-> 1. ollama：http://192.168.1.2:11434
-> 2. openai：https://dashscope.aliyuncs.com/compatible-mode/v1
+> 1. Ollama：http://192.168.1.2:11434
+> 2. OpenAI：https://dashscope.aliyuncs.com/compatible-mode/v1
 
 #### 知识图谱-接口类型 - 完善中
-> 1. LightRAG：http://127.0.0.1:19621
-> 2. LightRAG_Multi：http://127.0.0.1:19621
+> 1. LightRAG：http://192.168.1.2:19621
+> 2. BookRoom RAG: //192.168.1.2:19621
 
 #### 智能助手-接口类型 - 开发中
 > 1. MCP SDK: http://192.168.1.2:25230
@@ -59,6 +55,7 @@
 
 #### 搜索引擎-接口类型 - 开发中
 > 1. Tavily: https://api.tavily.com
+> 2. 自定义搜索: https://your-custom-search-engine.com/s?wd=搜索关键词
 
 #### 语音识别-接口类型 - 完善中
-> 1. OpenAI: http://192.168.1.2:25231
+> 1. OpenAI: http://192.168.1.2:25231/v1

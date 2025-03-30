@@ -12,6 +12,8 @@ declare namespace API {
     parameters?: string | object;
     // 状态：0停止，1运行
     status?: number | string;
+    createdAt?: string | Date | number;
+    updatedAt?: string | Date | number;
   }
 
   interface PlatformInfoVO {
@@ -22,6 +24,8 @@ declare namespace API {
     parameters?: string | object;
     // 状态：0停止，1运行
     status?: number | string;
+    createdAt?: string | Date | number;
+    updatedAt?: string | Date | number;
   }
 
   interface Result_PlatformInfo_ {

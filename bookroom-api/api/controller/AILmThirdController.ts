@@ -102,9 +102,9 @@ class AILmController extends BaseController {
         min: 2,
         max: 40,
         message: {
-          required: "平台名称不能为空",
-          min: "平台名称长度不能小于2",
-          max: "平台名称长度不能超过40",
+          required: "接口名称不能为空",
+          min: "接口名称长度不能小于2",
+          max: "接口名称长度不能超过40",
         }
       },
       model: {
@@ -168,9 +168,9 @@ class AILmController extends BaseController {
         min: 2,
         max: 40,
         message: {
-          required: "平台名称不能为空",
-          min: "平台名称长度不能小于2",
-          max: "平台名称长度不能超过40",
+          required: "接口名称不能为空",
+          min: "接口名称长度不能小于2",
+          max: "接口名称长度不能超过40",
         }
       },
       model: {
@@ -235,9 +235,9 @@ class AILmController extends BaseController {
         min: 2,
         max: 40,
         message: {
-          required: "平台名称不能为空",
-          min: "平台名称长度不能小于2",
-          max: "平台名称长度不能超过40",
+          required: "接口名称不能为空",
+          min: "接口名称长度不能小于2",
+          max: "接口名称长度不能超过40",
         }
       },
       model: {
@@ -297,9 +297,9 @@ class AILmController extends BaseController {
         min: 2,
         max: 40,
         message: {
-          required: "平台名称不能为空",
-          min: "平台名称长度不能小于2",
-          max: "平台名称长度不能超过40",
+          required: "接口名称不能为空",
+          min: "接口名称长度不能小于2",
+          max: "接口名称长度不能超过40",
         }
       },
       model: {
@@ -376,9 +376,9 @@ class AILmController extends BaseController {
         min: 2,
         max: 40,
         message: {
-          required: "平台名称不能为空",
-          min: "平台名称长度不能小于2",
-          max: "平台名称长度不能超过40",
+          required: "接口名称不能为空",
+          min: "接口名称长度不能小于2",
+          max: "接口名称长度不能超过40",
         }
       },
       model: {
@@ -564,9 +564,9 @@ class AILmController extends BaseController {
         min: 2,
         max: 40,
         message: {
-          required: "平台名称不能为空",
-          min: "平台名称长度不能小于2",
-          max: "平台名称长度不能超过40",
+          required: "接口名称不能为空",
+          min: "接口名称长度不能小于2",
+          max: "接口名称长度不能超过40",
         }
       },
       model: {
@@ -684,9 +684,9 @@ class AILmController extends BaseController {
         min: 2,
         max: 40,
         message: {
-          required: "平台名称不能为空",
-          min: "平台名称长度不能小于2",
-          max: "平台名称长度不能超过40",
+          required: "接口名称不能为空",
+          min: "接口名称长度不能小于2",
+          max: "接口名称长度不能超过40",
         }
       },
       model: {
@@ -790,9 +790,9 @@ class AILmController extends BaseController {
         min: 2,
         max: 40,
         message: {
-          required: "平台名称不能为空",
-          min: "平台名称长度不能小于2",
-          max: "平台名称长度不能超过40",
+          required: "接口名称不能为空",
+          min: "接口名称长度不能小于2",
+          max: "接口名称长度不能超过40",
         }
       },
       model: {

@@ -2,22 +2,24 @@ import { v4 as uuidv4 } from 'uuid';
 import { StatusEnum } from "@/constants/DataMap";
 import AgentModel from '@/models/AgentModel';
 import PlatformService from './PlatformService';
-import ToolCallApi from '@/SDK/tool_call';
-import { Tool } from '@/SDK/mcp/tool/typings';
-import SearchTool from '@/SDK/mcp/tool/SearchTool';
-import WeatherTool from '@/SDK/mcp/tool/WeatherTool';
-import GraphDBTool from '@/SDK/mcp/tool/GraphDBTool';
+import ToolCallApi from '@/SDK/agent/tool_call';
+import { Tool } from '@/SDK/agent/tool/typings';
+import SearchTool from '@/SDK/agent/tool/SearchTool';
+import WeatherTool from '@/SDK/agent/tool/WeatherTool';
+import GraphDBTool from '@/SDK/agent/tool/GraphDBTool';
+import { getOrderArray } from '@/utils/query';
 
 
 class AgentService {
 
     // 查询智能助手列表
     static async queryAgentList(params: any) {
-        const { query } = params
+        const { query, sorter } = params;
         const list: any = await AgentModel.findAll({
             where: {
                 ...(query || {}),
-            }
+            },
+            order: getOrderArray(sorter)
         })
 
         if (!list || list?.length < 1) {
@@ -173,10 +175,8 @@ class AgentService {
         if (!parameters) {
             throw new Error("智能助手参数配置错误");
         }
-        const { prompt, searchEngine, modelConfig, graphConfig } = parameters;
-        const tools: Tool[] = [
-            WeatherTool
-        ]
+        const { prompt, searchEngine, weatherEngine, modelConfig, graphConfig } = parameters;
+        const tools: Tool[] = []
 
         if (!modelConfig || !modelConfig.platform || !modelConfig.model) {
             throw new Error("模型配置错误")
@@ -188,6 +188,7 @@ class AgentService {
         if (!lmPlatformConfig) {
             throw new Error("模型平台不存在");
         }
+
         if (graphConfig && graphConfig?.graph) {
             // 获取图数据库配置
             const graphDbConfig: any = await PlatformService.findPlatformByIdOrName(graphConfig?.graph, {
@@ -203,9 +204,18 @@ class AgentService {
             const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchEngine, {
                 safe: false
             });
+            // 搜索引擎
             tools.push(new SearchTool(searchEngineConfig?.toJSON()));
-        }
 
+        }
+        if (weatherEngine) {
+            // 获取天气搜索引擎配置
+            const weatherEngineConfig: any = await PlatformService.findPlatformByIdOrName(weatherEngine, {
+                safe: false
+            });
+            // 搜索引擎
+            tools.push(new WeatherTool(weatherEngineConfig?.toJSON()));
+        }
         const result = await new ToolCallApi(lmPlatformConfig?.toJSON()).questionChat({
             model: modelConfig.model,
             prompt,
