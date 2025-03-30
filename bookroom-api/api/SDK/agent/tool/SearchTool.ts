@@ -38,6 +38,7 @@ class SearchTool {
         const { host, apiKey, code, parameters } = this.config;
         const queryParams = {
             query: query, // 查询内容
+            paramKey: parameters?.paramKey || "", // 可选参数，需要根据实际情况
             max_results: Number(parameters?.max_results || 10), // 最大返回结果数
         }
         let data: any = null;

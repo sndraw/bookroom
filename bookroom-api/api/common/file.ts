@@ -4,7 +4,6 @@ import CryptoJS from "crypto-js";
 
 export const getObjectName=(object_id: string, salt?: string): string => {
   const salted = CryptoJS.SHA1(salt || "default").toString();
-  console.log(salted, object_id)
   return `${salted}/${object_id}`;
 }
 
