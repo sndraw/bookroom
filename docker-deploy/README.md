@@ -14,7 +14,7 @@ docker-compose up -d
 ```
 - 如果需要多.env文件，请在命令中指定相应的.env文件路径，例如：
 ```
-docker-compose up --env-file .env.local  -d
+docker-compose --env-file .env.local up -d
 ```
 
 
