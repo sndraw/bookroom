@@ -107,7 +107,7 @@ const AgentCard: React.FC<AgentCardPropsType> = (props: AgentCardPropsType) => {
                   </div>
                 </div>
               )}
-              <div className={styles?.cardItemNode}>
+              <div className={classNames(styles.cardItemNode, styles.cardItemNode_description)}>
                 <Divider orientation="center" plain className={styles?.dividerLabel}>
                   描述
                 </Divider>

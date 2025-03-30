@@ -27,6 +27,7 @@ import styles from './index.less';
 import classNames from 'classnames';
 import PlatformCard from '@/components/Platform/PlatformCard';
 import { PLATFORM_STATUS_MAP } from '@/services/common/platform/enum';
+import { ReloadOutlined } from '@ant-design/icons';
 type PlatformListPropsType = {
   dataList: API.PlatformInfo[];
   refresh: () => void;
@@ -439,6 +440,14 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
             onFinished={(values) => handleAdd(values)}
             refresh={refresh}
           />
+          <FloatButton
+            tooltip="刷新"
+            icon={<ReloadOutlined />}
+            key="refresh"
+            onClick={() => {
+              refresh();
+            }}
+          ></FloatButton>
         </FloatButton.Group>
       </Space>
 

@@ -50,7 +50,7 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
   const [loading, setLoading] = useState(false);
   const { getGraphInfo } = useModel('graphList');
   const graphInfo = getGraphInfo(item?.graph);
-  const canEdit = access.canSeeDev && mode === MODE_ENUM.EDIT && graphInfo?.code === AI_GRAPH_PLATFORM_MAP.lightrag_multi.value
+  const canEdit = access.canSeeDev && mode === MODE_ENUM.EDIT && graphInfo?.code === AI_GRAPH_PLATFORM_MAP.bookroomrag.value
 
 
   // 删除图谱空间
