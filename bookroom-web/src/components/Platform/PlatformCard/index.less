@@ -38,41 +38,31 @@
   padding: 0;
   // min-height: 200px;
   line-height: 1.2;
-  text-align: justify;
-  // word-break: keep-all;
-  // word-wrap: normal;
-  // white-space: pre-line;
-  overflow: hidden;
-
-  /* 使用省略号表示被省略的内容 */
-  text-overflow: ellipsis;
-
-  // /* 将元素作为弹性伸缩盒子模型处理 */
-  // display: -webkit-box;
-
-  // /* 限制最大行数为2行 */
-  // -webkit-line-clamp: 3;
-
-  // /* 设置垂直布局 */
-  // -webkit-box-orient: vertical;
 }
 
 .cardItemNode {
+  width: 100%;
   padding: 2px 0;
-  /* 确保超出容器的文本会被裁剪 */
-  white-space: nowrap;
+  display: flex;
+  flex-direction: row;
 
   .nodeLabel {
+    flex: none;
     width: 5em;
     padding: 0;
     text-align: justify;
     text-align-last: justify;
-    display: inline-block;
   }
 
   .nodeContent {
-    padding: 5px 0;
-    display: inline-block;
+    flex: 1;
+    padding: 0;
+    // 文字超出省略
+    overflow: hidden;
+    /* 确保超出容器的文本会被裁剪 */
+    white-space: nowrap;
+    /* 确保文本在一行内显示 */
+    text-overflow: ellipsis;
   }
 
   .dividerLabel {

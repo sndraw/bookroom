@@ -40,9 +40,9 @@ export const AI_GRAPH_PLATFORM_MAP = {
     value: 'LightRAG',
     text: 'LightRAG',
   },
-  lightrag_multi: {
-    value: 'LightRAG_Multi',
-    text: 'LightRAG_Multi',
+  bookroomrag: {
+    value: 'BookRoomRAG',
+    text: 'BookRoom RAG',
   },
 };
 

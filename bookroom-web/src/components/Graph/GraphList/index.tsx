@@ -56,7 +56,7 @@ const GraphList: React.FC<GraphListPropsType> = (props) => {
 
   const access = useAccess();
 
-  const canEdit = access.canSeeDev && mode === MODE_ENUM.EDIT  && graphInfo?.code === AI_GRAPH_PLATFORM_MAP.lightrag_multi.value
+  const canEdit = access.canSeeDev && mode === MODE_ENUM.EDIT  && graphInfo?.code === AI_GRAPH_PLATFORM_MAP.bookroomrag.value
 
   const isLoading = !!loading;
 
