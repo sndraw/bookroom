@@ -16,10 +16,13 @@ import AgentModelSelect from './AgentModelSelect/inex';
 import AgentGraphSelect from './AgentGraphSelect/inex';
 import AgentSDKSelect from './AgentSDKSelect/inex';
 import { SEARCH_API_MAP } from '@/common/search';
+import VoiceRecognizeSelect from '@/components/Voice/VoiceRecognizeSelect';
 
 export interface ParametersType {
   prompt: string;
   isStream: boolean;
+  supportImages: boolean;
+  voiceParams?: API.VoiceParametersType;
   logLevel: boolean;
   isMemory: boolean;
   searchEngine?: string;
@@ -32,6 +35,8 @@ export interface ParametersType {
 export const defaultParameters: ParametersType = {
   prompt: '',
   isStream: true,
+  supportImages: true,
+  voiceParams: null,
   logLevel: false,
   isMemory: false,
   searchEngine: undefined,
@@ -50,6 +55,8 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [prompt, setPrompt] = useState<string>('');
   const [isStream, setIsStream] = useState<boolean>(true);
+  const [supportImages, setSupportImages] = useState<boolean>(true);
+  const [voiceParams, setVoiceParams] = useState<any>(false);
   const [logLevel, setLogLevel] = useState<boolean>(false);
   const [isMemory, setIsMemory] = useState<boolean>(false);
   const [searchEngine, setSearchEngine] = useState<string>();
@@ -64,6 +71,8 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     if (parameters) {
       setPrompt(parameters?.prompt);
       setIsStream(parameters?.isStream);
+      setSupportImages(parameters.supportImages);
+      setVoiceParams(parameters.voiceParams);
       setLogLevel(parameters?.logLevel);
       setIsMemory(parameters?.isMemory);
       setSearchEngine(parameters?.searchEngine);
@@ -78,6 +87,8 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     const newParameters: ParametersType = {
       prompt,
       isStream,
+      supportImages,
+      voiceParams,
       logLevel,
       isMemory,
       searchEngine,
@@ -230,6 +241,38 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
               }}
               checkedChildren="启用"
               unCheckedChildren="禁用"
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>图片上传：</label>
+            <Switch
+              value={supportImages}
+              onChange={(checked: boolean) => {
+                if (checked) {
+                  setSupportImages(false);
+                }
+                setSupportImages(checked);
+              }}
+              checkedChildren="启用"
+              unCheckedChildren="禁用"
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="top"
+          >
+            <label className={styles.formLabel}>语音输入：</label>
+            <VoiceRecognizeSelect
+              className={styles.formSelect}
+              value={voiceParams}
+              onChange={(value: any) => {
+                setVoiceParams(value);
+              }}
             />
           </Flex>
           <Flex

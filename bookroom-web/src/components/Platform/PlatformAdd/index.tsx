@@ -2,9 +2,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import {
     ProTable,
 } from '@ant-design/pro-components';
-import { Button, Drawer, Flex } from 'antd';
+import { Button, Drawer, Flex, Form, FormInstance } from 'antd';
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface PlatformAddProps {
     title?: string;
@@ -17,9 +17,10 @@ interface PlatformAddProps {
 
 const PlatformAdd: React.FC<PlatformAddProps> = (props) => {
     const { title, columns, onFinished, refresh, disabled, className } = props;
+    const formRef = useRef<FormInstance | undefined>(undefined);
     const [modalVisible, setModalVisible] = useState(false);
-    const titleStr = title || "添加平台";
-    
+    const titleStr = title || "添加配置";
+
     return (
         <>
             <Button
@@ -41,17 +42,29 @@ const PlatformAdd: React.FC<PlatformAddProps> = (props) => {
                 onClose={() => {
                     setModalVisible(false);
                 }}
-                footer={null}
+                footer={
+                    <Flex style={{ gap: 16, justifyContent: 'flex-end' }}>
+                        {/* 提交按钮 */}
+                        <Button type="primary" onClick={async () => {
+                            if (formRef.current) {
+                                formRef.current.validateFields().then(async (values) => {
+                                    const success = await onFinished(values);
+                                    if (success) {
+                                        setModalVisible(false);
+                                        refresh?.();
+                                    }
+                                }).catch((errorInfo) => {
+                                    console.log('表单验证失败', errorInfo);
+                                });
+                            }
+                        }}>提交</Button>
+                        <Button onClick={() => setModalVisible(false)}>取消</Button>
+                    </Flex>
+                }
             >
                 <ProTable<API.PlatformInfo, API.PlatformInfo>
-                    onSubmit={async (values: API.PlatformInfo) => {
-                        const success = await onFinished(values);
-                        if (success) {
-                            setModalVisible(false);
-                            refresh?.();
-                        }
-                    }}
                     rowKey="id"
+                    formRef={formRef}
                     type="form"
                     // @ts-ignore
                     columns={columns}
@@ -60,13 +73,7 @@ const PlatformAdd: React.FC<PlatformAddProps> = (props) => {
                         // labelCol: { span: 6 }, // 标签占据的列数
                         // wrapperCol: { span: 18 }, // 输入框占据的列数
                         layout: 'vertical',
-                        submitter: {
-                            render: (_, dom) => (
-                                <Flex gap={16} justify={'flex-end'}>
-                                    {dom}
-                                </Flex>
-                            ),
-                        },
+                        submitter: false
                     }}
                 />
             </Drawer>

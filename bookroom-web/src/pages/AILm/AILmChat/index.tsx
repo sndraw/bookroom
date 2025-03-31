@@ -109,7 +109,7 @@ const AILmChatPage: React.FC = () => {
       supportVoice={true}
       voiceParams={parameters?.voiceParams}
       customRequest={sendMsgRequest}
-      onSend={(messageList) => {
+      saveAIChat={(messageList: any) => {
         saveAIChat(
           {
             platform,
@@ -118,19 +118,6 @@ const AILmChatPage: React.FC = () => {
             parameters,
             prompt,
             messages: messageList
-          })
-      }}
-      onStop={() => { }}
-      onClear={() => {
-        saveAIChat(
-          {
-            platform,
-            model,
-            name: "",
-            type: 1,
-            parameters,
-            prompt,
-            messages: []
           })
       }}
     >

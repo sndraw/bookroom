@@ -2,9 +2,9 @@ import { EditOutlined } from '@ant-design/icons';
 import {
     ProTable,
 } from '@ant-design/pro-components';
-import { Button, Drawer, Flex } from 'antd';
+import { Button, Drawer, Flex, FormInstance } from 'antd';
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface PlatformEditProps {
     title?: string;
@@ -18,16 +18,17 @@ interface PlatformEditProps {
 
 const PlatformEdit: React.FC<PlatformEditProps> = (props) => {
     const { title, data, columns, onFinished, refresh, disabled, className } = props;
+    const formRef = useRef<FormInstance | undefined>(undefined);
     const [modalVisible, setModalVisible] = useState(false);
-    const titleStr = title || "修改平台";
+    const titleStr = title || "修改配置";
     const fieldValues = {
         ...data
     }
     if (data?.parameters && typeof data.parameters === "object") {
         fieldValues.parameters = JSON.stringify(data.parameters, null, 2);
     }
-    if(data?.status){
-        fieldValues.status =data.status.toString();
+    if (data?.status) {
+        fieldValues.status = data.status.toString();
     }
 
     return (
@@ -50,18 +51,30 @@ const PlatformEdit: React.FC<PlatformEditProps> = (props) => {
                 onClose={() => {
                     setModalVisible(false);
                 }}
-                footer={null}
+                footer={
+                    <Flex style={{ gap: 16, justifyContent: 'flex-end' }}>
+                        {/* 提交按钮 */}
+                        <Button type="primary" onClick={async () => {
+                            if (formRef.current) {
+                                formRef.current.validateFields().then(async (values) => {
+                                    const success = await onFinished(values);
+                                    if (success) {
+                                        setModalVisible(false);
+                                        refresh?.();
+                                    }
+                                }).catch((errorInfo) => {
+                                    console.log('表单验证失败', errorInfo);
+                                });
+                            }
+                        }}>提交</Button>
+                        <Button onClick={() => setModalVisible(false)}>取消</Button>
+                    </Flex>
+                }
             >
                 <ProTable<API.PlatformInfo, API.PlatformInfo>
-                    onSubmit={async (values: API.PlatformInfo) => {
-                        const success = await onFinished(values);
-                        if (success) {
-                            setModalVisible(false);
-                            refresh?.();
-                        }
-                    }}
                     rowKey="id"
                     type="form"
+                    formRef={formRef}
                     // @ts-ignore
                     columns={columns}
                     form={{
@@ -71,13 +84,7 @@ const PlatformEdit: React.FC<PlatformEditProps> = (props) => {
                         layout: 'vertical',
                         // 默认值
                         initialValues: { ...fieldValues },
-                        submitter: {
-                            render: (_, dom) => (
-                                <Flex gap={16} justify={'flex-end'}>
-                                    {dom}
-                                </Flex>
-                            ),
-                        },
+                        submitter: false
                     }}
                 />
             </Drawer>

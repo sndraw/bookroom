@@ -31,10 +31,14 @@ type ChatPanelPropsType = {
   voiceParams?: API.VoiceParametersType;
   // 请求方法
   customRequest: (data: any, options: any) => Promise<any>;
+  // 保存AI聊天记录
+  saveAIChat?: (values: any) => void;
   // 消息发送
   onSend?: (values: any[]) => void;
   // 消息发送
   onStop?: () => void;
+  // 消息删除
+  onDelete?: (values: any[]) => void;
   // 消息清除
   onClear?: () => void;
   // 是否禁用
@@ -56,8 +60,10 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     supportVoice,
     voiceParams,
     customRequest,
+    saveAIChat,
     onSend,
     onStop,
+    onDelete,
     onClear,
     disabled,
     className,
@@ -87,6 +93,9 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       return;
     }
     setMessageList([...newMessageList]);
+    // 先保存消息,防止发送失败导致消息丢失
+    await saveAIChat?.([...newMessageList]);
+    
     abortController.current = new AbortController();
     // 定义ID，用于显示回复信息
     const answerId = btoa(Math.random().toString());
@@ -126,7 +135,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
             if (contentType && contentType.includes('application/json')) {
               resObj = await res?.json?.();
             }
-            responseData = resObj?.data || resObj?.results || resObj?.content  || '生成失败';
+            responseData = resObj?.data || resObj?.results || resObj?.content || '生成失败';
           }
           // 如果responseData是JSON格式，直接解析
           if (typeof responseData === 'string') {
@@ -220,10 +229,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         newMessageList.push(newResMessage);
         setMessageList([...newMessageList]);
       }
-      // 处理数据
-      if (onSend) {
-        onSend?.(newMessageList);
-      }
+      saveAIChat?.(newMessageList);
     }
   };
 
@@ -427,6 +433,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     }
     const newMessageList = messageList.filter((item) => item.id !== messageId);
     setMessageList([...newMessageList]);
+    saveAIChat?.([...newMessageList]);
   };
 
   // 重置对话
@@ -455,9 +462,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   // 清空对话
   const handleClear = () => {
     setMessageList([]);
-    if (onClear) {
-      onClear?.();
-    }
+    saveAIChat?.([]);
   };
 
 

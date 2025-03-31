@@ -13,7 +13,7 @@ type PlatformSettingPropsType = {
 };
 const PlatformSetting: React.FC<PlatformSettingPropsType> = (props) => {
   const { platform, customRequest, refresh, className } = props;
-  // 平台信息-请求
+  // 配置信息-请求
   const { data, loading, run } = useRequest(
     () =>
       customRequest({
@@ -34,9 +34,9 @@ const PlatformSetting: React.FC<PlatformSettingPropsType> = (props) => {
   return (
     <Spin tip="Loading..." spinning={loading}>
       <Space size={0} className={classNames(styles.container, className)}>
-        {/* 添加平台 */}
+        {/* 添加配置 */}
         {/* <Button
-          title="添加平台"
+          title="添加配置"
           icon={<PlusSquareOutlined />}
           key="addPlatform"
           type="text"
@@ -54,19 +54,19 @@ const PlatformSetting: React.FC<PlatformSettingPropsType> = (props) => {
               unCheckedChildren="关闭"
               disabled
             />
-            {/* 配置平台 */}
+            {/* 配置配置 */}
             {/* <Button
               icon={<SettingOutlined />}
-              title="配置平台"
+              title="配置配置"
               key="editPlatform"
               type="text"
               onClick={() => {
                 // run();
               }}
             ></Button> */}
-            {/* 删除平台 */}
+            {/* 删除配置 */}
             {/* <Button
-              title="删除平台"
+              title="删除配置"
               icon={<DeleteOutlined />}
               key="deletePlatform"
               type="text"

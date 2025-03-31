@@ -60,7 +60,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
 
 
   /**
-   * 添加平台
+   * 添加配置
    * @param fields
    */
   const handleAdd = async (fields: API.PlatformInfoVO) => {
@@ -70,7 +70,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
       if (fields?.parameters && typeof fields?.parameters === 'string') {
         fields.parameters = JSON.parse(fields.parameters);
       }
-      // 添加平台
+      // 添加配置
       await addPlatform({ ...fields });
       message.success('添加成功');
       return true;
@@ -151,7 +151,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
         },
       }),
       formItemProps: {
-        layout:"horizontal",
+        // layout:"horizontal",
         rules: [
           {
             required: true,
@@ -202,7 +202,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
         );
       },
       formItemProps: {
-        layout:"horizontal",
+        // layout:"horizontal",
         rules: [
           {
             required: true,
@@ -342,7 +342,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
         return String(value);
       },
       formItemProps: {
-        layout:"horizontal",
+        // layout:"horizontal",
         initialValue: String(PLATFORM_STATUS_MAP.ENABLE.value),
         rules: [
           {

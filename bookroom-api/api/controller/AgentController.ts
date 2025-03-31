@@ -359,10 +359,11 @@ class AgentController extends BaseController {
                 }
             },
             query: {
-                type: "string",
+                type: "object",
                 required: true,
                 message: {
-                    required: "查询内容不能为空"
+                    required: "查询内容不能为空",
+                    object: "参数格式非法"
                 }
             }
         }, {
@@ -382,12 +383,12 @@ class AgentController extends BaseController {
                 throw new Error("智能助手不存在或已删除");
             }
             const agentInfo = agent.toJSON();
+            const { logLevel } = agentInfo?.parameters;
             queryParams = {
                 query: query, // 查询内容
-                is_stream: is_stream,
+                is_stream,
                 userId: ctx.userId,
             }
-            const { logLevel, isStream, isMemory } = agentInfo?.parameters;
             const think = new Think({
                 is_stream,
                 logLevel
@@ -411,7 +412,7 @@ class AgentController extends BaseController {
 
         } catch (e: any) {
             // 异常处理，返回错误信息
-            ctx.logger.error("知识图谱对话异常", e); // 记录错误日志
+            ctx.logger.error("智能助手对话异常", e); // 记录错误日志
             ctx.status = 500;
             const error: any = e?.error || e;
             ctx.body = resultError({

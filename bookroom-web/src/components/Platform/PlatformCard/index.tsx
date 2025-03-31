@@ -41,7 +41,7 @@ const PlatformCard: React.FC<PlatformCardPropsType> = (props: PlatformCardPropsT
   const [loading, setLoading] = useState(false);
 
   /**
-   * 更新平台
+   * 更新配置
    */
   const handleUpdate = useCallback(
     async (platformId: string, fields: API.PlatformInfoVO) => {
@@ -78,7 +78,7 @@ const PlatformCard: React.FC<PlatformCardPropsType> = (props: PlatformCardPropsT
     },
     [],
   );
-  // 删除平台
+  // 删除配置
   const handleDelete = async ({
     platform,
   }: {
@@ -100,7 +100,7 @@ const PlatformCard: React.FC<PlatformCardPropsType> = (props: PlatformCardPropsT
   };
 
   /**
-   * 修改平台状态
+   * 修改配置状态
    */
   const handleModifyPlatformStatus = useCallback(
     async (platformId: string, status: number | string) => {
@@ -218,20 +218,20 @@ const PlatformCard: React.FC<PlatformCardPropsType> = (props: PlatformCardPropsT
           {/* pop提示 */}
           <Popconfirm
             disabled={loading}
-            title={`确定要删除该平台吗？`}
+            title={`确定要删除该配置吗？`}
             onConfirm={async () => {
               if (!item?.name) return false;
               const result = await handleDelete({
                 platform: item?.id,
               });
-              // 刷新平台列表
+              // 刷新配置列表
               if (result) {
                 refresh();
               }
             }}
           >
             <Button
-              title="删除平台"
+              title="删除配置"
               type={'text'}
               danger
               icon={<CloseOutlined />}
@@ -256,7 +256,7 @@ const PlatformCard: React.FC<PlatformCardPropsType> = (props: PlatformCardPropsT
                   event?.stopPropagation?.();
                   event?.preventDefault?.();
                   const result = await handleModifyPlatformStatus(item?.id, STATUS_MAP.ENABLE.value);
-                  // 刷新平台列表
+                  // 刷新配置列表
                   if (result) {
                     refresh();
                   }
@@ -280,7 +280,7 @@ const PlatformCard: React.FC<PlatformCardPropsType> = (props: PlatformCardPropsT
                   event?.stopPropagation?.();
                   event?.preventDefault?.();
                   const result = await handleModifyPlatformStatus(item?.id, STATUS_MAP.DISABLE.value);
-                  // 刷新平台列表
+                  // 刷新配置列表
                   if (result) {
                     refresh();
                   }

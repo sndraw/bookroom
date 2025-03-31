@@ -4,6 +4,7 @@ import { ChatCompletionCreateParams, ChatCompletionTool } from "openai/resources
 import { Tool } from "./../tool/typings";
 import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "./../message";
 import Think from "./think";
+import { convertMessagesToVLModelInput } from "@/utils/convert";
 
 class ToolCallApi {
     private readonly openai: any;
@@ -30,10 +31,19 @@ class ToolCallApi {
                 temperature = 0.7,
                 top_p = 0.8,
                 max_tokens = 4096,
+                userId
             } = params
+            // 定义新的消息列表
+            const newMessageList = await convertMessagesToVLModelInput({
+                messages,
+                userId
+            });
+
+            this.think.log("开始处理聊天请求", newMessageList, "\n\n")
+
             const chatParams: ChatCompletionCreateParams = {
                 model: model,
-                messages: messages,
+                messages: newMessageList || [],
                 tool_choice: "auto", // 让模型自动选择调用哪个工具
                 stream: is_stream,
                 stream_options: is_stream ? { include_usage: true } : undefined,
@@ -41,7 +51,8 @@ class ToolCallApi {
                 top_p: top_p,
                 n: 1,
                 max_tokens: max_tokens,
-                modalities: ["text"],
+                modalities: ["text", "audio"],
+                audio: { "voice": "Chelsie", "format": "wav" },
             }
             if (tools) {
                 // 将tools注册到 OpenAI 客户端
@@ -200,6 +211,8 @@ class ToolCallApi {
         const {
             prompt,
             query,
+            historyMessages,
+            isMemory,
             userId
         } = params
         // 工具和响应解析
@@ -217,14 +230,13 @@ class ToolCallApi {
                     }
                 ]
             }));
+            // 如果是记忆模式，添加历史消息到messages数组
+            if (isMemory && historyMessages) {
+                messages.push(...historyMessages);
+            }
             // 添加用户消息到messages数组
             messages.push(createUserMessage({
-                content: [
-                    {
-                        type: "text",
-                        text: query,
-                    }
-                ]
+                ...query
             }));
             this.think.log("————————————————————————————————————", "\n\n")
             this.think.log("Agent提示词：", "\n\n");

@@ -80,7 +80,7 @@ const AIGraphChatPage: React.FC = () => {
       customRequest={sendMsgRequest}
       defaultMessageList={chatList?.record?.messages}
       disabled={isLoading}
-      onSend={(messageList) => {
+      saveAIChat={(messageList) => {
         saveAIChat(
           {
             platform: graph,
@@ -88,18 +88,6 @@ const AIGraphChatPage: React.FC = () => {
             type: 1,
             parameters,
             messages: messageList
-          })
-      }}
-      onStop={() => { }}
-      onClear={() => {
-        saveAIChat(
-          {
-            platform: graph,
-            model: workspace,
-            name: "",
-            type: 1,
-            parameters,
-            messages: []
           })
       }}
     >

@@ -7,7 +7,7 @@ import { getOrderArray } from "@/utils/query";
 
 class PlatformService {
 
-    // 获取全部已启用平台列表
+    // 获取全部已启用配置列表
     static async queryActivedRecords(params?: any) {
         const { sorter } = params || {};
         const where: any = {
@@ -25,7 +25,7 @@ class PlatformService {
     }
 
 
-    // 查询平台列表
+    // 查询配置列表
     static async queryPlatformList(params: any, ops = { safe: true }) {
 
         if (!params) {
@@ -109,7 +109,7 @@ class PlatformService {
     }
 
 
-    // 查询平台信息-byIdOrName
+    // 查询配置信息-byIdOrName
     static async findPlatformByIdOrName(platform: string, params = { safe: true }) {
         if (!platform) {
             throw new Error("参数错误");
@@ -130,7 +130,7 @@ class PlatformService {
         return platformInfo;
     }
 
-    // 查询平台信息-byId
+    // 查询配置信息-byId
     static async findPlatformById(id: string, params = { safe: true }) {
         if (!id) {
             throw new Error("参数错误");
@@ -145,7 +145,7 @@ class PlatformService {
     }
 
 
-    // 查询平台信息-byName
+    // 查询配置信息-byName
     static async findPlatformByName(name: string, params = { safe: true }) {
         if (!name) {
             throw new Error("参数错误");
@@ -158,7 +158,7 @@ class PlatformService {
         });
         return platformInfo;
     }
-    // 添加平台
+    // 添加配置
     static async addPlatform(data: any) {
         try {
             if (!data) {
@@ -166,7 +166,7 @@ class PlatformService {
             }
             const unique = await PlatformModel.judgeUnique(data);
             if (!unique) {
-                throw new Error("平台已存在");
+                throw new Error("配置已存在");
             }
             return await PlatformModel.create({
                 ...data,
@@ -180,14 +180,14 @@ class PlatformService {
         }
     }
 
-    // 修改平台
+    // 修改配置
     static async updatePlatform(id: string, data: any) {
         if (!id || !data) {
             throw new Error("参数错误");
         }
         const unique = await PlatformModel.judgeUnique(data, id);
         if (!unique) {
-            throw new Error("平台已存在");
+            throw new Error("配置已存在");
         }
         return await PlatformModel.update({
             ...data,
@@ -198,8 +198,7 @@ class PlatformService {
             },
         });
     }
-    // 删除AI
-    // 删除平台
+    // 删除配置
     static async deletePlatform(id: string) {
         if (!id) {
             throw new Error("参数错误");

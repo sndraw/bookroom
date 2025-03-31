@@ -32,7 +32,7 @@ const AgentTaskPage: React.FC = () => {
                 is_stream: parameters?.isStream,
             },
             {
-                query: messages[messages?.length - 1]?.content,
+                query: messages[messages?.length - 1]
             },
             {
                 ...(options || {}),
@@ -94,20 +94,15 @@ const AgentTaskPage: React.FC = () => {
                 }
             }
             defaultMessageList={data?.messages}
+            supportImages={parameters?.supportImages}
+            supportVoice={true}
+            voiceParams={parameters?.voiceParams}
             customRequest={sendMsgRequest}
-            onSend={(messages) => {
+            saveAIChat={(messages) => {
                 updateAgent({
                     agent: data?.id
                 }, {
                     messages
-                })
-            }}
-            onStop={() => { }}
-            onClear={() => {
-                updateAgent({
-                    agent: data?.id
-                }, {
-                    messages: []
                 })
             }}
         >
