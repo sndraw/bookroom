@@ -1,12 +1,14 @@
 import { Divider, Select } from 'antd';
 import { useRequest } from '@umijs/max';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import styles from './index.less';
 import { querySearchEngineList } from '@/services/common/search';
+import { SEARCH_API_MAP } from '@/common/search';
 
 type SearchEngineSelectPropsType = {
   title?: string;
+  searchCode?: string;
   value?: string;
   onChange: (selected: any) => void;
   dataList?: any[];
@@ -14,7 +16,7 @@ type SearchEngineSelectPropsType = {
   className?: string;
 };
 const SearchEngineSelect: React.FC<SearchEngineSelectPropsType> = (props) => {
-  const { title, value, onChange, dataList, className } = props;
+  const { title, searchCode,value, onChange, dataList, className } = props;
 
   // 模型列表-请求
   const { data, loading, run } = useRequest(
@@ -33,6 +35,16 @@ const SearchEngineSelect: React.FC<SearchEngineSelectPropsType> = (props) => {
     run();
   }, []);
 
+  const filterList = useMemo(() => {
+    const originaDataList = dataList || data;
+    if (searchCode) {
+      return originaDataList?.filter((item: any) => item.code === searchCode);
+    } else {
+      return originaDataList?.filter((item: any) => item.code !== SEARCH_API_MAP.weather.value);
+    }
+  }, [dataList, data, searchCode]);
+
+
   return (
     <div className={classNames(styles.selectContainer, className)}>
       {title &&
@@ -48,7 +60,7 @@ const SearchEngineSelect: React.FC<SearchEngineSelectPropsType> = (props) => {
         allowClear
         // showSearch
         loading={loading}
-        options={(dataList || data as any)?.map((item: any) => ({
+        options={(filterList)?.map((item: any) => ({
           label: item.name,
           value: item.id,
         }))}
