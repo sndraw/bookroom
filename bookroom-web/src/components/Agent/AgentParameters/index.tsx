@@ -15,6 +15,7 @@ import SearchEngineSelect from '@/components/Search/SearchEngineSelect';
 import AgentModelSelect from './AgentModelSelect/inex';
 import AgentGraphSelect from './AgentGraphSelect/inex';
 import AgentSDKSelect from './AgentSDKSelect/inex';
+import { SEARCH_API_MAP } from '@/common/search';
 
 export interface ParametersType {
   prompt: string;
@@ -146,6 +147,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             <label className={styles.formLabel} >天气搜索</label>
             <SearchEngineSelect
               className={styles.selectElement}
+              searchCode={SEARCH_API_MAP.weather.value}
               value={weatherEngine}
               onChange={(value: string) => setWeatherEngine(value)}
             />
