@@ -195,7 +195,7 @@ class ToolCallApi {
             }));
             this.think.log("————————————————————————————————————", "\n\n")
             this.think.log("Agent提示词：", "\n\n");
-            this.think.log(formattedPrompt);
+            this.think.log(formattedPrompt, "\n\n");
             this.think.log("————————————————————————————————————", "\n\n")
             this.think.log("用户问题：", "\n\n");
             this.think.log(query, "\n\n");
