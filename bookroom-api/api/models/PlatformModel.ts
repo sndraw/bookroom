@@ -141,6 +141,12 @@ PlatformModel.init(
                 },
             },
         },
+        // 描述
+        description: {
+            field: "description",
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
         // 启用状态：1启用，0禁用
         status: {
             field: "status",

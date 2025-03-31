@@ -56,9 +56,10 @@ const PlatformAdd: React.FC<PlatformAddProps> = (props) => {
                     // @ts-ignore
                     columns={columns}
                     form={{
-                        layout: 'horizontal', // 设置表单布局为水平布局
-                        labelCol: { span: 6 }, // 标签占据的列数
-                        wrapperCol: { span: 18 }, // 输入框占据的列数
+                        // layout: 'horizontal',
+                        // labelCol: { span: 6 }, // 标签占据的列数
+                        // wrapperCol: { span: 18 }, // 输入框占据的列数
+                        layout: 'vertical',
                         submitter: {
                             render: (_, dom) => (
                                 <Flex gap={16} justify={'flex-end'}>

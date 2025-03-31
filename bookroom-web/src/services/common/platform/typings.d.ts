@@ -10,7 +10,7 @@ declare namespace API {
     host: string;
     apiKey?: string;
     parameters?: string | object;
-    // 状态：0停止，1运行
+    description?: string;
     status?: number | string;
     createdAt?: string | Date | number;
     updatedAt?: string | Date | number;
@@ -22,7 +22,7 @@ declare namespace API {
     code: string;
     type:string;
     parameters?: string | object;
-    // 状态：0停止，1运行
+    description?: string;
     status?: number | string;
     createdAt?: string | Date | number;
     updatedAt?: string | Date | number;

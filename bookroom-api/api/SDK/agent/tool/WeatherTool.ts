@@ -1,7 +1,7 @@
 import { SEARCH_API_MAP } from "@/common/search";
-import CustomSearchApi from "@/SDK/custom_search";
-import TavilyApi from "@/SDK/tavily";
-import WeatherApi from "@/SDK/weather";
+import CustomSearchApi from "@/SDK/search/custom_search";
+import TavilyApi from "@/SDK/search/tavily";
+import WeatherApi from "@/SDK/search/weather";
 
 interface WeatherInput {
     province?: string;

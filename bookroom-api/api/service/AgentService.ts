@@ -9,6 +9,7 @@ import WeatherTool from '@/SDK/agent/tool/WeatherTool';
 import GraphDBTool from '@/SDK/agent/tool/GraphDBTool';
 import { getOrderArray } from '@/utils/query';
 import Think from '@/SDK/agent/tool_call/think';
+import AgentTool from '@/SDK/agent/tool/AgentTool';
 
 
 class AgentService {
@@ -173,7 +174,7 @@ class AgentService {
             if (!parameters) {
                 throw new Error("智能助手参数配置错误");
             }
-            const { prompt, searchEngine, weatherEngine, modelConfig, graphConfig } = parameters;
+            const { prompt, logLevel, isStream, isMemory, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
             const tools: Tool[] = []
 
             if (!modelConfig || !modelConfig.platform || !modelConfig.model) {
@@ -214,7 +215,16 @@ class AgentService {
                 // 搜索引擎
                 tools.push(new WeatherTool(weatherEngineConfig?.toJSON()));
             }
-           await new ToolCallApi(lmPlatformConfig?.toJSON(), think).questionChat({
+            if (agentSDK) {
+                // 获取智能接口配置
+                const agentSDKConfig: any = await PlatformService.findPlatformByIdOrName(agentSDK, {
+                    safe: false
+                });
+                // 搜索引擎
+                tools.push(new AgentTool(agentSDKConfig?.toJSON()));
+
+            }
+            await new ToolCallApi(lmPlatformConfig?.toJSON(), think).questionChat({
                 model: modelConfig.model,
                 prompt,
                 ...params,

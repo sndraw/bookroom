@@ -158,6 +158,17 @@ class PlatformController extends BaseController {
           object: "参数配置格式不正确",
         },
       },
+      description: {
+        type: "string",
+        required: false,
+        min: 1,
+        max: 255,
+        message: {
+          required: "描述不能为空",
+          min: "描述长度不能小于1",
+          max: "描述长度不能超过255"
+        }
+      },
       status: {
         type: "enum",
         required: true,
@@ -380,6 +391,17 @@ class PlatformController extends BaseController {
           length: "验证密钥长度不能超过255",
         },
       },
+      description: {
+        type: "string",
+        required: false,
+        min: 1,
+        max: 255,
+        message: {
+          required: "描述不能为空",
+          min: "描述长度不能小于1",
+          max: "描述长度不能超过255"
+        }
+      },
       parameters: {
         type: "object",
         required: false,
@@ -393,7 +415,7 @@ class PlatformController extends BaseController {
       ...params
     });
     try {
-      const { name, code, type, host, apiKey, parameters, status } = params;
+      const { name, code, type, host, apiKey, parameters, description, status } = params;
       const record: any = await PlatformService.findPlatformByIdOrName(platform, { safe: false });
       if (!record) {
         throw new Error("平台不存在");
@@ -423,6 +445,9 @@ class PlatformController extends BaseController {
         }
       } else {
         data.apiKey = "";
+      }
+      if (description) {
+        data.description = description;
       }
       if (parameters) {
         data.parameters = parameters;

@@ -65,9 +65,10 @@ const PlatformEdit: React.FC<PlatformEditProps> = (props) => {
                     // @ts-ignore
                     columns={columns}
                     form={{
-                        layout: 'horizontal', // 设置表单布局为水平布局
-                        labelCol: { span: 6 }, // 标签占据的列数
-                        wrapperCol: { span: 18 }, // 输入框占据的列数
+                        // layout: 'horizontal', // 设置表单布局为水平布局
+                        // labelCol: { span: 6 }, // 标签占据的列数
+                        // wrapperCol: { span: 18 }, // 输入框占据的列数
+                        layout: 'vertical',
                         // 默认值
                         initialValues: { ...fieldValues },
                         submitter: {

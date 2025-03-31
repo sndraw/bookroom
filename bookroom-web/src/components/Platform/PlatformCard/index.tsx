@@ -8,6 +8,7 @@ import { useToken } from '@ant-design/pro-components';
 import { useAccess } from '@umijs/max';
 import {
   Button,
+  Divider,
   List,
   message,
   Popconfirm,
@@ -195,6 +196,14 @@ const PlatformCard: React.FC<PlatformCardPropsType> = (props: PlatformCardPropsT
                   </div>
                 </div>
               )}
+              <div className={classNames(styles.cardItemNode, styles.cardItemNode_description)}>
+                <Divider orientation="center" plain className={styles?.dividerLabel}>
+                  描述
+                </Divider>
+                <div className={classNames(styles?.nodeContent, styles?.description)} title={item?.description}>
+                  {item?.description || '无'}
+                </div>
+              </div>
             </div>
           }
         />

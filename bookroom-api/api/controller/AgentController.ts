@@ -383,14 +383,14 @@ class AgentController extends BaseController {
             }
             const agentInfo = agent.toJSON();
             queryParams = {
-                platformId: agentInfo?.platformId,
                 query: query, // 查询内容
                 is_stream: is_stream,
                 userId: ctx.userId,
             }
-
+            const { logLevel, isStream, isMemory } = agentInfo?.parameters;
             const think = new Think({
                 is_stream,
+                logLevel
             }, ctx);
             if (is_stream) {
                 ctx.set('Content-Type', 'text/event-stream');

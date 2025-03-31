@@ -191,7 +191,6 @@ class PlatformService {
         }
         return await PlatformModel.update({
             ...data,
-            createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
         }, {
             where: {

@@ -20,6 +20,8 @@ import { SEARCH_API_MAP } from '@/common/search';
 export interface ParametersType {
   prompt: string;
   isStream: boolean;
+  logLevel: boolean;
+  isMemory: boolean;
   searchEngine?: string;
   weatherEngine?: string;
   modelConfig?: object;
@@ -30,6 +32,8 @@ export interface ParametersType {
 export const defaultParameters: ParametersType = {
   prompt: '',
   isStream: true,
+  logLevel: false,
+  isMemory: false,
   searchEngine: undefined,
   weatherEngine: undefined,
   modelConfig: undefined,
@@ -46,6 +50,8 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [prompt, setPrompt] = useState<string>('');
   const [isStream, setIsStream] = useState<boolean>(true);
+  const [logLevel, setLogLevel] = useState<boolean>(false);
+  const [isMemory, setIsMemory] = useState<boolean>(false);
   const [searchEngine, setSearchEngine] = useState<string>();
   const [weatherEngine, setWeatherEngine] = useState<string>();
   const [modelConfig, setModelConfig] = useState<object>();
@@ -58,6 +64,8 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     if (parameters) {
       setPrompt(parameters?.prompt);
       setIsStream(parameters?.isStream);
+      setLogLevel(parameters?.logLevel);
+      setIsMemory(parameters?.isMemory);
       setSearchEngine(parameters?.searchEngine);
       setWeatherEngine(parameters?.weatherEngine);
       setModelConfig(parameters?.modelConfig);
@@ -70,6 +78,8 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     const newParameters: ParametersType = {
       prompt,
       isStream,
+      logLevel,
+      isMemory,
       searchEngine,
       weatherEngine,
       modelConfig,
@@ -166,6 +176,42 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
               className={styles.selectElement}
               value={agentSDK}
               onChange={(value: string) => setAgentSDK(value)}
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>日志输出：</label>
+            <Switch
+              value={logLevel}
+              onChange={(checked: boolean) => {
+                if (checked) {
+                  setLogLevel(false);
+                }
+                setLogLevel(checked);
+              }}
+              checkedChildren="启用"
+              unCheckedChildren="禁用"
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>记忆模式：</label>
+            <Switch
+              value={isMemory}
+              onChange={(checked: boolean) => {
+                if (checked) {
+                  setIsMemory(false);
+                }
+                setIsMemory(checked);
+              }}
+              checkedChildren="启用"
+              unCheckedChildren="禁用"
             />
           </Flex>
           <Flex

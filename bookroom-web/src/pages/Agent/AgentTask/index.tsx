@@ -121,7 +121,7 @@ const AgentTaskPage: React.FC = () => {
                 </Space>
                 <Divider type="vertical" />
                 <Space size={0} wrap className={styles.chatTags}>
-                    <Tag color="default">无记忆模式</Tag>
+                    <Tag color="default">{parameters?.isMemory ? '记忆模式' : '无记忆模式'}</Tag>
                     <AgentParameters
                         data={data}
                         parameters={parameters}
