@@ -9,6 +9,7 @@ import WeatherTool from '@/SDK/agent/tool/WeatherTool';
 import GraphDBTool from '@/SDK/agent/tool/GraphDBTool';
 import { getOrderArray } from '@/utils/query';
 import Think from '@/SDK/agent/tool_call/think';
+import AgentTool from '@/SDK/agent/tool/AgentTool';
 
 
 class AgentService {
@@ -152,7 +153,7 @@ class AgentService {
 
     // 智能助手对话
     static async agentChat(agent_id: string, params: any, think: Think) {
-        const { query } = params
+        const { query, isMemory } = params
         try {
             if (!agent_id || !query) {
                 throw new Error("参数错误");
@@ -169,11 +170,11 @@ class AgentService {
 
             const agentInfo = agentRes.toJSON();
 
-            const { parameters } = agentInfo;
+            const { parameters, messages } = agentInfo;
             if (!parameters) {
                 throw new Error("智能助手参数配置错误");
             }
-            const { prompt, searchEngine, weatherEngine, modelConfig, graphConfig } = parameters;
+            const { prompt, isMemory, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
             const tools: Tool[] = []
 
             if (!modelConfig || !modelConfig.platform || !modelConfig.model) {
@@ -214,9 +215,20 @@ class AgentService {
                 // 搜索引擎
                 tools.push(new WeatherTool(weatherEngineConfig?.toJSON()));
             }
-           await new ToolCallApi(lmPlatformConfig?.toJSON(), think).questionChat({
+            if (agentSDK) {
+                // 获取智能接口配置
+                const agentSDKConfig: any = await PlatformService.findPlatformByIdOrName(agentSDK, {
+                    safe: false
+                });
+                // 搜索引擎
+                tools.push(new AgentTool(agentSDKConfig?.toJSON()));
+
+            }
+            await new ToolCallApi(lmPlatformConfig?.toJSON(), think).questionChat({
                 model: modelConfig.model,
                 prompt,
+                historyMessages: messages,
+                isMemory,
                 ...params,
             }, {
                 tools

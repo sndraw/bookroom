@@ -4,19 +4,14 @@ import { ChatCompletionCreateParams, ChatCompletionTool } from "openai/resources
 import { Tool } from "./../tool/typings";
 import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "./../message";
 import Think from "./think";
+import { convertMessagesToVLModelInput } from "@/utils/convert";
 
 class ToolCallApi {
     private readonly openai: any;
-    private readonly platformId: string = "";
     private readonly think: Think;
 
     constructor(ops: any, think: Think) {
-        const { apiKey, host, id } = ops;
-        if (!id) throw new Error("缺少平台ID");
-
-        if (id) {
-            this.platformId = id;
-        }
+        const { apiKey, host } = ops;
         this.think = think;
         this.think.log("初始化OpenAI客户端", host, "\n\n")
         this.openai = new OpenAI({
@@ -36,10 +31,19 @@ class ToolCallApi {
                 temperature = 0.7,
                 top_p = 0.8,
                 max_tokens = 4096,
+                userId
             } = params
+            // 定义新的消息列表
+            const newMessageList = await convertMessagesToVLModelInput({
+                messages,
+                userId
+            });
+
+            this.think.log("开始处理聊天请求", newMessageList, "\n\n")
+
             const chatParams: ChatCompletionCreateParams = {
                 model: model,
-                messages: messages,
+                messages: newMessageList || [],
                 tool_choice: "auto", // 让模型自动选择调用哪个工具
                 stream: is_stream,
                 stream_options: is_stream ? { include_usage: true } : undefined,
@@ -47,7 +51,8 @@ class ToolCallApi {
                 top_p: top_p,
                 n: 1,
                 max_tokens: max_tokens,
-                modalities: ["text"],
+                modalities: ["text", "audio"],
+                audio: { "voice": "Chelsie", "format": "wav" },
             }
             if (tools) {
                 // 将tools注册到 OpenAI 客户端
@@ -81,28 +86,65 @@ class ToolCallApi {
         if (!toolCalls) return null;
         // 处理每个工具调用
         const toolCallsPromises = toolCalls.map(async (toolCall: any) => {
-            const functionName = toolCall.function.name;
-            const toolCallId = toolCall.id;
-            const functionArgs = JSON.parse(toolCall.function.arguments);
-            const selectedTool = tools.find(tool => tool.name === functionName);
-            if (selectedTool) {
-                try {
-                    this.think.log("执行工具中：", functionName, "\n\n");
-                    const result = await selectedTool.execute(functionArgs);
-                    this.think.log("执行工具完成：", functionName, "\n\n");
-                    this.think.log('工具调用结果：', result, "\n\n");
-                    return { name: functionName, content: result?.content, tool_call_id: toolCallId, isError: result?.isError }
-                } catch (error: any) {
-                    this.think.log(`执行工具 ${functionName} 时出错：`, error, "\n\n");
-                    return { name: functionName, content: `执行工具 ${functionName} 时出错`, tool_call_id: toolCallId, isError: true };
+            if (!toolCall?.id) return null;
+            try {
+                const functionName = toolCall.function.name;
+                const toolCallId = toolCall.id;
+                const functionArgs = JSON.parse(toolCall.function.arguments);
+                const selectedTool = tools.find(tool => tool.name === functionName);
+                if (selectedTool) {
+                    try {
+                        this.think.log("执行工具中：", functionName, "\n\n");
+                        const result = await selectedTool.execute(functionArgs);
+                        this.think.log("执行工具完成：", functionName, "\n\n");
+                        this.think.log('工具调用结果：', result, "\n\n");
+                        return { name: functionName, content: result?.content, tool_call_id: toolCallId, isError: result?.isError }
+                    } catch (error: any) {
+                        this.think.log(`执行工具 ${functionName} 时出错：`, error, "\n\n");
+                        return { name: functionName, content: `执行工具 ${functionName} 时出错`, tool_call_id: toolCallId, isError: true };
+                    }
                 }
+                return { name: functionName, content: "未找到匹配的工具！", tool_call_id: toolCallId, isError: true };
+
+            } catch (error: any) {
+                this.think.log(`执行工具${toolCall?.function?.name}时出错：`, error?.message, "\n\n");
+                return { name: toolCall?.function?.name || "未知工具", content: `执行工具时出错`, tool_call_id: toolCall?.id || null, isError: true };
             }
-            return { name: functionName, content: "未找到匹配的工具！", tool_call_id: toolCallId, isError: true };
         });
         // 汇总结果并返回
         const results = await Promise.all(toolCallsPromises);
         return results;
     };
+    // 兼容流式输出工具调用的指令
+    async getStreamToolCallList(toolCalls: any[], messageToolCalls: any[]) {
+        const toolCallList: any[] = [
+            ...toolCalls
+        ];
+        messageToolCalls.forEach((item: any) => {
+            // 如果id存在，则更新已有的工具列表中对应id的项，否则追加到末尾
+            if (item?.id) {
+                const toolCall = toolCallList.find(tool => tool.id === item.id);
+                if (!toolCall) {
+                    toolCallList.push(item);
+                } else {
+                    if (toolCall?.function) {
+                        toolCall.function.arguments += item.function.arguments;
+                    }
+                }
+                return;
+            }
+            // 如果item.index存在或者为0
+            if ((item?.index || item?.index === 0) && item?.function?.arguments) {
+                const toolCall = toolCallList.find(tool => tool.index === item.index);
+                if (toolCall?.function) {
+                    toolCall.function.arguments += item.function.arguments;
+                }
+                return;
+            }
+        })
+        return toolCallList;
+    }
+
     // 循环处理工具调用
     async loopToolCalls(params: any, messages: MessageArray, tools: Tool[]) {
         const countObj = {
@@ -125,9 +167,9 @@ class ToolCallApi {
                     if (chunk?.choices && chunk?.choices.length > 0) {
                         const message = chunk.choices[0]?.delta;
                         if (message?.tool_calls) {
-                            toolCalls = [...toolCalls, ...message.tool_calls];
+                            toolCalls = await this.getStreamToolCallList(toolCalls, message.tool_calls);
                         }
-                        this.think.log(message?.content);
+                        this.think.log(message?.content || '');
                         content += message?.content || '';
                     }
                 }
@@ -136,7 +178,6 @@ class ToolCallApi {
                 const message = response?.choices?.[0]?.message;
                 toolCalls = message?.tool_calls;
                 content = message?.content || '';
-                this.think.log(message?.content, "\n\n");
             }
             if (toolCalls && toolCalls.length > 0) {
                 // 创建一个新的消息，包含原始内容和工具调用
@@ -149,11 +190,14 @@ class ToolCallApi {
                 const results = await this.handleToolCalls(toolCalls, tools);
                 // 处理工具调用结果并添加到消息中
                 results?.forEach(result => {
-                    return messages.push(createToolMessage(result));
+                    if (result) {
+                        messages.push(createToolMessage(result));
+                    }
                 });
+                this.think.log(content, "\n\n");
             } else {
                 this.think.log("</search>", "\n\n");
-                this.think.log(content)
+                this.think.output(content)
                 countObj.finished = true;
             }
             countObj.content = content;
@@ -167,6 +211,8 @@ class ToolCallApi {
         const {
             prompt,
             query,
+            historyMessages,
+            isMemory,
             userId
         } = params
         // 工具和响应解析
@@ -184,14 +230,13 @@ class ToolCallApi {
                     }
                 ]
             }));
+            // 如果是记忆模式，添加历史消息到messages数组
+            if (isMemory && historyMessages) {
+                messages.push(...historyMessages);
+            }
             // 添加用户消息到messages数组
             messages.push(createUserMessage({
-                content: [
-                    {
-                        type: "text",
-                        text: query,
-                    }
-                ]
+                ...query
             }));
             this.think.log("————————————————————————————————————", "\n\n")
             this.think.log("Agent提示词：", "\n\n");
@@ -224,7 +269,7 @@ class ToolCallApi {
         } catch (error: any) {
             this.think.log("</search>", "\n\n")
             const errorMsg = error?.message || "未知错误";
-            this.think.log("处理问题时出错:", errorMsg, "\n\n");
+            this.think.output("处理问题时出错:", errorMsg, "\n\n");
             messages.push(createAssistantMessage({
                 content: errorMsg,
             }));

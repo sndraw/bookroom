@@ -1,16 +1,15 @@
-import { SEARCH_API_MAP } from "@/common/search";
-import CustomSearchApi from "@/SDK/search/custom_search";
-import TavilyApi from "@/SDK/search/tavily";
+import { AGENT_API_MAP } from "@/common/agent";
+import AgentAPI from "../api";
 
-interface SearchInput {
+interface AgentInput {
     query: string;
 }
 
-class SearchTool {
+class AgentTool {
     private config: any;
-    public name = "search_tool";
+    public name = "agent_tool";
     public version = "1.0";
-    public description = "Search internet information | 搜索互联网信息";
+    public description = "API based on Agent | 智能接口 | 可以通过API对话与智能模型进行交互";
     public parameters = {
         type: "object",
         properties: {
@@ -31,36 +30,35 @@ class SearchTool {
     };
 
     constructor(config: any) {
+        const { description } = config;
+        if (description) {
+            this.description = `${this.description} | ${description}`;
+        }
         this.config = config;
     }
-    async execute(params: SearchInput): Promise<any> {
+    async execute(params: AgentInput): Promise<any> {
         const { query } = params;
-        const { host, apiKey, code, parameters } = this.config;
+        const { host, apiKey, code, parameters = {} } = this.config;
         const queryParams = {
-            query: query, // 查询内容
-            paramKey: parameters?.paramKey || "", // 可选参数，需要根据实际情况
-            max_results: Number(parameters?.max_results || 10), // 最大返回结果数
+            query: query
+        }
+        if (parameters?.params && typeof parameters.params === 'object') {
+            Object.assign(queryParams, parameters.params);
         }
         let data: any = null;
         switch (code) {
-            case SEARCH_API_MAP.tavily.value:
-                data = await new TavilyApi({
+            case AGENT_API_MAP.agent_api.value:
+                data = await new AgentAPI({
                     host: host,
                     apiKey: apiKey,
-                }).search(queryParams);
-                break;
-            case SEARCH_API_MAP.custom.value:
-                data = await new CustomSearchApi({
-                    host: host,
-                    apiKey: apiKey,
-                }).search(queryParams);
+                    code: code,
+                }).chat(queryParams);
                 break;
             default:
                 data = {
                     code: 404,
                     message: "API暂不支持。",
                 }
-
         }
         if (data && typeof data === 'object' && !data?.isError) {
             return {
@@ -76,4 +74,4 @@ class SearchTool {
         };
     }
 }
-export default SearchTool;
+export default AgentTool;

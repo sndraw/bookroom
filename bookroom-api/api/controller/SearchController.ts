@@ -1,6 +1,6 @@
 import BaseController from "./BaseController";
 import { resultError, resultSuccess } from "@/common/resultFormat";
-import { searchAndParse } from "@/SDK/custom_search";
+import { searchAndParse } from "@/SDK/search/custom_search";
 import { Context } from "koa";
 
 /**

@@ -26,14 +26,14 @@ const PlatformSelect: React.FC<PlatformSelectPropsType> = (props) => {
 
   return (
     <Space size={0} className={classNames(styles.selectContainer, className)}>
-      <span className={styles.title}>{title || '平台'}</span>
+      <span className={styles.title}>{title || '配置'}</span>
       <Divider type="vertical" />
       {/* <AppstoreOutlined /> */}
       {/* <Divider type="vertical" /> */}
       <Select<string>
         className={styles?.selectElement}
         value={platform}
-        placeholder="请选择平台"
+        placeholder="请选择配置"
         allowClear={allowClear}
         options={dataList?.map((item: any) => ({
           label: item.name,

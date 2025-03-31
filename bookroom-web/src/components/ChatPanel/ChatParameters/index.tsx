@@ -67,7 +67,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
     if (parameters) {
       setIsStream(parameters.isStream);
       setSupportImages(parameters.supportImages);
-      setVoiceParams(parameters.voiceParams); // 这里需要修改为支持语音
+      setVoiceParams(parameters.voiceParams);
       setTemperature(parameters.temperature);
       setTopK(parameters.topK);
       setTopP(parameters.topP);
