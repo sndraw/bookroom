@@ -14,6 +14,7 @@ const AIGraphChatPage: React.FC = () => {
   const [parameters, setParameters] = useState<ParametersType>(defaultParameters);
   const { getGraphName } = useModel('graphList');
 
+  const chatType = 1;
   // 对话列表-请求
   const { data: chatList, loading: chatListLoading, run: chatListRun } = useRequest(
     () =>
@@ -21,7 +22,7 @@ const AIGraphChatPage: React.FC = () => {
         query_mode: 'search',
         platform: graph || '',
         model: workspace || '',
-        type: 1,
+        type: chatType,
       }),
     {
       manual: true,
@@ -85,7 +86,7 @@ const AIGraphChatPage: React.FC = () => {
           {
             platform: graph,
             model: workspace,
-            type: 1,
+            type: chatType,
             parameters,
             messages: messageList
           })
@@ -115,6 +116,7 @@ const AIGraphChatPage: React.FC = () => {
                 platform: graph,
                 model: workspace,
                 parameters: newParameters,
+                type: chatType,
               });
             }}
           />

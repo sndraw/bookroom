@@ -23,10 +23,10 @@ type ChatPanelPropsType = {
   title?: string;
   // 默认消息列表
   defaultMessageList?: ChatMessageType[];
-  // 是否支持images
-  supportImages?: boolean;
+  // 是否支持图片上传
+  isImages?: boolean;
   // 是否支持语音识别
-  supportVoice?: boolean;
+  isVoice?: boolean;
   // 语音识别参数
   voiceParams?: API.VoiceParametersType;
   // 请求方法
@@ -56,8 +56,8 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const {
     title,
     defaultMessageList,
-    supportImages,
-    supportVoice,
+    isImages,
+    isVoice,
     voiceParams,
     customRequest,
     saveAIChat,
@@ -315,7 +315,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       content: msg?.trim(),
       createdAt: new Date(),
     };
-    if (supportImages && imageList?.length > 0) {
+    if (isImages && imageList?.length > 0) {
       // 循环获取objectID
       const objectIds = imageList.map((item) => {
         const objectID = objectIdMapRef.current.get(item.uid);
@@ -513,7 +513,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         )}
       </div>
 
-      {supportImages && (
+      {isImages && (
         <div className={styles.inputImages}>
           <ImageUploadPreview
             title="上传图片"
@@ -556,7 +556,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         disabled={disabled}
       >
         <div className={styles.inputTextAreaWrapper}>
-          {supportVoice && (
+          {isVoice && (
             <VoiceChat
               voiceParams={voiceParams}
               className={styles?.voiceChat}

@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React from 'react';
 import { ChatMessageType } from '../types';
 
-import { DeleteOutlined, RedoOutlined, WechatWorkOutlined } from '@ant-design/icons';
+import { DeleteOutlined, RedoOutlined, RobotOutlined  } from '@ant-design/icons';
 
 import CopyToClipboard from '@/components/CopyToClipboard';
 import {
@@ -53,7 +53,7 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
               styles.messageRoleTextAssistant,
             )}
           >
-            <WechatWorkOutlined />
+            <RobotOutlined  />
           </div>
         </div>
         <div

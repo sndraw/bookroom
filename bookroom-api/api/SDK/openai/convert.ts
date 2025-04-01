@@ -1,60 +1,44 @@
 import { createFileClient, getObjectName } from '@/common/file';
-
-
 // 转换图片列表为模型输入格式
 export const convertImagesToVLModelInput = async (params: {
-    text: string;
     images: string;
     userId?: string;
-}) => {
-    const { text, images, userId } = params;
+}): Promise<any> => {
+    const { images, userId } = params;
     if (!images) {
         return null;
     };
-    const userMessage: any = {
-        role: "user",
-        content: [],
-    };
-
+    let newImages = [];
     if (images && Array.isArray(images)) {
-        for (const item of images) {
-            const message = {
-                type: "image_url",
-                image_url: {
-                    url: item,
-                }
-            }
-            if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
+        newImages = JSON.parse(JSON.stringify(images));
+        for (let i = 0; i < newImages.length; i++) {
+            const fileId = newImages[i];
+            if (typeof fileId === "string") {
                 try {
-
-                    const objectName = getObjectName(item, userId);
-                    const imageObj: any = await createFileClient().getObjectData({
+                    const objectName = getObjectName(fileId, userId);
+                    const fileObj: any = await createFileClient().getObjectData({
                         objectName,
                         encodingType: "base64",
                         addFileType: true,
-                    })
-                    if (!imageObj?.dataStr) continue;
-                    message.image_url.url = imageObj?.dataStr;
-                }
-                catch (error) {
+                    });
+                    if (!fileObj?.dataStr) continue;
+                    newImages[i] = fileObj?.dataStr;
+                } catch (error) {
                     console.error('获取图片失败:', error);
                     continue;
                 }
             }
-            userMessage.content.push(message);
         }
     }
-    userMessage.content.push(
-        { type: "text", text: text }
-    )
-    return userMessage;
+    return newImages;
 }
+
 
 // 转换messages为模型输入格式
 export const convertMessagesToVLModelInput = async (params: {
     messages: any[];
     userId?: string;
-}) => {
+}): Promise<any> => {
     const { messages, userId } = params;
     if (!messages || !Array.isArray(messages)) {
         return null;
@@ -64,7 +48,7 @@ export const convertMessagesToVLModelInput = async (params: {
     // 循环messages
     for (const message of messages) {
         const newMessage: any = {
-             ...message,// 复制message的所有属性到newMessage
+            ...message,// 复制message的所有属性到newMessage
             content: []
         };
         // 如果是system
@@ -95,13 +79,13 @@ export const convertMessagesToVLModelInput = async (params: {
                     if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
                         try {
                             const objectName = getObjectName(item, userId);
-                            const imageObj: any = await createFileClient().getObjectData({
+                            const fileObj: any = await createFileClient().getObjectData({
                                 objectName,
                                 encodingType: "base64",
                                 addFileType: true,
                             })
-                            if (!imageObj?.dataStr) continue;
-                            message.image_url.url = imageObj?.dataStr;
+                            if (!fileObj?.dataStr) continue;
+                            message.image_url.url = fileObj?.dataStr;
                         }
                         catch (error) {
                             console.error('获取图片失败:', error);
@@ -181,9 +165,7 @@ export const convertMessagesToVLModelInput = async (params: {
                 newMessage.content.push(...content);
             }
         }
-
         newMessageList.push(newMessage);
     }
     return newMessageList;
-
 }

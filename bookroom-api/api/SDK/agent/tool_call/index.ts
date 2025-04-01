@@ -4,7 +4,7 @@ import { ChatCompletionCreateParams, ChatCompletionTool } from "openai/resources
 import { Tool } from "./../tool/typings";
 import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "./../message";
 import Think from "./think";
-import { convertMessagesToVLModelInput } from "@/utils/convert";
+import { convertMessagesToVLModelInput } from "@/SDK/openai/convert";
 
 class ToolCallApi {
     private readonly openai: any;
@@ -38,8 +38,6 @@ class ToolCallApi {
                 messages,
                 userId
             });
-
-            this.think.log("开始处理聊天请求", newMessageList, "\n\n")
 
             const chatParams: ChatCompletionCreateParams = {
                 model: model,

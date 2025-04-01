@@ -94,8 +94,8 @@ const AgentTaskPage: React.FC = () => {
                 }
             }
             defaultMessageList={data?.messages}
-            supportImages={parameters?.supportImages}
-            supportVoice={true}
+            isImages={parameters?.isImages}
+            isVoice={true}
             voiceParams={parameters?.voiceParams}
             customRequest={sendMsgRequest}
             saveAIChat={(messages) => {
