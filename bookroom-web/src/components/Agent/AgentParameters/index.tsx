@@ -125,7 +125,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="top"
           >
-            <label className={styles.formLabel} >工具模型<Tooltip title={"平台及模型需要支持工具调用"}>
+            <label className={styles.formLabel} >工具模型<Tooltip title={<>平台及模型需要支持工具调用<br/>目前仅兼容OpenAI接口类型</>}>
               <QuestionCircleOutlined
                 style={{ marginLeft: 4, color: token.colorLink }}
               />
@@ -168,6 +168,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             <label className={styles.formLabel} >天气搜索</label>
             <SearchEngineSelect
               className={styles.selectElement}
+              placeholder="请选择天气搜索"
               searchCode={SEARCH_API_MAP.weather.value}
               value={weatherEngine}
               onChange={(value: string) => setWeatherEngine(value)}

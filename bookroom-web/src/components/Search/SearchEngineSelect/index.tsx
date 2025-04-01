@@ -8,6 +8,7 @@ import { SEARCH_API_MAP } from '@/common/search';
 
 type SearchEngineSelectPropsType = {
   title?: string;
+  placeholder?: string;
   searchCode?: string;
   value?: string;
   onChange: (selected: any) => void;
@@ -16,7 +17,7 @@ type SearchEngineSelectPropsType = {
   className?: string;
 };
 const SearchEngineSelect: React.FC<SearchEngineSelectPropsType> = (props) => {
-  const { title, searchCode,value, onChange, dataList, className } = props;
+  const { title, placeholder, searchCode, value, onChange, dataList, className } = props;
 
   // 模型列表-请求
   const { data, loading, run } = useRequest(
@@ -56,7 +57,7 @@ const SearchEngineSelect: React.FC<SearchEngineSelectPropsType> = (props) => {
       <Select<string>
         className={styles?.selectElement}
         value={value}
-        placeholder="请选择搜索引擎"
+        placeholder={placeholder || "请选择搜索引擎"}
         allowClear
         // showSearch
         loading={loading}

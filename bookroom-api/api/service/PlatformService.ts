@@ -16,6 +16,15 @@ class PlatformService {
         if (params?.type) {
             where.type = params.type;
         }
+        if (params?.keyword) {
+            where.name = {
+                [Op.like]: `%${params.keyword}%`
+            }
+        }
+        if (params?.code) {
+            where.code = params.code;
+        }
+
         const result = await PlatformModel.findAll({
             where,
             attributes: { exclude: ["apiKey", "host"] }, // 过滤字段

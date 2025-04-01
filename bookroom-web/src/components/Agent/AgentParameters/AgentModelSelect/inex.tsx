@@ -4,6 +4,7 @@ import styles from './index.less';
 import { useRequest } from '@umijs/max';
 import { queryAILmList, queryAILmPlatformList } from '@/services/common/ai/lm';
 import { useEffect, useState } from 'react';
+import { AI_LM_PLATFORM_MAP } from '@/common/ai';
 
 type AgentModelSelectPropsType = {
     title?: string;
@@ -25,7 +26,9 @@ const AgentModelSelect: React.FC<AgentModelSelectPropsType> = (props) => {
     // 平台列表-请求
     const { data, loading, run } = useRequest(
         () => {
-            return queryAILmPlatformList();
+            return queryAILmPlatformList({
+                code: AI_LM_PLATFORM_MAP.openai.value,
+            });
         },
         {
             manual: true,
