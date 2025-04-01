@@ -3,7 +3,9 @@ import { StatusEnum } from '@/constants/DataMap';
 import { createFileClient, getObjectName } from '@/common/file';
 import { VOICE_RECOGNIZE_LANGUAGE_MAP, VOICE_RECOGNIZE_TASK_MAP } from '@/common/voice';
 import { ChatCompletionCreateParams } from 'openai/resources/chat';
-import { convertImagesToVLModelInput, convertMessagesToVLModelInput } from '@/utils/convert';
+import { CompletionCreateParams } from 'openai/resources/completions';
+import { convertMessagesToVLModelInput } from './convert';
+import { EmbeddingCreateParams } from 'openai/resources/embeddings';
 
 
 class OpenAIApi {
@@ -104,9 +106,13 @@ class OpenAIApi {
             messages,
             is_stream,
             temperature = 0.7,
+            top_k = 10,
             top_p = 0.8,
             max_tokens = 4096,
             tools = [],
+            repetition_penalty = 1.0,
+            frequency_penalty = 0.0,
+            presence_penalty = 0.0,
             userId
         } = params
 
@@ -121,17 +127,24 @@ class OpenAIApi {
                 messages: newMessageList || [],
                 stream: is_stream,
                 stream_options: is_stream ? { include_usage: true } : undefined,
-                temperature: temperature,
-                top_p: top_p,
-                n: 1,
-                max_tokens: max_tokens,
                 modalities: ["text", "audio"],
                 audio: { "voice": "Chelsie", "format": "wav" },
                 tool_choice: "auto", // 让模型自动选择调用哪个工具
                 tools: tools, // 传递工具列表给模型
+                temperature: temperature,
+                top_p: top_p,
+                n: 1,
+                max_tokens: max_tokens,
+                frequency_penalty: frequency_penalty,
+                presence_penalty: presence_penalty,
+                user: userId,
             }
 
-            const completion = await this.openai.chat.completions.create(chatParams);
+            const completion = await this.openai.chat.completions.create({
+                ...chatParams,
+                top_k: top_k,
+                repetition_penalty: repetition_penalty,
+            });
             return completion;
         } catch (e) {
             console.log(e)
@@ -198,42 +211,31 @@ class OpenAIApi {
         const {
             model,
             prompt,
-            images,
             is_stream,
             top_p = 0.8,
             temperature = 0.7,
             max_tokens = 4096,
+            frequency_penalty = 0.0,
+            presence_penalty = 0.0,
             userId
         } = params;
 
         try {
-            let newMessageList: any[] = [
-                {
-                    role: "system",
-                    content: [{ type: "text", text: "You are a helpful assistant." }],
-                }
-            ];
-            if (images && images.length > 0 || images && images.length > 0) {
-                const userMessage = await convertImagesToVLModelInput({
-                    text: prompt,
-                    images,
-                    userId
-                });
-                if (userMessage) {
-                    newMessageList.push(userMessage)
-                }
-            }
-
-            const completion = await this.openai.chat.completions.create({
+            const chatParams: CompletionCreateParams = {
                 model,
-                messages: newMessageList || [],
+                prompt,
                 stream: is_stream,
                 stream_options: is_stream ? { include_usage: true } : undefined,
                 temperature: temperature,
                 top_p: top_p,
                 n: 1,
-                max_tokens: max_tokens
-            });
+                max_tokens: max_tokens,
+                frequency_penalty: frequency_penalty,
+                presence_penalty: presence_penalty,
+                user: userId,
+            }
+
+            const completion = await this.openai.completions.create(chatParams);
             return completion
         } catch (e) {
             console.log(e)
@@ -245,13 +247,19 @@ class OpenAIApi {
         const {
             model,
             input,
-            userId = null
+            encoding_format = 'float',
+            dimensions = 1024,
+            userId = null,
         } = params;
         try {
-            return await this.openai.embeddings.create({
+            const chatParams: EmbeddingCreateParams = {
                 model,
-                input
-            })
+                input,
+                encoding_format,
+                dimensions,
+                user: userId,
+            }
+            return await this.openai.embeddings.create(chatParams)
         } catch (e) {
             console.log(e)
             throw e;

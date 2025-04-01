@@ -1,7 +1,8 @@
-import { Ollama } from 'ollama';
+import { ChatRequest, EmbedRequest, GenerateRequest, Ollama } from 'ollama';
 import { StatusEnum } from '@/constants/DataMap';
 import { MD5 } from 'crypto-js';
 import { createFileClient, getObjectName } from '@/common/file';
+import { convertImagesToVLModelInput, convertMessagesToVLModelInput } from './convert';
 
 export const OLLAMA_CONFIG = {
     keep_alive: "5m",
@@ -88,7 +89,7 @@ class OllamaApi {
 
     async runAImodel(params: any): Promise<any> {
         const { model, keep_alive = OLLAMA_CONFIG?.keep_alive } = params;
-        const generate = await this.ollama.embed({ model, input: "你好", keep_alive });
+        const generate = await this.ollama.embed({ model, input: "Hello!", keep_alive });
         return generate;
     }
 
@@ -102,10 +103,11 @@ class OllamaApi {
         const {
             model,
             messages,
-            is_stream,
+            is_stream = true,
             keep_alive = OLLAMA_CONFIG?.keep_alive,
             temperature = 0.7,
-            top_k = 10, top_p = 0.9,
+            top_k = 10, 
+            top_p = 0.9,
             num_predict = 4096,
             repeat_penalty = 1.0,
             frequency_penalty = 0.0,
@@ -113,14 +115,14 @@ class OllamaApi {
             userId
         } = params;
         try {
-            const newMessageList = await this.convertMessagesToVLModelInput({
+            const newMessageList = await convertMessagesToVLModelInput({
                 messages,
                 userId
             });
-            const chat = await this.ollama.chat({
+            console.log(newMessageList);
+            const chatParams: ChatRequest = {
                 model,
                 messages: newMessageList,
-                stream: is_stream,
                 keep_alive,
                 options: {
                     num_predict,
@@ -131,6 +133,10 @@ class OllamaApi {
                     frequency_penalty,
                     presence_penalty
                 },
+            }
+            const chat = await this.ollama.chat({
+                ...chatParams,
+                stream: is_stream
             });
             return chat;
         } catch (error) {
@@ -146,25 +152,50 @@ class OllamaApi {
             images,
             is_stream,
             keep_alive = OLLAMA_CONFIG?.keep_alive,
+            temperature = 0.7,
+            top_k = 10, 
+            top_p = 0.9,
+            num_predict = 4096,
+            repeat_penalty = 1.0,
+            frequency_penalty = 0.0,
+            presence_penalty = 0.0,
             userId
         } = params;
-        const newImages = await this.convertImagesToVLModelInput({
+        const newImages = await convertImagesToVLModelInput({
             images,
             userId
         });
-        const generate = await this.ollama.generate({
+        const chatParams: GenerateRequest = {
             model,
             images: newImages,
-            stream: is_stream,
             prompt: prompt,
-            keep_alive
+            keep_alive,
+            options: {
+                num_predict,
+                temperature,
+                top_k,
+                top_p,
+                repeat_penalty,
+                frequency_penalty,
+                presence_penalty
+            },
+        }
+        const chat = await this.ollama.generate({
+            ...chatParams,
+            stream: is_stream
         });
-        return generate;
+        return chat;
     }
 
     async getAILmEmbeddings(params: any): Promise<any> {
-        const { model, input, truncate = false, keep_alive, userId } = params;
-        const embeddings = await this.ollama.embed({ model, input, truncate, keep_alive });
+        const { model, input, truncate = true, keep_alive, userId } = params;
+        const chatParams: EmbedRequest = {
+            model, 
+            input, 
+            truncate, 
+            keep_alive
+        }
+        const embeddings = await this.ollama.embed(chatParams);
         return embeddings;
     }
 
@@ -205,75 +236,6 @@ class OllamaApi {
             console.error('模型删除失败:', error);
             throw error;
         }
-    }
-
-    // 转换图片列表为模型输入格式
-    async convertImagesToVLModelInput(params: {
-        images: string;
-        userId?: string;
-    }): Promise<any> {
-        const { images, userId } = params;
-        if (!images) {
-            return null;
-        };
-        let newImages = [];
-        if (images && Array.isArray(images)) {
-            newImages = JSON.parse(JSON.stringify(images));
-            for (let i = 0; i < newImages.length; i++) {
-                const imageId = newImages[i];
-                if (typeof imageId === "string") {
-                    try {
-                        const objectName = getObjectName(imageId, userId);
-                        const imageObj: any = await createFileClient().getObjectData({
-                            objectName,
-                            encodingType: "base64"
-                        });
-                        if (!imageObj?.dataStr) continue;
-                        newImages[i] = imageObj?.dataStr;
-                    } catch (error) {
-                        console.error('获取图片失败:', error);
-                        continue;
-                    }
-                }
-            }
-        }
-        return newImages;
-    }
-
-    // 转换messages为模型输入格式
-    async convertMessagesToVLModelInput(params: {
-        messages: any[];
-        userId?: string;
-    }): Promise<any> {
-        const { messages, userId } = params;
-        if (!messages || !Array.isArray(messages)) {
-            return null;
-        }
-        const newMessages = JSON.parse(JSON.stringify(messages));
-        for (const message of newMessages) {
-            if (message.images && Array.isArray(message.images)) {
-                for (let i = 0; i < message.images.length; i++) {
-                    const imageId = message.images[i];
-                    if (typeof imageId === "string") {
-                        const objectName = getObjectName(imageId, userId);
-                        try {
-                            const imageObj: any = await createFileClient().getObjectData(
-                                {
-                                    objectName,
-                                    encodingType: "base64"
-                                },
-                            );
-                            if (!imageObj?.dataStr) continue;
-                            message.images[i] = imageObj?.dataStr;
-                        } catch (error) {
-                            console.error('获取图片失败:', error);
-                            continue;
-                        }
-                    }
-                }
-            }
-        }
-        return newMessages;
     }
 }
 

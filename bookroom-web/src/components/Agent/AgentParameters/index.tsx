@@ -21,7 +21,7 @@ import VoiceRecognizeSelect from '@/components/Voice/VoiceRecognizeSelect';
 export interface ParametersType {
   prompt: string;
   isStream: boolean;
-  supportImages: boolean;
+  isImages: boolean;
   voiceParams?: API.VoiceParametersType;
   logLevel: boolean;
   isMemory: boolean;
@@ -35,7 +35,7 @@ export interface ParametersType {
 export const defaultParameters: ParametersType = {
   prompt: '',
   isStream: true,
-  supportImages: true,
+  isImages: true,
   voiceParams: null,
   logLevel: false,
   isMemory: false,
@@ -55,7 +55,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [prompt, setPrompt] = useState<string>('');
   const [isStream, setIsStream] = useState<boolean>(true);
-  const [supportImages, setSupportImages] = useState<boolean>(true);
+  const [isImages, setIsImages] = useState<boolean>(true);
   const [voiceParams, setVoiceParams] = useState<any>(false);
   const [logLevel, setLogLevel] = useState<boolean>(false);
   const [isMemory, setIsMemory] = useState<boolean>(false);
@@ -71,7 +71,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     if (parameters) {
       setPrompt(parameters?.prompt);
       setIsStream(parameters?.isStream);
-      setSupportImages(parameters.supportImages);
+      setIsImages(parameters.isImages);
       setVoiceParams(parameters.voiceParams);
       setLogLevel(parameters?.logLevel);
       setIsMemory(parameters?.isMemory);
@@ -87,7 +87,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     const newParameters: ParametersType = {
       prompt,
       isStream,
-      supportImages,
+      isImages,
       voiceParams,
       logLevel,
       isMemory,
@@ -251,12 +251,12 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
           >
             <label className={styles.formLabel}>图片上传：</label>
             <Switch
-              value={supportImages}
+              value={isImages}
               onChange={(checked: boolean) => {
                 if (checked) {
-                  setSupportImages(false);
+                  setIsImages(false);
                 }
-                setSupportImages(checked);
+                setIsImages(checked);
               }}
               checkedChildren="启用"
               unCheckedChildren="禁用"

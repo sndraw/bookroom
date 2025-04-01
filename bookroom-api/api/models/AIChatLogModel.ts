@@ -41,7 +41,7 @@ AIChatLogModel.init(
                 },
             },
         },
-        // 日志类型，1对话，2图片，3语音，4视频
+        // 日志类型，1对话，2补全，3嵌入向量，4图片生成
         type: {
             field: "type",
             type: DataTypes.INTEGER,

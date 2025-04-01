@@ -9,7 +9,7 @@ class AIChatModel extends Model {
             return false;
         }
         const addWhereArray: { [x: string]: any; }[] = [];
-        const fieldKeys = ["platform_id", "model","userId"];
+        const fieldKeys = ["platformId", "model", "type", "userId"];
         // 筛选唯一项
         Object.keys(data).forEach((key) => {
             if (data[key] && fieldKeys.includes(key)) {
@@ -78,7 +78,7 @@ AIChatModel.init(
                 },
             },
         },
-        // 类型，1对话，2图片，3语音，4视频
+        // 日志类型，1对话，2补全，3嵌入向量，4图片生成
         type: {
             field: "type",
             type: DataTypes.INTEGER,
@@ -192,12 +192,6 @@ AIChatModel.init(
                 unique: true,
                 // 字段集合
                 fields: ["id"],
-            },
-            {
-                // 唯一
-                unique: true,
-                // 字段集合
-                fields: ["platform_id", "model","user_id"]
             }
         ],
         timestamps: true,

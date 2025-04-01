@@ -221,7 +221,7 @@ class AILmService {
             max_tokens,
             repeat_penalty,
             frequency_penalty,
-            presence_penalty, 
+            presence_penalty,
             userId = null
         } = params
         if (!platform) {
@@ -267,8 +267,12 @@ class AILmService {
                     model: model,
                     messages: messages,
                     temperature: temperature,
+                    top_k: top_k,
                     top_p: top_p,
                     max_tokens: max_tokens,
+                    repetition_penalty: repeat_penalty.
+                        frequency_penalty,
+                    presence_penalty,
                     is_stream,
                     userId
                 });
@@ -283,7 +287,7 @@ class AILmService {
 
     // 对话补全
     static async generateAILm(params: any) {
-        const { platform, model, prompt, images, is_stream, userId = null} = params
+        const { platform, model, prompt, images, is_stream, userId = null, ...resparams } = params
         if (!platform) {
             throw new Error("参数错误");
         }
@@ -306,16 +310,17 @@ class AILmService {
                     prompt,
                     images,
                     is_stream,
-                    userId
+                    userId,
+                    ...resparams
                 });
                 break;
             case AI_LM_PLATFORM_MAP.openai.value:
                 return await new OpenAIAPI(platformConfig?.toJSON()).getAILmGenerate({
                     model,
                     prompt,
-                    images,
                     is_stream,
-                    userId
+                    userId,
+                    ...resparams
                 })
                 break;
             default:
@@ -328,7 +333,7 @@ class AILmService {
 
     // 生成嵌入向量
     static async embeddingVector(params: any) {
-        const { platform, model, input, userId = null } = params
+        const { platform, model, input, encoding_format, dimensions, truncate, userId = null } = params
         if (!platform) {
             throw new Error("参数错误");
         }
@@ -352,6 +357,7 @@ class AILmService {
                 return await new OllamaAPI(platformConfig?.toJSON()).getAILmEmbeddings({
                     model,
                     input,
+                    truncate,
                     userId
                 });
                 break;
@@ -359,6 +365,8 @@ class AILmService {
                 return await new OpenAIAPI(platformConfig?.toJSON()).getAILmEmbeddings({
                     model,
                     input,
+                    dimensions,
+                    encoding_format,
                     userId
                 })
                 break;

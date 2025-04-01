@@ -8,7 +8,7 @@ class AIChatService {
 
     // 查询AI对话列表
     static async queryAIChatList(params: any) {
-        const { query,sorter } = params
+        const { query, sorter } = params
         const list: any = await AIChatModel.findAll({
             where: {
                 ...(query || {}),
@@ -45,12 +45,15 @@ class AIChatService {
 
     // 添加或者更新AI对话
     static async addOrUpdateAIChat(params: any) {
-        const { chat_id, platformId, model } = params
+        const { chat_id, platformId, model, type } = params
         if (!platformId) {
             throw new Error("平台参数错误");
         }
         if (!model) {
             throw new Error("模型参数错误");
+        }
+        if (!type) {
+            throw new Error("类型参数错误");
         }
         if (chat_id) {
             // 获取对话信息
@@ -75,19 +78,22 @@ class AIChatService {
 
     // 添加AI对话
     static async addAIChat(params: any) {
-        const { chat_id, platformId, model } = params
+        const { chat_id, platformId, model, type } = params
         if (!platformId) {
             throw new Error("平台参数错误");
         }
         if (!model) {
             throw new Error("模型参数错误");
         }
+        if (!type) {
+            throw new Error("类型参数错误");
+        }
         const data = {
             id: chat_id || uuidv4(),
             name: params?.name || params?.messages?.[0]?.content?.slice(0, 10) || "未知对话",
             platformId,
             model: model,
-            type: params?.type || 1,
+            type: Number(type),
             prompt: params?.prompt || "",
             parameters: params?.parameters || {},
             messages: params?.messages || [],
@@ -104,18 +110,21 @@ class AIChatService {
 
     // 更新AI对话
     static async updateAIChat(params: any) {
-        const { chat_id, platformId, model } = params
+        const { chat_id, platformId, model, type } = params
         if (!platformId) {
-            throw new Error("参数错误");
+            throw new Error("平台参数错误");
         }
         if (!model) {
-            throw new Error("参数错误");
+            throw new Error("模型参数错误");
+        }
+        if (!type) {
+            throw new Error("类型参数错误");
         }
         const data = {
             platformId,
             name: params?.name || params?.messages?.[0]?.content?.slice(0, 10) || "未知对话",
             model: model,
-            type: params?.type || 1,
+            type: Number(type),
             prompt: params?.prompt || "",
             parameters: params?.parameters || {},
             messages: params?.messages || [],

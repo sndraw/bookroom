@@ -246,6 +246,13 @@ export async function AILmGenerate(
     format?: string;
     prompt: string;
     images: string[];
+    temperature?: number;
+    top_k?: number;
+    top_p?: number;
+    max_tokens?: number;
+    repeat_penalty?: number;
+    frequency_penalty?: number;
+    presence_penalty?: number;
   },
   options?: { [key: string]: any },
 ) {
@@ -309,6 +316,9 @@ export async function AILmEmbed(
   body: {
     model?: string;
     input?: Array<string>;
+    truncate?: boolean; // 文本截断
+    dimensions?: number; // 向量维度
+    encoding_format?: string; // 编码格式
   },
   options?: { [key: string]: any },
 ) {

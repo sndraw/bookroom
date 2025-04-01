@@ -89,12 +89,12 @@ class AILmController extends BaseController {
     // 从路径获取参数
     const { platform, model: model_param } = ctx.params;
     const model = decodeURIComponent(model_param);
-    const params: any = ctx.request.body;
     const newParams = {
-      ...params,
       platform,
-      model
-    }
+      model,
+      userId: ctx.userId
+    };
+
     ctx.verifyParams({
       platform: {
         type: "string",
@@ -118,6 +118,10 @@ class AILmController extends BaseController {
           max: "模型长度不能超过255",
         }
       },
+      userId: {
+        type: "string",
+        required: true,
+      }
     }, {
       ...newParams
     })
@@ -597,6 +601,76 @@ class AILmController extends BaseController {
         message: {
           type: "数组类型错误，请输入字符串数组",
         },
+      },
+      temperature: {
+        type: "number",
+        required: false,
+        min: 0,
+        max: 1,
+        message: {
+          min: "温度不能小于0",
+          max: "温度不能超过1",
+        },
+      },
+      top_p: {
+        type: "number",
+        required: false,
+        min: 0,
+        max: 1,
+        message: {
+          min: "Top P不能小于0",
+          max: "Top P不能超过1",
+        },
+      },
+      top_k: {
+        type: "number",
+        required: false,
+        min: 1,
+        max: 100,
+        message: {
+          min: "Top K不能小于1",
+          max: "Top K不能超过100",
+        },
+      },
+      max_tokens: {
+        type: "number",
+        required: false,
+        min: 1,
+        max: 8192,
+        message: {
+          min: "最大输出长度不能小于1",
+          max: "最大输出长度不能超过8192",
+        },
+      },
+      repeat_penalty: {
+        type: "number",
+        required: false,
+        min: -2.0,
+        max: 2.0,
+        message: {
+          min: "惩罚强度不能小于-2.0",
+          max: "惩罚强度不能超过2.0",
+        },
+      },
+      frequency_penalty: {
+        type: "number",
+        required: false,
+        min: -2.0,
+        max: 2.0,
+        message: {
+          min: "频率惩罚不能小于-2.0",
+          max: "频率惩罚不能超过2.0",
+        },
+      },
+      presence_penalty: {
+        type: "number",
+        required: false,
+        min: -2.0,
+        max: 2.0,
+        message: {
+          min: "存在惩罚不能小于-2.0",
+          max: "存在惩罚不能超过2.0",
+        },
       }
     }, {
       ...newParams
@@ -614,7 +688,7 @@ class AILmController extends BaseController {
         responseText = await responseStream(ctx, dataStream);
         return;
       }
-      responseText = dataStream?.response || '';
+      responseText = dataStream?.response || dataStream?.choices[0]?.text || '';
       ctx.status = 200;
       ctx.body = resultSuccess({
         data: responseText
@@ -638,7 +712,7 @@ class AILmController extends BaseController {
           chat_id: newParams?.chat_id,
           platform,
           model,
-          type: 1,
+          type: 2,
           input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
@@ -708,6 +782,27 @@ class AILmController extends BaseController {
           array: "文本列表格式非法"
         },
       },
+      truncate:{
+        type:"boolean",
+        required:false,
+        message:{
+          required:"文本截断不能为空",
+        }
+      },
+      dimensions:{
+        type:"number",
+        required:false,
+        message:{
+          required:"向量维度不能为空",
+        }
+      },
+      encodingFormat:{
+        type:"string",
+        required:false,
+        message:{ 
+          required:"编码格式不能为空",
+        }
+      },
     }, {
       ...newParams
     })
@@ -748,7 +843,7 @@ class AILmController extends BaseController {
           chat_id: newParams?.chat_id,
           platform,
           model,
-          type: 1,
+          type: 3,
           input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
@@ -845,7 +940,7 @@ class AILmController extends BaseController {
           chat_id: newParams?.chat_id,
           platform,
           model,
-          type: 1,
+          type: 4,
           input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
