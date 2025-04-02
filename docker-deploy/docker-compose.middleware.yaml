@@ -34,8 +34,8 @@ services:
       ENABLE_LLM_CACHE: ${LIGHTRAG_ENABLE_LLM_CACHE:-true}
     volumes:
       # - ./volumes/lightrag/entrypoint.sh:/entrypoint.sh
-      - ./volumes/lightrag/data/rag_storage:/app/rag_storage
-      - ./volumes/lightrag/data/inputs:/app/inputs
+      - ./volumes/lightrag/data/rag_storage:/app/data/rag_storage
+      - ./volumes/lightrag/data/inputs:/app/data/inputs
     ports:
       - "${EXPOSE_LIGHTRAG_PORT:-9621}:${LIGHTRAG_PORT:-9621}"
     healthcheck:

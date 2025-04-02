@@ -1,6 +1,9 @@
 x-shared-env: &shared-api-worker-env
   # Docker IMAGE VERSION
   DOCKER_IMAGE_VERISON: ${DOCKER_IMAGE_VERISON:-latest}
+  # Environment Variables
+  NODE_ENV: production
+
   # General Configuration
   TZ: ${TZ:-Asia/Shanghai}
   SERVER_BASE_URL: ${SERVER_BASE_URL:-/api/v1}
@@ -14,7 +17,8 @@ x-shared-env: &shared-api-worker-env
 
   # DB Configuration
   DB_DIALECT: ${DB_DIALECT:-mysql}
-  DB_SYNC: ${DB_SYNC:-false}
+  DB_SYNC_ALTER: ${DB_HOST:-}
+  DB_SYNC_FORCE: ${DB_HOST:-}
   DB_HOST: ${DB_HOST:-bookroom_mysql}
   DB_PORT: ${DB_PORT:-3306}
   DB_USER: ${DB_USER:-root}
