@@ -158,7 +158,7 @@ export const convertMessagesToVLModelInput = async (params: {
             if (typeof content === "string") {
                 newMessage.content.push({
                     type: "text",
-                    text: content || "Hello!"
+                    text: content || ""
                 });
             }
             if (Array.isArray(content)) {
