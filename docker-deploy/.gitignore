@@ -5,5 +5,3 @@ logs
 .env.web
 .env.middleware
 docker-compose.*.local.yaml
-/docs/
-*.mdc
