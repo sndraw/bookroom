@@ -9,6 +9,8 @@ export type ThinkOptions = {
 class Think {
     private messages: Array<any> | PassThrough | null = [];
     private logLevel?: boolean = true;
+    private searching: boolean = false;
+
     constructor(options: ThinkOptions, ctx?: Context) {
         const { is_stream = false, logLevel = true } = options;
         this.logLevel = logLevel;
@@ -26,12 +28,13 @@ class Think {
         }
     }
 
-    formattedMessage(args: any[]){
+    formattedMessage(args: any[]) {
+        // 如果为空
         const formattedMessage = args.map(arg => {
             if (typeof arg === 'object') {
                 return JSON.stringify(arg, null, 2);
             }
-            return arg;
+            return arg || '';
         }).join('');
         return formattedMessage;
     }
@@ -41,10 +44,20 @@ class Think {
             // console.log(formattedMessage);
             return;
         }
+        // 如果未在搜索状态，则开始搜索状态
+        if (!this.searching) {
+            this.push("<search>\n\n");
+            this.searching = true;
+        }
         this.push(formattedMessage);
     }
     output(...args: any[]) {
-        const formattedMessage =this.formattedMessage(args)
+        // 如果在搜索状态，则结束搜索状态
+        if (this.searching) {
+            this.log('</search>', "\n\n");
+            this.searching = false;
+        }
+        const formattedMessage = this.formattedMessage(args)
         this.push(formattedMessage);
     }
     push(message: any) {
@@ -79,6 +92,8 @@ class Think {
     }
 
     end() {
+        // 停止并输出空字符，判定是否结束了搜索
+        this.output('');
         if (this.messages instanceof PassThrough) {
             this.messages.end();
         }

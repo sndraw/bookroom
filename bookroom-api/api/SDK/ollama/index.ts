@@ -1,7 +1,6 @@
 import { ChatRequest, EmbedRequest, GenerateRequest, Ollama } from 'ollama';
 import { StatusEnum } from '@/constants/DataMap';
 import { MD5 } from 'crypto-js';
-import { createFileClient, getObjectName } from '@/common/file';
 import { convertImagesToVLModelInput, convertMessagesToVLModelInput } from './convert';
 
 export const OLLAMA_CONFIG = {
@@ -119,7 +118,6 @@ class OllamaApi {
                 messages,
                 userId
             });
-            console.log(newMessageList);
             const chatParams: ChatRequest = {
                 model,
                 messages: newMessageList,

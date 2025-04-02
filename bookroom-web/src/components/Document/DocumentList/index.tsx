@@ -17,7 +17,7 @@ import useHeaderHeight from '@/hooks/useHeaderHeight';
 // 添加props类型
 interface DocumentListProps {
   graph: string;
-  dataList: any;
+  dataList: API.AIGraphDocumentInfo[];
   workspace?: string;
   loading?: boolean;
   refresh?: () => void;
@@ -37,7 +37,7 @@ const DocumentList: React.FC<DocumentListProps> = (props) => {
   const [reqLoading, setReqLoading] = useState(false);
   const headerHeight = useHeaderHeight();
   const access = useAccess();
-  const canEdit= access.canSeeDev;
+  const canEdit = access.canSeeDev;
 
   const handleDelete = async (document_id: string) => {
     setReqLoading(true);
@@ -100,22 +100,30 @@ const DocumentList: React.FC<DocumentListProps> = (props) => {
       key: 'num',
       hideInForm: true,
       editable: false,
-      hideInSearch:true,
+      hideInSearch: true,
     },
     {
       title: '摘要',
       dataIndex: 'content_summary',
       key: 'content_summary',
       render: (text) => {
-        return <span>{text}</span>
+        return (
+          <Typography.Paragraph
+            ellipsis={{
+              rows: 2,
+              expandable: 'collapsible',
+            }}
+            copyable
+          >{text}</Typography.Paragraph>
+        )
       },
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      render: (text,row) => {
-        return <span style={{cursor:'default' }} title={row?.error || text}><DocStatusTag status={text as DocStatus} /></span>;
+      render: (text, row) => {
+        return <span style={{ cursor: 'default' }} title={row?.error || text}><DocStatusTag status={text as DocStatus} /></span>;
       },
     },
     {
@@ -137,10 +145,28 @@ const DocumentList: React.FC<DocumentListProps> = (props) => {
       },
     },
     {
-      title: '更新时间',
+      title: '源文件',
+      dataIndex: 'file_path',
+      width: 200,
+      key: 'file_path',
+      render: (text) => {
+        return <span>{text}</span>
+      },
+    },
+    {
+      title: '创建时间',
       dataIndex: 'status',
       width: 150,
-      key: 'status',
+      key: 'created_at',
+      render: (text, row) => {
+        return <span>{new Date(row.created_at).toLocaleString()}</span>;
+      },
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updated_at',
+      width: 150,
+      key: 'updated_at',
       render: (text, row) => {
         return <span>{new Date(row.updated_at).toLocaleString()}</span>;
       },

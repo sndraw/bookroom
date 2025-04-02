@@ -124,7 +124,6 @@ export const signToken = async (userId: any) => {
     const access_token = jwt.sign({ userId: userId, type: "access_token" }, secret, { expiresIn: expiresIn });
     // 生成刷新 token ，并设置过期时间，过期时间是access_token 的3倍
     const refresh_token = jwt.sign({ userId: userId, type: "refresh_token" }, secret, { expiresIn: refreshTokenExpiresIn });
-    console.log(new Date().getTime(), expiresIn * 1000);
     return {
         access_token,
         refresh_token,

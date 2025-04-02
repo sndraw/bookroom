@@ -5,13 +5,13 @@
 ### 1、新建 env 文件并配置环境变量（如果部署时使用预设环境变量，请忽略该步骤）
 **示例文件**：`.env.expample`
 
-**示例如下（拷贝示例文件并修改为本地 env 文件）**  
-本地 env 文件：`.env.local`
 ```bash
-# API接口-代理地址
+# 复制 .env.expample 并修改为本地 .env.local 文件，以下为部分配置示例：
+
+# 环境模式（development/production，本地开发环境请注释掉该变量/设置为development）)
+NODE_ENV=development
+# API接口-代理地址, 用于开发环境代理请求到后端服务
 UMI_APP_PROXY_API=http://localhost:5001
-# MINIO接口-代理地址
-UMI_APP_PROXY_MINIO_API=http://localhost:19000
 ```
 
 ### 2.安装全局依赖

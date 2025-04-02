@@ -88,7 +88,13 @@ class ToolCallApi {
             try {
                 const functionName = toolCall.function.name;
                 const toolCallId = toolCall.id;
-                const functionArgs = JSON.parse(toolCall.function.arguments);
+                // 判定是否是JSON格式的参数
+                let functionArgs = {}
+                try {
+                    functionArgs = JSON.parse(toolCall.function.arguments);
+                } catch {
+                    return { name: functionName, content: "工具参数格式错误！", tool_call_id: toolCallId, isError: true };
+                }
                 const selectedTool = tools.find(tool => tool.name === functionName);
                 if (selectedTool) {
                     try {
@@ -126,8 +132,7 @@ class ToolCallApi {
                     toolCallList.push(item);
                 } else {
                     if (toolCall?.function) {
-                        // 检查 arguments 是否为 undefined，如果是则初始化为空字符串
-                        if (toolCall.function.arguments === undefined) {
+                        if (!toolCall?.function?.arguments) {
                             toolCall.function.arguments = '';
                         }
                         toolCall.function.arguments += item.function.arguments;
@@ -139,8 +144,7 @@ class ToolCallApi {
             if ((item?.index || item?.index === 0) && item?.function?.arguments) {
                 const toolCall = toolCallList.find(tool => tool.index === item.index);
                 if (toolCall?.function) {
-                    // 检查 arguments 是否为 undefined，如果是则初始化为空字符串
-                    if (toolCall.function.arguments === undefined) {
+                    if (!toolCall?.function?.arguments) {
                         toolCall.function.arguments = '';
                     }
                     toolCall.function.arguments += item.function.arguments;
@@ -153,6 +157,7 @@ class ToolCallApi {
 
     // 循环处理工具调用
     async loopToolCalls(params: any, messages: MessageArray, tools: Tool[]) {
+        const is_stream = params?.is_stream;
         const countObj = {
             finished: false,
             step: 0,
@@ -168,23 +173,48 @@ class ToolCallApi {
             let toolCalls: any[] = [];
             let content = "";
             // 如果是流式输出
-            if (params?.is_stream && (response?.itr || response?.iterator)) {
+            if (is_stream && (response?.itr || response?.iterator)) {
                 for await (const chunk of response) {
+                    // if(chunk?.choices[0]?.finish_reason==="stop"){
+                    //     console.log(chunk.choices[0]?.delta?.content||"");
+                    // }
                     if (chunk?.choices && chunk?.choices.length > 0) {
                         const message = chunk.choices[0]?.delta;
                         if (message?.tool_calls) {
                             toolCalls = await this.getStreamToolCallList(toolCalls, message.tool_calls);
+                            this.think.log(message?.content || '');
+                        } else {
+                            if (chunk.choices[0]?.finish_reason === 'tool_calls') {
+                                this.think.log(message?.content || '');
+                            } else {
+                                message?.content && this.think.output(message?.content || '');
+                                countObj.finished = true;
+                            }
                         }
-                        this.think.log(message?.content || '');
                         content += message?.content || '';
                     }
                 }
-                this.think.log("\n\n");
             } else {
                 const message = response?.choices?.[0]?.message;
                 toolCalls = message?.tool_calls;
+                if (message?.tool_calls) {
+                    this.think.log(message?.content || '');
+                } else {
+                    if (response.choices[0]?.finish_reason === 'tool_calls') {
+                        this.think.log(message?.content || '');
+                    } else {
+                        message?.content && this.think.output(message?.content || '');
+                        countObj.finished = true;
+                    }
+                }
                 content = message?.content || '';
             }
+            // 如果已经设置为 finished，直接返回内容，防止死循环
+            if (countObj.finished) {
+                countObj.content = content;
+                break;
+            }
+            // 如果已经处理完所有工具调用，设置 finished 为 true
             if (toolCalls && toolCalls.length > 0) {
                 // 创建一个新的消息，包含原始内容和工具调用
                 messages.push(createAssistantMessage({
@@ -200,10 +230,7 @@ class ToolCallApi {
                         messages.push(createToolMessage(result));
                     }
                 });
-                this.think.log(content, "\n\n");
             } else {
-                this.think.log("</search>", "\n\n");
-                this.think.output(content)
                 countObj.finished = true;
             }
             countObj.content = content;
@@ -224,7 +251,6 @@ class ToolCallApi {
         // 工具和响应解析
         const { tools = [] } = options;
         const messages: MessageArray = []
-        this.think.log("<search>", "\n\n")
         try {
             const formattedPrompt = createPrompt(tools, prompt);
             // 添加系统消息到messages数组
@@ -273,7 +299,6 @@ class ToolCallApi {
                 isError: false
             }
         } catch (error: any) {
-            this.think.log("</search>", "\n\n")
             const errorMsg = error?.message || "未知错误";
             this.think.output("处理问题时出错:", errorMsg, "\n\n");
             messages.push(createAssistantMessage({
