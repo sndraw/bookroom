@@ -3,8 +3,8 @@ import { resultError, resultSuccess } from "@/common/resultFormat";
 import BaseController from "./BaseController";
 import AgentService from "@/service/AgentService";
 import { StatusEnum } from "@/constants/DataMap";
-import { responseStream } from "@/utils/streamHelper";
 import AgentLogService from "@/service/AgentLogService";
+import Think from "@/SDK/agent/tool_call/think";
 
 class AgentController extends BaseController {
     // 获取智能助手列表
@@ -359,10 +359,11 @@ class AgentController extends BaseController {
                 }
             },
             query: {
-                type: "string",
+                type: "object",
                 required: true,
                 message: {
-                    required: "查询内容不能为空"
+                    required: "查询内容不能为空",
+                    object: "参数格式非法"
                 }
             }
         }, {
@@ -382,17 +383,28 @@ class AgentController extends BaseController {
                 throw new Error("智能助手不存在或已删除");
             }
             const agentInfo = agent.toJSON();
+            const { logLevel } = agentInfo?.parameters;
             queryParams = {
-                platformId: agentInfo?.platformId,
-                is_stream, // 是否流式返回数据
                 query: query, // 查询内容
+                is_stream,
+                userId: ctx.userId,
             }
-            const dataStream: any = await AgentService.agentChat(agent_id, queryParams);
+            const think = new Think({
+                is_stream,
+                logLevel
+            }, ctx);
             if (is_stream) {
-                responseText = await responseStream(ctx, dataStream);
+                ctx.set('Content-Type', 'text/event-stream');
+                ctx.set('Cache-Control', 'no-cache');
+                ctx.set('Connection', 'keep-alive');
+                ctx.res.setHeader('Content-Type', 'application/octet-stream');
+                ctx.body = think.getData();
+                await AgentService.agentChat(agent_id, queryParams, think);
+                ctx.res.end();
                 return;
             }
-            responseText = dataStream?.response || dataStream || '';
+            await AgentService.agentChat(agent_id, queryParams, think);
+            responseText = think.toString() || '';
             ctx.status = 200;
             ctx.body = resultSuccess({
                 data: responseText
@@ -400,7 +412,7 @@ class AgentController extends BaseController {
 
         } catch (e: any) {
             // 异常处理，返回错误信息
-            ctx.logger.error("知识图谱对话异常", e); // 记录错误日志
+            ctx.logger.error("智能助手对话异常", e); // 记录错误日志
             ctx.status = 500;
             const error: any = e?.error || e;
             ctx.body = resultError({

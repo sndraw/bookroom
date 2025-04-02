@@ -32,10 +32,11 @@ export const formatMarkDownContent = (markdownContent: string): any => {
     const startIndex = result.indexOf('<search>');
     const endIndex = result.indexOf('</search>', startIndex);
     if (endIndex === -1) {
-      search = '正在搜索...';
-      result = result.substring(endIndex + '<search>'.length);
+      title = '正在深度搜索...';
+      search = result.substring(startIndex + '<search>'.length);
+      result = '';
     } else {
-      title = '已完成搜索';
+      title = '已完成深度搜索';
       // search值为<search>标签内的内容，不包括`<search>`和`</search>`标签
       search = result.substring(startIndex + '<search>'.length, endIndex);
       // result值为<search>标签外的内容，不包括`<search>`和`</search>`标签
@@ -141,19 +142,19 @@ export const MarkdownWithHighlighting = ({
   const TitleWrapper = useCallback(
     ({
       title,
-      think,
+      content,
       done,
     }: {
       title: string;
-      think?: string;
+      content?: string;
       done?: boolean;
     }) => {
       return (
         <details className={styles.titleWrapper} open={!done}>
           <summary className={styles.titleSummary}>{title}</summary>
-          {think && (
+          {content && (
             <ReactMarkdown className={styles.titleContent}>
-              {think}
+              {content}
             </ReactMarkdown>
           )}
         </details>
@@ -162,7 +163,7 @@ export const MarkdownWithHighlighting = ({
     [content],
   );
 
-  if ((!content?.title || !content?.think) && !content?.result) {
+  if ((!content?.title || (!content?.think && !content?.search)) && !content?.result) {
     return (
       <div className={styles.loadingWrapper}>
         <LoadingOutlined style={{ marginRight: '5px' }} />
@@ -174,13 +175,21 @@ export const MarkdownWithHighlighting = ({
   }
   return (
     <>
-      {content?.title && content?.think && (
+      {content?.title && content?.search && (
         <TitleWrapper
           title={content?.title}
-          think={content?.think}
+          content={content?.search}
           done={!!content?.result}
         ></TitleWrapper>
       )}
+      {content?.title && content?.think && (
+        <TitleWrapper
+          title={content?.title}
+          content={content?.think}
+          done={!!content?.result}
+        ></TitleWrapper>
+      )}
+
       {content?.result && (
         <ReactMarkdown
           components={{

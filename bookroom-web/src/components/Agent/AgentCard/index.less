@@ -91,13 +91,12 @@
     width: 100%;
     display: block;
     box-sizing: border-box;
-    // 省略
-    white-space: nowrap;
-    /* 防止文本换行 */
+    // 文字超出省略
     overflow: hidden;
-    /* 隐藏溢出的文本 */
+    /* 确保超出容器的文本会被裁剪 */
+    white-space: nowrap;
+    /* 确保文本在一行内显示 */
     text-overflow: ellipsis;
-    /* 显示省略号 */
   }
 
   .nodeBox {
@@ -123,7 +122,6 @@
 }
 // 头像/图标
 .cardItemAvatar {
-  height: 24px;
   font-size: 24px;
   color: @processing-color;
 }

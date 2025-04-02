@@ -2,6 +2,11 @@ import OpenAI from 'openai'
 import { StatusEnum } from '@/constants/DataMap';
 import { createFileClient, getObjectName } from '@/common/file';
 import { VOICE_RECOGNIZE_LANGUAGE_MAP, VOICE_RECOGNIZE_TASK_MAP } from '@/common/voice';
+import { ChatCompletionCreateParams } from 'openai/resources/chat';
+import { CompletionCreateParams } from 'openai/resources/completions';
+import { convertMessagesToVLModelInput } from './convert';
+import { EmbeddingCreateParams } from 'openai/resources/embeddings';
+
 
 class OpenAIApi {
     private readonly openai: any;
@@ -49,10 +54,10 @@ class OpenAIApi {
                 model: modelItem.id, // 使用id作为model字段
             }
             // 如果created是number类型，但却是秒数，则转换为毫秒
-            if (typeof modelItem.created === 'number'){
+            if (typeof modelItem.created === 'number') {
                 if (modelItem.created < 10000000000) {
                     modelInfo.createdAt = modelItem.created * 1000;
-                }else{
+                } else {
                     modelInfo.createdAt = modelItem.created;
                 }
             }
@@ -101,27 +106,44 @@ class OpenAIApi {
             messages,
             is_stream,
             temperature = 0.7,
+            top_k = 10,
             top_p = 0.8,
             max_tokens = 4096,
+            tools = [],
+            repetition_penalty = 1.0,
+            frequency_penalty = 0.0,
+            presence_penalty = 0.0,
             userId
         } = params
 
         try {
             // 定义新的消息列表
-            const newMessageList = await this.convertMessagesToVLModelInput({
+            const newMessageList = await convertMessagesToVLModelInput({
                 messages,
                 userId
             });
-            const completion = await this.openai.chat.completions.create({
-                model,
+            const chatParams: ChatCompletionCreateParams = {
+                model: model,
                 messages: newMessageList || [],
                 stream: is_stream,
                 stream_options: is_stream ? { include_usage: true } : undefined,
+                modalities: ["text", "audio"],
+                audio: { "voice": "Chelsie", "format": "wav" },
+                tool_choice: "auto", // 让模型自动选择调用哪个工具
+                tools: tools, // 传递工具列表给模型
                 temperature: temperature,
                 top_p: top_p,
                 n: 1,
                 max_tokens: max_tokens,
-                modalities: ["text"],
+                frequency_penalty: frequency_penalty,
+                presence_penalty: presence_penalty,
+                user: userId,
+            }
+
+            const completion = await this.openai.chat.completions.create({
+                ...chatParams,
+                top_k: top_k,
+                repetition_penalty: repetition_penalty,
             });
             return completion;
         } catch (e) {
@@ -189,42 +211,31 @@ class OpenAIApi {
         const {
             model,
             prompt,
-            images,
             is_stream,
             top_p = 0.8,
             temperature = 0.7,
             max_tokens = 4096,
+            frequency_penalty = 0.0,
+            presence_penalty = 0.0,
             userId
         } = params;
 
         try {
-            let newMessageList: any[] = [
-                {
-                    role: "system",
-                    content: [{ type: "text", text: "You are a helpful assistant." }],
-                }
-            ];
-            if (images && images.length > 0 || images && images.length > 0) {
-                const userMessage = await this.convertImagesToVLModelInput({
-                    text: prompt,
-                    images,
-                    userId
-                });
-                if (userMessage) {
-                    newMessageList.push(userMessage)
-                }
-            }
-
-            const completion = await this.openai.chat.completions.create({
+            const chatParams: CompletionCreateParams = {
                 model,
-                messages: newMessageList || [],
+                prompt,
                 stream: is_stream,
                 stream_options: is_stream ? { include_usage: true } : undefined,
                 temperature: temperature,
                 top_p: top_p,
                 n: 1,
-                max_tokens: max_tokens
-            });
+                max_tokens: max_tokens,
+                frequency_penalty: frequency_penalty,
+                presence_penalty: presence_penalty,
+                user: userId,
+            }
+
+            const completion = await this.openai.completions.create(chatParams);
             return completion
         } catch (e) {
             console.log(e)
@@ -236,13 +247,19 @@ class OpenAIApi {
         const {
             model,
             input,
-            userId = null
+            encoding_format = 'float',
+            dimensions = 1024,
+            userId = null,
         } = params;
         try {
-            return await this.openai.embeddings.create({
+            const chatParams: EmbeddingCreateParams = {
                 model,
-                input
-            })
+                input,
+                encoding_format,
+                dimensions,
+                user: userId,
+            }
+            return await this.openai.embeddings.create(chatParams)
         } catch (e) {
             console.log(e)
             throw e;
@@ -280,157 +297,6 @@ class OpenAIApi {
             console.log(e)
             throw e;
         }
-    }
-
-    // 转换图片列表为模型输入格式
-    async convertImagesToVLModelInput(params: {
-        text: string;
-        images: string;
-        userId?: string;
-    }) {
-        const { text, images, userId } = params;
-        if (!images) {
-            return null;
-        };
-        const userMessage: any = {
-            role: "user",
-            content: [],
-        };
-
-        if (images && Array.isArray(images)) {
-            for (const item of images) {
-                const message = {
-                    type: "image_url",
-                    image_url: {
-                        url: item,
-                    }
-                }
-                if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
-                    try {
-
-                        const objectName = getObjectName(item, userId);
-                        const imageObj: any = await createFileClient().getObjectData({
-                            objectName,
-                            encodingType: "base64",
-                            addFileType: true,
-                        })
-                        if (!imageObj?.dataStr) continue;
-                        message.image_url.url = imageObj?.dataStr;
-                    }
-                    catch (error) {
-                        console.error('获取图片失败:', error);
-                        continue;
-                    }
-                }
-                userMessage.content.push(message);
-            }
-        }
-        userMessage.content.push(
-            { type: "text", text: text }
-        )
-        return userMessage;
-    }
-
-    // 转换messages为模型输入格式
-    async convertMessagesToVLModelInput(params: {
-        messages: any[];
-        userId?: string;
-    }) {
-        const { messages, userId } = params;
-        if (!messages || !Array.isArray(messages)) {
-            return null;
-        }
-
-        const newMessageList: any[] = [];
-        // 循环messages
-        for (const message of messages) {
-            const newMessage: any = {
-                role: message.role,
-                content: []
-            };
-            // 如果是system
-            if (message.role === "system") {
-                const content = message.content;
-                if (typeof content === "string") {
-                    newMessage.content.push({
-                        type: "text",
-                        text: content
-                    });
-                }
-            }
-            if (message.role === "user" || message.role === "assistant") {
-                const content = message?.content;
-                const images = message?.images;
-                if (images && Array.isArray(images)) {
-                    for (const item of images) {
-                        const message = {
-                            type: "image_url",
-                            image_url: {
-                                url: item,
-                            }
-                        }
-                        if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
-                            try {
-                                const objectName = getObjectName(item, userId);
-                                const imageObj: any = await createFileClient().getObjectData({
-                                    objectName,
-                                    encodingType: "base64",
-                                    addFileType: true,
-                                })
-                                if (!imageObj?.dataStr) continue;
-                                message.image_url.url = imageObj?.dataStr;
-                            }
-                            catch (error) {
-                                console.error('获取图片失败:', error);
-                                continue;
-                            }
-                        }
-                        newMessage.content.push(message);
-                    }
-                }
-                const audios = message?.audios;
-                if (audios && Array.isArray(audios)) {
-                    for (const item of audios) {
-                        const message = {
-                            type: "input_audio",
-                            input_audio: {
-                                data: item,
-                                format: "mp3" //默认格式为mp3，实际格式可能需要根据实际情况进行调整
-                            }
-                        }
-                        if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
-                            try {
-                                const objectName = getObjectName(item, userId);
-                                const audioObj: any = await createFileClient().getObjectData({
-                                    objectName,
-                                    encodingType: "base64",
-                                    addFileType: true,
-                                })
-                                if (!audioObj?.dataStr) continue;
-                                message.input_audio = {
-                                    data: audioObj?.dataStr,
-                                    format: audioObj?.fileType || "mp3",
-                                }
-                            } catch (error) {
-                                console.error('获取音频失败:', error);
-                                continue;
-                            }
-                        }
-                        newMessage.content.push(message);
-                    }
-                }
-                if (typeof content === "string") {
-                    newMessage.content.push({
-                        type: "text",
-                        text: content || "Hello!"
-                    });
-                }
-            }
-
-            newMessageList.push(newMessage);
-        }
-        return newMessageList;
-
     }
 }
 

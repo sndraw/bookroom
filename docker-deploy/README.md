@@ -12,6 +12,11 @@
 ```
 docker-compose up -d
 ```
+- 如果需要多.env文件，请在命令中指定相应的.env文件路径，例如：
+```
+docker-compose --env-file .env.local up -d
+```
+
 
 ### 2.附属系统（如不需要可以忽略）
 ### 2.1.新建.env.middleware文件，用于附属系统启动

@@ -9,7 +9,7 @@ import {
   ExclamationCircleOutlined,
   MessageOutlined,
   PoweroffOutlined,
-  WechatWorkOutlined,
+  DesktopOutlined,
   SyncOutlined,
 } from '@ant-design/icons';
 import { useToken } from '@ant-design/pro-components';
@@ -131,7 +131,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
           avatar={
             <Avatar
               className={styles.cardItemAvatar}
-              src={<WechatWorkOutlined />}
+              src={<DesktopOutlined />}
               shape="square"
             />
           }
@@ -152,7 +152,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
           //   <div className={styles.cardItemTitle}>
           //     <Avatar
           //       className={styles.cardItemAvatar}
-          //       src={<WechatWorkOutlined />}
+          //       src={<DesktopOutlined  />}
           //       shape="square"
           //     />
           //     <Divider type="vertical" />
@@ -305,7 +305,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
         </Access>
         <Space className={classNames(styles.cardItemActions)}>
           <Link
-            title={'AI对话'}
+            title={'多轮对话'}
             to={{
               pathname: generatePath(ROUTE_MAP.AI_LM_CHAT, {
                 platform: item?.platformId,
@@ -320,11 +320,11 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                 color: token.colorLink,
               }}
               size="large"
-              icon={<MessageOutlined />}
+              icon={<CommentOutlined />}
             />
           </Link>
           <Link
-            title={'对话补全'}
+            title={'文本补全'}
             to={{
               pathname: generatePath(ROUTE_MAP.AI_LM_GENERATE, {
                 platform: item?.platformId,
@@ -339,7 +339,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                 color: token.colorLink,
               }}
               size="large"
-              icon={<CommentOutlined />}
+              icon={<MessageOutlined />}
             />
           </Link>
           <Link

@@ -12,23 +12,37 @@ export enum Role {
 export interface MessageType {
     id?: string;
     name?: string; // 函数或者工具名
-    role: Role;
-    content: any;
+    role?: Role;
+    content?: any;
+    images?: any[];
+    audios?: any[];
+    videos?: any[];
     tool_calls?: Array<any>; // 工具调用数组
     tool_call_id?: string; // 工具调用ID
 }
 
 export type MessageArray = Array<MessageType>;
 
-export const createUserMessage = (params: { id?: string, content: any }): MessageType => {
-    return {
+export const createUserMessage = (params: MessageType): MessageType => {
+    const message: MessageType = {
         id: params?.id || uuidv4(),
         role: Role.USER,
         content: params?.content
     };
+    if (params?.images) {
+        message.images = params.images;
+    }
+    if (params?.audios) {
+        message.audios = params.audios;
+    }
+    if (params?.videos) {
+        message.videos = params.videos;
+    }
+
+    return message;
 };
 
-export const createAssistantMessage = (params: { id?: string, content: any, tool_calls?: Array<any> }): MessageType => {
+export const createAssistantMessage = (params: MessageType): MessageType => {
     const message: MessageType = {
         id: params?.id || uuidv4(),
         role: Role.ASSISTANT,
@@ -42,7 +56,7 @@ export const createAssistantMessage = (params: { id?: string, content: any, tool
     return message
 };
 
-export const createSystemMessage = (params: { id?: string, content: any }): MessageType => {
+export const createSystemMessage = (params: MessageType): MessageType => {
     return {
         id: params?.id || uuidv4(),
         role: Role.SYSTEM,
@@ -51,7 +65,7 @@ export const createSystemMessage = (params: { id?: string, content: any }): Mess
 };
 
 
-export const createToolMessage = (params: { id: any; name: any; tool_call_id: any; content: any; }): MessageType => {
+export const createToolMessage = (params: MessageType): MessageType => {
     return {
         id: params?.id || uuidv4(),
         name: params.name,

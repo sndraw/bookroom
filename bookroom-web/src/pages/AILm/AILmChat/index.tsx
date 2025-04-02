@@ -12,6 +12,8 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 import { queryAIChatList, saveAIChat } from '@/services/common/ai/chat';
 
+const chatType = 1;
+
 const AILmChatPage: React.FC = () => {
   const access = useAccess();
   const { platform, model } = useParams();
@@ -37,7 +39,7 @@ const AILmChatPage: React.FC = () => {
         query_mode: 'search',
         platform: platform || '',
         model: model || '',
-        type: 1,
+        type: chatType,
       }),
     {
       manual: true,
@@ -105,32 +107,19 @@ const AILmChatPage: React.FC = () => {
       className={styles?.chatContainer}
       disabled={isLoading}
       defaultMessageList={chatList?.record?.messages}
-      supportImages={parameters?.supportImages}
-      supportVoice={true}
+      isImages={parameters?.isImages}
+      isVoice={true}
       voiceParams={parameters?.voiceParams}
       customRequest={sendMsgRequest}
-      onSend={(messageList) => {
+      saveAIChat={(messageList: any) => {
         saveAIChat(
           {
             platform,
             model,
-            type: 1,
+            type: chatType,
             parameters,
             prompt,
             messages: messageList
-          })
-      }}
-      onStop={() => { }}
-      onClear={() => {
-        saveAIChat(
-          {
-            platform,
-            model,
-            name: "",
-            type: 1,
-            parameters,
-            prompt,
-            messages: []
           })
       }}
     >
@@ -164,6 +153,7 @@ const AILmChatPage: React.FC = () => {
                 platform,
                 model,
                 parameters: newParameters,
+                type: chatType,
               });
             }}
           />

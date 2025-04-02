@@ -7,7 +7,7 @@ import { StatusEnum } from "@/constants/DataMap";
 
 class PlatformController extends BaseController {
   /**
-* 全部已启用平台列表-查询
+* 全部已启用配置列表-查询
 * @param {Object} ctx 上下文对象，包含请求和响应信息
 * @returns {Object} 返回响应体，包含成功或错误信息
 */
@@ -22,7 +22,7 @@ class PlatformController extends BaseController {
     } catch (e) {
       const error: any = e;
       // 异常处理，返回错误信息
-      ctx.logger.error("已启用平台列表查询异常：", error); // 记录错误日志
+      ctx.logger.error("已启用配置列表查询异常：", error); // 记录错误日志
       ctx.status = 500;
       ctx.body = resultError({
         code: error?.code,
@@ -31,11 +31,11 @@ class PlatformController extends BaseController {
     }
   }
 
-  // 查询平台列表
+  // 查询配置列表
   static async queryPlatformList(ctx: Context) {
     const params = ctx.request.query;
     try {
-      // 查询平台列表
+      // 查询配置列表
       const result = await PlatformService.queryPlatformList(params, { safe: false });
       if (result && result?.list) {
         result?.list?.forEach((item: any) => {
@@ -54,7 +54,7 @@ class PlatformController extends BaseController {
       });
     } catch (e) {
       // 异常处理，返回错误信息
-      ctx.logger.error("查询平台列表异常", e); // 记录错误日志
+      ctx.logger.error("查询配置列表异常", e); // 记录错误日志
       ctx.status = 500;
       const error: any = e;
       ctx.body = resultError({
@@ -64,14 +64,14 @@ class PlatformController extends BaseController {
     }
   }
 
-  // 获取平台信息
+  // 获取配置信息
   static async getPlatformInfo(ctx: Context) {
     const { platform } = ctx.params;
     try {
       if (!platform) {
         throw new Error("ID参数错误");
       }
-      // 查询平台
+      // 查询配置
       const result = await PlatformService.findPlatformByIdOrName(platform);
       ctx.status = 200;
       ctx.body = resultSuccess({
@@ -79,7 +79,7 @@ class PlatformController extends BaseController {
       });
     } catch (e) {
       // 异常处理，返回错误信息
-      ctx.logger.error("查询平台信息异常", e); // 记录错误日志
+      ctx.logger.error("查询配置信息异常", e); // 记录错误日志
       ctx.status = 500;
       const error: any = e;
       ctx.body = resultError({
@@ -92,7 +92,7 @@ class PlatformController extends BaseController {
 
 
   /**
-   * 添加平台
+   * 添加配置
    * @param {Object} ctx 上下文对象，包含请求和响应信息
    * @returns {Object} 返回响应体，包含成功或错误信息
    */
@@ -158,6 +158,17 @@ class PlatformController extends BaseController {
           object: "参数配置格式不正确",
         },
       },
+      description: {
+        type: "string",
+        required: false,
+        min: 1,
+        max: 255,
+        message: {
+          required: "描述不能为空",
+          min: "描述长度不能小于1",
+          max: "描述长度不能超过255"
+        }
+      },
       status: {
         type: "enum",
         required: true,
@@ -178,7 +189,7 @@ class PlatformController extends BaseController {
       });
     } catch (e) {
       // 异常处理，返回错误信息
-      ctx.logger.error("平台信息添加异常：", e); // 记录错误日志
+      ctx.logger.error("配置信息添加异常：", e); // 记录错误日志
       ctx.status = 500;
       const error: any = e;
       ctx.body = resultError({
@@ -189,12 +200,12 @@ class PlatformController extends BaseController {
   }
 
   /**
-   * 平台配置修改
+   * 配置配置修改
    * @param {Object} ctx 上下文对象，包含请求和响应信息
    * @returns {Object} 返回响应体，包含成功或错误信息
    */
   static async changePlatformParameters(ctx: Context) {
-    // 从路径获取平台ID
+    // 从路径获取配置ID
     const { platform } = ctx.params;
     const params: any = ctx.request.body;
     ctx.verifyParams({
@@ -225,7 +236,7 @@ class PlatformController extends BaseController {
     try {
       const record: any = await PlatformService.findPlatformByIdOrName(platform);
       if (!record) {
-        throw new Error("平台不存在");
+        throw new Error("配置不存在");
       }
       record.parameters = params?.parameters;
       await record.save();
@@ -235,7 +246,7 @@ class PlatformController extends BaseController {
       });
     } catch (e) {
       // 异常处理，返回错误信息
-      ctx.logger.error("平台状态修改异常", e); // 记录错误日志
+      ctx.logger.error("配置状态修改异常", e); // 记录错误日志
       ctx.status = 500;
       const error: any = e;
       ctx.body = resultError({
@@ -247,12 +258,12 @@ class PlatformController extends BaseController {
 
 
   /**
-   * 平台状态修改
+   * 配置状态修改
    * @param {Object} ctx 上下文对象，包含请求和响应信息
    * @returns {Object} 返回响应体，包含成功或错误信息
    */
   static async changePlatformStatus(ctx: Context) {
-    // 从路径获取平台ID
+    // 从路径获取配置ID
     const { platform } = ctx.params;
     const params: any = ctx.request.body;
     ctx.verifyParams({
@@ -285,7 +296,7 @@ class PlatformController extends BaseController {
     try {
       const record: any = await PlatformService.findPlatformByIdOrName(platform);
       if (!record) {
-        throw new Error("平台不存在");
+        throw new Error("配置不存在");
       }
       if (record?.status !== params?.status) {
         record.status = params?.status;
@@ -298,7 +309,7 @@ class PlatformController extends BaseController {
       });
     } catch (e) {
       // 异常处理，返回错误信息
-      ctx.logger.error("平台状态修改异常", e); // 记录错误日志
+      ctx.logger.error("配置状态修改异常", e); // 记录错误日志
       ctx.status = 500;
       const error: any = e;
       ctx.body = resultError({
@@ -309,12 +320,12 @@ class PlatformController extends BaseController {
   }
 
   /**
-   * 接口名称、平台状态修改
+   * 接口名称、配置状态修改
    * @param {Object} ctx 上下文对象，包含请求和响应信息
    * @returns {Object} 返回响应体，包含成功或错误信息
    */
   static async changePlatformInfo(ctx: Context) {
-    // 从路径获取平台ID
+    // 从路径获取配置ID
     const { platform } = ctx.params;
     const params: any = ctx.request.body;
     ctx.verifyParams({
@@ -380,6 +391,17 @@ class PlatformController extends BaseController {
           length: "验证密钥长度不能超过255",
         },
       },
+      description: {
+        type: "string",
+        required: false,
+        min: 1,
+        max: 255,
+        message: {
+          required: "描述不能为空",
+          min: "描述长度不能小于1",
+          max: "描述长度不能超过255"
+        }
+      },
       parameters: {
         type: "object",
         required: false,
@@ -393,10 +415,10 @@ class PlatformController extends BaseController {
       ...params
     });
     try {
-      const { name, code, type, host, apiKey, parameters, status } = params;
+      const { name, code, type, host, apiKey, parameters, description, status } = params;
       const record: any = await PlatformService.findPlatformByIdOrName(platform, { safe: false });
       if (!record) {
-        throw new Error("平台不存在");
+        throw new Error("配置不存在");
       }
 
       const data: any = {}
@@ -424,6 +446,9 @@ class PlatformController extends BaseController {
       } else {
         data.apiKey = "";
       }
+      if (description) {
+        data.description = description;
+      }
       if (parameters) {
         data.parameters = parameters;
       }
@@ -436,7 +461,7 @@ class PlatformController extends BaseController {
       });
     } catch (e) {
       // 异常处理，返回错误信息
-      ctx.logger.error("平台信息修改异常：", e); // 记录错误日志
+      ctx.logger.error("配置信息修改异常：", e); // 记录错误日志
       ctx.status = 500;
       const error: any = e;
       ctx.body = resultError({
@@ -447,12 +472,12 @@ class PlatformController extends BaseController {
   }
 
   /**
-   * 平台删除
+   * 配置删除
    * @param {Object} ctx 上下文对象，包含请求和响应信息
    * @returns {Object} 返回响应体，包含成功或错误信息
    */
   static async deletePlatform(ctx: Context) {
-    // 从路径获取平台ID
+    // 从路径获取配置ID
     const { platform } = ctx.params;
     ctx.verifyParams({
       platform: {
@@ -473,7 +498,7 @@ class PlatformController extends BaseController {
     try {
       const record: any = await PlatformService.findPlatformByIdOrName(platform);
       if (!record) {
-        throw new Error("平台不存在");
+        throw new Error("配置不存在");
       }
       await PlatformService.deletePlatform(record?.id)
       ctx.body = resultSuccess({
@@ -481,7 +506,7 @@ class PlatformController extends BaseController {
       });
     } catch (e) {
       // 异常处理，返回错误信息
-      ctx.logger.error("平台删除异常：", e); // 记录错误日志
+      ctx.logger.error("配置删除异常：", e); // 记录错误日志
       ctx.status = 500;
       const error: any = e;
       ctx.body = resultError({

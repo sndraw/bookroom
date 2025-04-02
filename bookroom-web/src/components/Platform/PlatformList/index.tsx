@@ -60,7 +60,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
 
 
   /**
-   * 添加平台
+   * 添加配置
    * @param fields
    */
   const handleAdd = async (fields: API.PlatformInfoVO) => {
@@ -70,7 +70,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
       if (fields?.parameters && typeof fields?.parameters === 'string') {
         fields.parameters = JSON.parse(fields.parameters);
       }
-      // 添加平台
+      // 添加配置
       await addPlatform({ ...fields });
       message.success('添加成功');
       return true;
@@ -151,6 +151,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
         },
       }),
       formItemProps: {
+        // layout:"horizontal",
         rules: [
           {
             required: true,
@@ -201,6 +202,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
         );
       },
       formItemProps: {
+        // layout:"horizontal",
         rules: [
           {
             required: true,
@@ -258,6 +260,24 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
           {
             required: false,
             message: 'API Key为必填项',
+          },
+        ],
+      },
+    },
+    {
+      title: '接口描述',
+      key: 'description',
+      dataIndex: 'description',
+      valueType: 'textarea',
+      formItemProps: {
+        rules: [
+          {
+            required: false,
+            message: '接口名称为必填项',
+          },
+          {
+            max: 255,
+            message: '接口描述不能超过255个字符',
           },
         ],
       },
@@ -322,6 +342,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
         return String(value);
       },
       formItemProps: {
+        // layout:"horizontal",
         initialValue: String(PLATFORM_STATUS_MAP.ENABLE.value),
         rules: [
           {

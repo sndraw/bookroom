@@ -57,7 +57,7 @@
 
 #### 知识图谱-接口类型 - 完善中
 > 1. LightRAG：http://192.168.1.2:19621
-> 2. BookRoom RAG: //192.168.1.2:19621
+> 2. BookRoom RAG: http://192.168.1.2:19621
 
 #### 智能助手-接口类型 - 开发中
 > 1. MCP SDK: http://192.168.1.2:25230
@@ -65,7 +65,8 @@
 
 #### 搜索引擎-接口类型 - 开发中
 > 1. Tavily: https://api.tavily.com
-> 2. 自定义搜索: https://your-custom-search-engine.com/s?wd=搜索关键词
+> 2. 天气查询：https://your-weather-api.com/weather
+> 3. 自定义搜索: https://your-custom-search-engine.com/s
 
 #### 语音识别-接口类型 - 完善中
 > 1. OpenAI: http://192.168.1.2:25231/v1

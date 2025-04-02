@@ -5,12 +5,12 @@ import { Access, useAccess, useModel, useParams, useRequest } from '@umijs/max';
 import { Divider, Flex, Space, Switch, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 import styles from './index.less';
-
+const chatType = 4;
 const AILmImagePage: React.FC = () => {
   const access = useAccess();
   const { platform, model } = useParams();
   const [isStream, setIsStream] = useState<boolean>(true);
-  const [supportImages, setSupportImages] = useState<boolean>(true);
+  const [isImages, setIsImages] = useState<boolean>(true);
   const { getPlatformName } = useModel('lmplatformList');
 
   // 模型信息-请求
@@ -61,7 +61,7 @@ const AILmImagePage: React.FC = () => {
     <ChatPanel
       className={styles?.chatContainer}
       disabled={isLoading}
-      // supportImages={supportImages}
+      // isImages={isImages}
       customRequest={sendMsgRequest}
       onSend={() => { }}
       onStop={() => { }}

@@ -17,7 +17,7 @@ import VoiceRecognizeSelect from '@/components/Voice/VoiceRecognizeSelect';
 
 export interface ParametersType {
   isStream: boolean;
-  supportImages: boolean;
+  isImages: boolean;
   voiceParams?: API.VoiceParametersType;
   temperature: number;
   topK: number;
@@ -30,7 +30,7 @@ export interface ParametersType {
 
 export const defaultParameters: ParametersType = {
   isStream: true,
-  supportImages: true,
+  isImages: true,
   voiceParams: null,
   temperature: 0.7,
   topK: 10,
@@ -51,7 +51,7 @@ interface ChatParametersProps {
 const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isStream, setIsStream] = useState<boolean>(true);
-  const [supportImages, setSupportImages] = useState<boolean>(true);
+  const [isImages, setIsImages] = useState<boolean>(true);
   const [voiceParams, setVoiceParams] = useState<any>(false);
   const [temperature, setTemperature] = useState<number>(0.7);
   const [topK, setTopK] = useState<number>(10);
@@ -66,8 +66,8 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   useEffect(() => {
     if (parameters) {
       setIsStream(parameters.isStream);
-      setSupportImages(parameters.supportImages);
-      setVoiceParams(parameters.voiceParams); // 这里需要修改为支持语音
+      setIsImages(parameters.isImages);
+      setVoiceParams(parameters.voiceParams);
       setTemperature(parameters.temperature);
       setTopK(parameters.topK);
       setTopP(parameters.topP);
@@ -81,7 +81,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const handleSave = () => {
     const newParameters: ParametersType = {
       isStream,
-      supportImages,
+      isImages,
       voiceParams,
       temperature,
       topK,
@@ -175,30 +175,26 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
             />
             <span style={{ marginLeft: 8 }}>{topP}</span>
           </Flex>
-          <Access
-            accessible={data?.platformCode !== AI_LM_PLATFORM_MAP.openai.value}
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
           >
-            <Flex
-              className={styles.formItem}
-              justify="justifyContent"
-              align="center"
-            >
-              <label className={styles.formLabel}>Top K：</label>
-              <Slider
-                style={{ width: 100 }}
-                min={1}
-                max={100}
-                onChange={(value: number | null) => {
-                  if (value !== null) {
-                    setTopK(value);
-                  }
-                }}
-                value={topK}
-                tooltip={{ open: false }}
-              />
-              <span style={{ marginLeft: 8 }}>{topK}</span>
-            </Flex>
-          </Access>
+            <label className={styles.formLabel}>Top K：</label>
+            <Slider
+              style={{ width: 100 }}
+              min={1}
+              max={100}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setTopK(value);
+                }
+              }}
+              value={topK}
+              tooltip={{ open: false }}
+            />
+            <span style={{ marginLeft: 8 }}>{topK}</span>
+          </Flex>
           <Flex
             className={styles.formItem}
             justify="justifyContent"
@@ -229,73 +225,69 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
               }}
             />
           </Flex>
-          <Access
-            accessible={data?.platformCode !== AI_LM_PLATFORM_MAP.openai.value}
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
           >
-            <Flex
-              className={styles.formItem}
-              justify="justifyContent"
-              align="center"
-            >
-              <label className={styles.formLabel}>惩罚强度：</label>
-              <Slider
-                style={{ width: 100 }}
-                min={-2}
-                max={2}
-                step={0.1}
-                onChange={(value: number | null) => {
-                  if (value !== null) {
-                    setRepeatPenalty(value);
-                  }
-                }}
-                value={repeatPenalty}
-                tooltip={{ open: false }}
-              />
-              <span style={{ marginLeft: 8 }}>{repeatPenalty}</span>
-            </Flex>
-            <Flex
-              className={styles.formItem}
-              justify="justifyContent"
-              align="center"
-            >
-              <label className={styles.formLabel}>频率惩罚：</label>
-              <Slider
-                style={{ width: 100 }}
-                min={-2}
-                max={2}
-                step={0.1}
-                onChange={(value: number | null) => {
-                  if (value !== null) {
-                    setFrequencyPenalty(value);
-                  }
-                }}
-                value={frequencyPenalty}
-                tooltip={{ open: false }}
-              />
-              <span style={{ marginLeft: 8 }}>{frequencyPenalty}</span>
-            </Flex>
-            <Flex
-              className={styles.formItem}
-              justify="justifyContent"
-              align="center"
-            >
-              <label className={styles.formLabel}>存在惩罚：</label>
-              <Slider
-                style={{ width: 100 }}
-                min={-2}
-                max={2}
-                step={0.1}
-                onChange={(value: number | null) => {
-                  if (value !== null) {
-                    setPresencePenalty(value);
-                  }
-                }}
-                value={presencePenalty}
-                tooltip={{ open: false }}
-              />
-              <span style={{ marginLeft: 8 }}>{presencePenalty}</span>
-            </Flex>
-          </Access>
+            <label className={styles.formLabel}>惩罚强度：</label>
+            <Slider
+              style={{ width: 100 }}
+              min={-2}
+              max={2}
+              step={0.1}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setRepeatPenalty(value);
+                }
+              }}
+              value={repeatPenalty}
+              tooltip={{ open: false }}
+            />
+            <span style={{ marginLeft: 8 }}>{repeatPenalty}</span>
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>频率惩罚：</label>
+            <Slider
+              style={{ width: 100 }}
+              min={-2}
+              max={2}
+              step={0.1}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setFrequencyPenalty(value);
+                }
+              }}
+              value={frequencyPenalty}
+              tooltip={{ open: false }}
+            />
+            <span style={{ marginLeft: 8 }}>{frequencyPenalty}</span>
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>存在惩罚：</label>
+            <Slider
+              style={{ width: 100 }}
+              min={-2}
+              max={2}
+              step={0.1}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setPresencePenalty(value);
+                }
+              }}
+              value={presencePenalty}
+              tooltip={{ open: false }}
+            />
+            <span style={{ marginLeft: 8 }}>{presencePenalty}</span>
+          </Flex>
           <Flex
             className={styles.formItem}
             justify="justifyContent"
@@ -321,12 +313,12 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
           >
             <label className={styles.formLabel}>图片上传：</label>
             <Switch
-              value={supportImages}
+              value={isImages}
               onChange={(checked: boolean) => {
                 if (checked) {
-                  setSupportImages(false);
+                  setIsImages(false);
                 }
-                setSupportImages(checked);
+                setIsImages(checked);
               }}
               checkedChildren="启用"
               unCheckedChildren="禁用"

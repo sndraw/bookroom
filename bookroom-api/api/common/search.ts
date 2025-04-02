@@ -16,6 +16,10 @@ export const SEARCH_API_MAP = {
         value: 'Tavily',
         text: 'Tavily'
     },
+    weather: {
+        value: 'weather',
+        text: '天气查询'
+    },
     custom: {
         value: 'CustomSearch',
         text: '自定义搜索'

@@ -8,6 +8,8 @@ import SearchTool from '@/SDK/agent/tool/SearchTool';
 import WeatherTool from '@/SDK/agent/tool/WeatherTool';
 import GraphDBTool from '@/SDK/agent/tool/GraphDBTool';
 import { getOrderArray } from '@/utils/query';
+import Think from '@/SDK/agent/tool_call/think';
+import AgentTool from '@/SDK/agent/tool/AgentTool';
 
 
 class AgentService {
@@ -137,10 +139,6 @@ class AgentService {
         }
         return result
     }
-    // 更新智能助手消息记录
-    static async updateAgentMessages(agent_id: string, messages: any) {
-
-    }
     // 删除智能助手
     static async deleteAgentById(agent_id: string) {
         if (!agent_id) {
@@ -154,78 +152,92 @@ class AgentService {
     }
 
     // 智能助手对话
-    static async agentChat(agent_id: string, params: any) {
-        const { query } = params
-        if (!agent_id || !query) {
-            throw new Error("参数错误");
-        }
-        const agent = await AgentModel.findByPk(agent_id);
-        if (!agent) {
-            throw new Error("智能助手不存在或已删除");
-        }
-        // 查询Agent
-        const agentRes = await AgentService.getAgentById(agent_id);
-        if (!agentRes) {
-            throw new Error("未找到指定的智能助手");
-        }
-
-        const agentInfo = agentRes.toJSON();
-
-        const { parameters } = agentInfo;
-        if (!parameters) {
-            throw new Error("智能助手参数配置错误");
-        }
-        const { prompt, searchEngine, weatherEngine, modelConfig, graphConfig } = parameters;
-        const tools: Tool[] = []
-
-        if (!modelConfig || !modelConfig.platform || !modelConfig.model) {
-            throw new Error("模型配置错误")
-        }
-        // 获取模型平台配置
-        const lmPlatformConfig: any = await PlatformService.findPlatformByIdOrName(modelConfig?.platform, {
-            safe: false
-        });
-        if (!lmPlatformConfig) {
-            throw new Error("模型平台不存在");
-        }
-
-        if (graphConfig && graphConfig?.graph) {
-            // 获取图数据库配置
-            const graphDbConfig: any = await PlatformService.findPlatformByIdOrName(graphConfig?.graph, {
-                safe: false
-            });
-            if (!graphDbConfig) {
-                throw new Error("知识图谱不存在");
+    static async agentChat(agent_id: string, params: any, think: Think) {
+        const { query, isMemory } = params
+        try {
+            if (!agent_id || !query) {
+                throw new Error("参数错误");
             }
-            tools.push(new GraphDBTool(graphDbConfig?.toJSON() || {}, graphConfig?.workspace || ''));
-        }
-        if (searchEngine) {
-            // 获取搜索引擎配置
-            const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchEngine, {
+            const agent = await AgentModel.findByPk(agent_id);
+            if (!agent) {
+                throw new Error("智能助手不存在或已删除");
+            }
+            // 查询Agent
+            const agentRes = await AgentService.getAgentById(agent_id);
+            if (!agentRes) {
+                throw new Error("未找到指定的智能助手");
+            }
+
+            const agentInfo = agentRes.toJSON();
+
+            const { parameters, messages } = agentInfo;
+            if (!parameters) {
+                throw new Error("智能助手参数配置错误");
+            }
+            const { prompt, isMemory, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
+            const tools: Tool[] = []
+
+            if (!modelConfig || !modelConfig.platform || !modelConfig.model) {
+                throw new Error("模型配置错误")
+            }
+            // 获取模型平台配置
+            const lmPlatformConfig: any = await PlatformService.findPlatformByIdOrName(modelConfig?.platform, {
                 safe: false
             });
-            // 搜索引擎
-            tools.push(new SearchTool(searchEngineConfig?.toJSON()));
+            if (!lmPlatformConfig) {
+                throw new Error("模型平台不存在");
+            }
 
-        }
-        if (weatherEngine) {
-            // 获取天气搜索引擎配置
-            const weatherEngineConfig: any = await PlatformService.findPlatformByIdOrName(weatherEngine, {
-                safe: false
+            if (graphConfig && graphConfig?.graph) {
+                // 获取图数据库配置
+                const graphDbConfig: any = await PlatformService.findPlatformByIdOrName(graphConfig?.graph, {
+                    safe: false
+                });
+                if (!graphDbConfig) {
+                    throw new Error("知识图谱不存在");
+                }
+                tools.push(new GraphDBTool(graphDbConfig?.toJSON() || {}, graphConfig?.workspace || ''));
+            }
+            if (searchEngine) {
+                // 获取搜索引擎配置
+                const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchEngine, {
+                    safe: false
+                });
+                // 搜索引擎
+                tools.push(new SearchTool(searchEngineConfig?.toJSON()));
+
+            }
+            if (weatherEngine) {
+                // 获取天气搜索引擎配置
+                const weatherEngineConfig: any = await PlatformService.findPlatformByIdOrName(weatherEngine, {
+                    safe: false
+                });
+                // 搜索引擎
+                tools.push(new WeatherTool(weatherEngineConfig?.toJSON()));
+            }
+            if (agentSDK) {
+                // 获取智能接口配置
+                const agentSDKConfig: any = await PlatformService.findPlatformByIdOrName(agentSDK, {
+                    safe: false
+                });
+                // 搜索引擎
+                tools.push(new AgentTool(agentSDKConfig?.toJSON()));
+
+            }
+            await new ToolCallApi(lmPlatformConfig?.toJSON(), think).questionChat({
+                model: modelConfig.model,
+                prompt,
+                historyMessages: messages,
+                isMemory,
+                ...params,
+            }, {
+                tools
             });
-            // 搜索引擎
-            tools.push(new WeatherTool(weatherEngineConfig?.toJSON()));
+            think.end(); // 结束流
+        } catch (e: any) {
+            think.log("处理问题时出错: " + e.message);
+            think.end(); // 结束流
         }
-        const result = await new ToolCallApi(lmPlatformConfig?.toJSON()).questionChat({
-            model: modelConfig.model,
-            prompt,
-            ...params,
-        }, tools);
-
-        if (result?.isError) {
-            throw new Error(result.content)
-        }
-        return result
     }
 }
 

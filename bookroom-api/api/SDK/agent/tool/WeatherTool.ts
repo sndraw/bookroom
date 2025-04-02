@@ -1,6 +1,7 @@
 import { SEARCH_API_MAP } from "@/common/search";
-import CustomSearchApi from "@/SDK/custom_search";
-import TavilyApi from "@/SDK/tavily";
+import CustomSearchApi from "@/SDK/search/custom_search";
+import TavilyApi from "@/SDK/search/tavily";
+import WeatherApi from "@/SDK/search/weather";
 
 interface WeatherInput {
     province?: string;
@@ -41,17 +42,26 @@ class WeatherTool {
 
         const queryParams = {
             query: city, // 查询内容
+            paramKey: parameters?.paramKey || "", // 可选参数，需要根据实际情况填
         }
 
         let data = null;
         switch (code) {
             case SEARCH_API_MAP.tavily.value:
+                queryParams.query = "查询天气：" + city;
                 data = await new TavilyApi({
                     host: host,
                     apiKey: apiKey,
                 }).search(queryParams);
                 break;
+            case SEARCH_API_MAP.weather.value:
+                data = await new WeatherApi({
+                    host: host,
+                    apiKey: apiKey
+                }).search(queryParams);
+                break;
             case SEARCH_API_MAP.custom.value:
+                queryParams.query = "查询天气：" + city;
                 data = await new CustomSearchApi({
                     host: host,
                     apiKey: apiKey,
@@ -72,7 +82,7 @@ class WeatherTool {
         }
         return {
             content: [
-                { type: "text", text: `${data?.message || data?.content  || '未知错误'}` },
+                { type: "text", text: `${data?.message || data?.content || '未知错误'}` },
             ],
             isError: true,
         };

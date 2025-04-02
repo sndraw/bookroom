@@ -28,6 +28,7 @@ export const responseStream = async (ctx: Context, dataStream: any, resovle?: (d
     try {
         let isFirstChunk = true;
         for await (const chunk of dataStream) {
+
             let newChunk: any = chunk;
             if (typeof chunk === 'object') {
                 if (chunk?.status) {
@@ -39,7 +40,7 @@ export const responseStream = async (ctx: Context, dataStream: any, resovle?: (d
                     }
                     newChunk = Buffer.from(JSON.stringify(chunk), 'utf-8');
                 } else {
-                    newChunk = Buffer.from(chunk?.message?.content || chunk?.choices?.[0]?.delta?.content || chunk?.response || '', 'utf-8')
+                    newChunk = Buffer.from(chunk?.message?.content || chunk?.choices?.[0]?.delta?.content || chunk?.choices?.[0]?.text  || chunk?.response || '', 'utf-8')
                 }
 
                 // if(chunk?.done && chunk?.context){

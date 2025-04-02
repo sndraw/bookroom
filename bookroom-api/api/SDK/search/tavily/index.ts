@@ -8,7 +8,6 @@ export interface Config {
 export default class TavilyAPI {
     protected readonly host: string = '';
     protected readonly apiKey: string = '';
-    protected readonly config: any;
 
 
     constructor(config: { host: string; apiKey: string; }) {

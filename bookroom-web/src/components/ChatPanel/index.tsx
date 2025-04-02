@@ -23,18 +23,22 @@ type ChatPanelPropsType = {
   title?: string;
   // 默认消息列表
   defaultMessageList?: ChatMessageType[];
-  // 是否支持images
-  supportImages?: boolean;
+  // 是否支持图片上传
+  isImages?: boolean;
   // 是否支持语音识别
-  supportVoice?: boolean;
+  isVoice?: boolean;
   // 语音识别参数
   voiceParams?: API.VoiceParametersType;
   // 请求方法
   customRequest: (data: any, options: any) => Promise<any>;
+  // 保存AI聊天记录
+  saveAIChat?: (values: any) => void;
   // 消息发送
   onSend?: (values: any[]) => void;
   // 消息发送
   onStop?: () => void;
+  // 消息删除
+  onDelete?: (values: any[]) => void;
   // 消息清除
   onClear?: () => void;
   // 是否禁用
@@ -52,12 +56,14 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const {
     title,
     defaultMessageList,
-    supportImages,
-    supportVoice,
+    isImages,
+    isVoice,
     voiceParams,
     customRequest,
+    saveAIChat,
     onSend,
     onStop,
+    onDelete,
     onClear,
     disabled,
     className,
@@ -87,6 +93,9 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       return;
     }
     setMessageList([...newMessageList]);
+    // 先保存消息,防止发送失败导致消息丢失
+    await saveAIChat?.([...newMessageList]);
+    
     abortController.current = new AbortController();
     // 定义ID，用于显示回复信息
     const answerId = btoa(Math.random().toString());
@@ -126,7 +135,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
             if (contentType && contentType.includes('application/json')) {
               resObj = await res?.json?.();
             }
-            responseData = resObj?.data || resObj?.results || resObj?.content  || '生成失败';
+            responseData = resObj?.data || resObj?.results || resObj?.content || '生成失败';
           }
           // 如果responseData是JSON格式，直接解析
           if (typeof responseData === 'string') {
@@ -220,10 +229,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         newMessageList.push(newResMessage);
         setMessageList([...newMessageList]);
       }
-      // 处理数据
-      if (onSend) {
-        onSend?.(newMessageList);
-      }
+      saveAIChat?.(newMessageList);
     }
   };
 
@@ -309,7 +315,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       content: msg?.trim(),
       createdAt: new Date(),
     };
-    if (supportImages && imageList?.length > 0) {
+    if (isImages && imageList?.length > 0) {
       // 循环获取objectID
       const objectIds = imageList.map((item) => {
         const objectID = objectIdMapRef.current.get(item.uid);
@@ -427,6 +433,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     }
     const newMessageList = messageList.filter((item) => item.id !== messageId);
     setMessageList([...newMessageList]);
+    saveAIChat?.([...newMessageList]);
   };
 
   // 重置对话
@@ -455,9 +462,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   // 清空对话
   const handleClear = () => {
     setMessageList([]);
-    if (onClear) {
-      onClear?.();
-    }
+    saveAIChat?.([]);
   };
 
 
@@ -508,7 +513,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         )}
       </div>
 
-      {supportImages && (
+      {isImages && (
         <div className={styles.inputImages}>
           <ImageUploadPreview
             title="上传图片"
@@ -551,7 +556,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         disabled={disabled}
       >
         <div className={styles.inputTextAreaWrapper}>
-          {supportVoice && (
+          {isVoice && (
             <VoiceChat
               voiceParams={voiceParams}
               className={styles?.voiceChat}

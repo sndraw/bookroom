@@ -18,7 +18,7 @@ const routes = [
   {
     name: '模型广场',
     path: ROUTE_MAP.AI_LM,
-    icon: 'WechatWork',
+    icon: 'Appstore',
     component: '@/layouts/LmLayout',
     hideInBreadcrumb: false,
     hideInMenu: false,
@@ -28,7 +28,7 @@ const routes = [
       {
         name: '模型列表',
         path: ROUTE_MAP.AI_LM_LIST,
-        icon: 'WechatWork',
+        icon: 'Appstore',
         component: './AILm/AILmList',
         hideInBreadcrumb: false,
         hideInMenu: true,
@@ -36,7 +36,7 @@ const routes = [
         wrappers: ['@/wrappers/auth'],
       },
       {
-        name: 'AI对话',
+        name: '多轮对话',
         path: ROUTE_MAP.AI_LM_CHAT,
         icon: 'Message',
         component: './AILm/AILmChat',
@@ -50,7 +50,7 @@ const routes = [
         wrappers: ['@/wrappers/auth'],
       },
       {
-        name: '对话补全',
+        name: '文本补全',
         path: ROUTE_MAP.AI_LM_GENERATE,
         icon: 'Comment',
         component: './AILm/AILmGenerate',
