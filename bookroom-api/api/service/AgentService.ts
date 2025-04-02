@@ -174,7 +174,7 @@ class AgentService {
             if (!parameters) {
                 throw new Error("智能助手参数配置错误");
             }
-            const { prompt, isMemory, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
+            const { prompt, isMemory, limitSteps, limitSeconds, maxTokens, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
             const tools: Tool[] = []
 
             if (!modelConfig || !modelConfig.platform || !modelConfig.model) {
@@ -224,19 +224,27 @@ class AgentService {
                 tools.push(new AgentTool(agentSDKConfig?.toJSON()));
 
             }
-            await new ToolCallApi(lmPlatformConfig?.toJSON(), think).questionChat({
+            // 工具调用API配置
+            const toolcallApiOps = { ...lmPlatformConfig?.toJSON(), limitSeconds }
+            // 问题处理参数
+            const questionChatParams = {
                 model: modelConfig.model,
                 prompt,
                 historyMessages: messages,
                 isMemory,
+                limitSteps,
+                limitSeconds,
+                maxTokens,
                 ...params,
-            }, {
-                tools
-            });
-            think.end(); // 结束流
+            };
+            // 工具调用
+            await new ToolCallApi(toolcallApiOps, think).questionChat(questionChatParams, { tools });
+            // 结束思考
+            think.end();
         } catch (e: any) {
             think.log("处理问题时出错: " + e.message);
-            think.end(); // 结束流
+            // 结束思考
+            think.end();
         }
     }
 }

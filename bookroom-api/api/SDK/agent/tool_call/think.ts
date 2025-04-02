@@ -67,7 +67,7 @@ class Think {
             // 判定是否为JSON字符串并写入流中
             if (typeof message === 'object') {
                 try {
-                    const jsonString = JSON.stringify(message);
+                    const jsonString = JSON.stringify(message, null, 2);
                     this.messages.write(jsonString, 'utf8');
                 } catch (error) {
                     console.error("写入流时出错:", error);

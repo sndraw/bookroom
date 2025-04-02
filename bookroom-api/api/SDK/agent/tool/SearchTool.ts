@@ -64,7 +64,7 @@ class SearchTool {
         }
         if (data && typeof data === 'object' && !data?.isError) {
             return {
-                content: [{ type: "text", text: `${JSON.stringify(data || {})}` }],
+                content: [{ type: "text", text: `${JSON.stringify(data || {}, null, 2)}` }],
                 isError: false,
             };
         }

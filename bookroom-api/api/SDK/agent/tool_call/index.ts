@@ -5,19 +5,20 @@ import { Tool } from "./../tool/typings";
 import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "./../message";
 import Think from "./think";
 import { convertMessagesToVLModelInput } from "@/SDK/openai/convert";
+import { Json } from "sequelize/types/utils";
 
 class ToolCallApi {
     private readonly openai: any;
     private readonly think: Think;
 
     constructor(ops: any, think: Think) {
-        const { apiKey, host } = ops;
+        const { apiKey, host, limitSeconds = 30 } = ops;
         this.think = think;
         this.think.log("初始化OpenAI客户端", host, "\n\n")
         this.openai = new OpenAI({
             apiKey: apiKey,
             baseURL: host,
-            timeout: 30000,
+            timeout: Number(limitSeconds) * 1000,
             maxRetries: 2
         });
     }
@@ -30,25 +31,19 @@ class ToolCallApi {
                 is_stream,
                 temperature = 0.7,
                 top_p = 0.8,
-                max_tokens = 4096,
+                maxTokens = 4096,
                 userId
             } = params
-            // 定义新的消息列表
-            const newMessageList = await convertMessagesToVLModelInput({
-                messages,
-                userId
-            });
-
             const chatParams: ChatCompletionCreateParams = {
                 model: model,
-                messages: newMessageList || [],
+                messages: messages || [],
                 tool_choice: "auto", // 让模型自动选择调用哪个工具
                 stream: is_stream,
                 stream_options: is_stream ? { include_usage: true } : undefined,
                 temperature: temperature,
                 top_p: top_p,
                 n: 1,
-                max_tokens: max_tokens,
+                max_tokens: maxTokens,
                 modalities: ["text", "audio"],
                 audio: { "voice": "Chelsie", "format": "wav" },
             }
@@ -101,7 +96,8 @@ class ToolCallApi {
                         this.think.log("执行工具中：", functionName, "\n\n");
                         const result = await selectedTool.execute(functionArgs);
                         this.think.log("执行工具完成：", functionName, "\n\n");
-                        this.think.log('工具调用结果：', result, "\n\n");
+                        this.think.log('工具调用结果：', "\n\n");
+                        this.think.log("```JSON\n\n", result?.content, "\n\n```", "\n\n");
                         return { name: functionName, content: result?.content, tool_call_id: toolCallId, isError: result?.isError }
                     } catch (error: any) {
                         this.think.log(`执行工具 ${functionName} 时出错：`, error, "\n\n");
@@ -157,13 +153,20 @@ class ToolCallApi {
 
     // 循环处理工具调用
     async loopToolCalls(params: any, messages: MessageArray, tools: Tool[]) {
-        const is_stream = params?.is_stream;
+        const { is_stream, limitSteps = 5 } = params;
         const countObj = {
             finished: false,
             step: 0,
             content: ''
         };
         while (!countObj.finished) {
+            if (countObj.step >= limitSteps) {
+                countObj.finished = true;
+                this.think.output('步骤超出限制，终止循环。', "\n\n");
+                this.think.output("当前步骤：", countObj.step, "\n\n");
+                this.think.output("当前内容：\n\n", "```JSON\n\n", JSON.stringify(messages[messages.length - 1], null, 2), "\n\n", "```\n\n");
+                break;
+            }
             countObj.step++;
             this.think.log('当前步骤：', countObj.step, "\n\n")
             const response = await this.handleChatCompletion(messages, {
@@ -188,7 +191,6 @@ class ToolCallApi {
                                 this.think.log(message?.content || '');
                             } else {
                                 message?.content && this.think.output(message?.content || '');
-                                countObj.finished = true;
                             }
                         }
                         content += message?.content || '';
@@ -250,7 +252,8 @@ class ToolCallApi {
         } = params
         // 工具和响应解析
         const { tools = [] } = options;
-        const messages: MessageArray = []
+        // 定义消息列表
+        let messages: MessageArray = []
         try {
             const formattedPrompt = createPrompt(tools, prompt);
             // 添加系统消息到messages数组
@@ -270,12 +273,17 @@ class ToolCallApi {
             messages.push(createUserMessage({
                 ...query
             }));
+            // 定义新的消息列表
+            messages = await convertMessagesToVLModelInput({
+                messages,
+                userId
+            });
             this.think.log("————————————————————————————————————", "\n\n")
             this.think.log("Agent提示词：", "\n\n");
             this.think.log(formattedPrompt, "\n\n");
             this.think.log("————————————————————————————————————", "\n\n")
             this.think.log("用户问题：", "\n\n");
-            this.think.log(query, "\n\n");
+            this.think.log("```JSON\n\n", query, "\n\n", "```\n\n");
             // 循环工具调用
             const result: any = await this.loopToolCalls(params, messages, tools);
             // this.think.log("————————————————————————————————————")

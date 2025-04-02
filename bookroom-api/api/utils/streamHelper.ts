@@ -38,7 +38,7 @@ export const responseStream = async (ctx: Context, dataStream: any, resovle?: (d
                     if (!isFirstChunk) {
                         passThroughStream.push(Buffer.from(delimiter), "utf-8");
                     }
-                    newChunk = Buffer.from(JSON.stringify(chunk), 'utf-8');
+                    newChunk = Buffer.from(JSON.stringify(chunk,null,2), 'utf-8');
                 } else {
                     newChunk = Buffer.from(chunk?.message?.content || chunk?.choices?.[0]?.delta?.content || chunk?.choices?.[0]?.text  || chunk?.response || '', 'utf-8')
                 }
