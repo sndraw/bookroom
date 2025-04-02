@@ -8,6 +8,8 @@
 ```bash
 # 复制 .env.expample 并修改为本地 .env.local 文件，以下为部分配置示例：
 
+# 环境模式（development/production，本地开发环境请注释掉该变量/设置为development）)
+NODE_ENV=development
 # API接口-代理地址, 用于开发环境代理请求到后端服务
 UMI_APP_PROXY_API=http://localhost:5001
 ```
