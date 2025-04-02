@@ -62,7 +62,7 @@ DB_SYNC_FORCE=
 ```
 - 运行以下命令：
 ```bash
-docker compose up -d --build bookroom-api
+docker compose up -d --build bookroom_api
 ```
 
 ### 2.附属系统（如不需要可以忽略）

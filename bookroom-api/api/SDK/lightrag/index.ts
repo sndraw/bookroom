@@ -586,6 +586,7 @@ export default class LightragAPI {
             if (result?.data) {
                 data = result?.data
             }
+            
             return {
                 data: data,
             };

@@ -8,10 +8,12 @@ declare namespace API {
       content_summary: string;
       content_length: number;
       status: string;
-      error?: string;
+      error?: string | null;
+      chunks_count: number;
+      metadata: object,
       created_at: string;
       updated_at: string;
-      chunks_count: number;
+      file_path?: string;
     };
     document: {
       _id: string;
