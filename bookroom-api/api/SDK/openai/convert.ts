@@ -47,13 +47,16 @@ export const convertMessagesToVLModelInput = async (params: {
     const newMessageList: any[] = [];
     // 循环messages
     for (const message of messages) {
+        // 解构message，其他属性
+        const { content, images, videos, audios, ...rest } = message;
+        
+        // 定义新消息列表
         const newMessage: any = {
-            ...message,// 复制message的所有属性到newMessage
+            ...rest,
             content: []
         };
         // 如果是system
         if (message.role === "system") {
-            const content = message.content;
             if (typeof content === "string") {
                 newMessage.content.push({
                     type: "text",
@@ -66,8 +69,6 @@ export const convertMessagesToVLModelInput = async (params: {
         }
         // 如果是user或assistant
         if (message.role === "user" || message.role === "assistant" || message.role === "tool") {
-            const content = message?.content;
-            const images = message?.images;
             if (images && Array.isArray(images)) {
                 for (const item of images) {
                     const message = {
@@ -95,7 +96,6 @@ export const convertMessagesToVLModelInput = async (params: {
                     newMessage.content.push(message);
                 }
             }
-            const audios = message?.audios;
             if (audios && Array.isArray(audios)) {
                 for (const item of audios) {
                     const message = {
@@ -126,7 +126,6 @@ export const convertMessagesToVLModelInput = async (params: {
                     newMessage.content.push(message);
                 }
             }
-            const videos = message?.videos;
             if (videos && Array.isArray(videos)) {
                 for (const item of videos) {
                     const message = {

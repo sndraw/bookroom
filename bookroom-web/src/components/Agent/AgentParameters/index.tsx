@@ -6,6 +6,8 @@ import {
   Drawer,
   Flex,
   Input,
+  InputNumber,
+  Slider,
   Switch,
   Tooltip,
 } from 'antd';
@@ -30,6 +32,9 @@ export interface ParametersType {
   modelConfig?: object;
   graphConfig?: object;
   agentSDK?: string;
+  limitSeconds: number;
+  limitSteps: number;
+  maxTokens: number;
 }
 
 export const defaultParameters: ParametersType = {
@@ -43,6 +48,10 @@ export const defaultParameters: ParametersType = {
   weatherEngine: undefined,
   modelConfig: undefined,
   graphConfig: undefined,
+  agentSDK: undefined,
+  limitSeconds: 30,
+  limitSteps: 5,
+  maxTokens: 4096,
 };
 
 interface AgentParametersProps {
@@ -62,8 +71,11 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [searchEngine, setSearchEngine] = useState<string>();
   const [weatherEngine, setWeatherEngine] = useState<string>();
   const [modelConfig, setModelConfig] = useState<object>();
-  const [agentSDK, setAgentSDK] = useState<string>();
   const [graphConfig, setGraphConfig] = useState<object>();
+  const [agentSDK, setAgentSDK] = useState<string>();
+  const [limitSeconds, setLimitSeconds] = useState<number>(30);
+  const [limitSteps, setLimitSteps] = useState<number>(5);
+  const [maxTokens, setMaxTokens] = useState<number>(4096);
   const { data, parameters, changeParameters } = props;
   const { token } = useToken();
 
@@ -80,6 +92,9 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
       setModelConfig(parameters?.modelConfig);
       setGraphConfig(parameters?.graphConfig);
       setAgentSDK(parameters?.agentSDK);
+      setLimitSeconds(parameters?.limitSeconds);
+      setLimitSteps(parameters?.limitSteps);
+      setMaxTokens(parameters?.maxTokens);
     }
   }, [parameters]);
 
@@ -96,6 +111,9 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
       modelConfig,
       graphConfig,
       agentSDK,
+      limitSeconds,
+      limitSteps,
+      maxTokens,
     };
     changeParameters(newParameters);
   };
@@ -125,7 +143,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="top"
           >
-            <label className={styles.formLabel} >工具模型<Tooltip title={<>平台及模型需要支持工具调用<br/>目前仅兼容OpenAI接口类型</>}>
+            <label className={styles.formLabel} >工具模型<Tooltip title={<>平台及模型需要支持工具调用<br />目前仅兼容OpenAI接口类型</>}>
               <QuestionCircleOutlined
                 style={{ marginLeft: 4, color: token.colorLink }}
               />
@@ -195,7 +213,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="center"
           >
-            <label className={styles.formLabel}>日志输出：</label>
+            <label className={styles.formLabel}>日志输出</label>
             <Switch
               value={logLevel}
               onChange={(checked: boolean) => {
@@ -213,7 +231,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="center"
           >
-            <label className={styles.formLabel}>记忆模式：</label>
+            <label className={styles.formLabel}>记忆模式</label>
             <Switch
               value={isMemory}
               onChange={(checked: boolean) => {
@@ -249,7 +267,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="center"
           >
-            <label className={styles.formLabel}>图片上传：</label>
+            <label className={styles.formLabel}>图片上传</label>
             <Switch
               value={isImages}
               onChange={(checked: boolean) => {
@@ -267,12 +285,102 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="top"
           >
-            <label className={styles.formLabel}>语音输入：</label>
+            <label className={styles.formLabel}>语音输入</label>
             <VoiceRecognizeSelect
               className={styles.formSelect}
               value={voiceParams}
               onChange={(value: any) => {
                 setVoiceParams(value);
+              }}
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>超时设置(秒)</label>
+            <Slider
+              style={{ width: 100 }}
+              min={10}
+              max={3600}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setLimitSeconds(value);
+                }
+              }}
+              value={limitSeconds}
+              tooltip={{ open: false }}
+            />
+            <InputNumber
+              min={10}
+              max={3600}
+              style={{ marginLeft: 8 }}
+              value={limitSeconds}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setLimitSeconds(value);
+                }
+              }}
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>步骤限制</label>
+            <Slider
+              style={{ width: 100 }}
+              min={1}
+              max={100}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setLimitSteps(value);
+                }
+              }}
+              value={limitSteps}
+              tooltip={{ open: false }}
+            />
+            <InputNumber
+              min={1}
+              max={100}
+              style={{ marginLeft: 8 }}
+              value={limitSteps}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setLimitSteps(value);
+                }
+              }}
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>输出长度/步</label>
+            <Slider
+              style={{ width: 100 }}
+              min={512}
+              max={8192}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setMaxTokens(value);
+                }
+              }}
+              value={maxTokens}
+              tooltip={{ open: false }}
+            />
+            <InputNumber
+              min={512}
+              max={8192}
+              style={{ marginLeft: 8 }}
+              value={maxTokens}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setMaxTokens(value);
+                }
               }}
             />
           </Flex>
