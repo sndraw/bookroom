@@ -196,12 +196,16 @@ const PlatformCard: React.FC<PlatformCardPropsType> = (props: PlatformCardPropsT
                   </div>
                 </div>
               )}
+              <div className={styles?.cardItemNode}>
+                <div className={styles?.nodeLabel}>描述：</div>
+                <div className={styles?.nodeContent} title={item?.description}> {item?.description || '无'}</div>
+              </div>
               <div className={classNames(styles.cardItemNode, styles.cardItemNode_description)}>
                 <Divider orientation="center" plain className={styles?.dividerLabel}>
-                  描述
+                  参数配置
                 </Divider>
-                <div className={classNames(styles?.nodeContent, styles?.description)} title={item?.description}>
-                  {item?.description || '无'}
+                <div className={classNames(styles?.nodeContent, styles?.description)} title={JSON.stringify(item?.parameters, null, 2)}>
+                  {JSON.stringify(item?.parameters, null, 2)}
                 </div>
               </div>
             </div>
