@@ -126,6 +126,10 @@ class ToolCallApi {
                     toolCallList.push(item);
                 } else {
                     if (toolCall?.function) {
+                        // 检查 arguments 是否为 undefined，如果是则初始化为空字符串
+                        if (toolCall.function.arguments === undefined) {
+                            toolCall.function.arguments = '';
+                        }
                         toolCall.function.arguments += item.function.arguments;
                     }
                 }
@@ -135,6 +139,10 @@ class ToolCallApi {
             if ((item?.index || item?.index === 0) && item?.function?.arguments) {
                 const toolCall = toolCallList.find(tool => tool.index === item.index);
                 if (toolCall?.function) {
+                    // 检查 arguments 是否为 undefined，如果是则初始化为空字符串
+                    if (toolCall.function.arguments === undefined) {
+                        toolCall.function.arguments = '';
+                    }
                     toolCall.function.arguments += item.function.arguments;
                 }
                 return;
