@@ -11,12 +11,10 @@
 - 在数据库中新建数据库bookroom_api
 - 根据实际需要添加数据（后续将对敏感信息加密后再存入数据库）
 
-### 2、新建 env 文件并配置环境变量（如果部署时使用预设环境变量，请忽略该步骤）
+### 2、新建 .env 文件并配置环境变量（如果部署时使用预设环境变量，请忽略该步骤）
 **示例文件**：`.env.expample`
-
-**示例如下（拷贝示例文件并修改为本地 env 文件）**  
-本地 env 文件：`.env.local`
 ````bash
+# 复制 .env.expample 并修改为本地 .env 文件，以下为部分配置示例：
 SERVER_PORT=5001
 SERVER_LOGS_PATH=/logs/bookroom-api
 DB_HOST=localhost
