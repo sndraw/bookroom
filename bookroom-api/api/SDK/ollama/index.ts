@@ -119,7 +119,6 @@ class OllamaApi {
                 messages,
                 userId
             });
-            console.log(newMessageList);
             const chatParams: ChatRequest = {
                 model,
                 messages: newMessageList,
