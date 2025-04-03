@@ -8,6 +8,7 @@
       # Mount the storage directory to the container, for storing user files.
       - ./pm2.config.js:/app/pm2.config.js:ro
       - ./uploads:/app/api/uploads
+      - ./logs:/app/logs
     env_file:
       - .env.local
     restart: unless-stopped

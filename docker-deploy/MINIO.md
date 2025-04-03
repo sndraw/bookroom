@@ -3,6 +3,15 @@
 
 ## 1.登录MinIO控制台‌：
 使用管理员账户登录MinIO控制台。
+```bash
+# 本地启动MinIO服务器
+前端地址：http://localhost:9001
+API地址：http://localhost:9000
+# Docker启动MinIO服务器
+前端地址：http://<ip>:<映射端口>
+API地址：http://<ip>:<映射端口>
+```
+
 ## 2.创建桶‌：
 - 在左侧菜单中，点击“Buckets”（桶）。
 - 点击“Create Bucket”（创建桶）按钮。
@@ -37,8 +46,8 @@
 ## 4.‌创建用户并分配策略‌：
 - 在左侧菜单中，展开“Identity”部分，点击“Users”（用户）。
 - 如果已有用户，点击该用户进行编辑；如果没有，点击“Create User”（创建用户），输入用户名和密码，并点击“Save”（保存）。
-- 在用户详情页，点击“Add Policy”（添加策略），选择已创建的bookroom-policy策略，然后点击“Add”（添加）。
--  ‌验证用户权限‌：用户将只能访问bookroom桶，无法访问其他桶。可以让用户登录控制台并尝试访问其他桶，验证权限是否正确‌
+- 在用户详情页，点击“Assign Policies”（分配策略），选择已创建的bookroom-policy策略，然后点击“Save”（保存）。
+- 验证用户权限‌：用户将只能访问bookroom桶，无法访问其他桶。可以让用户登录控制台并尝试访问其他桶，验证权限是否正确‌
 
 ## 4.‌为用户添加秘钥：
 - 在用户详情页Service Accounts部分，点击“Access Keys”（访问密钥），然后点击“Create Access Key”（创建访问密钥）。
@@ -52,11 +61,11 @@
 在`.env`文件中添加MinIO服务的配置。示例如下：
 ```yml
 # minio
-MINIO_ENDPOINT=127.0.0.1
-MINIO_PORT=9000
-MINIO_ACCESS_KEY=test
-MINIO_SECRET_KEY=test
-MINIO_BUCKET_NAME=bookroom
+MINIO_ENDPOINT=<IP地址或域名>
+MINIO_PORT=<端口号>
+MINIO_ACCESS_KEY=<Access KEY>
+MINIO_SECRET_KEY=<Secret KEY>
+MINIO_BUCKET_NAME=<桶名称>
 MINIO_REGION=ap-southeast-1
 MINIO_USE_SSL=false
 ```

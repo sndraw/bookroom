@@ -130,7 +130,7 @@ class OpenAIApi {
                 modalities: ["text", "audio"],
                 audio: { "voice": "Chelsie", "format": "wav" },
                 tool_choice: "auto", // 让模型自动选择调用哪个工具
-                tools: tools, // 传递工具列表给模型
+                tools: tools?.length > 0 ? tools : undefined, // 传递工具列表给模型
                 temperature: temperature,
                 top_p: top_p,
                 n: 1,

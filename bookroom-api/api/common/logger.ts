@@ -23,7 +23,7 @@ log4js.configure({
   categories: {
     default: { appenders: ["out"], level: "info" },
     access: { appenders: ["access"], level: "info" },
-    application: { appenders: ["application"], level: "WARN" },
+    application: { appenders: ["application", "out"], level: "info" },
   },
   // 关于pm2的设置
   pm2: true,

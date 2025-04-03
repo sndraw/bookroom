@@ -119,6 +119,7 @@ services:
       # Mount the storage directory to the container, for storing user files.
       - ./init/bookroom-api/pm2.config.js:/app/pm2.config.js:ro
       - ./volumes/app/bookroom-api/uploads:/app/api/uploads
+      - ./volumes/app/bookroom-api/logs:/app/logs
     depends_on:
       - bookroom_mysql
       - bookroom_redis

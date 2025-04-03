@@ -5,7 +5,7 @@ export const redisClient = new Redis({
   ...redisConf,
   retryStrategy: (times: number) => {
     const delay = Math.min(times * 1000, 5000); // 最大重试间隔为 5 秒
-    console.log(`Redis 重连尝试次数: ${times}, 重试间隔: ${delay}ms`);
+    console.log(`Redis 数据库${redisConf?.db} 重连尝试次数: ${times}, 重试间隔: ${delay}ms`);
     return delay;
   }
 });
