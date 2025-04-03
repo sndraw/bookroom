@@ -69,7 +69,7 @@ class ToolCallApi {
             this.think.log('调用模型成功！', "\n\n")
             return response;
         } catch (error: any) {
-            this.think.log("模型调用时出错:", error, "\n\n");
+            this.think.log("模型调用时出错：", error, "\n\n");
             throw new Error(error?.message || "模型调用时出错！");
         }
     };
@@ -303,7 +303,7 @@ class ToolCallApi {
             }
         } catch (error: any) {
             const errorMsg = error?.message || "未知错误";
-            this.think.output("处理问题时出错:", errorMsg, "\n\n");
+            this.think.output("处理问题时出错：", errorMsg, "\n\n");
             messages.push(createAssistantMessage({
                 content: errorMsg,
             }));
