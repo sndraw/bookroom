@@ -47,7 +47,7 @@ class ToolCallApi {
                 modalities: ["text", "audio"],
                 audio: { "voice": "Chelsie", "format": "wav" },
             }
-            if (tools) {
+            if (tools && tools.length > 0) {
                 // 将tools注册到 OpenAI 客户端
                 const mTools: ChatCompletionTool[] = tools.map((tool: Tool) => {
                     return {
