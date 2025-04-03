@@ -6,18 +6,15 @@
   "license": "Apache-2.0",
   "main": "./api/index.ts",
   "scripts": {
-    "start": "NODE_ENV=production esno ./api/server.ts",
-    "dev": "NODE_ENV=development nodemon --exec esno ./api/server.ts",
-    "build": "tsc && tsc-alias",
-    "test": "jest",
-    "test:jest": "jest",
-    "test:mocha": "NODE_ENV=test ./node_modules/.bin/mocha test/app.spec.js --require co-mocha",
-    "lint": "eslint --max-warnings=0 --fix .",
-    "prettier": "prettier --write --loglevel=error .",
+    "start": "nodemon --exec npx ts-node -r tsconfig-paths/register --files api/index.ts",
+    "dev": "cross-env DOTENV_MODE=local nodemon --exec npx ts-node -r tsconfig-paths/register --files api/index.ts",
     "build:dev": "cross-env DOTENV_MODE=local  tsc && tsc-alias",
+    "build": "tsc  && tsc-alias",
     "deploy:dev": "cross-env DOTENV_MODE=local pm2 startOrRestart pm2.config.js",
     "deploy": "pm2 startOrRestart pm2.config.js",
-    "undeploy": "pm2 delete bookroom-api"
+    "undeploy": "pm2 delete bookroom-api",
+    "test": "./node_modules/.bin/mocha",
+    "test:jest": "jest"
   },
   "keywords": [
     "koa",
