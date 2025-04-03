@@ -517,7 +517,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
             right: '30px',
           },
           size: 'small',
-          pageSize: 9,
+          pageSize: 12,
           showSizeChanger: true,
           total: filterData?.length || 0
         }}

@@ -137,7 +137,7 @@ const GraphList: React.FC<GraphListPropsType> = (props) => {
             right: '30px',
           },
           size: 'small',
-          pageSize: 9,
+          pageSize: 12,
           showSizeChanger: true,
           total: filterData?.length,
         }}
