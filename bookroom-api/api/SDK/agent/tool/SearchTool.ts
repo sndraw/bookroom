@@ -1,79 +1,82 @@
-import { SEARCH_API_MAP } from "@/common/search";
-import CustomSearchApi from "@/SDK/search/custom_search";
-import TavilyApi from "@/SDK/search/tavily";
+import { SearchRequest, SearchResult, SearchAdapter, SearchEngineType } from '../../../common/search';
+import { ConfigurationError, UnsupportedEngineError, ValidationError } from '../../../common/errors';
+import { TavilyAdapter } from '../../search/tavily/TavilyAdapter';
+import { WeatherAdapter } from '../../search/weather/WeatherAdapter';
+// 可以添加更多适配器的导入
 
-interface SearchInput {
-    query: string;
-}
+// 搜索工具类，提供给 Agent 调用
+export default class SearchTool {
+  private engineAdapters: Map<SearchEngineType, SearchAdapter>;
+  private config: Record<string, any>;
 
-class SearchTool {
-    private config: any;
-    public name = "search_tool";
-    public version = "1.0";
-    public description = "Search internet information | 搜索互联网信息";
-    public parameters = {
-        type: "object",
-        properties: {
-            query: { type: "string" },
-        },
-        required: ["query"],
-    };
-    public returns = {
-        type: "object",
-        properties: {
-            content: {
-                type: "array",
-                items: { type: "object", properties: { text: { type: "string" } }, required: ["text"] }
-            },
-            isError: { type: "boolean" }
-        },
-        required: ["content", "isError"]
-    };
+  /**
+   * 构造函数
+   * @param config 包含各搜索引擎配置的对象
+   */
+  constructor(config: Record<string, any> = {}) {
+    this.config = config;
+    this.engineAdapters = new Map();
+    this.initAdapters();
+  }
 
-    constructor(config: any) {
-        this.config = config;
+  /**
+   * 初始化各搜索引擎的适配器
+   */
+  private initAdapters(): void {
+    // 根据配置初始化各个适配器
+    if (this.config.tavily?.apiKey) {
+      this.engineAdapters.set('Tavily', new TavilyAdapter(this.config.tavily.apiKey));
     }
-    async execute(params: SearchInput): Promise<any> {
-        const { query } = params;
-        const { host, apiKey, code, parameters } = this.config;
-        const queryParams = {
-            query: query, // 查询内容
-            paramKey: parameters?.paramKey || "", // 可选参数，需要根据实际情况
-            max_results: Number(parameters?.max_results || 10), // 最大返回结果数
-        }
-        let data: any = null;
-        switch (code) {
-            case SEARCH_API_MAP.tavily.value:
-                data = await new TavilyApi({
-                    host: host,
-                    apiKey: apiKey,
-                }).search(queryParams);
-                break;
-            case SEARCH_API_MAP.custom.value:
-                data = await new CustomSearchApi({
-                    host: host,
-                    apiKey: apiKey,
-                }).search(queryParams);
-                break;
-            default:
-                data = {
-                    code: 404,
-                    message: "API暂不支持。",
-                }
 
-        }
-        if (data && typeof data === 'object' && !data?.isError) {
-            return {
-                content: [{ type: "text", text: `${JSON.stringify(data || {})}` }],
-                isError: false,
-            };
-        }
-        return {
-            content: [
-                { type: "text", text: `${data?.message || data?.content || '未知错误'}` },
-            ],
-            isError: true,
-        };
+    if (this.config.weather?.apiKey) {
+      this.engineAdapters.set('weather', new WeatherAdapter(this.config.weather.apiKey));
     }
+
+    // 可以添加更多搜索引擎的初始化
+  }
+
+  /**
+   * 获取配置对象（用于测试）
+   * @returns 配置对象
+   */
+  getConfig(): Record<string, any> {
+    return this.config;
+  }
+
+  /**
+   * 获取指定搜索引擎的适配器
+   * @param engine 搜索引擎类型
+   * @returns 搜索适配器实例
+   */
+  getAdapter(engine: SearchEngineType): SearchAdapter | undefined {
+    return this.engineAdapters.get(engine);
+  }
+
+  /**
+   * 执行搜索
+   * @param params 搜索请求参数
+   * @returns 搜索结果数组
+   */
+  async execute(params: SearchRequest): Promise<SearchResult[]> {
+    const { query, engine, options } = params;
+
+    // 验证查询字符串
+    if (!query || query.trim() === '') {
+      throw new ValidationError('Query cannot be empty');
+    }
+
+    // 获取对应的搜索引擎适配器
+    const adapter = this.getAdapter(engine);
+    if (!adapter) {
+      throw new UnsupportedEngineError(engine);
+    }
+
+    try {
+      // 使用适配器执行搜索
+      return await adapter.execute(query, options);
+    } catch (error) {
+      // 重新抛出错误，保持原始错误的类型和消息
+      throw error;
+    }
+  }
 }
-export default SearchTool;
