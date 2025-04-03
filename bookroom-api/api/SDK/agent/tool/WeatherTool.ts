@@ -47,20 +47,20 @@ class WeatherTool {
 
         let data = null;
         switch (code) {
-            case SEARCH_API_MAP.tavily.value:
+            case SEARCH_API_MAP.Tavily:
                 queryParams.query = "查询天气：" + city;
                 data = await new TavilyApi({
                     host: host,
                     apiKey: apiKey,
                 }).search(queryParams);
                 break;
-            case SEARCH_API_MAP.weather.value:
+            case SEARCH_API_MAP.weather:
                 data = await new WeatherApi({
                     host: host,
                     apiKey: apiKey
                 }).search(queryParams);
                 break;
-            case SEARCH_API_MAP.custom.value:
+            case SEARCH_API_MAP.CustomSearch:
                 queryParams.query = "查询天气：" + city;
                 data = await new CustomSearchApi({
                     host: host,
