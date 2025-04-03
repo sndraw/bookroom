@@ -1,10 +1,80 @@
 import { Context } from "koa";
 import { PassThrough } from "stream";
 
+// 将chunk转换为Buffer格式
+export const formatChunkToBuffer = (chunk: any) => {
+    if (typeof chunk === 'object') {
+        return formatObjectChunk(chunk);
+    }
+    // 如果 chunk 是 Buffer，直接使用
+    if (chunk instanceof Buffer) {
+        try {
+            const chunkObj = JSON.parse(chunk.toString('utf-8'));
+            return Buffer.from(chunkObj?.message?.content || chunkObj?.choices?.[0]?.delta?.content || chunkObj?.response || '', 'utf-8')
+        } catch (e) {
+            return chunk;
+        }
+    }
+
+    // 如果 chunk 是字符串
+    if (typeof chunk === 'string') {
+        return Buffer.from(chunk, 'utf-8');
+    }
+
+    // 如果是 chunk 是对象或者数组
+    if (typeof chunk === 'object') {
+        return Buffer.from(JSON.stringify(chunk, null, 2));
+    }
+
+    return chunk;
+}
+
+// 处理chunk对象
+export const formatObjectChunk = (chunk: any) => {
+    // 如果不是object
+    if (!(chunk instanceof Object) || chunk instanceof Buffer) {
+        return chunk;
+    }
+    if (chunk?.choices?.[0]?.delta?.audio) {
+        return formatAudioData(chunk?.choices?.[0]?.delta?.audio);
+    }
+    return chunk?.message?.content || chunk?.choices?.[0]?.delta?.content || chunk?.choices?.[0]?.text || chunk?.response || ''
+}
+
+// 处理语音数据
+export const formatAudioData = (audioData: any) => {
+
+    // 如果是buffer 直接输出
+    if (audioData instanceof Buffer) {
+        try {
+            return JSON.parse(audioData.toString('utf-8'));
+        } catch (e) {
+            return audioData;
+        }
+    }
+
+    // 如果是字符串直接输出
+    if (typeof audioData === 'string') {
+        return audioData;
+    }
+    // 如果是对象
+    if (audioData instanceof Object) {
+        if (audioData?.transcript) {
+            return audioData.transcript;
+        }
+        if (audioData?.transcribe) {
+            return audioData.transcribe;
+        }
+    }
+
+    return null;
+}
+
+
 export const responseStream = async (ctx: Context, dataStream: any, resovle?: (data: any) => void) => {
     let responseText: string = '';
 
-    if (!dataStream || (!dataStream?.itr && !dataStream?.iterator)){
+    if (!dataStream || (!dataStream?.itr && !dataStream?.iterator)) {
         ctx.status = 200;
         ctx.body = dataStream;
         return;
@@ -28,40 +98,17 @@ export const responseStream = async (ctx: Context, dataStream: any, resovle?: (d
     try {
         let isFirstChunk = true;
         for await (const chunk of dataStream) {
-
             let newChunk: any = chunk;
-            if (typeof chunk === 'object') {
-                if (chunk?.status) {
-                    // 定义分隔符
-                    const delimiter = '\n';
-                    // 如果不是第一个 chunk，添加分隔符
-                    if (!isFirstChunk) {
-                        passThroughStream.push(Buffer.from(delimiter), "utf-8");
-                    }
-                    newChunk = Buffer.from(JSON.stringify(chunk,null,2), 'utf-8');
-                } else {
-                    newChunk = Buffer.from(chunk?.message?.content || chunk?.choices?.[0]?.delta?.content || chunk?.choices?.[0]?.text  || chunk?.response || '', 'utf-8')
+            if (typeof chunk === 'object' && chunk?.status) {
+                // 定义分隔符
+                const delimiter = '\n';
+                // 如果不是第一个 chunk，添加分隔符
+                if (!isFirstChunk) {
+                    passThroughStream.push(Buffer.from(delimiter), "utf-8");
                 }
-
-                // if(chunk?.done && chunk?.context){
-                //     console.log(chunk?.context?.toString("base64"))
-                //     console.log(Buffer.from(chunk?.context, 'utf-8'))
-                //     ctx.res.write(Buffer.from(chunk?.context, 'utf-8'));
-                // }
-            }
-            // 如果 chunk 是字符串
-            if (typeof chunk === 'string') {
-                newChunk = Buffer.from(chunk, 'utf-8');
-            }
-
-            // 如果 chunk 是 Buffer，直接使用
-            if (chunk instanceof Buffer) {
-                try {
-                    const chunkObj = JSON.parse(chunk.toString('utf-8'));
-                    newChunk = Buffer.from(chunkObj?.message?.content || chunkObj?.choices?.[0]?.delta?.content || chunkObj?.response || '', 'utf-8')
-                } catch (e) {
-                    newChunk = chunk;
-                }
+                newChunk = Buffer.from(JSON.stringify(chunk, null, 2), 'utf-8');
+            } else {
+                newChunk = formatChunkToBuffer(chunk);
             }
             passThroughStream.push(newChunk, "utf-8")
             isFirstChunk = false;

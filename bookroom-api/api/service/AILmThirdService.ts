@@ -3,6 +3,7 @@ import { AI_LM_PLATFORM_MAP, AI_LM_TYPE_MAP } from "@/common/ai";
 import OllamaAPI from "../SDK/ollama";
 import OpenAIAPI from "../SDK/openai";
 import PlatformService from "./PlatformService";
+import { convertImagesToVLModelInput } from "@/SDK/openai/convert";
 
 
 class AILmService {
@@ -315,9 +316,21 @@ class AILmService {
                 });
                 break;
             case AI_LM_PLATFORM_MAP.openai.value:
-                return await new OpenAIAPI(platformConfig?.toJSON()).getAILmGenerate({
+                const messages: any[] = [
+                    {
+                        role: "system",
+                        content: [{ type: "text", text: "You are a helpful assistant." }],
+                    },
+                    {
+                        role: "user",
+                        content: [{ type: "text", text: prompt || "" }],
+                        images:images
+                    }
+                ];
+
+                return await new OpenAIAPI(platformConfig?.toJSON()).getAILmChat({
                     model,
-                    prompt,
+                    messages,
                     is_stream,
                     userId,
                     ...resparams

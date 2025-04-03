@@ -3,7 +3,6 @@ import { StatusEnum } from '@/constants/DataMap';
 import { createFileClient, getObjectName } from '@/common/file';
 import { VOICE_RECOGNIZE_LANGUAGE_MAP, VOICE_RECOGNIZE_TASK_MAP } from '@/common/voice';
 import { ChatCompletionCreateParams } from 'openai/resources/chat';
-import { CompletionCreateParams } from 'openai/resources/completions';
 import { convertMessagesToVLModelInput } from './convert';
 import { EmbeddingCreateParams } from 'openai/resources/embeddings';
 
@@ -126,11 +125,8 @@ class OpenAIApi {
                 model: model,
                 messages: newMessageList || [],
                 stream: is_stream,
-                stream_options: is_stream ? { include_usage: true } : undefined,
                 modalities: ["text", "audio"],
                 audio: { "voice": "Chelsie", "format": "wav" },
-                tool_choice: "auto", // 让模型自动选择调用哪个工具
-                tools: tools?.length > 0 ? tools : undefined, // 传递工具列表给模型
                 temperature: temperature,
                 top_p: top_p,
                 n: 1,
@@ -139,7 +135,12 @@ class OpenAIApi {
                 presence_penalty: presence_penalty,
                 user: userId,
             }
-
+            if (tools?.length > 0) {
+                chatParams.tool_choice="auto"; // 让模型自动选择调用哪个工具
+                chatParams.stream_options = is_stream ? { include_usage: true } : undefined;
+                chatParams.tools = tools; // 传递工具列表给模型
+            }
+            console.log(chatParams);
             const completion = await this.openai.chat.completions.create({
                 ...chatParams,
                 top_k: top_k,
@@ -205,43 +206,6 @@ class OpenAIApi {
         }
     }
 
-
-    // 对话补全
-    async getAILmGenerate(params: any) {
-        const {
-            model,
-            prompt,
-            is_stream,
-            top_p = 0.8,
-            temperature = 0.7,
-            max_tokens = 4096,
-            frequency_penalty = 0.0,
-            presence_penalty = 0.0,
-            userId
-        } = params;
-
-        try {
-            const chatParams: CompletionCreateParams = {
-                model,
-                prompt,
-                stream: is_stream,
-                stream_options: is_stream ? { include_usage: true } : undefined,
-                temperature: temperature,
-                top_p: top_p,
-                n: 1,
-                max_tokens: max_tokens,
-                frequency_penalty: frequency_penalty,
-                presence_penalty: presence_penalty,
-                user: userId,
-            }
-
-            const completion = await this.openai.completions.create(chatParams);
-            return completion
-        } catch (e) {
-            console.log(e)
-            throw e;
-        }
-    }
     // 文本向量
     async getAILmEmbeddings(params: any) {
         const {
