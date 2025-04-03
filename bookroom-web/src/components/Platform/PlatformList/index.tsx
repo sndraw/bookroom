@@ -1,7 +1,6 @@
 import { PLATFORM_RULE, URL_RULE } from '@/common/rule';
 import {
   addPlatform,
-  queryPlatformList,
   getPlatformCodeList,
   getPlatformTypeList,
 } from '@/services/common/platform';
@@ -21,7 +20,6 @@ import {
 } from 'antd';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
-import { PLATFORM_TYPE_MAP } from '@/common/platform';
 import PlatformAdd from '@/components/Platform/PlatformAdd';
 import styles from './index.less';
 import classNames from 'classnames';
@@ -287,7 +285,7 @@ const PlatformList: React.FC<PlatformListPropsType> = (props) => {
       key: 'parameters',
       dataIndex: 'parameters',
       editable: false,
-      valueType: 'textarea',
+      valueType: 'jsonCode',
       hideInSearch: true,
       hideInForm: false,
       // @ts-ignore

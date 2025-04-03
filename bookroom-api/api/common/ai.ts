@@ -10,30 +10,6 @@ export const AI_LM_PLATFORM_MAP = {
   },
 }
 
-// 支持的模型类型-MAP
-export const AI_LM_TYPE_MAP = {
-  llm: {
-    value: 'chat',
-    text: '聊天模型',
-  },
-  embedding: {
-    value: 'embedding',
-    text: '向量模型',
-  },
-  vision: {
-    value: 'vision',
-    text: '视觉模型',
-  },
-  audio: {
-    value: 'audio',
-    text: '音频模型',
-  },
-  video: {
-    value: 'video',
-    text: '视频模型',
-  },
-};
-
 // 支持的知识图谱-MAP
 export const AI_GRAPH_PLATFORM_MAP = {
   lightrag: {

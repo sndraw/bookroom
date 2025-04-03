@@ -87,7 +87,7 @@ const GraphWorkspaceSave: React.FC<
 
   // // 图谱空间类型选择器
   // const modelTypeOptions: any = () => {
-  //   return Object.values(AI_LM_TYPE_MAP).map((item) => ({
+  //   return Object.values(LLM_TYPE_MAP).map((item) => ({
   //     label: item?.text,
   //     value: item?.value,
   //   }));

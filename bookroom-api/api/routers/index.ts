@@ -5,7 +5,7 @@ import admin_role from "./admin/role";
 import admin_user from "./admin/user";
 import ai_chat from "./common/ai_chat";
 import ai_graph from "./common/ai_graph";
-import ai_lm_third from "./common/ai_lm_third";
+import ai_lm from "./common/ai_lm";
 import agent from "./common/agent";
 import platform from "./common/platform";
 import file from "./common/file";
@@ -35,7 +35,7 @@ export const routerList: RouteItem[] = [
   ...admin_user,
   ...ai_chat,
   ...ai_graph,
-  ...ai_lm_third,
+  ...ai_lm,
   ...agent,
   ...platform,
   ...file,

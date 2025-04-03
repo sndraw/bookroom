@@ -25,7 +25,6 @@ export default {
     VOICE_RECOGNIZE_TASK:ROUTE_BASE_URL + "/voice/recognize/:id/task",
     AI_CHAT: ROUTE_BASE_URL + "/ai/chat",
     AI_CHAT_DETAIL: ROUTE_BASE_URL + "/ai/chat/:chat_id",
-    AI_LM_ALL: ROUTE_BASE_URL + "/ai/lm",
     AI_LM: ROUTE_BASE_URL + "/ai/lm/platform/:platform",
     AI_LM_PULL: ROUTE_BASE_URL + "/ai/lm/platform/:platform/pull",
     AI_LM_DETAIL: ROUTE_BASE_URL + "/ai/lm/platform/:platform/model/:model",

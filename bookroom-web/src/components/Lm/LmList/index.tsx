@@ -2,10 +2,10 @@ import { AI_LM_PLATFORM_MAP } from '@/common/ai';
 import PlatformSelect from '@/components/Platform/PlatformSelect';
 // import PlatformSetting from '@/components/Platform/PlatformSetting';
 import { MODE_ENUM, STATUS_MAP } from '@/constants/DataMap';
-import { deleteAILm, pullAILm, runAILm } from '@/services/common/ai/lm';
+import { deleteAILm, getAILmTypeList, pullAILm, runAILm } from '@/services/common/ai/lm';
 import { getPlatformInfo } from '@/services/common/platform';
 import { ReloadOutlined } from '@ant-design/icons';
-import { ProList } from '@ant-design/pro-components';
+import { ProDescriptionsItemProps, ProList } from '@ant-design/pro-components';
 import { Access, Outlet, useAccess, useRequest } from '@umijs/max';
 import { FloatButton, Input, Select, Space } from 'antd';
 import classNames from 'classnames';
@@ -14,6 +14,8 @@ import LmPull from '../LmPull';
 import LmCard from '../LmCard';
 import styles from './index.less';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
+import LmAdd from '../LmAdd';
+import { LLM_RULE } from '@/common/rule';
 
 type LmListPropsType = {
   mode?: MODE_ENUM;
@@ -68,6 +70,8 @@ const LmList: React.FC<LmListPropsType> = (props) => {
     const newDataList = [
       ...(dataList || [])
     ]
+    // 排序，按时间倒序
+    newDataList.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     if (!searchText && !lmStatus) return newDataList;
     return newDataList?.filter((item: any) => {
       let flag = true;
@@ -86,6 +90,186 @@ const LmList: React.FC<LmListPropsType> = (props) => {
       platformRun();
     }
   }, [platform]);
+
+  const columns: ProDescriptionsItemProps<API.AILmInfo>[] = [
+    {
+      title: 'ID',
+      key: 'id',
+      dataIndex: 'id',
+      hideInSearch: true,
+      hideInTable: true,
+      hideInForm: true,
+      editable: false,
+    },
+    {
+      title: '模型名称',
+      key: 'name',
+      dataIndex: 'name',
+      //@ts-ignore
+      width: 100,
+      // editable: false,
+      sorter: true, // 启用排序功能
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '模型名称为必填项',
+          },
+          {
+            pattern: LLM_RULE.name.RegExp,
+            message: LLM_RULE.name.message,
+          },
+        ],
+      },
+    },
+    {
+      title: '模型分类',
+      key: 'type',
+      dataIndex: 'type',
+      // editable: false,
+      valueType: 'select',
+      // 默认值
+      // @ts-ignore
+      // initialValue: PLATFORM_TYPE_MAP.model.value,
+      //@ts-ignore
+      width: 100,
+      sorter: true, // 启用排序功能
+      renderFormItem: (item, { defaultRender, ...rest }, form) => {
+        return (
+          <Select
+            {...rest}
+            mode={"multiple"}
+            allowClear
+            options={getAILmTypeList() || []}
+          />
+        );
+      },
+      formItemProps: {
+        // layout:"horizontal",
+        rules: [
+          {
+            required: true,
+            message: '模型分类为必填项',
+          }
+        ],
+      },
+    },
+    {
+      title: '参数配置',
+      key: 'parameters',
+      dataIndex: 'parameters',
+      editable: false,
+      valueType: 'jsonCode',
+      hideInSearch: true,
+      hideInForm: true,
+      // @ts-ignore
+      width: 150,
+      // 数值转换
+      renderText: (value) => {
+        let text = String(value);
+        // 如果是object
+        if (typeof value === 'object') {
+          // 如果object为空
+          if (Object.keys(value).length === 0) {
+            text = ""
+          } else {
+            text = JSON.stringify(value, null, 2)
+          }
+        }
+        return <pre>{text}</pre>;
+      },
+      formItemProps: {
+        initialValue: JSON.stringify({}),
+        rules: [
+          {
+            required: false,
+            message: '参数配置为必填项',
+          },
+          {
+            //  自定义规则
+            validator(_: any, value: any) {
+              try {
+                JSON.parse(value);
+                return Promise.resolve();
+              } catch (error) {
+                return Promise.reject(new Error('参数配置必须是有效的JSON格式'));
+              }
+            },
+          },
+        ],
+      },
+    },
+    {
+      title: '状态',
+      key: 'status',
+      dataIndex: 'status',
+      editable: false,
+      hideInForm: true,
+      hideInTable: true,
+      // @ts-ignore
+      width: 80,
+      sorter: true,
+      fixed: 'right',
+      align: 'center',
+      // 数值转换
+      renderText: (value) => {
+        return String(value);
+      },
+      formItemProps: {
+        // layout:"horizontal",
+        initialValue: String(STATUS_MAP.ENABLE.value),
+        rules: [
+          {
+            required: true,
+            message: '状态为必填',
+          },
+        ],
+      },
+      valueType: 'select',
+      hideInSearch: true,
+      valueEnum: {
+        [String(STATUS_MAP.ENABLE.value)]: {
+          text: STATUS_MAP.ENABLE.text,
+        },
+        [String(STATUS_MAP.DISABLE.value)]: {
+          text: STATUS_MAP.DISABLE.text,
+        },
+      }
+    },
+    // 创建时间
+    {
+      title: '创建时间',
+      key: 'createdAt',
+      dataIndex: 'createdAt',
+      editable: false,
+      // @ts-ignore
+      width: 150,
+      hideInSearch: true,
+      hideInForm: true,
+      render: (dom, entity) => {
+        return (
+          <span>{new Date(entity?.createdAt || "").toLocaleString()}</span>
+        )
+      }
+    },
+    // 修改时间
+    {
+      title: '修改时间',
+      key: 'updatedAt',
+      dataIndex: 'updatedAt',
+      editable: false,
+      // @ts-ignore
+      width: 150,
+      hideInSearch: true,
+      hideInForm: true,
+      render: (dom, entity) => {
+        return (
+          <span>{new Date(entity?.updatedAt || "").toLocaleString()}</span>
+        )
+      }
+    }
+  ];
+
 
   const access = useAccess();
 
@@ -136,9 +320,25 @@ const LmList: React.FC<LmListPropsType> = (props) => {
           <Access
             accessible={
               canEdit &&
-              platformInfo?.code === AI_LM_PLATFORM_MAP?.ollama.value
+              platformInfo?.code === AI_LM_PLATFORM_MAP?.openai.value
             }
             key="addLmAccess"
+          >
+            {platform && (
+              <LmAdd
+                platform={platform}
+                columns={columns}
+                disabled={isLoading}
+                refresh={refresh}
+              />
+            )}
+          </Access>
+          <Access
+            accessible={
+              canEdit &&
+              platformInfo?.code === AI_LM_PLATFORM_MAP?.ollama.value
+            }
+            key="pullLmAccess"
           >
             {platform && (
               <LmPull
@@ -202,6 +402,7 @@ const LmList: React.FC<LmListPropsType> = (props) => {
           <div className={styles.listItem} key={item.id}>
             <LmCard
               mode={mode}
+              columns={columns}
               refresh={() => {
                 refresh();
               }}

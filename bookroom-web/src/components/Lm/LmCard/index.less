@@ -98,8 +98,30 @@
     display: inline-block;
     vertical-align: middle;
   }
+  .nodeTag{
+    margin: 0;
+    vertical-align: middle;
+  }
+  .nodeTypeTag{
+    width: 100%;
+    margin: 5px 0;
+    vertical-align: middle;
+    // 文字超出省略
+    overflow: hidden;
+    /* 确保超出容器的文本会被裁剪 */
+    white-space: nowrap;
+    /* 确保文本在一行内显示 */
+    text-overflow: ellipsis;
+  }
 }
-
+.cardItemTag{
+  width: auto;
+  max-width: 120px;
+  height: 36px;
+  position: absolute;
+  bottom: 8px;
+  left: 75px;
+}
 // 头像/图标
 .cardItemAvatar {
   font-size: 24px;

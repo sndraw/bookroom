@@ -12,6 +12,7 @@ declare namespace API {
     model: string;
     modified_at: Date;
     size: number;
+    owned_by?: string;
     digest?: string;
     details?: {
       parent_model?: string;
@@ -21,13 +22,14 @@ declare namespace API {
       parameter_size?: string;
       quantization_level?: string;
     };
-    type?: string;
-    typeName?: string;
+    type?: string | string[];
+    parameters?: string | object;
     // 状态：0停止，1运行
     status?: number | string;
     updatedAt?: Date | number;
     createdAt?: Date | number;
     created?: Date | number;
+    flag?: string; 
   }
 
   interface AILmInfoVO {
@@ -39,6 +41,7 @@ declare namespace API {
     model: string;
     modified_at: Date;
     size: number;
+    owned_by?: string;
     digest?: string;
     details?: {
       parent_model?: string;
@@ -48,13 +51,14 @@ declare namespace API {
       parameter_size?: string;
       quantization_level?: string;
     };
-    type?: string;
-    typeName?: string;
+    type?: string | string[];
+    parameters?: string | object;
     // 状态：0停止，1运行
     status?: number | string;
     updatedAt?: Date | number;
     createdAt?: Date | number;
     created?: Date | number;
+    flag?: string; 
   }
 
   interface Result_AILmInfo_ {

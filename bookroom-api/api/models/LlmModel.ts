@@ -1,11 +1,40 @@
 import { DataTypes, Model, Op } from "sequelize";
 import database from "@/common/database";
 import { StatusModelRule } from "./rule";
-// 模型详情-表
-class AILmModel extends Model {
+// 大模型-详情表
+class LlmModel extends Model {
+    // 校验数据唯一性
+    static judgeUnique = async (data: any, id: any = null) => {
+        if (!data) {
+            return false;
+        }
+        const andWhereArray: { [x: string]: any; }[] = [];
+        const fieldKeys = ["name", "platformId"];
+        // 筛选唯一项
+        Object.keys(data).forEach((key) => {
+            if (data[key] && fieldKeys.includes(key)) {
+                andWhereArray.push({
+                    [key]: data[key],
+                });
+            }
+        });
+
+        const where: any = {
+            [Op.and]: andWhereArray,
+        };
+        // 如果有id参数，则为数据更新操作
+        if (id) {
+            where.id = { [Op.not]: id };
+        }
+        const count = await super.count({
+            where,
+        });
+
+        return !count;
+    };
 }
 // 初始化model
-AILmModel.init(
+LlmModel.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -52,42 +81,39 @@ AILmModel.init(
                 },
             },
         },
-        // 模型类型
+        // 模型分类
         type: {
             field: "type",
             type: DataTypes.STRING(255),
             allowNull: false,
-            validate: {
-                notEmpty: {
-                    msg: "请填入模型类型",
-                },
+            get() {
+                return this.getDataValue('type').split(",")
             },
-        },
-        // 模型大小
-        size: {
-            field: "size",
-            type: DataTypes.INTEGER({
-                length: 20
-            }),
-            allowNull: true,
+            set(value:string | string[]) {
+                // 如果是数组则将数组转换为字符串
+                if (Array.isArray(value)) {
+                    value = value.join(",");
+                }
+                this.setDataValue('type', value);
+            },
             validate: {
                 notEmpty: {
-                    msg: "请填入模型大小",
+                    msg: "请填入模型分类",
                 },
             },
         },
         // 配置参数
         parameters: {
-            field: "params_onfig",
+            field: "parameters",
             type: DataTypes.JSON,
             allowNull: true,
             get() {
-                const parameters = this.getDataValue('params_onfig') || "{}";
+                const parameters = this.getDataValue('parameters') || "{}";
                 return JSON.parse(parameters);
             },
             set(value: string) {
                 const str = JSON.stringify(value || {}, null, 2);
-                this.setDataValue('params_onfig', str);
+                this.setDataValue('parameters', str);
             },
             validate: {
                 // notEmpty: {
@@ -124,7 +150,7 @@ AILmModel.init(
         }
     },
     {
-        tableName: "ai_lm",
+        tableName: "llm",
         // 索引
         indexes: [
             {
@@ -139,4 +165,4 @@ AILmModel.init(
     }
 );
 
-export default AILmModel;
+export default LlmModel;

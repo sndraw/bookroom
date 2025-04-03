@@ -89,7 +89,7 @@ class OpenAIApi {
             }
         }
         if (!modelInfo) {
-            throw new Error('模型不存在')
+            return null;
         }
         return {
             ...modelInfo,
