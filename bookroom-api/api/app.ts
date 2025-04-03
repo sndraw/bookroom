@@ -1,5 +1,6 @@
 // 导入自定义环境变量
 import path from "path";
+import fs from "fs";
 import Koa, { Context } from "koa";
 import cors from "koa2-cors";
 import session from "koa-session";
@@ -17,7 +18,7 @@ import redis from "./common/redis";
 import parameter from "./middlewares/parameter.middleware";
 import setup from "./middlewares/setup.middleware";
 
-import fs from "fs";
+import { taskQueue } from "./common/tasks";
 
 const app = new Koa();
 
@@ -25,6 +26,8 @@ const app = new Koa();
 app.context.redis = redis;
 // 注册日志到全局状态
 app.context.logger = logger;
+// 注册后台任务队列到全局状态
+app.context.taskQueue = taskQueue;
 // 错误
 app.on("error", (err: any, ctx: { url: any; }) => {
   logger.error({
@@ -61,7 +64,7 @@ app.use(
     formLimit: "20mb",
     jsonLimit: "20mb",
     textLimit: "20mb",
-    xmlLimit:"20mb",
+    xmlLimit: "20mb",
     enableTypes: ["json", "form", "text", "xml"],
   })
 );
