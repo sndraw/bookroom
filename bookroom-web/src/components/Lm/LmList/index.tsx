@@ -15,7 +15,6 @@ import LmCard from '../LmCard';
 import styles from './index.less';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
 import LmAdd from '../LmAdd';
-import { LLM_RULE } from '@/common/rule';
 
 type LmListPropsType = {
   mode?: MODE_ENUM;
@@ -107,6 +106,7 @@ const LmList: React.FC<LmListPropsType> = (props) => {
       dataIndex: 'name',
       //@ts-ignore
       width: 100,
+      maxLength: 255, // 设置最大长度为255
       // editable: false,
       sorter: true, // 启用排序功能
       formItemProps: {
@@ -116,8 +116,9 @@ const LmList: React.FC<LmListPropsType> = (props) => {
             message: '模型名称为必填项',
           },
           {
-            pattern: LLM_RULE.name.RegExp,
-            message: LLM_RULE.name.message,
+            min: 2,
+            max: 255,
+            message: '模型名称长度为2-255个字符',
           },
         ],
       },

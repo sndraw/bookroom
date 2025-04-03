@@ -6,7 +6,6 @@ import AIChatLogService from "@/service/AIChatLogService";
 
 import { responseStream } from "../utils/streamHelper";
 import { StatusEnum } from "@/constants/DataMap";
-import { LLM_RULE } from "@/common/rule";
 
 class AILmController extends BaseController {
 
@@ -133,20 +132,18 @@ class AILmController extends BaseController {
         type: "string",
         required: true,
         max: 255,
-        format: LLM_RULE.name.RegExp,
         message: {
           required: "模型名称不能为空",
-          format: LLM_RULE.name.message,
+          max: "模型名称长度不能超过255",
         }
       },
       model: {
         type: "string",
         required: false,
-        format: LLM_RULE.model.RegExp,
         max: 255,
         message: {
-          required: "模型标识不能为空",
-          format: LLM_RULE.model.message,
+          required: "模型名称不能为空",
+          max: "模型名称长度不能超过255",
         }
       },
     }, {
@@ -209,21 +206,19 @@ class AILmController extends BaseController {
       model: {
         type: "string",
         required: true,
-        format: LLM_RULE.model.RegExp,
         max: 255,
         message: {
           required: "模型标识不能为空",
-          format: LLM_RULE.model.message,
+          max: "模型标识长度不能超过255",
         }
       },
       name: {
         type: "string",
         required: false,
-        format: LLM_RULE.name.RegExp,
         max: 255,
         message: {
           required: "模型名称不能为空",
-          format: LLM_RULE.name.message,
+          max: "模型名称长度不能超过255",
         }
       },
     }, {

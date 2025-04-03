@@ -263,26 +263,23 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                 accessible={item?.platformCode !== AI_LM_PLATFORM_MAP?.ollama.value
                 }
               >
-                <div className={classNames(styles.cardItemNode,styles?.cardItemTag)}>
-                    {item?.type &&
-                      <Tag
-                        color='default'
-                        className={styles?.nodeTypeTag}
-                        title={getAILmTypeNameList(item?.type).join(" | ")}>
-                        {getAILmTypeNameList(item?.type).join(" | ")}
-                      </Tag>
-                    }
+                <div className={classNames(styles.cardItemNode, styles?.cardItemTag)}>
+                  {item?.type &&
+                    <Tag
+                      color='default'
+                      className={styles?.nodeTypeTag}
+                      title={getAILmTypeNameList(item?.type).join(" | ")}>
+                      {getAILmTypeNameList(item?.type).join(" | ")}
+                    </Tag>
+                  }
                 </div>
               </Access>
             </div>
           }
         />
-        <Access
-          accessible={
-            canEdit && (item?.platformCode === AI_LM_PLATFORM_MAP?.ollama.value || item?.flag === LLM_FLAG_MAP.USER.value)
-          }
-        >
-          <Space className={classNames(styles.cardItemManage)}>
+
+        <Space className={classNames(styles.cardItemManage)}>
+          {canEdit && item?.platformCode === AI_LM_PLATFORM_MAP?.openai.value && item?.flag === LLM_FLAG_MAP.USER.value &&
             <LmEdit
               platform={item?.platformId}
               model={item?.model}
@@ -290,7 +287,8 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
               columns={columns}
               refresh={refresh}
               disabled={loading} />
-            {/* pop提示 */}
+          }
+          {canEdit && (item?.platformCode === AI_LM_PLATFORM_MAP?.ollama.value || item?.flag === LLM_FLAG_MAP.USER.value) &&
             <Popconfirm
               disabled={loading}
               title={`确定要删除该模型吗？`}
@@ -313,8 +311,9 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                 icon={<CloseOutlined />}
               />
             </Popconfirm>
-          </Space>
-        </Access>
+          }
+
+        </Space>
 
 
         <Space className={classNames(styles.cardItemActions)}>
