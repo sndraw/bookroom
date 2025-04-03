@@ -7,7 +7,7 @@ declare namespace API {
     name: string;
     description?: string;
     type?: string;
-    parameters?: any;
+    parameters?: string | object;
     messages?:any;
     status?: number;
     createdAt?: number;
@@ -19,7 +19,7 @@ declare namespace API {
     description?: string;
     type?: string;
     code?:string;
-    parameters?: any;
+    parameters?: string | object;
     messages?: any;
     status?: number;
   }

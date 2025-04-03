@@ -6,6 +6,7 @@ interface PlatformTypeMap {
 // 支持的配置类型-MAP
 export const PLATFORM_TYPE_MAP: PlatformTypeMap = {
     model: { value: 'model', text: '模型平台' },
+    llm: { value: 'llm', text: '模型接口' },
     // KNOWLEDGE: { value: 'knowledge', text: '知识库' },
     graph: { value: 'graph', text: '知识图谱' },
     agent: { value: 'agent', text: '智能接口' },

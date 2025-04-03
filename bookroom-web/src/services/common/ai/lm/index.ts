@@ -1,6 +1,7 @@
 /* eslint-disable */
 // 该文件由 OneAPI 自动生成，请勿手动修改！
 import { postFetch } from '@/common/fetchRequest';
+import { LLM_TYPE_MAP } from '@/common/llm';
 import { PLATFORM_TYPE_MAP } from '@/common/platform';
 import { request } from '@umijs/max';
 
@@ -21,26 +22,6 @@ export async function queryAILmPlatformList(query?: { code?: string }, options?:
     },
   );
 }
-/** GET /ai/lm */
-export async function queryAllAILmList(
-  params?: {
-    platform?: string;
-    /** current */
-    current?: number;
-    /** pageSize */
-    pageSize?: number;
-  },
-  options?: { [key: string]: any },
-) {
-  return request<API.Result_PageInfo_AILmInfo__>(`/ai/lm`, {
-    method: 'GET',
-    params: {
-      ...(params || {}),
-    },
-    ...(options || {}),
-  });
-}
-
 /** GET /ai/lm/platform/:platform */
 export async function queryAILmList(
   params: {
@@ -65,24 +46,6 @@ export async function queryAILmList(
   );
 }
 
-/** POST /ai/lm/platform/:platform/lm  */
-export async function addAILm(
-  params: {
-    platform: string;
-  },
-  body: API.AILmInfoVO,
-  options?: { [key: string]: any },
-) {
-  const { platform } = params;
-  const record = {
-    ...(body || {}),
-  };
-  return request<API.Result_AILmInfo_>(`/ai/lm/platform/${platform}`, {
-    method: 'POST',
-    data: { ...record },
-    ...(options || {}),
-  });
-}
 
 /** GET /ai/lm/platform/:platform/model/:model */
 export async function getAILmInfo(
@@ -101,7 +64,29 @@ export async function getAILmInfo(
     },
   );
 }
-/** PUT /ai/lm/platform/:platform/pull  */
+
+
+/** POST /ai/lm/platform/:platform  */
+export async function addAILm(
+  params: {
+    platform: string;
+  },
+  body: API.AILmInfoVO,
+  options?: { [key: string]: any },
+) {
+  const { platform } = params;
+  const record = {
+    ...(body || {}),
+  };
+  return request<API.Result_AILmInfo_>(`/ai/lm/platform/${platform}`, {
+    method: 'POST',
+    data: { ...record },
+    ...(options || {}),
+  });
+}
+
+
+/** POST /ai/lm/platform/:platform/pull  */
 export async function pullAILm(
   params: {
     platform: string;
@@ -119,13 +104,14 @@ export async function pullAILm(
     is_stream: is_stream,
   });
 }
+
 /** PUT /ai/lm/platform/:platform/model/:model  */
 export async function updateAILm(
   params: {
     platform: string;
     model: string;
   },
-  body: object,
+  body: API.AILmInfo,
   options?: { [key: string]: any },
 ) {
   const { platform, model } = params;
@@ -335,4 +321,34 @@ export async function AILmEmbed(
     skipErrorHandler: true,
     is_stream: is_stream,
   });
+}
+
+// 获取模型分类选项集合
+export function getAILmTypeList(type?: string) {
+  if (type) {
+    return (LLM_TYPE_MAP?.[type] || null) as any;
+  } else {
+    return Object.values(LLM_TYPE_MAP).map(item => ({
+      label: item.text,
+      value: item.value,
+    }))
+  }
+}
+
+// 获取模型分类名称集合
+export function getAILmTypeNameList(type: string[] | string) {
+  let typeList: any[] = []
+  // 如果是字符串
+  if (typeof type === 'string') {
+    typeList = type.split(",")
+  }
+  // 如果是数组
+  if (Array.isArray(type)) {
+    typeList = [...type]
+  }
+  // 筛选出有效的类型列表
+  if (typeList.length > 0) {
+    return typeList.map(item => LLM_TYPE_MAP?.[item]?.text || item)
+  }
+  return []
 }

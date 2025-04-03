@@ -9,7 +9,7 @@ declare namespace API {
     name?: string;
     model: string;
     type: number;
-    parameters: object;
+    parameters?: string | object;
     prompt?: string;
     messages: any[];
     userId: number;
@@ -25,7 +25,7 @@ declare namespace API {
     model: string;
     type?: number;
     prompt?: string;
-    parameters?: object;
+    parameters?: string | object;
     messages?: any[];
     userId?: number;
     status?: number;

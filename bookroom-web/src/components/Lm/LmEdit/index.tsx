@@ -1,33 +1,36 @@
 
-import AddPanel from '@/components/FormPanel/AddPanel';
-import { addAILm } from '@/services/common/ai/lm';
+import EditPanel from '@/components/FormPanel/EditPanel';
+import { updateAILm } from '@/services/common/ai/lm';
 import { message } from 'antd';
 import React, { PropsWithChildren, useState } from 'react';
 
-interface LmAddProps {
+interface LmEditProps {
   platform: string;
+  model: string;
+  data: API.AILmInfoVO;
   columns: any;
   refresh?: () => void;
   disabled?: boolean;
 }
 
-const LmAdd: React.FC<PropsWithChildren<LmAddProps>> = (props) => {
-  const { platform, columns, refresh, disabled } = props;
+const LmEdit: React.FC<PropsWithChildren<LmEditProps>> = (props) => {
+  const { platform, model, data, columns, refresh, disabled } = props;
   const [loading, setLoading] = useState<boolean>(false);
   /**
- * 添加模型
+ * 修改模型
  * @param fields
  */
-  const handleAdd = async (fields: any) => {
+  const handleEdit = async (fields: API.AILmInfoVO) => {
     setLoading(true);
     try {
       // 如果parameters是字符串
       if (fields?.parameters && typeof fields?.parameters === 'string') {
         fields.parameters = JSON.parse(fields.parameters);
       }
-      // 添加模型
-      await addAILm({
-        platform
+      // 修改模型
+      await updateAILm({
+        platform,
+        model
       }, {
         ...fields
       });
@@ -42,13 +45,14 @@ const LmAdd: React.FC<PropsWithChildren<LmAddProps>> = (props) => {
 
 
   return (
-    <AddPanel
-      title={"添加模型"}
+    <EditPanel
+      title={"修改模型"}
+      data={data}
       columns={columns}
-      onFinished={handleAdd}
+      onFinished={handleEdit}
       refresh={refresh}
       disabled={disabled || loading}
     />
   );
 }
-export default LmAdd;
+export default LmEdit;
