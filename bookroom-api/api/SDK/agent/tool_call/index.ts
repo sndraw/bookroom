@@ -5,7 +5,7 @@ import { Tool } from "./../tool/typings";
 import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "./../message";
 import Think from "./think";
 import { convertMessagesToVLModelInput } from "@/SDK/openai/convert";
-import { Json } from "sequelize/types/utils";
+import { formatAudioData } from "@/utils/streamHelper";
 
 class ToolCallApi {
     private readonly openai: any;
@@ -37,9 +37,7 @@ class ToolCallApi {
             const chatParams: ChatCompletionCreateParams = {
                 model: model,
                 messages: messages || [],
-                tool_choice: "auto", // 让模型自动选择调用哪个工具
                 stream: is_stream,
-                stream_options: is_stream ? { include_usage: true } : undefined,
                 temperature: temperature,
                 top_p: top_p,
                 n: 1,
@@ -61,7 +59,9 @@ class ToolCallApi {
                         },
                     }
                 });
-                chatParams.tools = mTools;
+                chatParams.tool_choice="auto"; // 让模型自动选择调用哪个工具
+                chatParams.stream_options = is_stream ? { include_usage: true } : undefined;
+                chatParams.tools = mTools; // 传递工具列表给模型
             }
             // 调用 OpenAI API 进行对话生成
             this.think.log("开始调用模型：", model, "\n\n");
@@ -178,9 +178,6 @@ class ToolCallApi {
             // 如果是流式输出
             if (is_stream && (response?.itr || response?.iterator)) {
                 for await (const chunk of response) {
-                    // if(chunk?.choices[0]?.finish_reason==="stop"){
-                    //     console.log(chunk.choices[0]?.delta?.content||"");
-                    // }
                     if (chunk?.choices && chunk?.choices.length > 0) {
                         const message = chunk.choices[0]?.delta;
                         if (message?.tool_calls) {
@@ -190,6 +187,10 @@ class ToolCallApi {
                             if (chunk.choices[0]?.finish_reason === 'tool_calls') {
                                 this.think.log(message?.content || '');
                             } else {
+                                if (chunk?.choices?.[0].delta?.audio) {
+                                    const audioData = formatAudioData(chunk?.choices[0]?.delta?.audio);
+                                    audioData && this.think.output(audioData);
+                                }
                                 message?.content && this.think.output(message?.content || '');
                             }
                         }
@@ -206,15 +207,9 @@ class ToolCallApi {
                         this.think.log(message?.content || '');
                     } else {
                         message?.content && this.think.output(message?.content || '');
-                        countObj.finished = true;
                     }
                 }
                 content = message?.content || '';
-            }
-            // 如果已经设置为 finished，直接返回内容，防止死循环
-            if (countObj.finished) {
-                countObj.content = content;
-                break;
             }
             // 如果已经处理完所有工具调用，设置 finished 为 true
             if (toolCalls && toolCalls.length > 0) {
