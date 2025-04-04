@@ -95,7 +95,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     setMessageList([...newMessageList]);
     // 先保存消息,防止发送失败导致消息丢失
     await saveAIChat?.([...newMessageList]);
-    
+
     abortController.current = new AbortController();
     // 定义ID，用于显示回复信息
     const answerId = btoa(Math.random().toString());
@@ -419,11 +419,8 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   // 监听input的键盘事件，当Ctrl和enter，提交form
   const handleKeyDown = (e: any) => {
     if (e.ctrlKey && e.key === 'Enter') {
-      e.target.value = e.target.value?.trim() + '\n';
-      return;
-    }
-    if (e.key === 'Enter') {
       form.submit();
+      return;
     }
   };
   // 删除对话
@@ -587,7 +584,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
               htmlType="submit"
               loading={loading}
               disabled={disabled || voiceLoading}
-              title="发送"
+              title="发送(Ctrl+Enter)"
             >
               <SendOutlined />
             </Button>

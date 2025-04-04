@@ -5,19 +5,20 @@ import { Tool } from "./../tool/typings";
 import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "./../message";
 import Think from "./think";
 import { convertMessagesToVLModelInput } from "@/SDK/openai/convert";
+import { formatAudioData } from "@/utils/streamHelper";
 
 class ToolCallApi {
     private readonly openai: any;
     private readonly think: Think;
 
     constructor(ops: any, think: Think) {
-        const { apiKey, host } = ops;
+        const { apiKey, host, limitSeconds = 30 } = ops;
         this.think = think;
         this.think.log("初始化OpenAI客户端", host, "\n\n")
         this.openai = new OpenAI({
             apiKey: apiKey,
             baseURL: host,
-            timeout: 30000,
+            timeout: Number(limitSeconds) * 1000,
             maxRetries: 2
         });
     }
@@ -30,29 +31,21 @@ class ToolCallApi {
                 is_stream,
                 temperature = 0.7,
                 top_p = 0.8,
-                max_tokens = 4096,
+                maxTokens = 4096,
                 userId
             } = params
-            // 定义新的消息列表
-            const newMessageList = await convertMessagesToVLModelInput({
-                messages,
-                userId
-            });
-
             const chatParams: ChatCompletionCreateParams = {
                 model: model,
-                messages: newMessageList || [],
-                tool_choice: "auto", // 让模型自动选择调用哪个工具
+                messages: messages || [],
                 stream: is_stream,
-                stream_options: is_stream ? { include_usage: true } : undefined,
                 temperature: temperature,
                 top_p: top_p,
                 n: 1,
-                max_tokens: max_tokens,
+                max_tokens: maxTokens,
                 modalities: ["text", "audio"],
                 audio: { "voice": "Chelsie", "format": "wav" },
             }
-            if (tools) {
+            if (tools && tools.length > 0) {
                 // 将tools注册到 OpenAI 客户端
                 const mTools: ChatCompletionTool[] = tools.map((tool: Tool) => {
                     return {
@@ -66,7 +59,9 @@ class ToolCallApi {
                         },
                     }
                 });
-                chatParams.tools = mTools;
+                chatParams.tool_choice="auto"; // 让模型自动选择调用哪个工具
+                chatParams.stream_options = is_stream ? { include_usage: true } : undefined;
+                chatParams.tools = mTools; // 传递工具列表给模型
             }
             // 调用 OpenAI API 进行对话生成
             this.think.log("开始调用模型：", model, "\n\n");
@@ -74,7 +69,7 @@ class ToolCallApi {
             this.think.log('调用模型成功！', "\n\n")
             return response;
         } catch (error: any) {
-            this.think.log("模型调用时出错:", error, "\n\n");
+            this.think.log("模型调用时出错：", error, "\n\n");
             throw new Error(error?.message || "模型调用时出错！");
         }
     };
@@ -235,40 +230,75 @@ class ToolCallApi {
         return toolCallList;
     }
 
-    /**
-     * 工具调用循环
-     * @param params 参数
-     * @param messages 对话历史
-     * @param tools 工具列表
-     * @returns 对话结果
-     */
-    private async loopToolCalls(params: any, messages: MessageArray, tools: Tool[] = []) {
-        const is_stream = params?.is_stream;
+    // 循环处理工具调用
+    async loopToolCalls(params: any, messages: MessageArray, tools: Tool[]) {
+        const { is_stream, limitSteps = 5 } = params;
         const countObj = {
             step: 0,
-            content: "",
-            finished: false,
-        }
-        while (countObj.step < 5 && !countObj.finished) {
-            countObj.step += 1;
-            console.log(`\n[ToolCallApi] 开始第 ${countObj.step} 轮工具调用`);
-            
-            // 查看当前工具列表
-            console.log(`[ToolCallApi] 可用工具列表: ${tools.map(t => t.name).join(', ')}`);
-            
-            // 调用LLM
-            console.log(`[ToolCallApi] 调用LLM模型: ${params.model}`);
-            
+            content: '',
+            finished: false
+        };
+        
+        while (!countObj.finished) {
+            if (countObj.step >= limitSteps) {
+                countObj.finished = true;
+                this.think.output('步骤超出限制，终止循环。', "\n\n");
+                this.think.output("当前步骤：", countObj.step, "\n\n");
+                
+                // 特殊处理最后一轮没有内容的情况 - 保留此核心兜底逻辑
+                if (!countObj.content || countObj.content.trim() === '') {
+                    console.log(`[ToolCallApi] 最后一轮内容为空，尝试从历史消息提取内容`);
+                    
+                    // 尝试从消息历史中提取最后一个工具调用结果
+                    const lastToolMessage = messages
+                        .filter(m => m.role === 'tool')
+                        .pop();
+                        
+                    if (lastToolMessage && lastToolMessage.content) {
+                        console.log(`[ToolCallApi] 使用最后一个工具调用的内容`);
+                        countObj.content = typeof lastToolMessage.content === 'string' 
+                            ? lastToolMessage.content 
+                            : JSON.stringify(lastToolMessage.content);
+                    } else {
+                        console.log(`[ToolCallApi] 无法从历史消息中提取内容，使用默认内容`);
+                        countObj.content = "很抱歉，无法获取更多信息。请尝试修改您的问题，或使用其他关键词搜索。";
+                    }
+                }
+                
+                this.think.output("当前内容：\n\n", "```JSON\n\n", JSON.stringify(messages[messages.length - 1], null, 2), "\n\n", "```\n\n");
+                break;
+            }
+            countObj.step++;
+            this.think.log('当前步骤：', countObj.step, "\n\n")
             const response = await this.handleChatCompletion(messages, {
                 ...params,
                 tools: tools
             });
-            
-            // 非流式输出
-            if (!is_stream) {
-                console.log(`[ToolCallApi] 非流式响应：`, response ? '有响应' : '无响应');
-                
-                // 检查响应有效性
+            let toolCalls: any[] = [];
+            let content = "";
+            // 如果是流式输出
+            if (is_stream && (response?.itr || response?.iterator)) {
+                for await (const chunk of response) {
+                    if (chunk?.choices && chunk?.choices.length > 0) {
+                        const message = chunk.choices[0]?.delta;
+                        if (message?.tool_calls) {
+                            toolCalls = await this.getStreamToolCallList(toolCalls, message.tool_calls);
+                            this.think.log(message?.content || '');
+                        } else {
+                            if (chunk.choices[0]?.finish_reason === 'tool_calls') {
+                                this.think.log(message?.content || '');
+                            } else {
+                                if (chunk?.choices?.[0].delta?.audio) {
+                                    const audioData = formatAudioData(chunk?.choices[0]?.delta?.audio);
+                                    audioData && this.think.output(audioData);
+                                }
+                                message?.content && this.think.output(message?.content || '');
+                            }
+                        }
+                    }
+                }
+            } else {
+                // 非流式输出
                 if (!response?.choices || !response?.choices.length) {
                     console.error(`[ToolCallApi] 模型响应无效，没有choices数组`);
                     this.think.output("模型响应异常，请稍后再试。");
@@ -277,77 +307,37 @@ class ToolCallApi {
                     break;
                 }
                 
-                const messageInfo = response.choices[0]?.message;
-                console.log(`[ToolCallApi] 模型响应message类型: ${typeof messageInfo}`);
-                
-                const content = messageInfo?.content || "";
-                
-                // 如果达到最大步数，直接返回内容
-                if (countObj.step >= 5) {
-                    console.log(`[ToolCallApi] 达到最大步数(5)`);
-                    
-                    // 特殊处理第5轮没有内容的情况 - 保留此核心兜底逻辑
-                    if (!content || content.trim() === '') {
-                        console.log(`[ToolCallApi] 第5轮内容为空，尝试从历史消息提取内容`);
-                        
-                        // 尝试从消息历史中提取最后一个工具调用结果
-                        const lastToolMessage = messages
-                            .filter(m => m.role === 'tool')
-                            .pop();
-                            
-                        if (lastToolMessage && lastToolMessage.content) {
-                            console.log(`[ToolCallApi] 使用最后一个工具调用的内容`);
-                            countObj.content = typeof lastToolMessage.content === 'string' 
-                                ? lastToolMessage.content 
-                                : JSON.stringify(lastToolMessage.content);
-                        } else {
-                            console.log(`[ToolCallApi] 无法从历史消息中提取内容，使用默认内容`);
-                            countObj.content = "很抱歉，无法获取更多信息。请尝试修改您的问题，或使用其他关键词搜索。";
-                        }
-                    } else {
-                        countObj.content = content;
-                    }
-                    
-                    countObj.finished = true;
-                    this.think.output(countObj.content);
-                    break;
-                }
+                const choiceMessage = response.choices[0]?.message;
+                content = choiceMessage?.content || '';
+                toolCalls = choiceMessage?.tool_calls || [];
                 
                 // 如果没有工具调用，直接返回内容
-                if (!messageInfo?.tool_calls || messageInfo?.tool_calls.length === 0) {
-                    console.log(`[ToolCallApi] 模型直接回复，未调用工具`);
-                    
-                    // 处理空内容情况 - 保留此核心逻辑
+                if (!toolCalls || toolCalls.length === 0) {
                     if (!content || content.trim() === '') {
-                        console.log(`[ToolCallApi] 模型回复内容为空，使用默认内容`);
                         countObj.content = "很抱歉，模型未能生成有效回复。请尝试修改您的问题，或使用其他关键词。";
                     } else {
                         countObj.content = content;
+                        this.think.output(content);
                     }
                     
                     countObj.finished = true;
-                    this.think.output(countObj.content);
                     break;
                 }
+            }
+            
+            // 如果已经处理完所有工具调用，设置 finished 为 true
+            if (toolCalls && toolCalls.length > 0) {
+                // 创建一个新的消息，包含原始内容和工具调用
+                messages.push(createAssistantMessage({
+                    content: "",
+                    tool_calls: [
+                        ...toolCalls
+                    ]
+                }));
+                const results = await this.handleToolCalls(toolCalls, tools);
                 
-                // 记录工具调用信息
-                console.log(`[ToolCallApi] 模型生成了工具调用，数量: ${messageInfo.tool_calls.length}`);
-                messageInfo.tool_calls.forEach((call: any, idx: number) => {
-                    try {
-                        const args = JSON.parse(call.function?.arguments || '{}');
-                        console.log(`[ToolCallApi] 工具调用[${idx}]: ${call.function?.name}, 参数: ${JSON.stringify(args)}`);
-                    } catch (e) {
-                        console.error(`[ToolCallApi] 解析工具调用参数出错:`, e);
-                    }
-                });
-                
-                // 开始进行工具调用
-                console.log(`[ToolCallApi] 开始执行工具调用处理`);
-                const toolCallResults = await this.handleToolCalls(messageInfo?.tool_calls, tools);
-                console.log(`[ToolCallApi] 工具调用处理完成，结果数量: ${toolCallResults ? toolCallResults.length : 0}`);
-                
-                // 工具调用结果有效性检查
-                if (!toolCallResults || toolCallResults.length === 0) {
+                // 处理工具调用结果有效性
+                if (!results || results.length === 0) {
                     console.error(`[ToolCallApi] 工具调用结果为空，可能原因: 执行失败或结果被过滤`);
                     this.think.output("工具调用失败，请稍后再试。");
                     countObj.finished = true;
@@ -357,7 +347,7 @@ class ToolCallApi {
                 
                 // 检查每个工具调用结果的有效性
                 console.log(`[ToolCallApi] 检查工具调用结果有效性`);
-                const hasValidResults = toolCallResults.every((result, idx) => {
+                const hasValidResults = results.every((result, idx) => {
                     const isValid = result && result.content && 
                         (Array.isArray(result.content) ? result.content.length > 0 : result.content);
                     if (!isValid) {
@@ -370,7 +360,7 @@ class ToolCallApi {
                     console.error(`[ToolCallApi] 存在无效的工具调用结果，可能导致内容为空`);
                     this.think.output("获取搜索结果失败，请稍后再试或修改搜索关键词。");
                     // 尝试直接将有效结果作为内容返回，避免空内容
-                    const validResults = toolCallResults
+                    const validResults = results
                         .filter(r => r && r.content)
                         .map(r => {
                             if (Array.isArray(r.content) && r.content[0]?.text) {
@@ -395,36 +385,12 @@ class ToolCallApi {
                     break;
                 }
                 
-                // 将工具调用的结果添加到消息列表
-                const toolCallMessages = toolCallResults.map((result: any) => {
-                    // 检查并格式化content
-                    let contentText = "";
-                    if (Array.isArray(result.content) && result.content.length > 0) {
-                        if (typeof result.content[0] === 'object' && result.content[0].text) {
-                            contentText = result.content[0].text;
-                        } else {
-                            contentText = String(result.content[0]);
-                        }
-                    } else if (result.content) {
-                        contentText = String(result.content);
+                // 处理工具调用结果并添加到消息中
+                results?.forEach(result => {
+                    if (result) {
+                        messages.push(createToolMessage(result));
                     }
-                    
-                    return createToolMessage({
-                        content: contentText,
-                        name: result.name,
-                        tool_call_id: result.tool_call_id
-                    });
                 });
-                
-                if (toolCallMessages.length > 0) {
-                    console.log(`[ToolCallApi] 添加工具调用消息到历史`);
-                    messages.push(createAssistantMessage({
-                        tool_calls: messageInfo?.tool_calls
-                    }));
-                    messages.push(...toolCallMessages);
-                } else {
-                    console.error(`[ToolCallApi] 工具调用消息数量为0，可能导致对话中断`);
-                }
             }
         }
         
@@ -460,7 +426,8 @@ class ToolCallApi {
         const { tools = [] } = options;
         console.log(`[ToolCallApi] 使用工具数量: ${tools.length}`);
         
-        const messages: MessageArray = []
+        // 定义消息列表
+        let messages: MessageArray = []
         try {
             const formattedPrompt = createPrompt(tools, prompt);
             // 添加系统消息到messages数组
@@ -481,12 +448,17 @@ class ToolCallApi {
             messages.push(createUserMessage({
                 ...query
             }));
+            // 定义新的消息列表
+            messages = await convertMessagesToVLModelInput({
+                messages,
+                userId
+            });
             this.think.log("————————————————————————————————————", "\n\n")
             this.think.log("Agent提示词：", "\n\n");
             this.think.log(formattedPrompt, "\n\n");
             this.think.log("————————————————————————————————————", "\n\n")
             this.think.log("用户问题：", "\n\n");
-            this.think.log(query, "\n\n");
+            this.think.log("```JSON\n\n", query, "\n\n", "```\n\n");
             // 循环工具调用
             console.log(`[ToolCallApi] 开始工具调用循环流程`);
             const result: any = await this.loopToolCalls(params, messages, tools);

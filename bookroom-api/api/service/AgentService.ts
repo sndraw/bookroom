@@ -174,7 +174,7 @@ class AgentService {
             if (!parameters) {
                 throw new Error("智能助手参数配置错误");
             }
-            const { prompt, isMemory, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
+            const { prompt, isMemory, limitSteps, limitSeconds, maxTokens, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
             const tools: Tool[] = []
 
             if (!modelConfig || !modelConfig.platform || !modelConfig.model) {
@@ -234,32 +234,28 @@ class AgentService {
                 tools.push(new AgentTool(agentSDKConfig?.toJSON()));
 
             }
-            
-            console.log("[AgentService] 开始调用对话API, 参数:", JSON.stringify({
-                model: modelConfig.model,
-                isMemory,
-                queryLength: query?.length || 0,
-                toolsCount: tools.length,
-                is_stream: false // 调试时使用非流式模式
-            }));
-            
-            await new ToolCallApi(lmPlatformConfig?.toJSON(), think).questionChat({
+            // 工具调用API配置
+            const toolcallApiOps = { ...lmPlatformConfig?.toJSON(), limitSeconds }
+            // 问题处理参数
+            const questionChatParams = {
                 model: modelConfig.model,
                 prompt,
                 historyMessages: messages,
                 isMemory,
-                is_stream: false, // 临时修改为非流式模式以便测试
+                limitSteps,
+                limitSeconds,
+                maxTokens,
                 ...params,
-            }, {
-                tools
-            });
-            
-            console.log("[AgentService] 对话API执行完成");
-            think.end(); // 结束流
+            };
+            // 工具调用
+            await new ToolCallApi(toolcallApiOps, think).questionChat(questionChatParams, { tools });
+            // 结束思考
+            think.end();
         } catch (e: any) {
             console.error("[AgentService] 处理问题出错:", e.message);
             think.log("处理问题时出错: " + e.message);
-            think.end(); // 结束流
+            // 结束思考
+            think.end();
         }
     }
 }

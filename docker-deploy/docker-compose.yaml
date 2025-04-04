@@ -102,7 +102,14 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin} # Default user if not in .env
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin} # Default password if not in .env
     volumes:
+      # Mount the storage directory to the container, for storing user files.
       - ./volumes/minio/data:/data # Persist MinIO data locally
+      - ./init/bookroom-api/pm2.config.js:/app/pm2.config.js:ro
+      - ./volumes/app/bookroom-api/uploads:/app/api/uploads
+      - ./volumes/app/bookroom-api/logs:/app/logs
+    depends_on:
+      - bookroom_mysql
+      - bookroom_redis
     ports:
       - "${EXPOSE_MINIO_API_PORT:-9000}:9000" # API Port (Connect via localhost:9000 from api/web)
       - "${EXPOSE_MINIO_CONSOLE_PORT:-9001}:9001" # Console Port (Access UI via http://localhost:9001)

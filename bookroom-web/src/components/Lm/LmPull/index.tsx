@@ -141,7 +141,7 @@ const LmPull: React.FC<PropsWithChildren<LmPullProps>> = (props) => {
           {
             min: 2,
             max: 255,
-            message: '模型长度为2-255个字符',
+            message: '模型名称长度为2-255个字符',
           },
         ]}
         placeholder="请输入模型"

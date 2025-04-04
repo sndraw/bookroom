@@ -48,7 +48,7 @@ class GraphDBTool {
         const data = res?.response || res || '';
         if (typeof data === 'object' && data !== null) {
             return {
-                content: [{ type: "text", text: `查询知识图谱结果：${JSON.stringify(data)}` }],
+                content: [{ type: "text", text: `查询知识图谱结果：${JSON.stringify(data,null,2)}` }],
                 isError: false,
             };
         }

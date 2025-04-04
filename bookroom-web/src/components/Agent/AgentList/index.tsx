@@ -121,7 +121,7 @@ const AgentList: React.FC<AgentListPropsType> = (props) => {
             right: '30px',
           },
           size: 'small',
-          pageSize: 9,
+          pageSize: 12,
           showSizeChanger: true,
           total: filterData?.length,
         }}

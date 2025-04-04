@@ -28,10 +28,16 @@ import {
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import styles from './index.less';
+import { LLM_FLAG_MAP } from '@/common/llm';
+import LmEdit from '../LmEdit';
+import { get } from 'http';
+import { getAILmTypeNameList } from '@/services/common/ai/lm';
 
 type LmCardPropsType = {
   // 模式
   mode: MODE_ENUM;
+  // 表格列定义
+  columns: any[];
   // 当前模型
   item?: API.AILmInfo;
   // 切换状态
@@ -49,7 +55,7 @@ type LmCardPropsType = {
   className?: string;
 };
 const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
-  const { mode, item, refresh, runItem, deleteItem, className } = props;
+  const { mode, columns, item, refresh, runItem, deleteItem, className } = props;
   // 权限
   const access = useAccess();
   const canEdit = access.canSeeDev && mode === MODE_ENUM.EDIT;
@@ -161,42 +167,40 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
           // }
           description={
             <div className={styles.cardItemContent} key={item?.name}>
-              {item?.status && (
-                <div className={styles?.cardItemNode}>
-                  <div className={styles?.nodeBox}>
-                    <div className={styles?.nodeStatus}>
-                      {item?.status === STATUS_MAP.ENABLE.value && (
-                        <>
+              <Access
+                accessible={item?.platformCode === AI_LM_PLATFORM_MAP?.ollama.value
+                }
+              >
+                {item?.status && (
+                  <div className={styles?.cardItemNode}>
+                    <div className={styles?.nodeBox}>
+                      <div className={styles?.nodeStatus}>
+                        {item?.status === STATUS_MAP.ENABLE.value && (
+                          <>
+                            <Tag
+                              style={{ marginRight: 0 }}
+                              color="processing"
+                              icon={<SyncOutlined spin />}
+                            >
+                              {STATUS_MAP.ENABLE.text}
+                            </Tag>
+                          </>
+                        )}
+                        {item?.status === STATUS_MAP.DISABLE.value && (
                           <Tag
                             style={{ marginRight: 0 }}
-                            color="processing"
-                            icon={<SyncOutlined spin />}
+                            color="error"
+                            icon={<ExclamationCircleOutlined />}
                           >
-                            {STATUS_MAP.ENABLE.text}
+                            {STATUS_MAP.DISABLE.text}
                           </Tag>
-                        </>
-                      )}
-                      {item?.status === STATUS_MAP.DISABLE.value && (
-                        <Tag
-                          style={{ marginRight: 0 }}
-                          color="error"
-                          icon={<ExclamationCircleOutlined />}
-                        >
-                          {STATUS_MAP.DISABLE.text}
-                        </Tag>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-              {!!item?.typeName && (
-                <div className={styles?.cardItemNode}>
-                  <div className={styles?.nodeLabel}>模型类型：</div>
-                  <div className={styles?.nodeContent}>
-                    {item?.typeName || '——'}
-                  </div>
-                </div>
-              )}
+                )}
+
+              </Access>
               {!!item?.size && (
                 <div className={styles?.cardItemNode}>
                   <div className={styles?.nodeLabel}>模型大小：</div>
@@ -243,32 +247,48 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                   </div>
                 )}
               </Access>
-              {item?.createdAt && (
-                <div className={styles?.cardItemNode}>
-                  <div className={styles?.nodeLabel}>创建时间：</div>
-                  <div className={styles?.nodeContent}>
-                    {new Date(item?.createdAt).toLocaleString() || '——'}
-                  </div>
+              <div className={styles?.cardItemNode}>
+                <div className={styles?.nodeLabel}>创建时间：</div>
+                <div className={styles?.nodeContent}>
+                  {item?.createdAt ? new Date(item?.createdAt).toLocaleString() : '-'}
                 </div>
-              )}
-              {item?.updatedAt && (
-                <div className={styles?.cardItemNode}>
-                  <div className={styles?.nodeLabel}>更新时间：</div>
-                  <div className={styles?.nodeContent}>
-                    {new Date(item?.updatedAt).toLocaleString() || '——'}
-                  </div>
+              </div>
+              <div className={styles?.cardItemNode}>
+                <div className={styles?.nodeLabel}>更新时间：</div>
+                <div className={styles?.nodeContent}>
+                  {item?.updatedAt ? new Date(item?.updatedAt).toLocaleString() : '-'}
                 </div>
-              )}
+              </div>
+              <Access
+                accessible={item?.platformCode !== AI_LM_PLATFORM_MAP?.ollama.value
+                }
+              >
+                <div className={classNames(styles.cardItemNode, styles?.cardItemTag)}>
+                  {item?.type &&
+                    <Tag
+                      color='default'
+                      className={styles?.nodeTypeTag}
+                      title={getAILmTypeNameList(item?.type).join(" | ")}>
+                      {getAILmTypeNameList(item?.type).join(" | ")}
+                    </Tag>
+                  }
+                </div>
+              </Access>
             </div>
           }
         />
-        <Access
-          accessible={
-            canEdit && item?.platformCode === AI_LM_PLATFORM_MAP?.ollama.value
+
+        <Space className={classNames(styles.cardItemManage)}>
+          {canEdit && item?.platformCode === AI_LM_PLATFORM_MAP?.openai.value && item?.flag === LLM_FLAG_MAP.USER.value &&
+            <LmEdit
+              platform={item?.platformId}
+              model={item?.model}
+              data={item}
+              columns={columns}
+              refresh={refresh}
+              disabled={loading} />
           }
-        >
-          <Space className={classNames(styles.cardItemManage)}>
-            {/* pop提示 */}
+          {canEdit && (item?.platformCode === AI_LM_PLATFORM_MAP?.ollama.value || item?.flag === LLM_FLAG_MAP.USER.value) &&
             <Popconfirm
               disabled={loading}
               title={`确定要删除该模型吗？`}
@@ -291,18 +311,11 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
                 icon={<CloseOutlined />}
               />
             </Popconfirm>
-            {/* <Button
-            title="删除模型"
-            icon={<CloseOutlined />}
-            key="deleteLm"
-            type="text"
-            danger
-            onClick={() => {
-              // run();
-            }}
-          ></Button> */}
-          </Space>
-        </Access>
+          }
+
+        </Space>
+
+
         <Space className={classNames(styles.cardItemActions)}>
           <Link
             title={'多轮对话'}
