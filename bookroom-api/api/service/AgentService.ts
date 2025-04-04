@@ -10,6 +10,7 @@ import GraphDBTool from '@/SDK/agent/tool/GraphDBTool';
 import { getOrderArray } from '@/utils/query';
 import Think from '@/SDK/agent/tool_call/think';
 import AgentTool from '@/SDK/agent/tool/AgentTool';
+import TimeTool from '@/SDK/agent/tool/TimeTool';
 
 
 class AgentService {
@@ -175,8 +176,10 @@ class AgentService {
                 throw new Error("智能助手参数配置错误");
             }
             const { prompt, isMemory, limitSteps, limitSeconds, maxTokens, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
-            const tools: Tool[] = []
-
+            const tools: Tool[] = [
+                // 添加工具列表
+                new TimeTool({})
+            ]
             if (!modelConfig || !modelConfig.platform || !modelConfig.model) {
                 throw new Error("模型配置错误")
             }

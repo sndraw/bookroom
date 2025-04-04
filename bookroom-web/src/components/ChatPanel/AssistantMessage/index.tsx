@@ -6,7 +6,7 @@ import { DeleteOutlined, RedoOutlined, RobotOutlined  } from '@ant-design/icons'
 
 import CopyToClipboard from '@/components/CopyToClipboard';
 import {
-  formatMarkDownContent,
+  getNoTagsContent,
   markdownToText,
   MarkdownWithHighlighting,
 } from '@/components/Markdown';
@@ -70,7 +70,7 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
                 key={msgObj?.id}
                 speekId={msgObj?.id}
                 content={markdownToText(
-                  formatMarkDownContent(msgObj?.content)?.result,
+                  getNoTagsContent(msgObj?.content),
                 )}
               />
               {/* 复制 */}
