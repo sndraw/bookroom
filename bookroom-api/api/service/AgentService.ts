@@ -203,9 +203,19 @@ class AgentService {
                 const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchEngine, {
                     safe: false
                 });
+                
+                // 确保配置中有engine字段，根据code生成引擎标识
+                const configData = searchEngineConfig?.toJSON();
+                if (configData) {
+                    // 如果没有engine字段，则根据code字段创建，首字母大写
+                    if (configData.code && !configData.engine) {
+                        configData.engine = configData.code.charAt(0).toUpperCase() + configData.code.slice(1);
+                        console.log(`[AgentService] 生成引擎标识: ${configData.engine}`);
+                    }
+                }
+                
                 // 搜索引擎
-                tools.push(new SearchTool(searchEngineConfig?.toJSON()));
-
+                tools.push(new SearchTool(configData));
             }
             if (weatherEngine) {
                 // 获取天气搜索引擎配置
@@ -224,17 +234,30 @@ class AgentService {
                 tools.push(new AgentTool(agentSDKConfig?.toJSON()));
 
             }
+            
+            console.log("[AgentService] 开始调用对话API, 参数:", JSON.stringify({
+                model: modelConfig.model,
+                isMemory,
+                queryLength: query?.length || 0,
+                toolsCount: tools.length,
+                is_stream: false // 调试时使用非流式模式
+            }));
+            
             await new ToolCallApi(lmPlatformConfig?.toJSON(), think).questionChat({
                 model: modelConfig.model,
                 prompt,
                 historyMessages: messages,
                 isMemory,
+                is_stream: false, // 临时修改为非流式模式以便测试
                 ...params,
             }, {
                 tools
             });
+            
+            console.log("[AgentService] 对话API执行完成");
             think.end(); // 结束流
         } catch (e: any) {
+            console.error("[AgentService] 处理问题出错:", e.message);
             think.log("处理问题时出错: " + e.message);
             think.end(); // 结束流
         }
