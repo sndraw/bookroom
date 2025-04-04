@@ -83,6 +83,7 @@
     "@babel/node": "^7.26.0",
     "@babel/plugin-transform-runtime": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
+    "@jest/globals": "^29.7.0",
     "@types/bull": "^4.10.4",
     "@types/crypto-js": "^4.2.2",
     "@types/jest": "^29.5.14",

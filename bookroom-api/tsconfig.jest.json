@@ -3,10 +3,12 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["node", "jest"]
+    "types": ["node", "jest", "@jest/globals"],
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": [
     "api/**/*.ts",
-    "api/**/*.test.ts"
+    "api/**/*.test.ts",
+    "types/**/*.d.ts"
   ]
 } 

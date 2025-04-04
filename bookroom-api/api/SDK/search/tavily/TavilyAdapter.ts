@@ -60,41 +60,48 @@ export class TavilyAdapter implements SearchAdapter {
 
       // 处理响应
       console.log(`[TavilyAdapter] 收到响应，状态码: ${response.status}`);
-      if (response.status === 200 && response.data) {
-        console.log(`[TavilyAdapter] 响应数据类型: ${typeof response.data}`);
-        console.log(`[TavilyAdapter] 响应数据有结果: ${response.data.results ? '是' : '否'}`);
-        
-        // 如果没有结果，返回空数组
-        if (!response.data.results || !Array.isArray(response.data.results)) {
-          console.error(`[TavilyAdapter] 搜索结果为空或不是数组`);
-          
-          // 如果有answer字段，记录它
-          if (response.data.answer) {
-            console.log(`[TavilyAdapter] Tavily生成的答案: ${response.data.answer}`);
-          }
-          
-          return [];
+      
+      // 如果响应主体是字符串，尝试解析为JSON
+      let responseData = response.data;
+      if (typeof responseData === 'string') {
+        console.log(`[TavilyAdapter] 响应数据类型: string`);
+        try {
+          responseData = JSON.parse(responseData);
+        } catch (e) {
+          console.error(`[TavilyAdapter] 解析JSON失败:`, e);
+          throw new ApiResponseParseError('无法解析Tavily API返回的JSON数据');
         }
-
-        console.log(`[TavilyAdapter] 找到 ${response.data.results.length} 条结果`);
-        
-        // 将 Tavily 特定格式转换为标准格式
-        const results = response.data.results.map((result: any) => ({
-          title: result.title || '无标题',
-          url: result.url || '#',
-          content: result.content || '无内容',
-          score: result.score
-        }));
-        
-        console.log(`[TavilyAdapter] 返回 ${results.length} 条标准化结果`);
-        return results;
       } else {
-        console.error(`[TavilyAdapter] 响应无效，状态码: ${response.status}`);
-        if (response.data && response.data.detail) {
-          console.error(`[TavilyAdapter] 错误详情: ${response.data.detail}`);
-        }
-        throw new ApiServerError('Tavily API返回无效响应');
+        console.log(`[TavilyAdapter] 响应数据类型: ${typeof responseData}`);
       }
+      
+      response.data = responseData;
+      console.log(`[TavilyAdapter] 响应数据有结果: ${response.data.results ? '是' : '否'}`);
+      
+      // 如果没有结果，返回空数组
+      if (!response.data.results || !Array.isArray(response.data.results)) {
+        console.error(`[TavilyAdapter] 搜索结果为空或不是数组`);
+        
+        // 如果有answer字段，记录它
+        if (response.data.answer) {
+          console.log(`[TavilyAdapter] 答案: ${response.data.answer}`);
+        }
+        
+        return [];
+      }
+
+      console.log(`[TavilyAdapter] 找到 ${response.data.results.length} 条结果`);
+      
+      // 将 Tavily 特定格式转换为标准格式
+      const results = response.data.results.map((result: any) => ({
+        title: result.title || '无标题',
+        url: result.url || '#',
+        content: result.content || '无内容',
+        score: result.score
+      }));
+      
+      console.log(`[TavilyAdapter] 返回 ${results.length} 条标准化结果`);
+      return results;
     } catch (error: any) {
       console.error(`[TavilyAdapter] 搜索出错:`, error);
       
