@@ -7,6 +7,7 @@ export type ThinkOptions = {
 };
 
 class Think {
+    private history: Array<any> = [];
     private messages: Array<any> | PassThrough | null = [];
     private logLevel?: boolean = true;
     private searching: boolean = false;
@@ -40,6 +41,9 @@ class Think {
     }
     log(...args: any[]) {
         const formattedMessage = this.formattedMessage(args);
+        // 存储记录记录
+        this.history.push(formattedMessage);
+
         if (!this.logLevel) {
             // console.log(formattedMessage);
             return;
@@ -66,6 +70,8 @@ class Think {
         } else if (this.messages instanceof PassThrough) {
             // 判定是否为JSON字符串并写入流中
             if (typeof message === 'object') {
+                console.log(message);
+
                 try {
                     const jsonString = JSON.stringify(message, null, 2);
                     this.messages.write(jsonString, 'utf8');
@@ -81,13 +87,15 @@ class Think {
     getData() {
         return this.messages;
     }
-
+    getHistory() {
+        return this.history;
+    }
     toString() {
         if (this.messages instanceof Array) {
             return this.messages.join('\n');
         }
         if (this.messages instanceof PassThrough) {
-            return this.messages.read().toString('utf8');
+            return this.messages.read()?.toString('utf8');
         }
     }
 

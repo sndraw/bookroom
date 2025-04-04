@@ -15,58 +15,62 @@ export const markdownToText = (content: string) => {
   const bodyText = doc.body.textContent || '';
   return bodyText;
 };
+// 获取无标签内容
+export const getNoTagsContent = (content: string) => {
+  // 删除<search>标签和<think>标签包裹的内容
+  const regex = /<search>[\s\S]*?<\/search>|<think>[\s\S]*?<\/think>/g;
+  return content.replace(regex, '');
+};
 
-export const formatMarkDownContent = (markdownContent: string): any => {
-  if (!markdownContent) return null;
-
-  // 将 `markdownContent` 中的 `<think>` 标签替换为相应的 Markdown 格式
-  // 如果只有标签 `<think>`没有结尾</think>，则将及后续内容替换为“正在深度思考”标签
-  let title = '回复中...';
-  let search = '';
-  let think = '';
-  let result = '';
-  result = markdownContent.replace('<think>\n\n</think>', '');
-  result = result.replace('<search>\n\n</search>', '');
-  // 处理搜索
-  if (result.indexOf('<search>') !== -1) {
-    const startIndex = result.indexOf('<search>');
-    const endIndex = result.indexOf('</search>', startIndex);
-    if (endIndex === -1) {
-      title = '正在深度搜索...';
-      search = result.substring(startIndex + '<search>'.length);
-      result = '';
+// 处理标签内容
+export const formatMarkDownContent = (content: string, options?: any) => {
+  const {
+    delimiter = '\n\n',
+    startTag = '<search>',
+    endTag = '</search>',
+    defaulTitle = '回复中...',
+    startTitle = '正在深度搜索...',
+    endTitle = '已完成深度搜索',
+  } = options || {}
+  let result = ''; // 结果
+  let before = ''; // 前面的内容
+  let title = defaulTitle; // 标题
+  let search = ''; // 搜索内容
+  if (content.includes(startTag) || content.includes(endTag)) {
+    let startIndex = 0; // 开始索引
+    let endIndex = 0; // 结束索引
+    // 临时变量
+    let tempResult = content; // 临时结果
+    tempResult = tempResult.replace(`${startTag}${delimiter}${endTag}`, '');
+    // 处理搜索
+    if (tempResult.indexOf(startTag) !== -1) {
+      startIndex = tempResult.indexOf(startTag);
+      endIndex = tempResult.indexOf(endTag, startIndex);
+      before = tempResult.substring(0, startIndex);
+      if (endIndex === -1) {
+        title = startTitle;
+        search = tempResult.substring(startIndex + startTag.length);
+        result = '';
+      } else {
+        title = endTitle;
+        // search值为<search>标签内的内容，不包括`<search>`和`</search>`标签
+        search = tempResult.substring(startIndex + startTag.length, endIndex);
+        // result值为<search>标签外的内容，不包括`<search>`和`</search>`标签
+        result = tempResult.substring(endIndex + endTag.length);
+      }
     } else {
-      title = '已完成深度搜索';
-      // search值为<search>标签内的内容，不包括`<search>`和`</search>`标签
-      search = result.substring(startIndex + '<search>'.length, endIndex);
-      // result值为<search>标签外的内容，不包括`<search>`和`</search>`标签
-      result = result.substring(endIndex + '</search>'.length);
+      result = tempResult;
     }
-  }
-  // 处理深度思考
-  if (result.indexOf('<think>') !== -1) {
-    const startIndex = result.indexOf('<think>');
-    const endIndex = result.indexOf('</think>', startIndex);
-    if (endIndex === -1) {
-      title = '正在深度思考...';
-      // think值为<think>标签内的内容，不包括`<think>`和`</think>`标签
-      think = result.substring(startIndex + '<think>'.length);
-      result = '';
-    } else {
-      title = '已完成深度思考';
-      // think值为<think>标签内的内容，不包括`<think>`和`</think>`标签
-      think = result.substring(startIndex + '<think>'.length, endIndex);
-      // result值为<think>标签外的内容，不包括`<think>`和`</think>`标签
-      result = result.substring(endIndex + '</think>'.length);
-    }
+  } else {
+    result = content;
   }
   return {
+    before,
     title,
     search,
-    think,
-    result,
-  };
-};
+    result
+  }
+}
 
 export const MarkdownWithHighlighting = ({
   markdownContent,
@@ -134,9 +138,80 @@ export const MarkdownWithHighlighting = ({
     );
   };
 
-  // 格式化内容
-  const content = useMemo(() => {
-    return formatMarkDownContent(markdownContent) as any;
+  // 内容列表
+  const contentList = useMemo(() => {
+    const list: any[] = [];
+
+    let result = markdownContent;
+    const hasSearchOrThinkTags = (str?: string): boolean => {
+      const searchRegex = /<search>|<\/search>|<think>|<\/think>/g;
+      return searchRegex.test(str || '');
+    };
+    while (result && hasSearchOrThinkTags(result)) {
+      // 存储原内容，用于对比，防止无限循环
+      const prevResult = result;
+      // 定义格式化内容对象
+      let formatedObj: any = null;
+      // 如果有<search>或<think>标签，则进行处理
+      // <search>或<think>标签的处理逻辑，哪个标签先处理哪个标签
+      const firstSearchIndex = result.indexOf('<search>');
+      const firstThinkIndex = result.indexOf('<think>');
+      if (firstSearchIndex !== -1 && firstThinkIndex !== -1) {
+        if (firstSearchIndex < firstThinkIndex) {
+          formatedObj = formatMarkDownContent(result, {
+            startTag: '<search>',
+            endTag: '</search>',
+            startTitle: '正在深度搜索...',
+            endTitle: '已完成深度搜索',
+          });
+
+        }
+        if (firstSearchIndex > firstThinkIndex) {
+          formatedObj = formatMarkDownContent(result, {
+            startTag: '<think>',
+            endTag: '</think>',
+            startTitle: '正在深度思考...',
+            endTitle: '已完成深度思考',
+          });
+        }
+      }
+      if (firstSearchIndex !== -1 && firstThinkIndex === -1) {
+        formatedObj = formatMarkDownContent(result, {
+          startTag: '<search>',
+          endTag: '</search>',
+          startTitle: '正在深度搜索...',
+          endTitle: '已完成深度搜索',
+        });
+      }
+      if (firstSearchIndex === -1 && firstThinkIndex !== -1) {
+        formatedObj = formatMarkDownContent(result, {
+          startTag: '<think>',
+          endTag: '</think>',
+          startTitle: '正在深度思考...',
+          endTitle: '已完成深度思考',
+        });
+      }
+      // 如果formatedObj不为空，且有搜索结果
+      if (formatedObj && formatedObj?.search) {
+        list.push({
+          before: formatedObj?.before,
+          title: formatedObj?.title,
+          search: formatedObj?.search,
+          done: !!formatedObj?.result,
+        });
+        result = formatedObj?.result || ''
+      } else {
+        result = formatedObj?.result || ''
+      }
+      // 如果内容一致，表明内部逻辑出问题
+      if (result === prevResult) {
+        break;
+      }
+    }
+    list.push({
+      result
+    })
+    return list;
   }, [markdownContent]);
 
   const TitleWrapper = useCallback(
@@ -160,45 +235,58 @@ export const MarkdownWithHighlighting = ({
         </details>
       );
     },
-    [content],
+    [contentList],
   );
 
-  if ((!content?.title || (!content?.think && !content?.search)) && !content?.result) {
+  if (!contentList || !contentList.length) {
     return (
       <div className={styles.loadingWrapper}>
         <LoadingOutlined style={{ marginRight: '5px' }} />
         <span className={styles?.loadingTitle}>
-          {content?.title || '加载中...'}
+          {'加载中...'}
         </span>
       </div>
     );
   }
   return (
     <>
-      {content?.title && content?.search && (
-        <TitleWrapper
-          title={content?.title}
-          content={content?.search}
-          done={!!content?.result}
-        ></TitleWrapper>
-      )}
-      {content?.title && content?.think && (
-        <TitleWrapper
-          title={content?.title}
-          content={content?.think}
-          done={!!content?.result}
-        ></TitleWrapper>
-      )}
-
-      {content?.result && (
-        <ReactMarkdown
-          components={{
-            code: CodeRnderer,
-          }}
-        >
-          {content?.result}
-        </ReactMarkdown>
-      )}
+      {
+        contentList?.map((item, index) => {
+          if (!item) return null;
+          return (
+            <div key={index}>
+              {item?.before && (
+                <ReactMarkdown
+                  key={index + "before"}
+                  components={{
+                    code: CodeRnderer,
+                  }}
+                >
+                  {item?.before}
+                </ReactMarkdown>
+              )}
+              {item?.title && item?.search && (
+                <TitleWrapper
+                  key={index + "title"}
+                  title={item?.title}
+                  content={item?.search}
+                  done={item?.done}
+                ></TitleWrapper>
+              )}
+              {item?.result && (
+                <ReactMarkdown
+                  key={index + "result"}
+                  components={{
+                    code: CodeRnderer,
+                  }}
+                >
+                  {item?.result}
+                </ReactMarkdown>
+              )}
+            </div>
+          )
+        })
+      }
     </>
   );
 };

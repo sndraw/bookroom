@@ -6,6 +6,7 @@ import { createAssistantMessage, createSystemMessage, createToolMessage, createU
 import Think from "./think";
 import { convertMessagesToVLModelInput } from "@/SDK/openai/convert";
 import { formatAudioData } from "@/utils/streamHelper";
+import { logger } from "@/common/logger";
 
 class ToolCallApi {
     private readonly openai: any;
@@ -59,7 +60,7 @@ class ToolCallApi {
                         },
                     }
                 });
-                chatParams.tool_choice="auto"; // 让模型自动选择调用哪个工具
+                chatParams.tool_choice = "auto"; // 让模型自动选择调用哪个工具
                 chatParams.stream_options = is_stream ? { include_usage: true } : undefined;
                 chatParams.tools = mTools; // 传递工具列表给模型
             }
@@ -162,9 +163,8 @@ class ToolCallApi {
         while (!countObj.finished) {
             if (countObj.step >= limitSteps) {
                 countObj.finished = true;
+                this.think.output("当前步骤：", countObj.step + 1, "\n\n");
                 this.think.output('步骤超出限制，终止循环。', "\n\n");
-                this.think.output("当前步骤：", countObj.step, "\n\n");
-                this.think.output("当前内容：\n\n", "```JSON\n\n", JSON.stringify(messages[messages.length - 1], null, 2), "\n\n", "```\n\n");
                 break;
             }
             countObj.step++;
@@ -250,7 +250,12 @@ class ToolCallApi {
         // 定义消息列表
         let messages: MessageArray = []
         try {
-            const formattedPrompt = createPrompt(tools, prompt);
+            // 创建格式化的提示信息
+            const formattedPrompt = createPrompt({
+                tools,
+                prompt,
+                errorLimit: 5,
+            });
             // 添加系统消息到messages数组
             messages.push(createSystemMessage({
                 content: [
@@ -313,11 +318,13 @@ class ToolCallApi {
                 isError: true
             };
         }
-        // finally {
-        //     this.think.log("————————————————————————————————————")
-        //     this.think.log("最终消息列表：")
-        //     this.think.log(messages);
-        // }
+        finally {
+            // 思考历史
+            // logger.info(`ToolCallApi: ${JSON.stringify(this.think.getHistory())}`);
+            // this.think.log("————————————————————————————————————")
+            // this.think.log("最终消息列表：")
+            // this.think.log(messages);
+        }
     }
 }
 export default ToolCallApi;
