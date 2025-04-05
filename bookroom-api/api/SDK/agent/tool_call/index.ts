@@ -429,7 +429,7 @@ class ToolCallApi {
         // 定义消息列表
         let messages: MessageArray = []
         try {
-            const formattedPrompt = createPrompt(tools, prompt);
+            const formattedPrompt = createPrompt({ tools, prompt });
             // 添加系统消息到messages数组
             messages.push(createSystemMessage({
                 content: [
