@@ -14,7 +14,11 @@
     "deploy": "pm2 startOrRestart pm2.config.js",
     "undeploy": "pm2 delete bookroom-api",
     "test": "./node_modules/.bin/mocha",
-    "test:jest": "jest"
+    "test:jest": "jest",
+    "test:unit": "jest --config=jest.config.js",
+    "test:integration": "jest --config=jest.config.integration.js",
+    "test:watch": "jest --watchAll",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "koa",
