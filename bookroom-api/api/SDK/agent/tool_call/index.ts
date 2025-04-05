@@ -10,6 +10,8 @@ import { formatAudioData } from "@/utils/streamHelper";
 class ToolCallApi {
     private readonly openai: any;
     private readonly think: Think;
+    private readonly ENGINE_REGEX = /["']engine["']\s*:\s*["']([^"']*)["']/;
+    private readonly QUERY_REGEX = /["']query["']\s*:\s*["']([^"']*)["']/;
 
     constructor(ops: any, think: Think) {
         const { apiKey, host, limitSeconds = 30 } = ops;
@@ -94,19 +96,40 @@ class ToolCallApi {
                 const toolCallId = toolCall.id;
                 console.log(`[ToolCallApi] 处理工具调用: ${functionName}, ID: ${toolCallId}`);
                 
+                // 记录原始工具调用参数
+                const logPreview = toolCall.function.arguments && toolCall.function.arguments.length > 50 
+                    ? `${toolCall.function.arguments.substring(0, 47)}...` 
+                    : toolCall.function.arguments;
+                console.log(`[ToolCallApi] 工具调用原始参数: >>> ${logPreview} <<<`);
+                console.log(`[ToolCallApi] 工具调用参数类型: ${typeof toolCall.function.arguments}`);
+                
+                // 为time_tool特殊处理
+                if (functionName === 'time_tool' && (!toolCall.function.arguments || toolCall.function.arguments.trim() === '')) {
+                    console.log(`[ToolCallApi] 为time_tool设置空参数对象`);
+                    toolCall.function.arguments = '{}';
+                }
+                
                 // 判定是否是JSON格式的参数
                 let functionArgs = {}
                 try {
-                    functionArgs = JSON.parse(toolCall.function.arguments);
+                    functionArgs = JSON.parse(toolCall.function.arguments || '{}');
                     console.log(`[ToolCallApi] 工具参数解析成功:`, functionArgs);
                 } catch (error) {
                     console.error(`[ToolCallApi] 工具参数解析失败:`, error);
-                    return { 
-                        name: functionName, 
-                        content: [{ type: "text", text: "工具参数格式错误！" }], 
-                        tool_call_id: toolCallId, 
-                        isError: true 
-                    };
+                    
+                    // 针对time_tool的特殊兼容处理
+                    if (functionName === 'time_tool') {
+                        console.log(`[ToolCallApi] time_tool使用空参数对象`);
+                        functionArgs = {};
+                    } else {
+                        console.error(`[ToolCallApi] 解析失败的参数内容:`, toolCall.function.arguments);
+                        return { 
+                            name: functionName, 
+                            content: [{ type: "text", text: "工具参数格式错误！" }], 
+                            tool_call_id: toolCallId, 
+                            isError: true 
+                        };
+                    }
                 }
                 
                 // 查找匹配的工具
@@ -199,35 +222,271 @@ class ToolCallApi {
         const toolCallList: any[] = [
             ...toolCalls
         ];
+        
+        // 增加日志，帮助调试
+        console.log(`[ToolCallApi] 处理流式工具调用，当前列表长度: ${toolCallList.length}, 新增数量: ${messageToolCalls.length}`);
+        if (messageToolCalls.length > 0) {
+            console.log(`[ToolCallApi] 新增工具调用样例: ${JSON.stringify(messageToolCalls[0])}`);
+        }
+        
+        // 记录相同ID的完整参数，用于收集流式输出
+        const paramChunks: Record<string, string[]> = {};
+        
+        // 收集所有工具ID
+        const allIds = new Set<string>();
+        // 记录当前正在处理的工具ID
+        let currentToolId = '';
+        
+        // 首先收集所有工具ID
+        for (const call of toolCallList) {
+            if (call?.id) {
+                allIds.add(call.id);
+            }
+        }
+        
+        for (const item of messageToolCalls) {
+            if (item?.id) {
+                allIds.add(item.id);
+                currentToolId = item.id;
+            }
+        }
+        
+        // 如果工具ID列表非空，使用第一个ID作为默认ID
+        if (allIds.size > 0) {
+            currentToolId = currentToolId || Array.from(allIds)[0];
+        }
+        
+        // 确保参数收集数组存在
+        if (currentToolId && !paramChunks[currentToolId]) {
+            paramChunks[currentToolId] = [];
+        }
+        
+        // 处理新消息
         messageToolCalls.forEach((item: any) => {
             // 如果id存在，则更新已有的工具列表中对应id的项，否则追加到末尾
             if (item?.id) {
                 const toolCall = toolCallList.find(tool => tool.id === item.id);
                 if (!toolCall) {
+                    console.log(`[ToolCallApi] 添加新工具调用: ${item.id}`);
+                    // 初始化参数收集数组
+                    if (!paramChunks[item.id]) {
+                        paramChunks[item.id] = [];
+                    }
+                    
+                    if (item.function?.arguments) {
+                        paramChunks[item.id].push(item.function.arguments);
+                    }
                     toolCallList.push(item);
                 } else {
                     if (toolCall?.function) {
+                        // 收集参数片段
+                        if (!paramChunks[item.id]) {
+                            paramChunks[item.id] = [];
+                        }
+                        if (item.function?.arguments) {
+                            paramChunks[item.id].push(item.function.arguments);
+                        }
+                        
                         if (!toolCall?.function?.arguments) {
                             toolCall.function.arguments = '';
                         }
-                        toolCall.function.arguments += item.function.arguments;
+                        // 记录参数合并情况
+                        const oldLength = toolCall.function.arguments.length;
+                        toolCall.function.arguments += item.function.arguments || '';
+                        console.log(`[ToolCallApi] 合并工具参数: ID=${item.id}, 旧长度=${oldLength}, 新增=${(item.function.arguments || '').length}, 合并后=${toolCall.function.arguments.length}`);
                     }
+                }
+                // 更新当前工具ID
+                currentToolId = item.id;
+                return;
+            }
+            
+            // 关键修改：没有ID的片段也应该关联到当前工具ID
+            if (item?.function?.arguments && currentToolId) {
+                // 关联到当前工具ID
+                console.log(`[ToolCallApi] 关联无ID参数片段到工具: ${currentToolId}`);
+                
+                // 添加到参数收集数组
+                if (!paramChunks[currentToolId]) {
+                    paramChunks[currentToolId] = [];
+                }
+                paramChunks[currentToolId].push(item.function.arguments);
+                
+                // 同时更新工具调用参数
+                const toolCall = toolCallList.find(tool => tool.id === currentToolId);
+                if (toolCall?.function) {
+                    if (!toolCall.function.arguments) {
+                        toolCall.function.arguments = '';
+                    }
+                    const oldLength = toolCall.function.arguments.length;
+                    toolCall.function.arguments += item.function.arguments;
+                    console.log(`[ToolCallApi] 合并无ID参数片段: targetID=${currentToolId}, 旧长度=${oldLength}, 新增=${item.function.arguments.length}, 合并后=${toolCall.function.arguments.length}`);
                 }
                 return;
             }
-            // 如果item.index存在或者为0
+            
+            // 处理按index的情况 (保持原逻辑)
             if ((item?.index || item?.index === 0) && item?.function?.arguments) {
                 const toolCall = toolCallList.find(tool => tool.index === item.index);
                 if (toolCall?.function) {
                     if (!toolCall?.function?.arguments) {
                         toolCall.function.arguments = '';
                     }
+                    const oldLength = toolCall.function.arguments.length;
                     toolCall.function.arguments += item.function.arguments;
+                    console.log(`[ToolCallApi] 合并工具参数(按index): index=${item.index}, 旧长度=${oldLength}, 新增=${item.function.arguments.length}, 合并后=${toolCall.function.arguments.length}`);
                 }
-                return;
             }
-        })
+        });
+        
+        // 返回前尝试检查参数完整性，并适时修复
+        for (const tool of toolCallList) {
+            if (tool?.function?.arguments) {
+                // 检查JSON是否完整
+                if (!this.checkJsonCompleteness(tool.function.arguments)) {
+                    const chunks = paramChunks[tool.id] || [];
+                    console.log(`[ToolCallApi] JSON不完整，已收集${chunks.length}个数据块`);
+                    
+                    if (chunks.length > 0) {
+                        // 尝试重建完整参数
+                        console.log(`[ToolCallApi] 尝试重建完整参数，块数=${chunks.length}`);
+                        const combinedArgs = chunks.join('');
+                        // 限制日志输出长度，避免输出过长的字符串
+                        const logPreview = combinedArgs.length > 50 
+                            ? `${combinedArgs.substring(0, 47)}...`
+                            : combinedArgs;
+                        console.log(`[ToolCallApi] 所有块合并后: ${logPreview}`);
+                        
+                        // 执行修复
+                        tool.function.arguments = combinedArgs;
+                        if (!this.checkJsonCompleteness(combinedArgs)) {
+                            console.log(`[ToolCallApi] 合并后仍不完整，尝试修复`);
+                            this.ensureCompleteArguments(tool);
+                        }
+                    } else {
+                        console.log(`[ToolCallApi] 无可用数据块，尝试直接修复`);
+                        this.ensureCompleteArguments(tool);
+                    }
+                }
+            }
+        }
+        
         return toolCallList;
+    }
+
+    // 新增：检查JSON字符串是否完整
+    private checkJsonCompleteness(jsonStr: string) {
+        try {
+            JSON.parse(jsonStr);
+            console.log(`[ToolCallApi] JSON参数完整性检查通过，长度=${jsonStr.length}`);
+            return true;
+        } catch (e) {
+            console.log(`[ToolCallApi] JSON参数不完整，长度=${jsonStr.length}, 内容="${jsonStr.substring(0, 20)}..."`);
+            return false;
+        }
+    }
+
+    // 新增：确保工具调用参数完整
+    private ensureCompleteArguments(toolCall: any) {
+        if (!toolCall?.function?.arguments) {
+            // 如果参数为空，根据工具类型设置默认值
+            console.log(`[ToolCallApi] 工具调用参数为空，设置默认值`);
+            if (toolCall.function.name === 'time_tool') {
+                toolCall.function.arguments = '{}';
+            } else if (toolCall.function.name === 'search_tool') {
+                toolCall.function.arguments = '{"engine": "Tavily", "query": "最新上映电影"}';
+            } else {
+                toolCall.function.arguments = '{}';
+            }
+            return;
+        }
+        
+        const args = toolCall.function.arguments;
+        // 如果能成功解析JSON就返回
+        try {
+            JSON.parse(args);
+            console.log(`[ToolCallApi] 参数已完整，无需修复`);
+            return;
+        } catch (e) {
+            // 参数不完整，检查是否可以补全
+            console.log(`[ToolCallApi] 尝试修复不完整的工具参数: ${args}`);
+            
+            // 根据工具类型选择不同的修复策略
+            if (toolCall.function.name === 'time_tool') {
+                // time_tool通常不需要特定参数
+                console.log(`[ToolCallApi] 修复time_tool参数为空对象`);
+                toolCall.function.arguments = '{}';
+            } else if (toolCall.function.name === 'search_tool') {
+                // 尝试提取现有的参数
+                let engine = '';
+                let query = '';
+                
+                // 使用预编译的正则表达式提取参数
+                const engineMatch = this.ENGINE_REGEX.exec(args);
+                if (engineMatch && engineMatch[1]) {
+                    engine = engineMatch[1];
+                    console.log(`[ToolCallApi] 从参数中提取到engine: ${engine}`);
+                }
+                
+                // 使用预编译的正则表达式提取参数
+                const queryMatch = this.QUERY_REGEX.exec(args);
+                if (queryMatch && queryMatch[1]) {
+                    query = queryMatch[1];
+                    console.log(`[ToolCallApi] 从参数中提取到query: ${query}`);
+                }
+                
+                // 优先使用提取的值，否则使用默认值
+                engine = engine || 'Tavily';
+                query = query || '最新上映电影';
+                
+                // 重建一个完整的JSON对象
+                const fixedArgs = `{"engine": "${engine}", "query": "${query}"}`;
+                toolCall.function.arguments = fixedArgs;
+                
+                console.log(`[ToolCallApi] 重建的完整参数: ${fixedArgs}`);
+            } else {
+                // 其他工具的通用修复逻辑
+                console.log(`[ToolCallApi] 处理未知工具类型 ${toolCall.function.name} 的参数`);
+                
+                // 如果参数为空或仅包含无效内容，使用空对象
+                if (!args || args.trim() === '' || args.trim() === '{}') {
+                    toolCall.function.arguments = '{}';
+                    console.log(`[ToolCallApi] 设置空参数对象 {}`);
+                    return;
+                }
+                
+                // 如果参数以{开头并以}结尾，但中间内容无效，尝试修复
+                if (args.trim().startsWith('{') && args.trim().endsWith('}')) {
+                    try {
+                        // 尝试提取键值对并重建JSON
+                        const cleanedArgs = args.replace(/(\w+)\s*[:=]\s*(['"]?)([^,"'{}]*)(['"]?)/g, '"$1":"$3"');
+                        const jsonAttempt = `{${cleanedArgs.substring(1, cleanedArgs.length - 1)}}`;
+                        JSON.parse(jsonAttempt);
+                        toolCall.function.arguments = jsonAttempt;
+                        console.log(`[ToolCallApi] 修复JSON成功: ${jsonAttempt}`);
+                        return;
+                    } catch (parseError) {
+                        // 修复失败，使用空对象
+                        console.log(`[ToolCallApi] JSON修复失败，使用空对象`);
+                        toolCall.function.arguments = '{}';
+                    }
+                } else {
+                    // 不是JSON格式，使用空对象
+                    toolCall.function.arguments = '{}';
+                    console.log(`[ToolCallApi] 无法识别的参数格式，使用空对象 {}`);
+                }
+            }
+            
+            // 验证修复后的参数
+            try {
+                JSON.parse(toolCall.function.arguments);
+                console.log(`[ToolCallApi] 参数修复成功，解析通过`);
+            } catch (err) {
+                console.log(`[ToolCallApi] 参数修复失败，回退到空对象`);
+                // 最后的补救措施：使用空对象
+                toolCall.function.arguments = '{}';
+            }
+        }
     }
 
     // 循环处理工具调用
@@ -276,6 +535,12 @@ class ToolCallApi {
             });
             let toolCalls: any[] = [];
             let content = "";
+
+            // 只保留简化版的模型响应日志
+            if (response?.choices && response.choices.length > 0 && response.choices[0]?.message?.tool_calls) {
+                console.log(`[ToolCallApi] 工具调用数量: ${response.choices[0].message.tool_calls.length}`);
+            }
+
             // 如果是流式输出
             if (is_stream && (response?.itr || response?.iterator)) {
                 for await (const chunk of response) {
