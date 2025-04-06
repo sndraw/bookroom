@@ -75,7 +75,6 @@ export async function searchAndParse(params: {
             }
         }
         const urls = await searchUrl(keywords, host, paramKey);
-        console.log("urls:", urls);
         if (!Array.isArray(urls) || !urls?.length) {
             throw new Error(`Invalid URLs: ${urls}`);
         }

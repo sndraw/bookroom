@@ -4,5 +4,6 @@ export interface ChatMessageType {
   content: any;
   images?: any[];
   audios?: any[];
+  videos?: any[];
   createdAt?: Date;
 }

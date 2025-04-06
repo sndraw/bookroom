@@ -399,7 +399,7 @@ class AgentController extends BaseController {
                 ctx.set('Connection', 'keep-alive');
                 ctx.res.setHeader('Content-Type', 'application/octet-stream');
                 ctx.body = think.getData();
-                await AgentService.agentChat(agent_id, queryParams, think);
+                responseText = await AgentService.agentChat(agent_id, queryParams, think);
                 ctx.res.end();
                 return;
             }

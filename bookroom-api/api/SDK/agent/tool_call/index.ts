@@ -5,9 +5,7 @@ import { Tool } from "./../tool/typings";
 import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "./../message";
 import Think from "./think";
 import { convertMessagesToVLModelInput } from "@/SDK/openai/convert";
-import { formatAudioData } from "@/utils/streamHelper";
-import { logger } from "@/common/logger";
-
+import { formatAudioData, saveAudioToFile } from "@/utils/streamHelper";
 class ToolCallApi {
     private readonly openai: any;
     private readonly think: Think;
@@ -33,6 +31,8 @@ class ToolCallApi {
                 temperature = 0.7,
                 top_p = 0.8,
                 maxTokens = 4096,
+                modalities = ["text", "audio"],
+                audio = { "voice": "Chelsie", "format": "wav" },
                 userId
             } = params
             const chatParams: ChatCompletionCreateParams = {
@@ -43,8 +43,9 @@ class ToolCallApi {
                 top_p: top_p,
                 n: 1,
                 max_tokens: maxTokens,
-                modalities: ["text", "audio"],
-                audio: { "voice": "Chelsie", "format": "wav" },
+                modalities: modalities,
+                audio: audio,
+                user: userId
             }
             if (tools && tools.length > 0) {
                 // 将tools注册到 OpenAI 客户端
@@ -154,7 +155,7 @@ class ToolCallApi {
 
     // 循环处理工具调用
     async loopToolCalls(params: any, messages: MessageArray, tools: Tool[]) {
-        const { is_stream, limitSteps = 5 } = params;
+        const { userId, is_stream, limitSteps = 5 } = params;
         const countObj = {
             finished: false,
             step: 0,
@@ -175,6 +176,7 @@ class ToolCallApi {
             });
             let toolCalls: any[] = [];
             let content = "";
+            let audioBuffer = "";
             // 如果是流式输出
             if (is_stream && (response?.itr || response?.iterator)) {
                 for await (const chunk of response) {
@@ -189,7 +191,14 @@ class ToolCallApi {
                             } else {
                                 if (chunk?.choices?.[0].delta?.audio) {
                                     const audioData = formatAudioData(chunk?.choices[0]?.delta?.audio);
-                                    audioData && this.think.output(audioData);
+                                    // 如果是对象
+                                    if (audioData?.transcript) {
+                                        content += audioData?.transcript;
+                                        audioData?.transcript && this.think.output(audioData.transcript);
+                                    }
+                                    if (audioData?.data) {
+                                        audioBuffer += audioData.data;
+                                    }
                                 }
                                 message?.content && this.think.output(message?.content || '');
                             }
@@ -229,6 +238,16 @@ class ToolCallApi {
                 });
             } else {
                 countObj.finished = true;
+            }
+            if (audioBuffer) {
+                const formatedStr = await saveAudioToFile(audioBuffer, {
+                    userId: userId
+                });
+
+                if (formatedStr) {
+                    content += formatedStr;
+                    this.think.output(formatedStr)
+                }
             }
             countObj.content = content;
         }

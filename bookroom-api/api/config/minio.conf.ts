@@ -1,3 +1,5 @@
+import path from "path";
+
 // minio配置文件
 export default {
     endpoint: process.env.MINIO_ENDPOINT || "127.0.0.1",
@@ -8,3 +10,8 @@ export default {
     region: process.env.MINIO_REGION || "‌ap-southeast-1‌",
     useSSL: process.env.MINIO_USE_SSL === "true" || false,
 };
+
+export const SERVER_UPLOAD_PATH = path.join(
+    process.env.SERVER_UPLOAD_PATH || __dirname,
+    process.env.SERVER_UPLOAD_PATH ? "/" : "../../uploads"
+);

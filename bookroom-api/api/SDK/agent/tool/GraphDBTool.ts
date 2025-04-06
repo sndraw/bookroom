@@ -3,6 +3,7 @@ import LightragAPI from "@/SDK/lightrag";
 
 interface SearchInput {
     query: string;
+    timeout?: number;
 }
 
 class GraphDBTool {
@@ -14,7 +15,8 @@ class GraphDBTool {
     public parameters = {
         type: "object",
         properties: {
-            query: { type: "string" },
+            query: { type: "string", description: "搜索内容" },
+            timeout: { type: "number", description: "超时时间，单位为毫秒" },
         },
         required: ["query"],
     };
@@ -31,11 +33,15 @@ class GraphDBTool {
     };
 
     constructor(config: any, workspace?: string) {
-        this.config = config;
+        const { description } = config || {}
+        if (description) {
+            this.description = `${this.description} | ${description}`;
+        }
+        this.config = config || {};
         this.workspace = workspace; // 设置工作空间路径
     }
     async execute(params: SearchInput): Promise<any> {
-        const { query } = params;
+        const { query, timeout } = params;
         const queryParams = {
             query: query, // 查询内容
             stream: false, // 是否流式返回结果
@@ -43,12 +49,13 @@ class GraphDBTool {
             top_k: 10, // 返回的候选词数量
             only_need_context: true, // 是否只返回上下文信息
             only_need_prompt: false, // 是否只返回提示信息
+            timeout: Number(timeout || 30000), // 超时时间，单位为毫秒
         };
         const res = await new LightragAPI(this.config).graphChat(queryParams, this.workspace)
         const data = res?.response || res || '';
         if (typeof data === 'object' && data !== null) {
             return {
-                content: [{ type: "text", text: `查询知识图谱结果：${JSON.stringify(data,null,2)}` }],
+                content: [{ type: "text", text: `查询知识图谱结果：${JSON.stringify(data, null, 2)}` }],
                 isError: false,
             };
         }

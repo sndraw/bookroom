@@ -70,8 +70,6 @@ class Think {
         } else if (this.messages instanceof PassThrough) {
             // 判定是否为JSON字符串并写入流中
             if (typeof message === 'object') {
-                console.log(message);
-
                 try {
                     const jsonString = JSON.stringify(message, null, 2);
                     this.messages.write(jsonString, 'utf8');

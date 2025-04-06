@@ -36,7 +36,7 @@ const AIGraphChatPage: React.FC = () => {
   }, [graph]);
 
   useEffect(() => {
-    if (chatList?.record) {
+    if (chatList?.record?.parameters instanceof Object) {
       setParameters({
         ...parameters,
         ...(chatList?.record?.parameters || {}),

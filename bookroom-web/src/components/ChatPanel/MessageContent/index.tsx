@@ -18,6 +18,8 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
   const [imageList, setImageList] = useState<any[]>([]);
   // 语音预览
   const [audioList, setAudioList] = useState<any>(null);
+  // 视频预览
+  const [videoList, setVideoList] = useState<any>(null);
   // 转换文件预览列表
   const transformFileList = async (files: any[] | undefined) => {
     const fileList = [];
@@ -32,7 +34,7 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
         }),
       ); // 获取图片的base64编码
       fileList.push(imagesBase64);
-    } 
+    }
     return fileList;
   };
 
@@ -45,6 +47,11 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
     if (msgObj?.audios) {
       transformFileList(msgObj.audios).then((list) => {
         setAudioList(list);
+      });
+    }
+    if (msgObj?.videos) {
+      transformFileList(msgObj.videos).then((list) => {
+        setVideoList(list);
       });
     }
   }, [msgObj]);
@@ -76,6 +83,18 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
               <source src={item} type="audio/mpeg" />
               Your browser does not support the audio element.
             </audio>
+            );
+          })}
+        </Space>
+      )}
+      {videoList && (
+        <Space className={styles.imagePreviewContainer} wrap>
+          {videoList?.map((item: string | undefined, index: any) => {
+            return (
+              <video width="320" height="240" controls key={index}>
+                <source src={item} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             );
           })}
         </Space>

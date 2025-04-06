@@ -1,10 +1,14 @@
 import { SEARCH_API_MAP } from "@/common/search";
 import CustomSearchApi from "@/SDK/search/custom_search";
 import TavilyApi from "@/SDK/search/tavily";
+import { ifError } from "assert";
+import { time } from "console";
 
 interface SearchInput {
     query: string;
+    timeout?: number,
 }
+
 
 class SearchTool {
     private config: any;
@@ -14,7 +18,8 @@ class SearchTool {
     public parameters = {
         type: "object",
         properties: {
-            query: { type: "string" },
+            query: { type: "string", description: "搜索内容" },
+            timeout: { type: "number", description: "超时时间，单位为毫秒" },
         },
         required: ["query"],
     };
@@ -31,15 +36,20 @@ class SearchTool {
     };
 
     constructor(config: any) {
-        this.config = config;
+        const { description } = config || {}
+        if (description) {
+            this.description = `${this.description} | ${description}`;
+        }
+        this.config = config || {};
     }
     async execute(params: SearchInput): Promise<any> {
-        const { query } = params;
+        const { query, timeout } = params;
         const { host, apiKey, code, parameters } = this.config;
         const queryParams = {
             query: query, // 查询内容
             paramKey: parameters?.paramKey || "", // 可选参数，需要根据实际情况
             max_results: Number(parameters?.max_results || 10), // 最大返回结果数
+            timeout: Number(timeout || 30000), // 超时时间，单位为毫秒
         }
         let data: any = null;
         switch (code) {
@@ -57,10 +67,10 @@ class SearchTool {
                 break;
             default:
                 data = {
+                    ifError: true,
                     code: 404,
                     message: "API暂不支持。",
                 }
-
         }
         if (data && typeof data === 'object' && !data?.isError) {
             return {
