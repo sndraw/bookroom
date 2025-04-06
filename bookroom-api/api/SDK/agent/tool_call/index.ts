@@ -146,12 +146,14 @@ class ToolCallApi {
                 const selectedTool = tools.find(tool => tool.name === functionName);
                 if (selectedTool) {
                     try {
-                        this.think.log("执行工具中：", functionName, "\n\n");
+                        // 工具开始日志（也放入 think 标签内）
+                        this.think.log(`\n*开始执行工具: ${functionName}*\n`);
                         console.log(`[ToolCallApi] 开始执行工具: ${functionName}`);
                         console.log(`[ToolCallApi] 工具参数详情: ${JSON.stringify(functionArgs, null, 2)}`);
                         const result = await selectedTool.execute(functionArgs);
-                        this.think.log("执行工具完成：", functionName, "\n\n");
-                        console.log(`[ToolCallApi] 工具执行完成: ${functionName}, 结果类型: ${typeof result}, 是否为null或undefined: ${result == null}`);
+                        // 工具结束日志，并闭合 <think> 标签
+                        this.think.log(`\n*工具 ${functionName} 执行完成*\n</think>\n`);
+                        console.log(`[ToolCallApi] 工具执行完成: ${functionName}, 结果类型: ${typeof result}, 是否为 null 或 undefined: ${result == null}`);
                         
                         if (result) {
                             console.log(`[ToolCallApi] 结果属性: ${Object.keys(result).join(', ')}`);
@@ -517,7 +519,8 @@ class ToolCallApi {
                 break;
             }
             countObj.step++;
-            this.think.log('当前步骤：', countObj.step, "\n\n")
+            // 使用 Markdown 格式化步骤日志，并用 <think> 包裹，确保 --- 前后有空行
+            this.think.log(`\n\n---\n\n<think>\n**步骤 ${countObj.step}**\n`); 
             const response = await this.handleChatCompletion(messages, {
                 ...params,
                 tools: tools
@@ -767,16 +770,16 @@ class ToolCallApi {
                 messages,
                 userId
             });
-            this.think.log("————————————————————————————————————", "\n\n")
-            this.think.log("Agent提示词：", "\n\n");
-            this.think.log(formattedPrompt, "\n\n");
-            this.think.log("————————————————————————————————————", "\n\n")
-            this.think.log("用户问题：", "\n\n");
-            this.think.log("```JSON\n\n", query, "\n\n", "```\n\n");
-            // 循环工具调用
-            console.log(`[ToolCallApi] 开始工具调用循环流程`);
-            const result = await this.loopToolCalls(params, messages, tools);
-            console.log(`[ToolCallApi] 工具调用循环完成, finalAnswer:`, result?.finalAnswer ? '有内容' : '无内容');
+             this.think.log("————————————————————————————————————", "\n\n")
+             // 将初始日志包裹在 <think> 标签内
+             this.think.log(`<think>\nAgent提示词：\n\n${formattedPrompt}\n`);
+             this.think.log("————————————————————————————————————", "\n\n")
+             this.think.log("用户问题：", "\n\n");
+             this.think.log("```JSON\n\n", query, "\n\n", "```\n</think>\n"); // 结束 think 标签
+             // 循环工具调用
+             console.log(`[ToolCallApi] 开始工具调用循环流程`);
+             const result = await this.loopToolCalls(params, messages, tools);
+             console.log(`[ToolCallApi] 工具调用循环完成, finalAnswer:`, result?.finalAnswer ? '有内容' : '无内容');
             
             // 修改点 5: 调整成功返回 (现在由 think.finalAnswer 处理，这里无需返回内容)
             console.log(`[ToolCallApi] questionChat 成功完成`);

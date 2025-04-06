@@ -50,6 +50,10 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
       setCollapseActiveKey([]); // Collapse when finalized
     } 
     // For existing messages (not currently streaming), default to collapsed (empty activeKey)
+    // This also handles the case where the component re-renders after finalization but before unmounting
+    else if (!isCurrentlyStreaming) { 
+      setCollapseActiveKey([]);
+    }
   }, [isCurrentlyStreaming, isFinalized]);
 
   return (
@@ -91,26 +95,28 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
                 activeKey={collapseActiveKey} // Controlled state
                 onChange={(key) => setCollapseActiveKey(key as string[])} // Allow manual toggle
               >
-                <Collapse.Panel header="已完成深度搜索" key="log">
+                <Collapse.Panel header="已完成深度思考" key="log">
                   <MarkdownWithHighlighting markdownContent={msgObj.logContent} />
                 </Collapse.Panel>
               </Collapse>
             )}
             {/* Render final answer content */} 
-            <MarkdownWithHighlighting markdownContent={msgObj?.content} />
+            {msgObj?.content && (
+              <MarkdownWithHighlighting markdownContent={msgObj.content} />
+            )}
           </div>
           {!loading && (
             <div className={styles.messageFooter}>
               {/* 语音播放 */}
               <TextToSpeech
-                key={msgObj?.id}
+                key={msgObj?.id + '-tts'}
                 speekId={msgObj?.id}
                 content={markdownToText(
-                  getNoTagsContent(msgObj?.content),
+                  getNoTagsContent(msgObj?.content || ''),
                 )}
               />
               {/* 复制 */}
-              <CopyToClipboard content={msgObj?.content} />
+              <CopyToClipboard content={msgObj?.content || ''} />
               {/* 重新生成 */}
               {index === messageList?.length - 1 && handleReAnswer && (
                 <Button

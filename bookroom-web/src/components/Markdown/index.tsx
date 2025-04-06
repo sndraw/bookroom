@@ -141,104 +141,85 @@ export const MarkdownWithHighlighting = ({
   // 内容列表
   const contentList = useMemo(() => {
     const list: any[] = [];
+    let remainingContent = markdownContent;
+    const tagRegex = /(<search>|<think>)/g; // Regex to find the start of either tag
 
-    let result = markdownContent;
-    const hasSearchOrThinkTags = (str?: string): boolean => {
-      const searchRegex = /<search>|<\/search>|<think>|<\/think>/g;
-      return searchRegex.test(str || '');
-    };
-    while (result && hasSearchOrThinkTags(result)) {
-      // 存储原内容，用于对比，防止无限循环
-      const prevResult = result;
-      // 定义格式化内容对象
-      let formatedObj: any = null;
-      // 如果有<search>或<think>标签，则进行处理
-      // <search>或<think>标签的处理逻辑，哪个标签先处理哪个标签
-      const firstSearchIndex = result.indexOf('<search>');
-      const firstThinkIndex = result.indexOf('<think>');
-      if (firstSearchIndex !== -1 && firstThinkIndex !== -1) {
-        if (firstSearchIndex < firstThinkIndex) {
-          formatedObj = formatMarkDownContent(result, {
-            startTag: '<search>',
-            endTag: '</search>',
-            startTitle: '正在深度搜索...',
-            endTitle: '已完成深度搜索',
-          });
+    let lastIndex = 0;
+    let match;
 
-        }
-        if (firstSearchIndex > firstThinkIndex) {
-          formatedObj = formatMarkDownContent(result, {
-            startTag: '<think>',
-            endTag: '</think>',
-            startTitle: '正在深度思考...',
-            endTitle: '已完成深度思考',
-          });
-        }
+    while ((match = tagRegex.exec(remainingContent)) !== null) {
+      const tagStartIndex = match.index;
+      const tagType = match[1] === '<search>' ? 'search' : 'think';
+      const startTag = match[1];
+      const endTag = `</${tagType}>`;
+      const tagEndIndex = remainingContent.indexOf(endTag, tagStartIndex);
+
+      // Push content before the tag (if any)
+      if (tagStartIndex > 0) {
+        list.push({ type: 'markdown', content: remainingContent.substring(0, tagStartIndex) });
       }
-      if (firstSearchIndex !== -1 && firstThinkIndex === -1) {
-        formatedObj = formatMarkDownContent(result, {
-          startTag: '<search>',
-          endTag: '</search>',
-          startTitle: '正在深度搜索...',
-          endTitle: '已完成深度搜索',
-        });
-      }
-      if (firstSearchIndex === -1 && firstThinkIndex !== -1) {
-        formatedObj = formatMarkDownContent(result, {
-          startTag: '<think>',
-          endTag: '</think>',
-          startTitle: '正在深度思考...',
-          endTitle: '已完成深度思考',
-        });
-      }
-      // 如果formatedObj不为空，且有搜索结果
-      if (formatedObj && formatedObj?.search) {
+
+      if (tagEndIndex !== -1) {
+        // Found a complete tag block
+        const tagContent = remainingContent.substring(tagStartIndex + startTag.length, tagEndIndex);
+        const afterTagIndex = tagEndIndex + endTag.length;
+        const isDone = !!remainingContent.substring(afterTagIndex).trim(); // Check if content exists after tag
+        
+        // Determine titles based on tag type
+        const startTitle = tagType === 'search' ? '正在深度搜索...' : '正在深度思考...';
+        const endTitle = tagType === 'search' ? '已完成深度搜索' : '已完成深度思考';
+        
         list.push({
-          before: formatedObj?.before,
-          title: formatedObj?.title,
-          search: formatedObj?.search,
-          done: !!formatedObj?.result,
+          type: tagType,
+          title: isDone ? endTitle : startTitle, // Title depends on whether it's considered 'done'
+          tagContent: tagContent,
+          done: isDone,
         });
-        result = formatedObj?.result || ''
+        remainingContent = remainingContent.substring(afterTagIndex);
+        tagRegex.lastIndex = 0; // Reset regex index after slicing the string
       } else {
-        result = formatedObj?.result || ''
-      }
-      // 如果内容一致，表明内部逻辑出问题
-      if (result === prevResult) {
-        break;
+        // Found start tag but no end tag - treat rest as part of the 'in-progress' tag
+        const tagContent = remainingContent.substring(tagStartIndex + startTag.length);
+        const startTitle = tagType === 'search' ? '正在深度搜索...' : '正在深度思考...';
+        list.push({
+          type: tagType,
+          title: startTitle,
+          tagContent: tagContent,
+          done: false, // Not done as end tag is missing
+        });
+        remainingContent = ''; // No more content left
+        break; // Exit loop
       }
     }
-    list.push({
-      result
-    })
+
+    // Push any remaining content after the last tag
+    if (remainingContent) {
+      list.push({ type: 'markdown', content: remainingContent });
+    }
+
     return list;
   }, [markdownContent]);
 
-  const TitleWrapper = useCallback(
-    ({
-      title,
-      content,
-      done,
-    }: {
-      title: string;
-      content?: string;
-      done?: boolean;
-    }) => {
+  const TitleWrapper = useCallback(({ title, content, done }: { title: string; content?: string; done?: boolean }) => {
+      // Minimal change: Default 'open' state should be !done (true if not done, false if done)
       return (
         <details className={styles.titleWrapper} open={!done}>
           <summary className={styles.titleSummary}>{title}</summary>
           {content && (
-            <ReactMarkdown className={styles.titleContent}>
+            <ReactMarkdown 
+              className={styles.titleContent}
+              components={{
+                  code: CodeRnderer,
+              }}
+             >
               {content}
             </ReactMarkdown>
           )}
         </details>
       );
-    },
-    [contentList],
-  );
+    }, [CodeRnderer]);
 
-  if (!contentList || !contentList.length) {
+  if (!markdownContent && markdownContent !== "") {
     return (
       <div className={styles.loadingWrapper}>
         <LoadingOutlined style={{ marginRight: '5px' }} />
@@ -249,44 +230,59 @@ export const MarkdownWithHighlighting = ({
     );
   }
   return (
-    <>
-      {
-        contentList?.map((item, index) => {
-          if (!item) return null;
+    <div>
+      {contentList?.map((item, index) => {
+        if (!item) return null;
+        // Render based on the type determined during parsing
+        if (item.type === 'search' || item.type === 'think') {
           return (
-            <div key={index}>
-              {item?.before && (
-                <ReactMarkdown
-                  key={index + "before"}
-                  components={{
-                    code: CodeRnderer,
-                  }}
-                >
-                  {item?.before}
-                </ReactMarkdown>
-              )}
-              {item?.title && item?.search && (
-                <TitleWrapper
-                  key={index + "title"}
-                  title={item?.title}
-                  content={item?.search}
-                  done={item?.done}
-                ></TitleWrapper>
-              )}
-              {item?.result && (
-                <ReactMarkdown
-                  key={index + "result"}
-                  components={{
-                    code: CodeRnderer,
-                  }}
-                >
-                  {item?.result}
-                </ReactMarkdown>
-              )}
-            </div>
-          )
-        })
-      }
-    </>
+            <TitleWrapper
+              key={`${item.type}-${index}`}
+              title={item.title}
+              content={item.tagContent}
+              done={item.done}
+            />
+          );
+        } else if (item.type === 'markdown') {
+          return (
+            <ReactMarkdown
+              key={`markdown-${index}`}
+              components={{
+                code: CodeRnderer,
+              }}
+            >
+              {item.content}
+            </ReactMarkdown>
+          );
+        } else {
+            // Fallback for any unexpected item structure (e.g., old format)
+             if (item?.result) { // Check if it resembles the old structure
+                return (
+                    <ReactMarkdown
+                    key={`fallback-result-${index}`}
+                    components={{ code: CodeRnderer }}
+                    >
+                    {item.result}
+                    </ReactMarkdown>
+                );
+             } else if (item?.before || item?.search || item?.tagContent) { // Old structure with before/search/tagContent
+                 return (
+                     <div key={`fallback-old-${index}`}>
+                         {item?.before && <ReactMarkdown key={index + "before"} components={{ code: CodeRnderer }}>{item.before}</ReactMarkdown>}
+                         {item?.title && (item?.search || item?.tagContent) && (
+                             <TitleWrapper
+                             key={index + "title"}
+                             title={item.title}
+                             content={item.search || item.tagContent} // Use whichever exists
+                             done={item.done}
+                             />
+                         )}
+                     </div>
+                 );
+             }
+        }
+        return null; // Should not happen with new logic
+      })}
+    </div>
   );
 };
