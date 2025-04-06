@@ -250,6 +250,10 @@ class ToolCallApi {
                 }
             }
             countObj.content = content;
+            // 终止循环
+            if(countObj.finished){
+                break;
+            }
         }
         return countObj
     }
