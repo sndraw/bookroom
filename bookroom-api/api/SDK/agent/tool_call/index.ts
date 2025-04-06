@@ -71,7 +71,17 @@ class ToolCallApi {
             this.think.log('调用模型成功！', "\n\n")
             return response;
         } catch (error: any) {
-            this.think.log("模型调用时出错：", error, "\n\n");
+            // **** 增强错误日志 ****
+            console.error("[ToolCallApi] handleChatCompletion 捕获到错误:", error);
+            // 尝试记录更详细的错误信息 (例如 AxiosError 的 response)
+            if (error.response) {
+                console.error("[ToolCallApi] 错误响应状态:", error.response.status);
+                console.error("[ToolCallApi] 错误响应数据:", error.response.data);
+            } else {
+                 console.error("[ToolCallApi] 错误对象无 response 属性:", error.message);
+            }
+            // **** 日志结束 ****
+            this.think.log("模型调用时出错：", error.message || error, "\n\n"); // 使用 error.message
             throw new Error(error?.message || "模型调用时出错！");
         }
     };
@@ -504,27 +514,6 @@ class ToolCallApi {
                 this.think.output('步骤超出限制，终止循环。', "\n\n");
                 this.think.output("当前步骤：", countObj.step, "\n\n");
                 
-                // 特殊处理最后一轮没有内容的情况 - 保留此核心兜底逻辑
-                if (!countObj.content || countObj.content.trim() === '') {
-                    console.log(`[ToolCallApi] 最后一轮内容为空，尝试从历史消息提取内容`);
-                    
-                    // 尝试从消息历史中提取最后一个工具调用结果
-                    const lastToolMessage = messages
-                        .filter(m => m.role === 'tool')
-                        .pop();
-                        
-                    if (lastToolMessage && lastToolMessage.content) {
-                        console.log(`[ToolCallApi] 使用最后一个工具调用的内容`);
-                        countObj.content = typeof lastToolMessage.content === 'string' 
-                            ? lastToolMessage.content 
-                            : JSON.stringify(lastToolMessage.content);
-                    } else {
-                        console.log(`[ToolCallApi] 无法从历史消息中提取内容，使用默认内容`);
-                        countObj.content = "很抱歉，无法获取更多信息。请尝试修改您的问题，或使用其他关键词搜索。";
-                    }
-                }
-                
-                this.think.output("当前内容：\n\n", "```JSON\n\n", JSON.stringify(messages[messages.length - 1], null, 2), "\n\n", "```\n\n");
                 break;
             }
             countObj.step++;
@@ -659,15 +648,65 @@ class ToolCallApi {
             }
         }
         
-        // 保留此核心兜底逻辑
-        if (!countObj.content) {
-            console.error(`[ToolCallApi] 警告: 返回内容为空! 使用默认回复`);
-            countObj.content = "很抱歉，我无法获取相关信息。请尝试修改问题，或使用其他关键词搜索。";
+        // --- 开始阶段二逻辑 ---
+        console.log(`[ToolCallApi] Agent 循环结束，开始生成最终答案`);
+        let finalAnswer = "未能生成最终答案。"; // 默认值以防出错
+
+        try {
+            // 1. 准备最终总结的提示
+            const finalPrompt = `请总结以上对话内容。`;
+
+            // 2. 构造发送给 LLM 的消息列表 (系统提示 + 历史)
+            const finalMessages = [
+                createSystemMessage({ content: finalPrompt }), 
+                ...messages 
+            ];
+
+            // 3. 调用 LLM 进行最终总结 (不使用工具)
+            console.log(`[ToolCallApi] 调用 LLM进行最终总结 (流式)...`);
+            const finalResponseStream = await this.handleChatCompletion(finalMessages, {
+                 model: params.model || 'gpt-3.5-turbo', 
+                temperature: 0.5,
+                maxTokens: params.maxTokens || 1024,
+                is_stream: true, 
+                tools: []
+            });
+
+            // 4. 提取最终答案 (处理流式响应)
+            let accumulatedFinalAnswer = "";
+            if (finalResponseStream?.itr || finalResponseStream?.iterator) { 
+                for await (const chunk of finalResponseStream) {
+                    if (chunk?.choices && chunk.choices.length > 0) {
+                        const contentPart = chunk.choices[0]?.delta?.content;
+                        if (contentPart) {
+                            accumulatedFinalAnswer += contentPart;
+                        }
+                    }
+                }
+                if (accumulatedFinalAnswer.trim()) {
+                    finalAnswer = accumulatedFinalAnswer.trim();
+                    console.log(`[ToolCallApi] LLM 最终总结生成成功 (来自流)`);
+                } else {
+                    console.error(`[ToolCallApi] LLM 最终总结流未生成有效内容。`);
+                    finalAnswer = "抱歉，在为您总结最终答案时遇到了问题。模型流未返回有效内容。";
+                }
+            } else {
+                 console.error(`[ToolCallApi] LLM 最终总结调用未返回有效的流对象。响应:`, JSON.stringify(finalResponseStream));
+                 finalAnswer = "抱歉，在为您总结最终答案时遇到了问题。响应格式不正确。";
+            }
+
+        } catch (error: any) {
+            console.error(`[ToolCallApi] 生成最终答案时出错:`, error);
+            finalAnswer = `抱歉，处理您的请求时发生错误: ${error.message}`;
         }
-        
-        return {
-            content: countObj.content
-        };
+
+        // 5. 使用 think.finalAnswer 输出
+        console.log(`[ToolCallApi] 使用 think.finalAnswer 输出最终结果`);
+        this.think.finalAnswer(finalAnswer);
+
+        // 6. 修改返回值 (返回包含最终答案的对象)
+        return { finalAnswer: finalAnswer };
+        // --- 结束阶段二逻辑 ---
     }
 
     // 问题对话
@@ -726,43 +765,15 @@ class ToolCallApi {
             this.think.log("```JSON\n\n", query, "\n\n", "```\n\n");
             // 循环工具调用
             console.log(`[ToolCallApi] 开始工具调用循环流程`);
-            const result: any = await this.loopToolCalls(params, messages, tools);
-            console.log(`[ToolCallApi] 工具调用循环完成, 内容:`, result?.content ? '有内容' : '无内容');
+            const result = await this.loopToolCalls(params, messages, tools);
+            console.log(`[ToolCallApi] 工具调用循环完成, finalAnswer:`, result?.finalAnswer ? '有内容' : '无内容');
             
-            // 检查结果内容 - 保留此核心兜底逻辑
-            if (!result?.content) {
-                console.error(`[ToolCallApi] 错误: 结果内容为空`);
-                // 直接输出错误信息到think，让用户看到
-                const friendlyMessage = "对不起，我没有找到足够的相关信息。可能是因为：\n1. 搜索服务暂时无法访问\n2. 没有找到足够新鲜的相关内容\n\n您可以尝试：\n- 使用不同的关键词\n- 精简询问\n- 询问其他问题";
-                this.think.output(friendlyMessage);
-                return {
-                    content: friendlyMessage,
-                    isError: false,
-                }
-            } else if (result.content.includes("我没有找到") || result.content.includes("没有搜索到") || result.content.includes("无法获取")) {
-                // 如果内容中包含表示未找到信息的关键词，也返回友好提示
-                const enhancedMessage = result.content + "\n\n您可以尝试：\n- 使用不同的关键词\n- 精简询问\n- 询问其他问题";
-                this.think.output(enhancedMessage);
-                return {
-                    content: enhancedMessage,
-                    isError: false,
-                }
-            }
-            
-            // 将结果添加到messages数组中
-            messages.push(createAssistantMessage({
-                content: result.content,
-            }))
-            
-            console.log(`[ToolCallApi] 回复成功，返回结果`);
-            // 返回结果
-            return {
-                finished: true,
-                content: result.content,
-                isError: false
-            }
-        } catch (error: any) {
-            const errorMsg = error?.message || "未知错误";
+            // 修改点 5: 调整成功返回 (现在由 think.finalAnswer 处理，这里无需返回内容)
+            console.log(`[ToolCallApi] questionChat 成功完成`);
+            return { isError: false }; // 成功时仅表示无错误
+
+        } catch (e: any) {
+            const errorMsg = e?.response?.data?.message || e?.message || e;
             console.error(`[ToolCallApi] 处理问题出错:`, errorMsg);
             this.think.output("处理问题时出错:", errorMsg, "\n\n");
             messages.push(createAssistantMessage({
