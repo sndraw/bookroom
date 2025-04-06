@@ -7,6 +7,9 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import styles from './index.less'; // 引入外部样式表
+import { previewFileApi } from '@/services/common/file';
+import MediaPreview from '../MediaPreview';
+import { isMediaObjectId } from '@/utils/file';
 
 export const markdownToText = (content: string) => {
   const html = marked(content, { async: false });
@@ -17,10 +20,24 @@ export const markdownToText = (content: string) => {
 };
 // 获取无标签内容
 export const getNoTagsContent = (content: string) => {
+  let regex = null;
+  let result = content;
   // 删除<search>标签和<think>标签包裹的内容
-  const regex = /<search>[\s\S]*?<\/search>|<think>[\s\S]*?<\/think>/g;
-  return content.replace(regex, '');
+  regex = /<search>[\s\S]*?<\/search>|<think>[\s\S]*?<\/think>/g;
+  result = result.replace(regex, '');
+  // 删除<audio>标签和<video>标签包裹的内容
+  regex = /<audio>[\s\S]*?<\/audio>|<video>[\s\S]*?<\/video>/g;
+  result = result.replace(regex, '');
+  return result;
 };
+
+export const getPreviewUrl = async (file: string) => {
+  // 获取图片的base64编码
+  const res = await previewFileApi({
+    fileId: file,
+  });
+  return res?.url;
+}
 
 // 处理标签内容
 export const formatMarkDownContent = (content: string, options?: any) => {
@@ -72,72 +89,76 @@ export const formatMarkDownContent = (content: string, options?: any) => {
   }
 }
 
+export const CodeRenderer = (params: any) => {
+  const { node, inline, className, children, ...props } = params || {};
+
+  const match = /language-(\w+)/.exec(className || '');
+  const isInline = typeof children === 'string' && !children.includes('\n');
+  if (match && match[1] === 'csv') {
+    if (!children) {
+      return null;
+    }
+    const csvData = String(children).replace(/\n$/, '');
+    const parsedData = Papa.parse(csvData, { header: true }).data as Array<{
+      [key: string]: unknown;
+    }>;
+
+    return (
+      <table
+        border={1}
+        cellPadding={5}
+        cellSpacing={0}
+        className={styles?.table}
+      >
+        <thead>
+          <tr>
+            {Object.keys(parsedData[0]).map((header) => (
+              <th key={header} className={styles?.tableCell}>
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {parsedData.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {Object.values(row).map((cell, cellIndex) => (
+                <td key={cellIndex} className={styles?.tableTdCell}>
+                  {String(cell)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
+  return !isInline && match ? (
+    <SyntaxHighlighter style={okaidia} language={match[1]} PreTag="div">
+      {String(children).replace(/\n$/, '')}
+    </SyntaxHighlighter>
+  ) : (
+    <code className={className} {...props}>
+      {children}
+    </code>
+  );
+};
+export const MediaRenderer =  (params: any) => {
+  const { children, ...props } = params || {};
+  // 判定是否为媒体对象
+  if (isMediaObjectId(props.href)) {
+    return <MediaPreview href={props.href} />;
+  }
+  // 使用组件正常的渲染逻辑
+  return <a {...props} >{children}</a>
+};
+
 export const MarkdownWithHighlighting = ({
   markdownContent,
 }: {
   markdownContent: string;
 }) => {
-  const CodeRnderer = ({
-    node,
-    inline,
-    className,
-    children,
-    ...props
-  }: any) => {
-    const match = /language-(\w+)/.exec(className || '');
-    const isInline = typeof children === 'string' && !children.includes('\n');
-
-    if (match && match[1] === 'csv') {
-      if (!children) {
-        return null;
-      }
-      const csvData = String(children).replace(/\n$/, '');
-      const parsedData = Papa.parse(csvData, { header: true }).data as Array<{
-        [key: string]: unknown;
-      }>;
-
-      return (
-        <table
-          border={1}
-          cellPadding={5}
-          cellSpacing={0}
-          className={styles?.table}
-        >
-          <thead>
-            <tr>
-              {Object.keys(parsedData[0]).map((header) => (
-                <th key={header} className={styles?.tableCell}>
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {parsedData.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {Object.values(row).map((cell, cellIndex) => (
-                  <td key={cellIndex} className={styles?.tableTdCell}>
-                    {String(cell)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      );
-    }
-
-    return !isInline && match ? (
-      <SyntaxHighlighter style={okaidia} language={match[1]} PreTag="div">
-        {String(children).replace(/\n$/, '')}
-      </SyntaxHighlighter>
-    ) : (
-      <code className={className} {...props}>
-        {children}
-      </code>
-    );
-  };
-
   // 内容列表
   const contentList = useMemo(() => {
     const list: any[] = [];
@@ -237,8 +258,7 @@ export const MarkdownWithHighlighting = ({
     },
     [contentList],
   );
-
-  if (!contentList || !contentList.length) {
+  if (!contentList || !contentList.length || (contentList.length === 1 && !contentList[0].result)) {
     return (
       <div className={styles.loadingWrapper}>
         <LoadingOutlined style={{ marginRight: '5px' }} />
@@ -259,7 +279,8 @@ export const MarkdownWithHighlighting = ({
                 <ReactMarkdown
                   key={index + "before"}
                   components={{
-                    code: CodeRnderer,
+                    code: CodeRenderer,
+                    a: MediaRenderer,
                   }}
                 >
                   {item?.before}
@@ -277,7 +298,8 @@ export const MarkdownWithHighlighting = ({
                 <ReactMarkdown
                   key={index + "result"}
                   components={{
-                    code: CodeRnderer,
+                    code: CodeRenderer,
+                    a: MediaRenderer,
                   }}
                 >
                   {item?.result}

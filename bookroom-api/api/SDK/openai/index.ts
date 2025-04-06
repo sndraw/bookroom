@@ -112,6 +112,8 @@ class OpenAIApi {
             repetition_penalty = 1.0,
             frequency_penalty = 0.0,
             presence_penalty = 0.0,
+            modalities = ["text", "audio"],
+            audio = { "voice": "Chelsie", "format": "wav" },
             userId
         } = params
 
@@ -125,8 +127,8 @@ class OpenAIApi {
                 model: model,
                 messages: newMessageList || [],
                 stream: is_stream,
-                modalities: ["text", "audio"],
-                audio: { "voice": "Chelsie", "format": "wav" },
+                modalities: modalities,
+                audio: audio,
                 temperature: temperature,
                 top_p: top_p,
                 n: 1,
@@ -136,11 +138,10 @@ class OpenAIApi {
                 user: userId,
             }
             if (tools?.length > 0) {
-                chatParams.tool_choice="auto"; // 让模型自动选择调用哪个工具
+                chatParams.tool_choice = "auto"; // 让模型自动选择调用哪个工具
                 chatParams.stream_options = is_stream ? { include_usage: true } : undefined;
                 chatParams.tools = tools; // 传递工具列表给模型
             }
-            console.log(chatParams);
             const completion = await this.openai.chat.completions.create({
                 ...chatParams,
                 top_k: top_k,

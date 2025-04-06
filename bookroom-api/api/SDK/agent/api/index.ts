@@ -1,17 +1,28 @@
 import request from "@/common/request";
+import { handleResponseStream } from "@/utils/streamHelper";
 
-export interface Config {
+export interface AgentApiConfig {
     host?: string;
     apiKey?: string;
+    code?: string;
 }
+
+
+export interface AgentApiChatType {
+    query: any,
+    stream?: boolean,
+    workspace?: string,
+    timeout?: number,
+    userId?: string,
+}
+
 export default class AgentAPI {
     protected readonly host: string = '';
     protected readonly apiKey: string = '';
     protected readonly code: string = '';
     protected readonly config: any;
 
-
-    constructor(config: { host: string; apiKey: string; code: any; }) {
+    constructor(config: AgentApiConfig) {
         if (config?.host) {
             this.host = config.host
         }
@@ -23,22 +34,36 @@ export default class AgentAPI {
         }
         this.config = config;
     }
-    async chat(queryParams: any) {
-        const { stream, workspace } = queryParams;
+
+
+    async chat(queryParams: AgentApiChatType) {
+        const { query, stream, workspace, timeout,userId} = queryParams;
         try {
+            const headers: Record<string, string> = {
+                'Content-Type': 'application/json',
+            }
+            // 图谱空间
+            if (workspace) {
+                headers['X-Workspace'] = workspace;
+            }
+            // 多种请求头设置，根据实际情况进行调整
+            if (this.apiKey) {
+                headers['X-API-Key'] = this.apiKey;
+                headers['Authorization'] = `Bearer ${this.apiKey}`;
+            }
+
             const url = stream ? `${this.host}/query/stream` : `${this.host}/query`;
             const dataStream: any = await request(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-API-Key': this.apiKey,
-                    'X-Workspace': encodeURIComponent(workspace || ""),
-                },
-                data: queryParams,
-                responseType: stream ? 'stream' : 'json'
+                headers,
+                data: query,
+                responseType: stream ? 'stream' : 'json',
+                timeout: timeout || 30000
             });
             if (stream) {
-                return dataStream;
+                return await handleResponseStream(dataStream,{
+                    userId
+                });
             }
             return {
                 content: dataStream?.response || '',

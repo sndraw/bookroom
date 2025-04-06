@@ -1,4 +1,5 @@
 import request from "@/common/request";
+
 export interface Config {
     host?: string;
     apiKey?: string;
@@ -8,7 +9,6 @@ export interface Config {
 export default class TavilyAPI {
     protected readonly host: string = '';
     protected readonly apiKey: string = '';
-
 
     constructor(config: { host: string; apiKey: string; }) {
         if (config?.host) {
@@ -20,7 +20,7 @@ export default class TavilyAPI {
     }
 
     async search(queryParams: any) {
-        const { query, max_results = 5, stream = false } = queryParams || {};
+        const { query, max_results = 5, stream = false, timeout } = queryParams || {};
         const data = {
             query: query,
             topic: "general",
@@ -44,7 +44,8 @@ export default class TavilyAPI {
                     'Authorization': `Bearer ${this.apiKey}`,
                 },
                 data: data,
-                responseType: stream ? 'stream' : 'json'
+                responseType: stream ? 'stream' : 'json',
+                timeout: Number(timeout || 30000), // 超时时间，单位为毫秒
             });
             if (stream) {
                 return result;

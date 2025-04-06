@@ -80,7 +80,7 @@ const AILmGeneratePage: React.FC = () => {
   }, [model]);
 
   useEffect(() => {
-    if (chatList?.record) {
+    if (chatList?.record?.parameters instanceof Object) {
       setParameters({
         ...parameters,
         ...(chatList?.record?.parameters || {}),

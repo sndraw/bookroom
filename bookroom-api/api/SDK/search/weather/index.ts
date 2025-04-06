@@ -1,3 +1,5 @@
+import request from "@/common/request";
+
 export interface Config {
     host?: string;
     apiKey?: string;
@@ -18,13 +20,20 @@ export default class WeatherApi {
     }
 
     async search(queryParams: any) {
-        const { query, paramKey = "city" } = queryParams || {};
+        const { query, paramKey = "city",timeout } = queryParams || {};
         try {
-            const urlObj = new URL(this.host);
-            urlObj.searchParams.append(paramKey, query);
-            const url = urlObj.toString();
-            const res = await fetch(url);
-            const data: any = await res.json();
+            const result: any = await request(this.host, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.apiKey}`,
+                },
+                params: {
+                    [paramKey]: query
+                },
+                timeout: Number(timeout || 30000), // 超时时间，单位为毫秒
+            });
+            const { data } = result;
             if (typeof data === 'object' && data !== null && data?.code === 200) {
                 return {
                     content: data,

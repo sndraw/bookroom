@@ -31,7 +31,7 @@ export interface ParametersType {
   weatherEngine?: string;
   modelConfig?: object;
   graphConfig?: object;
-  agentSDK?: string;
+  agentSDK?: string | string[];
   limitSeconds: number;
   limitSteps: number;
   maxTokens: number;
@@ -72,7 +72,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [weatherEngine, setWeatherEngine] = useState<string>();
   const [modelConfig, setModelConfig] = useState<object>();
   const [graphConfig, setGraphConfig] = useState<object>();
-  const [agentSDK, setAgentSDK] = useState<string>();
+  const [agentSDK, setAgentSDK] = useState<string | string[]>();
   const [limitSeconds, setLimitSeconds] = useState<number>(30);
   const [limitSteps, setLimitSteps] = useState<number>(5);
   const [maxTokens, setMaxTokens] = useState<number>(4096);
@@ -205,7 +205,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             <AgentSDKSelect
               className={styles.selectElement}
               value={agentSDK}
-              onChange={(value: string) => setAgentSDK(value)}
+              onChange={(value: string | string[]) => setAgentSDK(value)}
             />
           </Flex>
           <Flex
@@ -359,7 +359,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="center"
           >
-            <label className={styles.formLabel}>输出长度/步</label>
+            <label className={styles.formLabel}>输出长度</label>
             <Slider
               style={{ width: 100 }}
               min={512}

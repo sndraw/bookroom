@@ -3,7 +3,7 @@ import { resultError, resultSuccess } from "@/common/resultFormat";
 import BaseController from "./BaseController";
 import PlatformService from "@/service/PlatformService"
 import { AI_GRAPH_MODE_ENUM, AI_GRAPH_UPLOAD_FILE_TYPE } from "@/common/ai";
-import { responseStream } from "@/utils/streamHelper";
+import { handleResponseStream } from "@/utils/streamHelper";
 import FormData from "form-data";
 import fs from "fs";
 import AIChatLogService from "@/service/AIChatLogService";
@@ -1184,7 +1184,7 @@ class AIGraphController extends BaseController {
             // 请求host，获取知识图谱数据
             const dataStream = await new LightragAPI(graphInfo?.toJSON()).graphChat(queryParams, workspace)
             if (is_stream) {
-                responseText = await responseStream(ctx, dataStream);
+                responseText = await handleResponseStream(dataStream, { ctx });
                 return;
             }
             responseText = dataStream?.response || dataStream || '';
@@ -1208,7 +1208,7 @@ class AIGraphController extends BaseController {
                 // 添加聊天记录到数据库
                 AIChatLogService.addAIChatLog({
                     platform: graph,
-                    model: `${PLATFORM_TYPE_MAP.graph} | ${workspace}`,
+                    model: `${PLATFORM_TYPE_MAP.graph.value} | ${workspace}`,
                     type: 1,
                     input: JSON.stringify(queryParams, null, 2), // 将请求参数转换为JSON字符串
                     output: responseText || '', // 确保响应文本不为空字符串
