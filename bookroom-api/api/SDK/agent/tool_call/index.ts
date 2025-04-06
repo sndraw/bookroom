@@ -552,36 +552,24 @@ class ToolCallApi {
                     }
                 }
             } else {
-                // 非流式输出
-                if (!response?.choices || !response?.choices.length) {
-                    console.error(`[ToolCallApi] 模型响应无效，没有choices数组`);
-                    this.think.output("模型响应异常，请稍后再试。");
-                    countObj.finished = true;
-                    countObj.content = "回复失败，请稍后再试！";
-                    break;
-                }
-                
-                const choiceMessage = response.choices[0]?.message;
-                content = choiceMessage?.content || '';
-                toolCalls = choiceMessage?.tool_calls || [];
-                
                 // 如果没有工具调用，直接返回内容
                 if (!toolCalls || toolCalls.length === 0) {
                     if (!content || content.trim() === '') {
-                        countObj.content = "很抱歉，模型未能生成有效回复。请尝试修改您的问题，或使用其他关键词。";
+                        // **** 修改点：使用 finalAnswer 并直接返回 ****
+                        const errorMessage = "很抱歉，模型未能生成有效回复。请尝试修改您的问题，或使用其他关键词。";
+                        this.think.finalAnswer(errorMessage); // 使用 finalAnswer 输出错误
+                        return { finalAnswer: errorMessage }; // 直接返回错误信息
                     } else {
-                        countObj.content = content;
-                        this.think.output(content);
+                        // **** 修改点：使用 finalAnswer 并直接返回 ****
+                        // LLM 提供了直接答案，将其视为最终答案
+                        this.think.finalAnswer(content); // 使用 finalAnswer 输出
+                        return { finalAnswer: content }; // 直接返回最终答案，跳过后续总结
                     }
-                    
-                    countObj.finished = true;
-                    break;
                 }
             }
             
-            // 如果已经处理完所有工具调用，设置 finished 为 true
+            // 如果有工具调用，则处理工具调用 (这部分逻辑保持不变)
             if (toolCalls && toolCalls.length > 0) {
-                // 创建一个新的消息，包含原始内容和工具调用
                 messages.push(createAssistantMessage({
                     content: "",
                     tool_calls: [

@@ -86,29 +86,27 @@ class Think {
         } else if (this.messages instanceof PassThrough) {
             // 判定是否为JSON字符串并写入流中
             if (typeof message === 'object') {
-                // console.log('[Think] Pushing object:', message); // 移除调试日志
+                // console.log('[Think] Pushing object:', message); // 保持移除
                 try {
-                    const jsonString = JSON.stringify(message); // 使用单行 JSON，SSE data 不要求格式化
-                    // **** 强制构造标准 SSE 格式 ****
-                    const eventType = message.event || 'message'; // 获取事件类型，默认为 message
+                    const jsonString = JSON.stringify(message);
+                    const eventType = message.event || 'message'; 
                     const sseMessage = `event: ${eventType}\ndata: ${jsonString}\n\n`;
-                    // **** 构造结束 ****
-                    // console.log('[Think] Writing SSE:', JSON.stringify(sseMessage)); // 移除调试日志
+                    // console.log('[Think] Writing SSE:', JSON.stringify(sseMessage)); // 保持移除
                     this.messages.write(sseMessage, 'utf8');
                 } catch (error) {
                     console.error("[Think] 写入流时出错:", error); // 保留错误日志
                 }
             } else {
-                // 处理非对象消息 (假定为纯文本或其他)
-                 // console.log('[Think] Pushing non-object:', String(message).substring(0, 100) + '...'); // 移除调试日志
-                // **** 强制构造标准 SSE data 格式 ****
+                // **** 修改点：使用标准的多行 data 格式发送纯文本 ****
                 const stringMessage = String(message);
-                // 将多行文本拆分，每行前加 data:
-                const dataLines = stringMessage.split('\n').map(line => `data: ${line}`).join('\n');
-                const sseMessage = `${dataLines}\n\n`; // 仅包含 data 行
-                // **** 构造结束 ****
-                // console.log('[Think] Writing plain text as SSE:', JSON.stringify(sseMessage)); // 移除调试日志
+                // 将消息按换行符分割成多行
+                const lines = stringMessage.split('\n');
+                // 为每一行添加 "data: " 前缀
+                const dataLines = lines.map(line => `data: ${line}`).join('\n');
+                // 构造最终的 SSE 消息，以 \n\n 结尾
+                const sseMessage = `${dataLines}\n\n`;
                 this.messages.write(sseMessage, 'utf8');
+                // **** 修改结束 ****
             }
         }
     }

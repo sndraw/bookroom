@@ -77,14 +77,12 @@ describe('Bug Reproduction Tests', () => {
     // Payload now only needs the essential parts, as history/prompt come from the mock
     const payload = {
       query: {
-        // Mimic the structure frontend likely sends (last message object)
         role: 'user',
-        content: '最近有什么新上映的电影？',
-        id: `test-message-${Date.now()}` // Add a message ID
+        content: '你好',
+        id: `test-message-${Date.now()}`
       },
       is_stream: true, 
-      limitSteps: 3,   // Keep this to override agent default if needed for the bug
-      // history and conversation_id might still be useful if controller uses them
+      limitSteps: 10,
       history: [], 
       conversation_id: `test-bug-0405-${Date.now()}` 
     };
