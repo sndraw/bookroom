@@ -532,41 +532,63 @@ class ToolCallApi {
 
             // 如果是流式输出
             if (is_stream && (response?.itr || response?.iterator)) {
+                let accumulatedContent = ""; // 新增：用于累积流式内容
+                let receivedToolCalls = false; // 新增：标记是否收到工具调用
+
                 for await (const chunk of response) {
-                    if (chunk?.choices && chunk?.choices.length > 0) {
+                    if (chunk?.choices && chunk.choices.length > 0) {
                         const message = chunk.choices[0]?.delta;
                         if (message?.tool_calls) {
                             toolCalls = await this.getStreamToolCallList(toolCalls, message.tool_calls);
                             this.think.log(message?.content || '');
+                            receivedToolCalls = true; // 标记收到了工具调用
+                            // 如果工具调用和内容混合，也累积内容
+                            if (message.content) {
+                                accumulatedContent += message.content;
+                                // 内容仍在 think.output 中分块输出
+                            }
                         } else {
                             if (chunk.choices[0]?.finish_reason === 'tool_calls') {
                                 this.think.log(message?.content || '');
-                            } else {
-                                if (chunk?.choices?.[0].delta?.audio) {
-                                    const audioData = formatAudioData(chunk?.choices[0]?.delta?.audio);
-                                    audioData && this.think.output(audioData);
-                                }
-                                message?.content && this.think.output(message?.content || '');
-                            }
-                        }
-                    }
+                             } else {
+                                 if (chunk?.choices?.[0].delta?.audio) {
+                                     const audioData = formatAudioData(chunk?.choices[0]?.delta?.audio);
+                                     audioData && this.think.output(audioData);
+                                 }
+                                 // 累积内容
+                                 if (message?.content) {
+                                     accumulatedContent += message.content;
+                                     // 内容仍在 think.output 中分块输出
+                                     this.think.output(message.content); 
+                                 }
+                             }
+                         }
+                     }
+                 }
+
+                // Minimal Change: If no tool calls received after stream, finalize and return
+                if (!receivedToolCalls) {
+                    const finalDirectAnswer = accumulatedContent.trim();
+                    this.think.finalAnswer(finalDirectAnswer);
+                    return { finalAnswer: finalDirectAnswer }; // Return early
                 }
-            } else {
-                // 如果没有工具调用，直接返回内容
-                if (!toolCalls || toolCalls.length === 0) {
-                    if (!content || content.trim() === '') {
-                        // **** 修改点：使用 finalAnswer 并直接返回 ****
-                        const errorMessage = "很抱歉，模型未能生成有效回复。请尝试修改您的问题，或使用其他关键词。";
-                        this.think.finalAnswer(errorMessage); // 使用 finalAnswer 输出错误
-                        return { finalAnswer: errorMessage }; // 直接返回错误信息
-                    } else {
-                        // **** 修改点：使用 finalAnswer 并直接返回 ****
-                        // LLM 提供了直接答案，将其视为最终答案
-                        this.think.finalAnswer(content); // 使用 finalAnswer 输出
-                        return { finalAnswer: content }; // 直接返回最终答案，跳过后续总结
-                    }
-                }
-            }
+                // Continue processing if tool calls were received
+             } else {
+                 // 如果没有工具调用，直接返回内容
+                 if (!toolCalls || toolCalls.length === 0) {
+                     if (!content || content.trim() === '') {
+                         // **** 修改点：使用 finalAnswer 并直接返回 ****
+                         const errorMessage = "很抱歉，模型未能生成有效回复。请尝试修改您的问题，或使用其他关键词。";
+                         this.think.finalAnswer(errorMessage); // 使用 finalAnswer 输出错误
+                         return { finalAnswer: errorMessage }; // 直接返回错误信息
+                     } else {
+                         // **** 修改点：使用 finalAnswer 并直接返回 ****
+                         // LLM 提供了直接答案，将其视为最终答案
+                         this.think.finalAnswer(content); // 使用 finalAnswer 输出
+                         return { finalAnswer: content }; // 直接返回最终答案，跳过后续总结
+                     }
+                 }
+             }
             
             // 如果有工具调用，则处理工具调用 (这部分逻辑保持不变)
             if (toolCalls && toolCalls.length > 0) {

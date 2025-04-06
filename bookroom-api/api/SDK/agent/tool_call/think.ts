@@ -10,7 +10,6 @@ class Think {
     private history: Array<any> = [];
     private messages: Array<any> | PassThrough | null = [];
     private logLevel?: boolean = true;
-    private searching: boolean = false;
 
     constructor(options: ThinkOptions, ctx?: Context) {
         const { is_stream = false, logLevel = true } = options;
@@ -41,42 +40,23 @@ class Think {
     }
     log(...args: any[]) {
         const formattedMessage = this.formattedMessage(args);
-        // 存储记录记录
         this.history.push(formattedMessage);
 
         if (!this.logLevel) {
-            // console.log(formattedMessage);
             return;
-        }
-        // 如果未在搜索状态，则开始搜索状态
-        if (!this.searching) {
-            this.push("<search>\n\n");
-            this.searching = true;
         }
         this.push(formattedMessage);
     }
     output(...args: any[]) {
-        // 如果在搜索状态，则结束搜索状态
-        if (this.searching) {
-            this.log('</search>', "\n\n");
-            this.searching = false;
-        }
         const formattedMessage = this.formattedMessage(args)
         this.push(formattedMessage);
     }
 
     finalAnswer(content: string) {
-        // 类似于 output 方法，确保 search 标签已关闭
-        if (this.searching) {
-            this.push("</search>\n\n"); // 直接 push 关闭标签
-            this.searching = false;
-        }
-        // 构造包含事件类型的最终消息对象
         const finalMessage = {
-            event: 'final_answer', // 使用新的事件类型
+            event: 'final_answer',
             content: content
         };
-        // 调用 push 发送这个结构化消息
         this.push(finalMessage);
     }
 
@@ -127,7 +107,6 @@ class Think {
     }
 
     end() {
-        // 停止并输出空字符，判定是否结束了搜索
         this.output('');
         if (this.messages instanceof PassThrough) {
             this.messages.end();

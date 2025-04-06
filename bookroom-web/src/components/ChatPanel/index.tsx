@@ -73,6 +73,9 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const [imageList, setImageList] = useState<any[]>([]);
   const [videoList, setVideoList] = useState<any[]>([]);
 
+  const [finalizedMessageId, setFinalizedMessageId] = useState<string | null>(null);
+  const currentAnswerIdRef = useRef<string | null>(null);
+
   const objectIdMapRef = useRef<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(false);
   const [voiceLoading, setVoiceLoading] = useState(false);
@@ -85,7 +88,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const messageListEndRef = useRef<HTMLDivElement>(null);
   const abortController = useRef<AbortController | null>(null);
   // 发送
-  const handleSend = async (newMessageList: any) => {
+  const handleSend = async (newMessageList: ChatMessageType[]) => {
     if (loading) {
       return;
     }
@@ -93,14 +96,15 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       return;
     }
     setMessageList([...newMessageList]);
-    // 先保存消息,防止发送失败导致消息丢失
     await saveAIChat?.([...newMessageList]);
 
+    setFinalizedMessageId(null);
+
     abortController.current = new AbortController();
-    // 定义ID，用于显示回复信息
     const answerId = btoa(Math.random().toString());
+    currentAnswerIdRef.current = answerId;
     const initAnswerContent = '';
-    const newResMessage = {
+    const newResMessage: ChatMessageType = {
       id: answerId,
       role: 'assistant',
       content: initAnswerContent,
@@ -154,22 +158,18 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
           throw new Error(errorData?.message || '生成失败');
         }
         
-        // **** 修改点：添加 SSE 解析逻辑 ****
-        let sseBuffer = ''; // 用于存储跨块的 SSE 消息片段
-        let currentAssistantContent = initAnswerContent; // 存储累积的有效内容
+        let sseBuffer = '';
+        let currentAssistantContent = initAnswerContent;
+        let currentLogContent = '';
 
-        // 模拟进度更新的函数
         const updateProgress = async (chunk: any) => {
           if (!chunk?.done && chunk?.value) {
             sseBuffer += decoder.decode(chunk?.value, { stream: true });
-            // console.log('[FRONTEND DEBUG] SSE Buffer:', JSON.stringify(sseBuffer)); // 调试日志
 
             let messageEndIndex;
-            // 循环处理缓冲区中所有完整的 SSE 消息
             while ((messageEndIndex = sseBuffer.indexOf('\n\n')) !== -1) {
                 const messageBlock = sseBuffer.substring(0, messageEndIndex);
                 sseBuffer = sseBuffer.substring(messageEndIndex + 2);
-                // console.log('[FRONTEND DEBUG] Processing SSE Block:', JSON.stringify(messageBlock)); // 调试日志
 
                 let eventType = 'message';
                 let dataContent = '';
@@ -179,75 +179,56 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
                     if (line.startsWith('event:')) {
                         eventType = line.substring(6).trim();
                     } else if (line.startsWith('data:')) {
-                        // 累加 data 行的内容 (移除 data: 前缀)
-                        // 注意：对于多行 data，需要拼接，这里简化假设 data 在一行或 JSON
                         dataContent += line.substring(5).trim(); 
                     }
                 }
-                // console.log(`[FRONTEND DEBUG] Parsed Event: ${eventType}, Data: ${dataContent}`); // 调试日志
 
-                // 根据事件类型处理数据
                 let extractedContent = '';
                 if (eventType === 'final_answer') {
                     try {
                         const parsedData = JSON.parse(dataContent);
                         if (parsedData && typeof parsedData.content === 'string') {
-                            extractedContent = parsedData.content;
-                            // TODO: 可以设置一个状态表示最终答案已收到
-                             console.log('[FRONTEND DEBUG] Final Answer received:', extractedContent);
+                            currentAssistantContent = parsedData.content;
+                            extractedContent = '';
+                            setFinalizedMessageId(answerId);
                         }
                     } catch (e) {
                         console.error('[FRONTEND] Failed to parse final_answer data:', e, 'Raw:', dataContent);
                     }
-                } else { // 默认处理 (包括 event: message, event: output, 或无 event)
-                     // 假设 dataContent 是纯文本，处理转义的换行符
-                     extractedContent = dataContent.replace(/\\n/g, '\n');
-                }
-
-                // 将有效内容累加到最终显示的内容中
-                if (extractedContent) {
-                    currentAssistantContent += extractedContent;
-                     // console.log('[FRONTEND DEBUG] Accumulated Content Length:', currentAssistantContent.length); // 调试日志
+                } else { 
+                    extractedContent = dataContent.replace(/\\n/g, '\n');
+                    if (extractedContent) {
+                        currentLogContent += extractedContent;
+                    }
                 }
             }
 
-            // 更新 UI 显示的消息内容
-            const resMessage = {
-              role: 'assistant',
-              content: currentAssistantContent, // 使用累积的有效内容
-              createdAt: new Date(),
-            };
-            // 查找并更新消息列表
-            if (
-              !newMessageList.find(
-                (item: { id: string }) => item.id === answerId,
-              )
-            ) {
-              newMessageList.push({
-                ...resMessage,
-                id: answerId,
-              });
+            // Update UI
+            const currentMsgIndex = newMessageList.findIndex((item) => item.id === answerId);
+            if (currentMsgIndex > -1) {
+                newMessageList[currentMsgIndex] = {
+                    ...newMessageList[currentMsgIndex],
+                    content: currentAssistantContent,
+                    logContent: currentLogContent,
+                };
             } else {
-              newMessageList.map((item: { id: string; content: string }) => {
-                if (item.id === answerId) {
-                  item.content = currentAssistantContent;
-                }
-                return item;
-              });
+                newMessageList.push({
+                    id: answerId,
+                    role: 'assistant',
+                    content: currentAssistantContent,
+                    logContent: currentLogContent,
+                    createdAt: new Date(),
+                });
             }
             setMessageList([...newMessageList]);
           }
           if (chunk?.done) {
-            // console.log('[FRONTEND DEBUG] Stream finished.'); // 调试日志
-            // 处理缓冲区中可能剩余的不完整消息（可选）
+            currentAnswerIdRef.current = null;
             return;
           }
-          // 递归调用读取下一个分块
           await reader?.read().then(updateProgress);
         };
-        // **** 修改结束 ****
 
-        // 开始读取流数据
         await reader?.read().then(updateProgress);
         return response;
       })
@@ -278,13 +259,9 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       }
       setMessageList([...newMessageList]);
       console.error('请求异常：', error);
+      currentAnswerIdRef.current = null;
     } finally {
       setLoading(false);
-      if (!responseData) {
-        newResMessage.content = '回复为空，请稍后再试。';
-        newMessageList.push(newResMessage);
-        setMessageList([...newMessageList]);
-      }
       saveAIChat?.(newMessageList);
     }
   };
@@ -548,6 +525,8 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
                 loading={loading}
                 handleDelete={handleDelete}
                 handleReAnswer={handleReAnswer}
+                isCurrentlyStreaming={loading && currentAnswerIdRef.current === msgObj.id}
+                isFinalized={finalizedMessageId === msgObj.id}
               />
             ),
           )}
