@@ -25,7 +25,7 @@ const LinkDelete: React.FC<LinkDeleteProps> = (props) => {
         target: link?.target?.id || link?.target,
       },
       {
-        timout: 0
+        timeout: 0
       }
     )
       .then((response) => {

@@ -26,6 +26,7 @@ export interface ParametersType {
   frequencyPenalty?: number;
   presencePenalty?: number;
   maxTokens: number;
+  limitSeconds: number;
 }
 
 export const defaultParameters: ParametersType = {
@@ -39,6 +40,7 @@ export const defaultParameters: ParametersType = {
   frequencyPenalty: 0,
   presencePenalty: 0,
   maxTokens: 4096,
+  limitSeconds: 30,
 };
 
 interface ChatParametersProps {
@@ -60,6 +62,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [frequencyPenalty, setFrequencyPenalty] = useState<number>(0);
   const [presencePenalty, setPresencePenalty] = useState<number>(0);
   const [maxTokens, setMaxTokens] = useState<number>(4096);
+  const [limitSeconds, setLimitSeconds] = useState<number>(30);
   const { token } = useToken();
   const { platform, data, parameters, changeParameters } = props;
 
@@ -75,6 +78,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
       setFrequencyPenalty(parameters.frequencyPenalty);
       setPresencePenalty(parameters.presencePenalty);
       setMaxTokens(parameters.maxTokens);
+      setLimitSeconds(parameters.limitSeconds);
     }
   }, [parameters]);
 
@@ -90,6 +94,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
       frequencyPenalty,
       presencePenalty,
       maxTokens,
+      limitSeconds,
     };
     changeParameters(newParameters);
   };
@@ -335,6 +340,36 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
               value={voiceParams}
               onChange={(value: any) => {
                 setVoiceParams(value);
+              }}
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>超时设置(秒)</label>
+            <Slider
+              style={{ width: 100 }}
+              min={10}
+              max={3600}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setLimitSeconds(value);
+                }
+              }}
+              value={limitSeconds}
+              tooltip={{ open: false }}
+            />
+            <InputNumber
+              min={10}
+              max={3600}
+              style={{ marginLeft: 8 }}
+              value={limitSeconds}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setLimitSeconds(value);
+                }
               }}
             />
           </Flex>

@@ -62,7 +62,6 @@ const AILmChatPage: React.FC = () => {
         model: model || '',
         prompt: prompt, // 设置提示信息
         messages: [...newMessages],
-        format: '',
         top_p: parameters?.topP,
         top_k: parameters?.topK,
         temperature: parameters?.temperature, // 设置温度
@@ -70,6 +69,7 @@ const AILmChatPage: React.FC = () => {
         repeat_penalty: parameters?.repeatPenalty, // 设置惩罚强度
         frequency_penalty: parameters?.frequencyPenalty, // 设置频率惩罚
         presence_penalty: parameters?.presencePenalty, // 设置存在惩罚
+        limitSeconds: parameters?.limitSeconds, // 设置最大时间限制
       },
       {
         ...(options || {}),

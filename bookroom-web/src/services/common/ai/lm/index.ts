@@ -201,6 +201,7 @@ export async function AILmChat(
     repeat_penalty?: number;
     frequency_penalty?: number;
     presence_penalty?: number;
+    limitSeconds?: number; // 设置最大时间限制
   },
   options?: { [key: string]: any },
 ) {
@@ -239,6 +240,7 @@ export async function AILmGenerate(
     repeat_penalty?: number;
     frequency_penalty?: number;
     presence_penalty?: number;
+    limitSeconds?: number; // 设置最大时间限制
   },
   options?: { [key: string]: any },
 ) {

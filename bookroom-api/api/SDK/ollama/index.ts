@@ -7,7 +7,7 @@ export const OLLAMA_CONFIG = {
     keep_alive: "5m",
 }
 
-class OllamaApi {
+class OllamaAPI {
     private readonly ollama: Ollama;
     private readonly platformId: string = "";
 
@@ -20,7 +20,7 @@ class OllamaApi {
         }
 
         this.ollama = new Ollama({
-            ...params
+            ...params,
         });
     }
 
@@ -237,4 +237,4 @@ class OllamaApi {
     }
 }
 
-export default OllamaApi;
+export default OllamaAPI;
