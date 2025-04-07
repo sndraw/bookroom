@@ -37,7 +37,7 @@ export default class AgentAPI {
 
 
     async chat(queryParams: AgentApiChatType) {
-        const { query, stream, workspace, timeout,userId} = queryParams;
+        const { query, stream, workspace, timeout, userId } = queryParams;
         try {
             const headers: Record<string, string> = {
                 'Content-Type': 'application/json',
@@ -56,12 +56,14 @@ export default class AgentAPI {
             const dataStream: any = await request(url, {
                 method: 'POST',
                 headers,
-                data: query,
+                data: {
+                    query
+                },
                 responseType: stream ? 'stream' : 'json',
                 timeout: timeout || 30000
             });
             if (stream) {
-                return await handleResponseStream(dataStream,{
+                return await handleResponseStream(dataStream, {
                     userId
                 });
             }
@@ -70,9 +72,14 @@ export default class AgentAPI {
                 isError: false,
             };
         } catch (error: any) {
-            const errMessage = error?.response?.data?.detail || error
+            let errMessage = "Agent沟通出错："
+            if (error?.response?.data?.detail) {
+                errMessage += JSON.stringify(error?.response?.data?.detail)
+            } else {
+                errMessage += error?.mssage || "未知"
+            }
             return {
-                content: `Error in chat: ${errMessage}`,
+                content: errMessage,
                 isError: true,
             };
         }

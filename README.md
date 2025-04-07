@@ -60,8 +60,9 @@
 > 2. BookRoom RAG: http://192.168.1.2:19621
 
 #### 智能助手-接口类型 - 开发中
-> 1. MCP SDK: http://192.168.1.2:25230
-> 2. Agents SDK: http://192.168.1.2:5173
+> 1. Agent API: http://192.168.1.2:25230
+> 2. MCP SDK: http://192.168.1.2:25231
+> 3. Agents SDK: http://192.168.1.2:25232
 
 #### 搜索引擎-接口类型 - 开发中
 > 1. Tavily: https://api.tavily.com

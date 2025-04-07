@@ -69,11 +69,13 @@ class UrlTool {
                         fileData = Buffer.from(base64Data, 'base64'); // 解码为二进制数据
                     }
                 }
+                const contentType=mimetype || (file instanceof Blob ? file.type : 'application/octet-stream');
+                
                 result = await fetch(uploadUrl, {
                     method: 'PUT',
                     body: fileData, // 使用Blob对象或者二进制数据
                     headers: {
-                        'Content-Type': mimetype || 'application/octet-stream',
+                        'Content-Type': contentType,
                     },
                 }).catch((error) => {
                     logger.error('上传文件失败', error);
@@ -81,7 +83,8 @@ class UrlTool {
                 if (!result?.ok) {
                     throw new Error(`上传文件失败，状态码: ${result?.status}`);
                 }
-                logger.info('上传文件结果', result);
+                logger.info(`文件上传成功`);
+                result ="文件上传成功"
             }
             if (downloadUrl) {
                 result = await fetch(downloadUrl, {
