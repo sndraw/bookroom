@@ -52,7 +52,7 @@ const NodeEdit: React.FC<NodeEditProps> = (props) => {
           source_id: values?.source_id || "UNKNOWN",
         },
         {
-          timout: 0
+          timeout: 0
         }
       ).then((response) => {
         if (operation && response?.data) {

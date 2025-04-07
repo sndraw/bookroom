@@ -291,7 +291,9 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
 
   useEffect(() => {
     if (!isButtonVisible) {
-      scrollToBottom();
+      setTimeout(() => {
+        scrollToBottom();
+      }, 500); // 延迟500ms，确保消息已经添加到列表中
     }
   }, [messageList]); // 监听消息变化
 

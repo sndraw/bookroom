@@ -68,7 +68,7 @@ const LinkAdd: React.FC<LinkAddProps> = (props) => {
           source_id: values?.source_id || "UNKNOWN", // 默认值为 UNKNOWN
         },
         {
-          timout: 0
+          timeout: 0
         }
       ).then((response) => {
         if (operation && response?.data) {

@@ -7,12 +7,12 @@ import { convertMessagesToVLModelInput } from './convert';
 import { EmbeddingCreateParams } from 'openai/resources/embeddings';
 
 
-class OpenAIApi {
+class OpenAIAPI {
     private readonly openai: any;
     private readonly platformId: string = "";
 
     constructor(ops: any) {
-        const { apiKey, host, id } = ops;
+        const { apiKey, host, id, limitSeconds = 30 } = ops;
         if (!id) throw new Error("缺少平台ID");
 
         if (id) {
@@ -21,7 +21,7 @@ class OpenAIApi {
         this.openai = new OpenAI({
             apiKey: apiKey,
             baseURL: host,
-            timeout: 20000,
+            timeout: Number(limitSeconds) * 1000,
             maxRetries: 2
         });
     }
@@ -265,4 +265,4 @@ class OpenAIApi {
     }
 }
 
-export default OpenAIApi;
+export default OpenAIAPI;

@@ -24,7 +24,7 @@ const NodeDelete: React.FC<NodeDeleteProps> = (props) => {
         node_id: node.id,
       },
       {
-        timout: 0
+        timeout: 0
       }
     )
       .then((response) => {
