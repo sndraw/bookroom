@@ -48,7 +48,13 @@ class FileTool {
     private config: any;
     public name = "file_tool";
     public version = "1.0";
-    public description = "API for file storage  | 文件存储工具 | 可以通过该API与文件存储系统进行交互";
+    public description = `
+    API for file storage  | 文件存储工具 | 可以通过该API与文件存储系统进行交互\n
+    示例:\n
+    如果需要上传文档，请先根据需要定义一个带有完整文档后缀的<文件名>，通过该<文件名>作为输入参数调用<文件存储工具>获取<预签名上传地址>，然后调用<URL工具>，使用<预签名上传地址>，将刚刚的短文内容进行上传，最后调用<URL工具>通过<文件名>作为输入参数获取<预签名下载地址>，将<预签名下载地址>进行输出。
+    预签名下载地址输出格式:\n
+    [<文件名>](<预签名下载地址>)\n
+    `;
     public parameters = {
         type: "object",
         properties: {
@@ -94,7 +100,7 @@ class FileTool {
             switch (action) {
                 case FileActionMap.getObjectData.value:
                     if (!objectId) {
-                        throw new Error("缺少文件名/对象ID参数");
+                        throw new Error("文件内容获取错误：缺少文件名/对象ID参数");
                     }
                     objectName = getObjectName(objectId, userId)
                     logger.log("文件名称", objectName);
@@ -105,13 +111,13 @@ class FileTool {
                     });
                     data = {
                         isError: false,
-                        message: "获取文件内容成功",
+                        message: "文件内容获取成功",
                         fileData: result?.dataStr || "",
                     }
                     break;
                 case FileActionMap.fPutObject.value:
                     if (!objectId) {
-                        throw new Error("缺少文件名/对象ID参数");
+                        throw new Error("文件上传错误：缺少文件名/对象ID参数");
                     }
                     objectName = getObjectName(objectId, userId)
                     // 判定文件是否存在
@@ -141,7 +147,7 @@ class FileTool {
                     break;
                 case FileActionMap.presignedGetObject.value:
                     if (!objectId) {
-                        throw new Error("缺少文件名/对象ID参数");
+                        throw new Error("预签名下载地址获取错误：缺少文件名/对象ID参数");
                     }
                     objectName = getObjectName(objectId, userId)
                     // 获取预签名下载地址
@@ -157,7 +163,7 @@ class FileTool {
                     break;
                 case FileActionMap.presignedPutObject.value:
                     if (!objectId) {
-                        throw new Error("缺少文件名/对象ID参数");
+                        throw new Error("预签名上传地址获取错误：缺少文件名/对象ID参数");
                     }
                     objectName = getObjectName(objectId, userId)
                     // 获取预签名上传地址
@@ -182,7 +188,7 @@ class FileTool {
             data = {
                 isError: true,
                 code: 500,
-                message: `服务器内部错误：${error?.message || '未知错误'}`,
+                message: `工具使用错误：${error?.message || '未知'}`,
             }
         }
 

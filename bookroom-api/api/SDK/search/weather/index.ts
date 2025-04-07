@@ -22,7 +22,7 @@ export default class WeatherApi {
     async search(queryParams: any) {
         const { query, paramKey = "city",timeout } = queryParams || {};
         try {
-            const result: any = await request(this.host, {
+            const data: any = await request(this.host, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -33,7 +33,6 @@ export default class WeatherApi {
                 },
                 timeout: Number(timeout || 30000), // 超时时间，单位为毫秒
             });
-            const { data } = result;
             if (typeof data === 'object' && data !== null && data?.code === 200) {
                 return {
                     content: data,

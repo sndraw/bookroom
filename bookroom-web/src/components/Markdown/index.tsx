@@ -146,6 +146,7 @@ export const CodeRenderer = (params: any) => {
 };
 export const MediaRenderer =  (params: any) => {
   const { children, ...props } = params || {};
+
   // 判定是否为媒体对象
   if (isMediaObjectId(props.href)) {
     return <MediaPreview href={props.href} />;
