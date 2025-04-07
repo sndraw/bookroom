@@ -1,9 +1,6 @@
 import { SEARCH_API_MAP } from "@/common/search";
 import CustomSearchApi from "@/SDK/search/custom_search";
 import TavilyApi from "@/SDK/search/tavily";
-import { ifError } from "assert";
-import { time } from "console";
-
 interface SearchInput {
     query: string;
     timeout?: number,

@@ -236,9 +236,9 @@ class AgentService {
                 }
                 // 多个智能体作为输入，需要遍历每个智能体并获取其配置
                 if (agentList.length > 0) {
-                    for (const agent of agentList) {
+                    for (const agentId of agentList) {
                         // 获取智能接口配置
-                        const agentSDKConfig: any = await PlatformService.findPlatformByIdOrName(agentSDK, {
+                        const agentSDKConfig: any = await PlatformService.findPlatformByIdOrName(agentId, {
                             safe: false
                         });
                         // 搜索引擎
