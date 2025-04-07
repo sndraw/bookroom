@@ -5,7 +5,7 @@ import {
   PauseCircleOutlined,
   SendOutlined,
 } from '@ant-design/icons';
-import { Button, FloatButton, Form, Input, message, Popconfirm } from 'antd';
+import { Button, FloatButton, Form, Input, message, Popconfirm, Space } from 'antd';
 import classNames from 'classnames';
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
@@ -291,9 +291,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
 
   useEffect(() => {
     if (!isButtonVisible) {
-      setTimeout(() => {
-        scrollToBottom();
-      }, 500); // 延迟500ms，确保消息已经添加到列表中
+      scrollToBottom();
     }
   }, [messageList]); // 监听消息变化
 
@@ -511,43 +509,6 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
           />
         )}
       </div>
-
-      {isImages && (
-        <div className={styles.inputImages}>
-          <ImageUploadPreview
-            title="上传图片"
-            fileList={imageList}
-            setFileList={setImageList}
-            onSuccess={(uid, objectId) => {
-              objectIdMapRef.current.set(uid, objectId);
-            }}
-          />
-          {/* <ImageList fileList={imageList}/>
-          <ImageUploadModal
-            title="上传图片"
-            handleUpload={setImageList}
-          /> */}
-        </div>
-      )}
-
-      {!disabled && !loading && !voiceLoading &&
-        <Popconfirm
-          disabled={loading}
-          title={`确定要清空对话吗？`}
-          onConfirm={handleClear}
-        >
-          <FloatButton
-            className={styles.clearButton}
-            style={
-              {
-                zIndex: 100, // 设置z-index值
-              }
-            }
-            icon={<ClearOutlined />}
-            type={"default"}
-          ></FloatButton>
-        </Popconfirm>
-      }
       <Form
         className={styles.inputForm}
         form={form}
@@ -555,57 +516,94 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         disabled={disabled}
       >
         <div className={styles.inputTextAreaWrapper}>
-          {isVoice && (
-            <VoiceChat
-              voiceParams={voiceParams}
-              className={styles?.voiceChat}
+          <div className={styles.inputTextAreaBtns}>
+            <Popconfirm
+              className={styles.clearButton}
               disabled={disabled || loading || voiceLoading}
-              onRecordStart={() => { }}
-              onRecordStop={(audioBlob) => {
-                handleVoiceMessage(audioBlob);
-              }}
-            />
-          )}
-          <Form.Item name="msg" className={styles.inputTextAreaItem}>
-            <Input.TextArea
-              placeholder={sendOptions?.placeholder || "请发送一条消息..."}
-              allowClear={false}
-              className={styles.inputTextArea}
-              onKeyDown={handleKeyDown}
-              onChange={handleInputChange}
-              autoSize={{ minRows: 1, maxRows: 4 }}
-              rows={1}
-            />
-          </Form.Item>
-          {/* 发送按钮 */}
-
-          {!loading && (
-            <Button
-              className={styles.inputTextAreaSendBtn}
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              disabled={disabled || voiceLoading}
-              title="发送(Ctrl+Enter)"
+              title={`确定要清空对话吗？`}
+              onConfirm={handleClear}
             >
-              <SendOutlined />
-            </Button>
-          )}
+              <Button
+                title={'清空对话'}
+                icon={<ClearOutlined />}
+                disabled={disabled || loading || voiceLoading}
+                type={"text"}
+                size={"large"}
+              ></Button>
+            </Popconfirm>
+            {isImages && (
+              <div className={styles.inputImages}>
+                <ImageUploadPreview
+                  title="上传图片"
+                  fileList={imageList}
+                  setFileList={setImageList}
+                  onSuccess={(uid, objectId) => {
+                    objectIdMapRef.current.set(uid, objectId);
+                  }}
+                />
+                {/* <ImageList fileList={imageList}/>
+          <ImageUploadModal
+            title="上传图片"
+            handleUpload={setImageList}
+          /> */}
+              </div>
+            )}
+          </div>
+          <div className={styles.inputTextAreaContainer}>
+            {isVoice && (
+              <VoiceChat
+                voiceParams={voiceParams}
+                className={styles?.voiceChat}
+                disabled={disabled || loading || voiceLoading}
+                onRecordStart={() => { }}
+                onRecordStop={(audioBlob) => {
+                  handleVoiceMessage(audioBlob);
+                }}
+              />
+            )}
+            <Form.Item name="msg" className={styles.inputTextAreaItem}>
+              <Input.TextArea
+                placeholder={sendOptions?.placeholder || "请发送一条消息..."}
+                allowClear={false}
+                className={styles.inputTextArea}
+                onKeyDown={handleKeyDown}
+                onChange={handleInputChange}
+                autoSize={{ minRows: 1, maxRows: 4 }}
+                rows={1}
+              />
+            </Form.Item>
+            {/* 发送按钮 */}
 
-          {/* 停止按钮 */}
-          {loading && (
-            <Button
-              ghost
-              className={styles.inputTextAreaSendBtn}
-              type="primary"
-              htmlType="button"
-              title="停止"
-              onClick={handleStopAnswer}
-              disabled={disabled}
-            >
-              <PauseCircleOutlined />
-            </Button>
-          )}
+            {!loading && (
+              <Button
+                className={styles.inputTextAreaSendBtn}
+                type="primary"
+                shape="circle"
+                htmlType="submit"
+                loading={loading}
+                disabled={disabled || voiceLoading}
+                title="发送(Ctrl+Enter)"
+              >
+                <SendOutlined />
+              </Button>
+            )}
+
+            {/* 停止按钮 */}
+            {loading && (
+              <Button
+                ghost
+                className={styles.inputTextAreaSendBtn}
+                type="primary"
+                shape="circle"
+                htmlType="button"
+                title="停止"
+                onClick={handleStopAnswer}
+                disabled={disabled}
+              >
+                <PauseCircleOutlined />
+              </Button>
+            )}
+          </div>
         </div>
       </Form>
     </div>

@@ -4,12 +4,15 @@ import Papa from 'papaparse';
 import { useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { Graphviz } from 'graphviz-react';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
-
-import styles from './index.less'; // 引入外部样式表
 import { previewFileApi } from '@/services/common/file';
 import MediaPreview from '../MediaPreview';
 import { isMediaObjectId } from '@/utils/file';
+import remarkGfm from 'remark-gfm'
+import rehypeReact from 'rehype-react'
+import remarkMath from 'remark-math'
+import styles from './index.less'; // 引入外部样式表
 
 export const markdownToText = (content: string) => {
   const html = marked(content, { async: false });
@@ -94,6 +97,7 @@ export const CodeRenderer = (params: any) => {
 
   const match = /language-(\w+)/.exec(className || '');
   const isInline = typeof children === 'string' && !children.includes('\n');
+  console.log(match)
   if (match && match[1] === 'csv') {
     if (!children) {
       return null;
@@ -131,6 +135,20 @@ export const CodeRenderer = (params: any) => {
           ))}
         </tbody>
       </table>
+    );
+  }
+  if (match && match[1] === 'dot') {
+    return (
+      <div style={{ whiteSpace: 'pre-wrap' }}>
+        <Graphviz dot={children} options={
+          {
+            height: '100%', // 设置图表高度为父容器的高度
+            width: '100%', // 设置图表宽度为父容器的宽度
+            zoomFactor: 1.5, // 设置缩放因子为 1.5
+            fit: true, // 自动调整图表大小以适应容器
+          }
+        }/>
+      </div>
     );
   }
 
@@ -279,6 +297,8 @@ export const MarkdownWithHighlighting = ({
               {item?.before && (
                 <ReactMarkdown
                   key={index + "before"}
+                  remarkPlugins={[remarkGfm, remarkMath]}
+                  rehypePlugins={[rehypeReact]}
                   components={{
                     code: CodeRenderer,
                     a: MediaRenderer,
@@ -298,6 +318,8 @@ export const MarkdownWithHighlighting = ({
               {item?.result && (
                 <ReactMarkdown
                   key={index + "result"}
+                  remarkPlugins={[remarkGfm, remarkMath]}
+                  rehypePlugins={[rehypeReact]}
                   components={{
                     code: CodeRenderer,
                     a: MediaRenderer,
