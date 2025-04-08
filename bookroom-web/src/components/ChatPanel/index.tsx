@@ -201,7 +201,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         errorData = { message: '请求被终止' };
       } else {
         try {
-          errorData = (await error?.json?.());
+          errorData = (await error?.json?.()) || error;
         } catch (e) {
           errorData = error?.info || error;
         }
