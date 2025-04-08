@@ -78,7 +78,7 @@ class AgentTool {
             data = {
                 isError: true,
                 code: 500,
-                message: `服务器内部错误：${error?.message || '未知错误'}`,
+                message: `Agent交互失败：${error?.message || '未知错误'}`,
             }
         }
         if (data && typeof data === 'object' && !data?.isError) {

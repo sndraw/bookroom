@@ -109,7 +109,7 @@ class UrlTool {
             data = {
                 isError: true,
                 code: 500,
-                message: `服务器内部错误：${error?.message || '未知错误'}`,
+                message: `Url请求失败：${error?.message || '未知错误'}`,
             }
         }
 
