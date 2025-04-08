@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node", "jest", "@jest/globals"],
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./api/*"]
+    }
+  },
+  "include": [
+    "api/**/*.ts",
+    "api/**/*.test.ts",
+    "test/**/*.ts",
+    "test/**/*.test.ts",
+    "types/**/*.d.ts"
+  ]
+} 

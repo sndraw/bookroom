@@ -73,6 +73,9 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const [imageList, setImageList] = useState<any[]>([]);
   const [videoList, setVideoList] = useState<any[]>([]);
 
+  const [finalizedMessageId, setFinalizedMessageId] = useState<string | null>(null);
+  const currentAnswerIdRef = useRef<string | null>(null);
+
   const objectIdMapRef = useRef<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(false);
   const [voiceLoading, setVoiceLoading] = useState(false);
@@ -85,7 +88,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const messageListEndRef = useRef<HTMLDivElement>(null);
   const abortController = useRef<AbortController | null>(null);
   // 发送
-  const handleSend = async (newMessageList: any) => {
+  const handleSend = async (newMessageList: ChatMessageType[]) => {
     if (loading) {
       return;
     }
@@ -93,14 +96,15 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       return;
     }
     setMessageList([...newMessageList]);
-    // 先保存消息,防止发送失败导致消息丢失
     await saveAIChat?.([...newMessageList]);
 
+    setFinalizedMessageId(null);
+
     abortController.current = new AbortController();
-    // 定义ID，用于显示回复信息
     const answerId = btoa(Math.random().toString());
+    currentAnswerIdRef.current = answerId;
     const initAnswerContent = '';
-    const newResMessage = {
+    const newResMessage: ChatMessageType = {
       id: answerId,
       role: 'assistant',
       content: initAnswerContent,
@@ -153,45 +157,78 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
           const errorData = await response?.json();
           throw new Error(errorData?.message || '生成失败');
         }
-        // 模拟进度更新的函数
+        
+        let sseBuffer = '';
+        let currentAssistantContent = initAnswerContent;
+        let currentLogContent = '';
+
         const updateProgress = async (chunk: any) => {
           if (!chunk?.done && chunk?.value) {
-            const content = decoder.decode(chunk?.value, { stream: true });
-            if (content) {
-              responseData += content;
-            }
-            const resMessage = {
-              role: 'assistant',
-              content: responseData,
-              createdAt: new Date(),
-            };
-            // 查找并更新消息列表
-            if (
-              !newMessageList.find(
-                (item: { id: string }) => item.id === answerId,
-              )
-            ) {
-              newMessageList.push({
-                ...resMessage,
-                id: answerId,
-              });
-            } else {
-              newMessageList.map((item: { id: string; content: string }) => {
-                if (item.id === answerId) {
-                  item.content = responseData;
+            sseBuffer += decoder.decode(chunk?.value, { stream: true });
+
+            let messageEndIndex;
+            while ((messageEndIndex = sseBuffer.indexOf('\n\n')) !== -1) {
+                const messageBlock = sseBuffer.substring(0, messageEndIndex);
+                sseBuffer = sseBuffer.substring(messageEndIndex + 2);
+
+                let eventType = 'message';
+                let dataContent = '';
+                const lines = messageBlock.split('\n');
+                
+                for (const line of lines) {
+                    if (line.startsWith('event:')) {
+                        eventType = line.substring(6).trim();
+                    } else if (line.startsWith('data:')) {
+                        dataContent += line.substring(5).trim(); 
+                    }
                 }
-                return item;
-              });
+
+                let extractedContent = '';
+                if (eventType === 'final_answer') {
+                    try {
+                        const parsedData = JSON.parse(dataContent);
+                        if (parsedData && typeof parsedData.content === 'string') {
+                            currentAssistantContent = parsedData.content;
+                            extractedContent = '';
+                            setFinalizedMessageId(answerId);
+                        }
+                    } catch (e) {
+                        console.error('[FRONTEND] Failed to parse final_answer data:', e, 'Raw:', dataContent);
+                    }
+                } else { 
+                    extractedContent = dataContent.replace(/\\n/g, '\n');
+                    if (extractedContent) {
+                        currentLogContent += extractedContent;
+                    }
+                }
+            }
+
+            // Update UI
+            const currentMsgIndex = newMessageList.findIndex((item) => item.id === answerId);
+            if (currentMsgIndex > -1) {
+                newMessageList[currentMsgIndex] = {
+                    ...newMessageList[currentMsgIndex],
+                    content: currentAssistantContent,
+                    logContent: currentLogContent,
+                };
+            } else {
+                newMessageList.push({
+                    id: answerId,
+                    role: 'assistant',
+                    content: currentAssistantContent,
+                    logContent: currentLogContent,
+                    createdAt: new Date(),
+                });
             }
             setMessageList([...newMessageList]);
           }
           if (chunk?.done) {
+            currentAnswerIdRef.current = null;
             return;
           }
-          // 递归调用读取下一个分块
           await reader?.read().then(updateProgress);
         };
-        // 开始读取流数据
+
         await reader?.read().then(updateProgress);
         return response;
       })
@@ -222,13 +259,9 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       }
       setMessageList([...newMessageList]);
       console.error('请求异常：', error);
+      currentAnswerIdRef.current = null;
     } finally {
       setLoading(false);
-      if (!responseData) {
-        newResMessage.content = '回复为空，请稍后再试。';
-        newMessageList.push(newResMessage);
-        setMessageList([...newMessageList]);
-      }
       saveAIChat?.(newMessageList);
     }
   };
@@ -492,6 +525,8 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
                 loading={loading}
                 handleDelete={handleDelete}
                 handleReAnswer={handleReAnswer}
+                isCurrentlyStreaming={loading && currentAnswerIdRef.current === msgObj.id}
+                isFinalized={finalizedMessageId === msgObj.id}
               />
             ),
           )}

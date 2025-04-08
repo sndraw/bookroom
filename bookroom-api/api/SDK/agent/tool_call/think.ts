@@ -17,7 +17,6 @@ class Think {
         this.logLevel = logLevel;
         if (is_stream && ctx) {
             const passThroughStream = new PassThrough();
-            // 确保在所有数据推送完毕后才调用 end()
             passThroughStream.on('end', () => {
                 ctx.res.end();
             })
@@ -29,8 +28,13 @@ class Think {
         }
     }
 
+    private formatAsSseData(data: string): string {
+        const lines = String(data).split('\n');
+        const dataLines = lines.map(line => `data: ${line}`).join('\n');
+        return `${dataLines}\n\n`;
+    }
+
     formattedMessage(args: any[]) {
-        // 如果为空
         const formattedMessage = args.map(arg => {
             if (typeof arg === 'object') {
                 return JSON.stringify(arg, null, 2);
@@ -41,43 +45,43 @@ class Think {
     }
     log(...args: any[]) {
         const formattedMessage = this.formattedMessage(args);
-        // 存储记录记录
         this.history.push(formattedMessage);
 
         if (!this.logLevel) {
-            // console.log(formattedMessage);
             return;
         }
-        // 如果未在搜索状态，则开始搜索状态
+
+        const isStreaming = this.messages instanceof PassThrough;
+
         if (!this.searching) {
-            this.push("<search>\n\n");
+            const searchStartTag = "<search>\n\n";
+            this.push(isStreaming ? this.formatAsSseData(searchStartTag) : searchStartTag);
             this.searching = true;
         }
-        this.push(formattedMessage);
+        this.push(isStreaming ? this.formatAsSseData(formattedMessage) : formattedMessage);
     }
     output(...args: any[]) {
-        // 如果在搜索状态，则结束搜索状态
+        const isStreaming = this.messages instanceof PassThrough;
         if (this.searching) {
             this.log('</search>', "\n\n");
             this.searching = false;
         }
-        const formattedMessage = this.formattedMessage(args)
-        this.push(formattedMessage);
+        const formattedMessage = this.formattedMessage(args);
+        this.push(isStreaming ? this.formatAsSseData(formattedMessage) : formattedMessage);
     }
     push(message: any) {
         if (this.messages instanceof Array) {
             this.messages.push(message);
         } else if (this.messages instanceof PassThrough) {
-            // 判定是否为JSON字符串并写入流中
             if (typeof message === 'object') {
                 try {
-                    const jsonString = JSON.stringify(message, null, 2);
+                    const jsonString = JSON.stringify(message);
                     this.messages.write(jsonString, 'utf8');
                 } catch (error) {
-                    console.error("写入流时出错:", error);
+                    console.error("[Think] 写入流时出错 (object):", error);
                 }
             } else {
-                this.messages.write(message, 'utf8');
+                this.messages.write(String(message), 'utf8');
             }
         }
     }
@@ -98,7 +102,6 @@ class Think {
     }
 
     end() {
-        // 停止并输出空字符，判定是否结束了搜索
         this.output('');
         if (this.messages instanceof PassThrough) {
             this.messages.end();

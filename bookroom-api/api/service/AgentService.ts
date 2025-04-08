@@ -212,9 +212,19 @@ class AgentService {
                 const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchEngine, {
                     safe: false
                 });
+                
+                // 确保配置中有engine字段，根据code生成引擎标识
+                const configData = searchEngineConfig?.toJSON();
+                if (configData) {
+                    // 如果没有engine字段，则根据code字段创建，首字母大写
+                    if (configData.code && !configData.engine) {
+                        configData.engine = configData.code.charAt(0).toUpperCase() + configData.code.slice(1);
+                        console.log(`[AgentService] 生成引擎标识: ${configData.engine}`);
+                    }
+                }
+                
                 // 搜索引擎
-                tools.push(new SearchTool(searchEngineConfig?.toJSON()));
-
+                tools.push(new SearchTool(configData));
             }
             if (weatherEngine) {
                 // 获取天气搜索引擎配置

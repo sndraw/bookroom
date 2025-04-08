@@ -6,4 +6,5 @@ export interface ChatMessageType {
   audios?: any[];
   videos?: any[];
   createdAt?: Date;
+  logContent?: string;
 }
