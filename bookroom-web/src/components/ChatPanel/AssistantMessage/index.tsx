@@ -24,7 +24,6 @@ interface AssistantMessageType {
   loading?: boolean; // 是否正在加载中
   className?: string;
   isCurrentlyStreaming?: boolean; // Define prop
-  isFinalized?: boolean; // Define prop
 }
 
 const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
@@ -36,25 +35,7 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
     handleDelete,
     loading,
     className,
-    isCurrentlyStreaming,
-    isFinalized,
   } = props;
-
-  const [collapseActiveKey, setCollapseActiveKey] = useState<string[]>([]); 
-
-  // Control collapse state based on streaming/finalized status
-  useEffect(() => {
-    if (isCurrentlyStreaming && !isFinalized) {
-      setCollapseActiveKey(['log']); // Expand during streaming
-    } else if (isFinalized) {
-      setCollapseActiveKey([]); // Collapse when finalized
-    } 
-    // For existing messages (not currently streaming), default to collapsed (empty activeKey)
-    // This also handles the case where the component re-renders after finalization but before unmounting
-    else if (!isCurrentlyStreaming) { 
-      setCollapseActiveKey([]);
-    }
-  }, [isCurrentlyStreaming, isFinalized]);
 
   return (
     <div
@@ -86,24 +67,7 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
           <div
             className={classNames(styles.messageInnerContent, styles.messageInnerContentAssistant)}
           >
-            {/* Render log content (if exists) in a controlled Collapse */} 
-            {msgObj?.logContent && (
-              <Collapse 
-                ghost 
-                size="small" 
-                className={styles.logCollapse}
-                activeKey={collapseActiveKey} // Controlled state
-                onChange={(key) => setCollapseActiveKey(key as string[])} // Allow manual toggle
-              >
-                <Collapse.Panel header="已完成深度思考" key="log">
-                  <MarkdownWithHighlighting markdownContent={msgObj.logContent} />
-                </Collapse.Panel>
-              </Collapse>
-            )}
-            {/* Render final answer content */} 
-            {msgObj?.content && (
-              <MarkdownWithHighlighting markdownContent={msgObj.content} />
-            )}
+            <MarkdownWithHighlighting markdownContent={msgObj?.content} />
           </div>
           {!loading && (
             <div className={styles.messageFooter}>

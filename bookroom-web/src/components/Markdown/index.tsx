@@ -169,7 +169,7 @@ export const MediaRenderer =  (params: any) => {
     return <MediaPreview href={props.href} />;
   }
   // 使用组件正常的渲染逻辑
-  return <a {...props} >{children}</a>
+  return <a {...props} target='_blank' rel='noopener noreferrer'>{children}</a>
 };
 
 export const MarkdownWithHighlighting = ({

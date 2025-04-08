@@ -72,14 +72,15 @@ export default class AgentAPI {
                 isError: false,
             };
         } catch (error: any) {
-            let errMessage = "Agent沟通出错："
-            if (error?.response?.data?.detail) {
-                errMessage += JSON.stringify(error?.response?.data?.detail)
-            } else {
-                errMessage += error?.mssage || "未知"
+            let errorData;
+            try {
+                errorData = (await error?.json?.());
+            } catch (e) {
+                errorData = error
             }
+            const errorMsg = error?.message || error?.info || error || "未知错误";
             return {
-                content: errMessage,
+                content: `Agent请求失败：${errorMsg}`,
                 isError: true,
             };
         }

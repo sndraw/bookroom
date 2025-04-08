@@ -17,6 +17,7 @@ import { ChatMessageType } from './types';
 import UserMessage from './UserMessage';
 import { voiceRecognizeTask } from '@/services/common/voice';
 import { getUrlAndUploadFileApi } from '@/services/common/file';
+import { formatSseData, isSseFormat } from '@/utils/format';
 
 type ChatPanelPropsType = {
   // 标题
@@ -73,8 +74,6 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const [imageList, setImageList] = useState<any[]>([]);
   const [videoList, setVideoList] = useState<any[]>([]);
 
-  const [finalizedMessageId, setFinalizedMessageId] = useState<string | null>(null);
-  const currentAnswerIdRef = useRef<string | null>(null);
 
   const objectIdMapRef = useRef<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(false);
@@ -98,11 +97,8 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     setMessageList([...newMessageList]);
     await saveAIChat?.([...newMessageList]);
 
-    setFinalizedMessageId(null);
-
     abortController.current = new AbortController();
     const answerId = btoa(Math.random().toString());
-    currentAnswerIdRef.current = answerId;
     const initAnswerContent = '';
     const newResMessage: ChatMessageType = {
       id: answerId,
@@ -111,7 +107,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       createdAt: new Date(),
     };
     setMessageList([...newMessageList, newResMessage]);
-    let responseData = '';
+    let responseData: any = "";
     try {
       setLoading(true);
       const res = await customRequest(
@@ -157,73 +153,38 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
           const errorData = await response?.json();
           throw new Error(errorData?.message || '生成失败');
         }
-        
-        let sseBuffer = '';
-        let currentAssistantContent = initAnswerContent;
-        let currentLogContent = '';
 
         const updateProgress = async (chunk: any) => {
           if (!chunk?.done && chunk?.value) {
-            sseBuffer += decoder.decode(chunk?.value, { stream: true });
-
-            let messageEndIndex;
-            while ((messageEndIndex = sseBuffer.indexOf('\n\n')) !== -1) {
-                const messageBlock = sseBuffer.substring(0, messageEndIndex);
-                sseBuffer = sseBuffer.substring(messageEndIndex + 2);
-
-                let eventType = 'message';
-                let dataContent = '';
-                const lines = messageBlock.split('\n');
-                
-                for (const line of lines) {
-                    if (line.startsWith('event:')) {
-                        eventType = line.substring(6).trim();
-                    } else if (line.startsWith('data:')) {
-                        dataContent += line.substring(5).trim(); 
-                    }
-                }
-
-                let extractedContent = '';
-                if (eventType === 'final_answer') {
-                    try {
-                        const parsedData = JSON.parse(dataContent);
-                        if (parsedData && typeof parsedData.content === 'string') {
-                            currentAssistantContent = parsedData.content;
-                            extractedContent = '';
-                            setFinalizedMessageId(answerId);
-                        }
-                    } catch (e) {
-                        console.error('[FRONTEND] Failed to parse final_answer data:', e, 'Raw:', dataContent);
-                    }
-                } else { 
-                    extractedContent = dataContent.replace(/\\n/g, '\n');
-                    if (extractedContent) {
-                        currentLogContent += extractedContent;
-                    }
-                }
+            const content = decoder.decode(chunk?.value, { stream: true });
+            // 如果是SSE数据格式，处理SSE数据
+            if (content && isSseFormat(content)) {
+              // 处理SSE数据并更新responsedatapath
+              const formattedStr = formatSseData(content);
+              if (formattedStr) {
+                responseData += formattedStr;
+              }
+            }else{
+              responseData += content;
             }
-
             // Update UI
             const currentMsgIndex = newMessageList.findIndex((item) => item.id === answerId);
             if (currentMsgIndex > -1) {
-                newMessageList[currentMsgIndex] = {
-                    ...newMessageList[currentMsgIndex],
-                    content: currentAssistantContent,
-                    logContent: currentLogContent,
-                };
+              newMessageList[currentMsgIndex] = {
+                ...newMessageList[currentMsgIndex],
+                content: responseData
+              };
             } else {
-                newMessageList.push({
-                    id: answerId,
-                    role: 'assistant',
-                    content: currentAssistantContent,
-                    logContent: currentLogContent,
-                    createdAt: new Date(),
-                });
+              newMessageList.push({
+                id: answerId,
+                role: 'assistant',
+                content: responseData,
+                createdAt: new Date(),
+              });
             }
             setMessageList([...newMessageList]);
           }
           if (chunk?.done) {
-            currentAnswerIdRef.current = null;
             return;
           }
           await reader?.read().then(updateProgress);
@@ -259,7 +220,6 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       }
       setMessageList([...newMessageList]);
       console.error('请求异常：', error);
-      currentAnswerIdRef.current = null;
     } finally {
       setLoading(false);
       saveAIChat?.(newMessageList);
@@ -525,8 +485,6 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
                 loading={loading}
                 handleDelete={handleDelete}
                 handleReAnswer={handleReAnswer}
-                isCurrentlyStreaming={loading && currentAnswerIdRef.current === msgObj.id}
-                isFinalized={finalizedMessageId === msgObj.id}
               />
             ),
           )}

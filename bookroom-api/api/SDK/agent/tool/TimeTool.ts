@@ -87,13 +87,11 @@ class TimeTool {
         if (parameters?.params && typeof parameters.params === 'object') {
             Object.assign(queryParams, parameters.params);
         }
-        
-        // 使用模拟数据生成响应
-        const mockTime = `${MOCK_TIME_DATA.date} ${MOCK_TIME_DATA.time.split('T')[1].substring(0, 8)} ${MOCK_TIME_DATA.weekday} +0800`;
-        
+        // 查询当前时间
+        const date = moment().format(queryParams?.format);
         return {
             content: [
-                { type: "text", text: mockTime },
+                { type: "text", text: date },
             ],
             isError: false,
         };
