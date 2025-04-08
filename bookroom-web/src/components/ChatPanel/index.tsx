@@ -584,12 +584,12 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
             {/* 停止按钮 */}
             {loading && (
               <Button
-                ghost
                 className={styles.inputTextAreaSendBtn}
                 type="primary"
                 shape="circle"
                 htmlType="button"
                 title="停止"
+                color="orange"
                 onClick={handleStopAnswer}
                 disabled={disabled}
               >
