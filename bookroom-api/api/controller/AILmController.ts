@@ -303,7 +303,7 @@ class AILmController extends BaseController {
         ...newParams
       });
       if (is_stream) {
-        return await handleResponseStream(dataStream);
+        return await handleResponseStream(dataStream, { ctx });
       }
       ctx.status = 200;
       ctx.body = resultSuccess({
