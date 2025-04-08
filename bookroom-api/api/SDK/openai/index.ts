@@ -7,12 +7,12 @@ import { convertMessagesToVLModelInput } from './convert';
 import { EmbeddingCreateParams } from 'openai/resources/embeddings';
 
 
-class OpenAIApi {
+class OpenAIAPI {
     private readonly openai: any;
     private readonly platformId: string = "";
 
     constructor(ops: any) {
-        const { apiKey, host, id } = ops;
+        const { apiKey, host, id, limitSeconds = 30 } = ops;
         if (!id) throw new Error("缺少平台ID");
 
         if (id) {
@@ -21,7 +21,7 @@ class OpenAIApi {
         this.openai = new OpenAI({
             apiKey: apiKey,
             baseURL: host,
-            timeout: 20000,
+            timeout: Number(limitSeconds) * 1000,
             maxRetries: 2
         });
     }
@@ -112,6 +112,8 @@ class OpenAIApi {
             repetition_penalty = 1.0,
             frequency_penalty = 0.0,
             presence_penalty = 0.0,
+            modalities = ["text", "audio"],
+            audio = { "voice": "Chelsie", "format": "wav" },
             userId
         } = params
 
@@ -125,8 +127,8 @@ class OpenAIApi {
                 model: model,
                 messages: newMessageList || [],
                 stream: is_stream,
-                modalities: ["text", "audio"],
-                audio: { "voice": "Chelsie", "format": "wav" },
+                modalities: modalities,
+                audio: audio,
                 temperature: temperature,
                 top_p: top_p,
                 n: 1,
@@ -136,11 +138,10 @@ class OpenAIApi {
                 user: userId,
             }
             if (tools?.length > 0) {
-                chatParams.tool_choice="auto"; // 让模型自动选择调用哪个工具
+                chatParams.tool_choice = "auto"; // 让模型自动选择调用哪个工具
                 chatParams.stream_options = is_stream ? { include_usage: true } : undefined;
                 chatParams.tools = tools; // 传递工具列表给模型
             }
-            console.log(chatParams);
             const completion = await this.openai.chat.completions.create({
                 ...chatParams,
                 top_k: top_k,
@@ -264,4 +265,4 @@ class OpenAIApi {
     }
 }
 
-export default OpenAIApi;
+export default OpenAIAPI;

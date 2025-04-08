@@ -4,7 +4,7 @@ import BaseController from "./BaseController";
 import AILmService from "@/service/AILmService";
 import AIChatLogService from "@/service/AIChatLogService";
 
-import { responseStream } from "../utils/streamHelper";
+import { handleResponseStream } from "../utils/streamHelper";
 import { StatusEnum } from "@/constants/DataMap";
 
 class AILmController extends BaseController {
@@ -303,8 +303,7 @@ class AILmController extends BaseController {
         ...newParams
       });
       if (is_stream) {
-        await responseStream(ctx, dataStream);
-        return;
+        return await handleResponseStream(dataStream);
       }
       ctx.status = 200;
       ctx.body = resultSuccess({
@@ -602,7 +601,7 @@ class AILmController extends BaseController {
         userId: ctx?.userId
       });
       if (is_stream) {
-        responseText = await responseStream(ctx, dataStream);
+        responseText = await handleResponseStream(dataStream, { ctx });
         return;
       }
       responseText = dataStream?.choices?.[0]?.message?.content || dataStream?.message?.content || '';
@@ -792,7 +791,7 @@ class AILmController extends BaseController {
         userId: ctx?.userId
       });
       if (is_stream) {
-        responseText = await responseStream(ctx, dataStream);
+        responseText = await handleResponseStream(dataStream, { ctx });
         return;
       }
       responseText = dataStream?.response || dataStream?.choices[0]?.text || '';
@@ -923,7 +922,7 @@ class AILmController extends BaseController {
         userId: ctx?.userId
       });
       if (is_stream) {
-        responseText = await responseStream(ctx, dataStream);
+        responseText = await handleResponseStream(dataStream, { ctx });
         return;
       }
       responseText = dataStream || '';
@@ -1020,7 +1019,7 @@ class AILmController extends BaseController {
         userId: ctx?.userId
       });
       if (is_stream) {
-        responseText = await responseStream(ctx, dataStream);
+        responseText = await handleResponseStream(dataStream, { ctx });
         return;
       }
       responseText = dataStream?.response || dataStream || '';

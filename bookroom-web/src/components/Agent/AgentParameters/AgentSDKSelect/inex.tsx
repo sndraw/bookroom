@@ -7,8 +7,8 @@ import { queryAgentPlatformList } from '@/services/common/agent';
 
 type AgentSDKSelectPropsType = {
     title?: string;
-    value?: string;
-    onChange: (value:string) => void;
+    value?: string | string[];
+    onChange: (value:string | string[]) => void;
     // 样式
     className?: string;
 };
@@ -35,8 +35,9 @@ const AgentSDKSelect: React.FC<AgentSDKSelectPropsType> = (props) => {
                     <Divider type="vertical" />
                 </>
             }
-            <Select<string>
+            <Select<string | string[]>
                 className={styles?.selectElement}
+                mode='multiple'
                 value={value}
                 placeholder="请选择智能接口"
                 showSearch

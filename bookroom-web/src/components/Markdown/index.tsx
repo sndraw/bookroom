@@ -4,8 +4,14 @@ import Papa from 'papaparse';
 import { useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { Graphviz } from 'graphviz-react';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
-
+import { previewFileApi } from '@/services/common/file';
+import MediaPreview from '../MediaPreview';
+import { isMediaObjectId } from '@/utils/file';
+import remarkGfm from 'remark-gfm'
+import rehypeReact from 'rehype-react'
+import remarkMath from 'remark-math'
 import styles from './index.less'; // 引入外部样式表
 
 export const markdownToText = (content: string) => {
@@ -17,10 +23,24 @@ export const markdownToText = (content: string) => {
 };
 // 获取无标签内容
 export const getNoTagsContent = (content: string) => {
+  let regex = null;
+  let result = content;
   // 删除<search>标签和<think>标签包裹的内容
-  const regex = /<search>[\s\S]*?<\/search>|<think>[\s\S]*?<\/think>/g;
-  return content.replace(regex, '');
+  regex = /<search>[\s\S]*?<\/search>|<think>[\s\S]*?<\/think>/g;
+  result = result.replace(regex, '');
+  // 删除<audio>标签和<video>标签包裹的内容
+  regex = /<audio>[\s\S]*?<\/audio>|<video>[\s\S]*?<\/video>/g;
+  result = result.replace(regex, '');
+  return result;
 };
+
+export const getPreviewUrl = async (file: string) => {
+  // 获取图片的base64编码
+  const res = await previewFileApi({
+    fileId: file,
+  });
+  return res?.url;
+}
 
 // 处理标签内容
 export const formatMarkDownContent = (content: string, options?: any) => {
@@ -72,154 +92,192 @@ export const formatMarkDownContent = (content: string, options?: any) => {
   }
 }
 
+export const CodeRenderer = (params: any) => {
+  const { node, inline, className, children, ...props } = params || {};
+
+  const match = /language-(\w+)/.exec(className || '');
+  const isInline = typeof children === 'string' && !children.includes('\n');
+  console.log(match)
+  if (match && match[1] === 'csv') {
+    if (!children) {
+      return null;
+    }
+    const csvData = String(children).replace(/\n$/, '');
+    const parsedData = Papa.parse(csvData, { header: true }).data as Array<{
+      [key: string]: unknown;
+    }>;
+
+    return (
+      <table
+        border={1}
+        cellPadding={5}
+        cellSpacing={0}
+        className={styles?.table}
+      >
+        <thead>
+          <tr>
+            {Object.keys(parsedData[0]).map((header) => (
+              <th key={header} className={styles?.tableCell}>
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {parsedData.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {Object.values(row).map((cell, cellIndex) => (
+                <td key={cellIndex} className={styles?.tableTdCell}>
+                  {String(cell)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+  if (match && match[1] === 'dot') {
+    return (
+      <div style={{ whiteSpace: 'pre-wrap' }}>
+        <Graphviz dot={children} options={
+          {
+            height: '100%', // 设置图表高度为父容器的高度
+            width: '100%', // 设置图表宽度为父容器的宽度
+            zoomFactor: 1.5, // 设置缩放因子为 1.5
+            fit: true, // 自动调整图表大小以适应容器
+          }
+        }/>
+      </div>
+    );
+  }
+
+  return !isInline && match ? (
+    <SyntaxHighlighter style={okaidia} language={match[1]} PreTag="div">
+      {String(children).replace(/\n$/, '')}
+    </SyntaxHighlighter>
+  ) : (
+    <code className={className} {...props}>
+      {children}
+    </code>
+  );
+};
+export const MediaRenderer =  (params: any) => {
+  const { children, ...props } = params || {};
+
+  // 判定是否为媒体对象
+  if (isMediaObjectId(props.href)) {
+    return <MediaPreview href={props.href} />;
+  }
+  // 使用组件正常的渲染逻辑
+  return <a {...props} >{children}</a>
+};
+
 export const MarkdownWithHighlighting = ({
   markdownContent,
 }: {
   markdownContent: string;
 }) => {
-  const CodeRnderer = ({
-    node,
-    inline,
-    className,
-    children,
-    ...props
-  }: any) => {
-    const match = /language-(\w+)/.exec(className || '');
-    const isInline = typeof children === 'string' && !children.includes('\n');
-
-    if (match && match[1] === 'csv') {
-      if (!children) {
-        return null;
-      }
-      const csvData = String(children).replace(/\n$/, '');
-      const parsedData = Papa.parse(csvData, { header: true }).data as Array<{
-        [key: string]: unknown;
-      }>;
-
-      return (
-        <table
-          border={1}
-          cellPadding={5}
-          cellSpacing={0}
-          className={styles?.table}
-        >
-          <thead>
-            <tr>
-              {Object.keys(parsedData[0]).map((header) => (
-                <th key={header} className={styles?.tableCell}>
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {parsedData.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {Object.values(row).map((cell, cellIndex) => (
-                  <td key={cellIndex} className={styles?.tableTdCell}>
-                    {String(cell)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      );
-    }
-
-    return !isInline && match ? (
-      <SyntaxHighlighter style={okaidia} language={match[1]} PreTag="div">
-        {String(children).replace(/\n$/, '')}
-      </SyntaxHighlighter>
-    ) : (
-      <code className={className} {...props}>
-        {children}
-      </code>
-    );
-  };
-
   // 内容列表
   const contentList = useMemo(() => {
     const list: any[] = [];
-    let remainingContent = markdownContent;
-    const tagRegex = /(<search>|<think>)/g; // Regex to find the start of either tag
 
-    let lastIndex = 0;
-    let match;
+    let result = markdownContent;
+    const hasSearchOrThinkTags = (str?: string): boolean => {
+      const searchRegex = /<search>|<\/search>|<think>|<\/think>/g;
+      return searchRegex.test(str || '');
+    };
+    while (result && hasSearchOrThinkTags(result)) {
+      // 存储原内容，用于对比，防止无限循环
+      const prevResult = result;
+      // 定义格式化内容对象
+      let formatedObj: any = null;
+      // 如果有<search>或<think>标签，则进行处理
+      // <search>或<think>标签的处理逻辑，哪个标签先处理哪个标签
+      const firstSearchIndex = result.indexOf('<search>');
+      const firstThinkIndex = result.indexOf('<think>');
+      if (firstSearchIndex !== -1 && firstThinkIndex !== -1) {
+        if (firstSearchIndex < firstThinkIndex) {
+          formatedObj = formatMarkDownContent(result, {
+            startTag: '<search>',
+            endTag: '</search>',
+            startTitle: '正在深度搜索...',
+            endTitle: '已完成深度搜索',
+          });
 
-    while ((match = tagRegex.exec(remainingContent)) !== null) {
-      const tagStartIndex = match.index;
-      const tagType = match[1] === '<search>' ? 'search' : 'think';
-      const startTag = match[1];
-      const endTag = `</${tagType}>`;
-      const tagEndIndex = remainingContent.indexOf(endTag, tagStartIndex);
-
-      // Push content before the tag (if any)
-      if (tagStartIndex > 0) {
-        list.push({ type: 'markdown', content: remainingContent.substring(0, tagStartIndex) });
+        }
+        if (firstSearchIndex > firstThinkIndex) {
+          formatedObj = formatMarkDownContent(result, {
+            startTag: '<think>',
+            endTag: '</think>',
+            startTitle: '正在深度思考...',
+            endTitle: '已完成深度思考',
+          });
+        }
       }
-
-      if (tagEndIndex !== -1) {
-        // Found a complete tag block
-        const tagContent = remainingContent.substring(tagStartIndex + startTag.length, tagEndIndex);
-        const afterTagIndex = tagEndIndex + endTag.length;
-        const isDone = !!remainingContent.substring(afterTagIndex).trim(); // Check if content exists after tag
-        
-        // Determine titles based on tag type
-        const startTitle = tagType === 'search' ? '正在深度搜索...' : '正在深度思考...';
-        const endTitle = tagType === 'search' ? '已完成深度搜索' : '已完成深度思考';
-        
-        list.push({
-          type: tagType,
-          title: isDone ? endTitle : startTitle, // Title depends on whether it's considered 'done'
-          tagContent: tagContent,
-          done: isDone,
+      if (firstSearchIndex !== -1 && firstThinkIndex === -1) {
+        formatedObj = formatMarkDownContent(result, {
+          startTag: '<search>',
+          endTag: '</search>',
+          startTitle: '正在深度搜索...',
+          endTitle: '已完成深度搜索',
         });
-        remainingContent = remainingContent.substring(afterTagIndex);
-        tagRegex.lastIndex = 0; // Reset regex index after slicing the string
+      }
+      if (firstSearchIndex === -1 && firstThinkIndex !== -1) {
+        formatedObj = formatMarkDownContent(result, {
+          startTag: '<think>',
+          endTag: '</think>',
+          startTitle: '正在深度思考...',
+          endTitle: '已完成深度思考',
+        });
+      }
+      // 如果formatedObj不为空，且有搜索结果
+      if (formatedObj && formatedObj?.search) {
+        list.push({
+          before: formatedObj?.before,
+          title: formatedObj?.title,
+          search: formatedObj?.search,
+          done: !!formatedObj?.result,
+        });
+        result = formatedObj?.result || ''
       } else {
-        // Found start tag but no end tag - treat rest as part of the 'in-progress' tag
-        const tagContent = remainingContent.substring(tagStartIndex + startTag.length);
-        const startTitle = tagType === 'search' ? '正在深度搜索...' : '正在深度思考...';
-        list.push({
-          type: tagType,
-          title: startTitle,
-          tagContent: tagContent,
-          done: false, // Not done as end tag is missing
-        });
-        remainingContent = ''; // No more content left
-        break; // Exit loop
+        result = formatedObj?.result || ''
+      }
+      // 如果内容一致，表明内部逻辑出问题
+      if (result === prevResult) {
+        break;
       }
     }
-
-    // Push any remaining content after the last tag
-    if (remainingContent) {
-      list.push({ type: 'markdown', content: remainingContent });
-    }
-
+    list.push({
+      result
+    })
     return list;
   }, [markdownContent]);
 
-  const TitleWrapper = useCallback(({ title, content, done }: { title: string; content?: string; done?: boolean }) => {
-      // Minimal change: Default 'open' state should be !done (true if not done, false if done)
+  const TitleWrapper = useCallback(
+    ({
+      title,
+      content,
+      done,
+    }: {
+      title: string;
+      content?: string;
+      done?: boolean;
+    }) => {
       return (
         <details className={styles.titleWrapper} open={!done}>
           <summary className={styles.titleSummary}>{title}</summary>
           {content && (
-            <ReactMarkdown 
-              className={styles.titleContent}
-              components={{
-                  code: CodeRnderer,
-              }}
-             >
+            <ReactMarkdown className={styles.titleContent}>
               {content}
             </ReactMarkdown>
           )}
         </details>
       );
-    }, [CodeRnderer]);
-
-  if (!markdownContent && markdownContent !== "") {
+    },
+    [contentList],
+  );
+  if (!contentList || !contentList.length || (contentList.length === 1 && !contentList[0].result)) {
     return (
       <div className={styles.loadingWrapper}>
         <LoadingOutlined style={{ marginRight: '5px' }} />
@@ -230,59 +288,50 @@ export const MarkdownWithHighlighting = ({
     );
   }
   return (
-    <div>
-      {contentList?.map((item, index) => {
-        if (!item) return null;
-        // Render based on the type determined during parsing
-        if (item.type === 'search' || item.type === 'think') {
+    <>
+      {
+        contentList?.map((item, index) => {
+          if (!item) return null;
           return (
-            <TitleWrapper
-              key={`${item.type}-${index}`}
-              title={item.title}
-              content={item.tagContent}
-              done={item.done}
-            />
-          );
-        } else if (item.type === 'markdown') {
-          return (
-            <ReactMarkdown
-              key={`markdown-${index}`}
-              components={{
-                code: CodeRnderer,
-              }}
-            >
-              {item.content}
-            </ReactMarkdown>
-          );
-        } else {
-            // Fallback for any unexpected item structure (e.g., old format)
-             if (item?.result) { // Check if it resembles the old structure
-                return (
-                    <ReactMarkdown
-                    key={`fallback-result-${index}`}
-                    components={{ code: CodeRnderer }}
-                    >
-                    {item.result}
-                    </ReactMarkdown>
-                );
-             } else if (item?.before || item?.search || item?.tagContent) { // Old structure with before/search/tagContent
-                 return (
-                     <div key={`fallback-old-${index}`}>
-                         {item?.before && <ReactMarkdown key={index + "before"} components={{ code: CodeRnderer }}>{item.before}</ReactMarkdown>}
-                         {item?.title && (item?.search || item?.tagContent) && (
-                             <TitleWrapper
-                             key={index + "title"}
-                             title={item.title}
-                             content={item.search || item.tagContent} // Use whichever exists
-                             done={item.done}
-                             />
-                         )}
-                     </div>
-                 );
-             }
-        }
-        return null; // Should not happen with new logic
-      })}
-    </div>
+            <div key={index}>
+              {item?.before && (
+                <ReactMarkdown
+                  key={index + "before"}
+                  remarkPlugins={[remarkGfm, remarkMath]}
+                  rehypePlugins={[rehypeReact]}
+                  components={{
+                    code: CodeRenderer,
+                    a: MediaRenderer,
+                  }}
+                >
+                  {item?.before}
+                </ReactMarkdown>
+              )}
+              {item?.title && item?.search && (
+                <TitleWrapper
+                  key={index + "title"}
+                  title={item?.title}
+                  content={item?.search}
+                  done={item?.done}
+                ></TitleWrapper>
+              )}
+              {item?.result && (
+                <ReactMarkdown
+                  key={index + "result"}
+                  remarkPlugins={[remarkGfm, remarkMath]}
+                  rehypePlugins={[rehypeReact]}
+                  components={{
+                    code: CodeRenderer,
+                    a: MediaRenderer,
+                  }}
+                >
+                  {item?.result}
+                </ReactMarkdown>
+              )}
+            </div>
+          )
+        })
+      }
+    </>
   );
 };

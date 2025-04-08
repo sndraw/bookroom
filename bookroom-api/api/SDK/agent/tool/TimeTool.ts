@@ -30,12 +30,12 @@ class TimeTool {
         required: ["content", "isError"]
     };
 
-    constructor(config: any) {
-        const { description } = config;
+    constructor(config?: any) {
+        const { description } = config || {}
         if (description) {
             this.description = `${this.description} | ${description}`;
         }
-        this.config = config;
+        this.config = config || {};
     }
     
     async execute(params: TimeInput): Promise<any> {
@@ -50,7 +50,7 @@ class TimeTool {
             query: query,
             format: "YYYY-MM-DD HH:mm:ss dddd Z",
         }
-        if (parameters?.params && typeof parameters.params === 'object') {
+        if (parameters?.params instanceof Object) {
             Object.assign(queryParams, parameters.params);
         }
         

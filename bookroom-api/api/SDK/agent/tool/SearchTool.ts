@@ -15,10 +15,21 @@ export default class SearchTool implements Tool {
   public parameters = {
     type: "object",
     properties: {
-      query: { type: "string", description: "搜索查询内容" },
-      engine: { type: "string", description: "搜索引擎类型，如'Tavily'" }
+      query: { type: "string", description: "搜索内容" },
+      engine: { type: "string", description: "搜索引擎类型，如'Tavily', 'Weather'" },
     },
     required: ["query", "engine"]
+  };
+  public returns = {
+    type: "object",
+    properties: {
+      content: {
+        type: "array",
+        items: { type: "object", properties: { text: { type: "string" } }, required: ["text"] }
+      },
+      isError: { type: "boolean" }
+    },
+    required: ["content", "isError"]
   };
 
   /**

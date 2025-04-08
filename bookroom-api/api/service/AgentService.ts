@@ -11,6 +11,8 @@ import { getOrderArray } from '@/utils/query';
 import Think from '@/SDK/agent/tool_call/think';
 import AgentTool from '@/SDK/agent/tool/AgentTool';
 import TimeTool from '@/SDK/agent/tool/TimeTool';
+import UrlTool from '@/SDK/agent/tool/UrlTool';
+import FileTool from '@/SDK/agent/tool/FileTool';
 
 
 class AgentService {
@@ -154,7 +156,7 @@ class AgentService {
 
     // 智能助手对话
     static async agentChat(agent_id: string, params: any, think: Think) {
-        const { query, isMemory } = params
+        const { query, userId, isMemory } = params
         try {
             if (!agent_id || !query) {
                 throw new Error("参数错误");
@@ -177,8 +179,12 @@ class AgentService {
             }
             const { prompt, isMemory, limitSteps, limitSeconds, maxTokens, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
             const tools: Tool[] = [
-                // 添加工具列表
-                new TimeTool({})
+                // 添加时间工具
+                new TimeTool(),
+                // 添加URL处理工具
+                new UrlTool(),
+                // 添加文件存储工具
+                new FileTool({ userId }),
             ]
             if (!modelConfig || !modelConfig.platform || !modelConfig.model) {
                 throw new Error("模型配置错误")
@@ -229,13 +235,29 @@ class AgentService {
                 tools.push(new WeatherTool(weatherEngineConfig?.toJSON()));
             }
             if (agentSDK) {
-                // 获取智能接口配置
-                const agentSDKConfig: any = await PlatformService.findPlatformByIdOrName(agentSDK, {
-                    safe: false
-                });
-                // 搜索引擎
-                tools.push(new AgentTool(agentSDKConfig?.toJSON()));
-
+                let agentList: string[] = []
+                // 如果是字符串,则转换成数组
+                if (typeof agentSDK === "string") {
+                    agentList = agentSDK.split(',').map(item => item.trim());
+                }
+                // 是否是数组
+                if (Array.isArray(agentSDK)) {
+                    agentList = [...agentSDK]
+                }
+                // 多个智能体作为输入，需要遍历每个智能体并获取其配置
+                if (agentList.length > 0) {
+                    for (const agentId of agentList) {
+                        // 获取智能接口配置
+                        const agentSDKConfig: any = await PlatformService.findPlatformByIdOrName(agentId, {
+                            safe: false
+                        });
+                        // 搜索引擎
+                        tools.push(new AgentTool({
+                            ...agentSDKConfig?.toJSON(),
+                            userId
+                        }));
+                    }
+                }
             }
             // 工具调用API配置
             const toolcallApiOps = { ...lmPlatformConfig?.toJSON(), limitSeconds }
@@ -251,14 +273,16 @@ class AgentService {
                 ...params,
             };
             // 工具调用
-            await new ToolCallApi(toolcallApiOps, think).questionChat(questionChatParams, { tools });
+            const result = await new ToolCallApi(toolcallApiOps, think).questionChat(questionChatParams, { tools });
             // 结束思考
             think.end();
+            return result;
         } catch (e: any) {
-            console.error("[AgentService] 处理问题出错:", e.message);
-            think.log("处理问题时出错: " + e.message);
+            const errorMsg = `处理问题时出错: ${e.message}`;
+            think.log(errorMsg);
             // 结束思考
             think.end();
+            return errorMsg;
         }
     }
 }

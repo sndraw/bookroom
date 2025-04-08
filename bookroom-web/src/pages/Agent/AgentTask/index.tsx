@@ -48,7 +48,7 @@ const AgentTaskPage: React.FC = () => {
     }, [agent]);
 
     useEffect(() => {
-        if (data) {
+        if (data?.parameters instanceof Object) {
             setParameters({
                 ...parameters,
                 ...(data?.parameters || {}),

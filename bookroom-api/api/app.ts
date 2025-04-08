@@ -19,6 +19,7 @@ import parameter from "./middlewares/parameter.middleware";
 import setup from "./middlewares/setup.middleware";
 
 import { taskQueue } from "./common/tasks";
+import { SERVER_UPLOAD_PATH } from "./config/minio.conf";
 
 const app = new Koa();
 
@@ -45,11 +46,11 @@ app.use(koaBody({
   jsonLimit: "20mb",
   textLimit: "20mb",
   formidable: {
-    uploadDir: path.join(__dirname, "/uploads"), // 设置文件上传目录
+    uploadDir: SERVER_UPLOAD_PATH, // 设置文件上传目录
     keepExtensions: true, // 保持文件的后缀
     maxFieldsSize: 20 * 1024 * 1024, // 文件上传大小限制
     onFileBegin: (name, file) => {
-      const dir = path.join(__dirname, `/uploads`);
+      const dir = SERVER_UPLOAD_PATH;
       // 检查文件夹是否存在如果不存在则新建文件夹
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);

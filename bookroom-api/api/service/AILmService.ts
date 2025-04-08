@@ -374,6 +374,7 @@ class AILmService {
             repeat_penalty,
             frequency_penalty,
             presence_penalty,
+            limitSeconds,
             userId = null
         } = params
         if (!platform) {
@@ -415,15 +416,18 @@ class AILmService {
                 });
                 break;
             case AI_LM_PLATFORM_MAP.openai.value:
-                return await new OpenAIAPI(platformConfig?.toJSON()).getAILmChat({
+                return await new OpenAIAPI({
+                    ...platformConfig?.toJSON(),
+                    limitSeconds,
+                }).getAILmChat({
                     model: model,
                     messages: messages,
                     temperature: temperature,
                     top_k: top_k,
                     top_p: top_p,
                     max_tokens: max_tokens,
-                    repetition_penalty: repeat_penalty.
-                        frequency_penalty,
+                    repetition_penalty: repeat_penalty,
+                    frequency_penalty,
                     presence_penalty,
                     is_stream,
                     userId
@@ -439,7 +443,7 @@ class AILmService {
 
     // 对话补全
     static async generateAILm(params: any) {
-        const { platform, model, prompt, images, is_stream, userId = null, ...resparams } = params
+        const { platform, model, prompt, images, is_stream, limitSeconds, userId = null, ...resparams } = params
         if (!platform) {
             throw new Error("参数错误");
         }
@@ -479,7 +483,10 @@ class AILmService {
                     }
                 ];
 
-                return await new OpenAIAPI(platformConfig?.toJSON()).getAILmChat({
+                return await new OpenAIAPI({
+                    ...platformConfig?.toJSON(),
+                    limitSeconds,
+                }).getAILmChat({
                     model,
                     messages,
                     is_stream,

@@ -6,6 +6,7 @@ import WeatherApi from "@/SDK/search/weather";
 interface WeatherInput {
     province?: string;
     city: string;
+    timeout?: number;
 }
 
 class WeatherTool {
@@ -16,8 +17,9 @@ class WeatherTool {
     public parameters = {
         type: "object",
         properties: {
-            province: { type: "string" },
-            city: { type: "string" }
+            province: { type: "string", description: "省份名称，带上省/州，可选" },
+            city: { type: "string" , description: "城市名称，带上市/县" },
+            timeout: { type: "number", description: "超时时间，单位为毫秒" },
         },
         required: ["city"],
     };
@@ -34,17 +36,21 @@ class WeatherTool {
     };
 
     constructor(config: any) {
-        this.config = config;
+        const { description } = config || {}
+        if (description) {
+            this.description = `${this.description} | ${description}`;
+        }
+        this.config = config || {};
     }
     async execute(args: WeatherInput): Promise<any> {
-        const { city } = args;
+        const { city, timeout } = args;
         const { host, apiKey, code, parameters } = this.config;
 
         const queryParams = {
             query: city, // 查询内容
             paramKey: parameters?.paramKey || "", // 可选参数，需要根据实际情况填
+            timeout: Number(timeout || 30000), // 超时时间，单位为毫秒
         }
-
         let data = null;
         switch (code) {
             case SEARCH_API_MAP.Tavily:
@@ -69,6 +75,7 @@ class WeatherTool {
                 break;
             default:
                 data = {
+                    ifError: true,
                     code: 404,
                     message: "API暂不支持。",
                 }
