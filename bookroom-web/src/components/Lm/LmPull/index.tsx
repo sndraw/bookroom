@@ -91,12 +91,13 @@ const LmPull: React.FC<PropsWithChildren<LmPullProps>> = (props) => {
         errorData = { message: '请求被终止' };
       } else {
         try {
-          errorData = (await error?.json?.());
+          errorData = (await error?.json?.()) || error;
         } catch (e) {
           errorData = error?.info || error;
         }
       }
-      message.error(`模型“${fields?.model}”下载失败：${errorData?.message}`);
+      // 处理错误信息并显示在页面上
+      message.error(`模型“${fields?.model}”下载失败：${errorData?.message || errorData?.error || errorData || "未知错误"}`);
       return false;
     } finally {
       setLoading(false);
