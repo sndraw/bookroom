@@ -97,7 +97,6 @@ export const CodeRenderer = (params: any) => {
 
   const match = /language-(\w+)/.exec(className || '');
   const isInline = typeof children === 'string' && !children.includes('\n');
-  console.log(match)
   if (match && match[1] === 'csv') {
     if (!children) {
       return null;
