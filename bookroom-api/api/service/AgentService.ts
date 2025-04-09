@@ -14,8 +14,6 @@ import TimeTool from '@/SDK/agent/tool/TimeTool';
 import UrlTool from '@/SDK/agent/tool/UrlTool';
 import FileTool from '@/SDK/agent/tool/FileTool';
 import { SEARCH_API_MAP } from '@/common/search';
-import CustomSearchTool from '@/SDK/agent/tool/CustomSearchTool';
-
 
 class AgentService {
 
@@ -226,23 +224,8 @@ class AgentService {
                         const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchId, {
                             safe: false
                         });
-                        // 确保配置中有engine字段，根据code生成引擎标识
-                        const configData = searchEngineConfig?.toJSON();
-                        // 如果搜索引擎配置中code为customSearch，则使用CustomSearchApi
-                        if (configData.code === SEARCH_API_MAP.CustomSearch) {
-                            tools.push(new CustomSearchTool(configData));
-                        } else {
-                            if (configData) {
-                                // 如果没有engine字段，则根据code字段创建，首字母大写
-                                if (configData.code && !configData.engine) {
-                                    configData.engine = configData.code.charAt(0).toUpperCase() + configData.code.slice(1);
-                                    console.log(`[AgentService] 生成引擎标识: ${configData.engine}`);
-                                }
-                            }
-                            // 搜索引擎
-                            tools.push(new SearchTool(configData));
-                        }
-
+                        // 搜索引擎
+                        tools.push(new SearchTool(searchEngineConfig?.toJSON()));
                     }
                 }
             }
