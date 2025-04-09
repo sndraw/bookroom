@@ -317,6 +317,9 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
 
     const newMessageList = [...messageList, newMessage];
     handleSend?.(newMessageList);
+    setTimeout(() => {
+      scrollToBottom();
+    }, 500);
   };
 
   // 处理语音消息
