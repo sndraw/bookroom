@@ -25,7 +25,7 @@
     // "moduleDetection": "auto",                        /* Control what method is used to detect module-format JS files. */
     /* Modules */
     "module": "commonjs", /* Specify what module code is generated. */
-    "rootDir": "./",
+    "rootDir": "./api", /* Specify the root folder within your source files. */
     "moduleResolution": "node", /* Specify how TypeScript looks up a file from a given module specifier. */
     "baseUrl": "./",
     "paths": {
@@ -33,10 +33,7 @@
         "api/*"
       ],
     },
-    "rootDirs": [
-      "./api",
-      "./test"
-    ],
+    // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     "typeRoots": [
       "types"
     ], /* Specify multiple folders that act like './node_modules/@types'. */
@@ -109,8 +106,7 @@
     "skipLibCheck": true, /* Skip type checking all .d.ts files. */
   },
   "include": [
-    "api/**/*",
-    "test/**/*"
+    "api/**/*"
   ],
   "exclude": [
     "node_modules",

@@ -2,7 +2,7 @@
   "name": "bookroom-api",
   "version": "0.0.3",
   "private": true,
-  "author": "sndraw@github.com",
+  "author": "sndraw",
   "license": "Apache-2.0",
   "main": "./api/index.ts",
   "scripts": {
@@ -13,12 +13,7 @@
     "deploy:dev": "cross-env DOTENV_MODE=local pm2 startOrRestart pm2.config.js",
     "deploy": "pm2 startOrRestart pm2.config.js",
     "undeploy": "pm2 delete bookroom-api",
-    "test": "./node_modules/.bin/mocha",
-    "test:jest": "jest",
-    "test:unit": "jest --config=jest.config.js",
-    "test:integration": "jest --config=jest.config.integration.js",
-    "test:watch": "jest --watchAll",
-    "test:coverage": "jest --coverage"
+    "test": "./node_modules/.bin/mocha"
   },
   "keywords": [
     "koa",
