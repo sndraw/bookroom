@@ -10,3 +10,5 @@ uploads
 /pnpm-lock.yaml
 /bugs
 /docs
+*.test.ts
+*.test.js

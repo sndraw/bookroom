@@ -15,3 +15,5 @@
 /public/data
 /package-lock.json
 /docker/nginx/logs
+*.test.ts
+*.test.js
