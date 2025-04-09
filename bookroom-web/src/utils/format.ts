@@ -42,3 +42,61 @@ export function reverseStatus(
   }
   return STATUS_MAP?.DISABLE.value;
 }
+
+
+
+export function isSseFormat(data: string) {
+  const lines = data.split('\n');
+  for (let line of lines) {
+    if (!line.trim()) { // 忽略空行
+      continue;
+    }
+
+    const parts = line.split(': ');
+
+    if (parts.length !== 2) {
+      return false;
+    }
+    const [field, value] = parts;
+    // 检查字段是否为data, event, id, retry其中之一
+    if (['data', 'event', 'id', 'retry'].includes(field)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+export function formatSseData(sseData: any): any {
+  let sseBuffer = sseData;
+  let formattedStr=""; 
+
+  let messageEndIndex;
+  while ((messageEndIndex = sseBuffer.indexOf('\n\n')) !== -1) {
+
+    const messageBlock = sseBuffer.substring(0, messageEndIndex);
+
+    sseBuffer = sseBuffer.substring(messageEndIndex + 2);
+    let eventType = 'message';
+    let dataContent = '';
+    const lines = messageBlock.split('\n');
+
+    for (const line of lines) {
+      if (line.startsWith('event:')) {
+        eventType = line.substring(6).trim();
+      } else if (line.startsWith('data:')) {
+        dataContent += line.substring(5).trim() || "\n\n";
+      }
+    }
+    try {
+      const parsedData = JSON.parse(dataContent);
+      if (parsedData && typeof parsedData.content === 'string') {
+        formattedStr += parsedData.content;
+      }
+    } catch (e) {
+      formattedStr += dataContent;
+    }
+  }
+
+  return formattedStr
+}

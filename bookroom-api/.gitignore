@@ -8,3 +8,7 @@ package-lock.json
 .env.local
 uploads
 /pnpm-lock.yaml
+/bugs
+/docs
+*.test.ts
+*.test.js

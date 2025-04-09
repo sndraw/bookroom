@@ -32,8 +32,12 @@ const LmPull: React.FC<PropsWithChildren<LmPullProps>> = (props) => {
       ).then(async (res) => {
         const { response, reader, decoder } = res as any;
         if (!response?.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData?.message || '下载失败');
+          let resObj: any = res;
+          const contentType = res.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            resObj = await res?.json?.();
+          }
+          throw new Error(resObj?.message || res?.statusText || '下载失败');
         }
         if (!is_stream) {
           message.success(`模型“${fields?.model}”下载成功`);
@@ -43,34 +47,28 @@ const LmPull: React.FC<PropsWithChildren<LmPullProps>> = (props) => {
         // 模拟进度更新的函数
         const updateProgress = async (chunk: any) => {
           if (!chunk?.done && chunk?.value) {
-            const chunkValue = decoder.decode(chunk.value, { stream: true });
-            if (chunkValue) {
-              const delimiter = '\n';
-              const chunkValueArr = chunkValue.split(delimiter);
-              for (const chunkStr of chunkValueArr) {
-                if (chunkStr) {
-                  try {
-                    const chunkJson = JSON.parse(chunkStr);
-                    if (chunkJson?.status === 'success') {
-                      message.success(`模型“${fields?.model}”下载成功`);
-                      return;
-                    }
-                    if (chunkJson?.status === 'error') {
-                      message.error(
-                        `模型“${fields?.model}”下载失败:${chunkJson?.error}`,
-                      );
-                      return;
-                    }
-                    let content = '';
-                    content += ` | ${chunkJson?.status || chunkJson?.error || ''}`;
-                    if (chunkJson?.total && chunkJson?.completed) {
-                      content += ` | 已下载${(chunkJson?.completed / 1024 / 1024).toFixed(2)}MB，共${(chunkJson?.total / 1024 / 1024).toFixed(2)}MB`;
-                    }
-                    responseData = content;
-                  } catch (e) {
-                    responseData = chunkStr;
-                  }
+            const chunkStr = decoder.decode(chunk.value, { stream: true });
+            if (chunkStr) {
+              try {
+                const chunkJson = JSON.parse(chunkStr);
+                if (chunkJson?.status === 'success') {
+                  message.success(`模型“${fields?.model}”下载成功`);
+                  return;
                 }
+                if (chunkJson?.status === 'error') {
+                  message.error(
+                    `模型“${fields?.model}”下载失败:${chunkJson?.error}`,
+                  );
+                  return;
+                }
+                let content = '';
+                content += ` | ${chunkJson?.status || chunkJson?.error || ''}`;
+                if (chunkJson?.total && chunkJson?.completed) {
+                  content += ` | 已下载${(chunkJson?.completed / 1024 / 1024).toFixed(2)}MB，共${(chunkJson?.total / 1024 / 1024).toFixed(2)}MB`;
+                }
+                responseData = content;
+              } catch (e) {
+                responseData = chunkStr;
               }
               setLoading(`${loadingMsg}${responseData}`);
             }
@@ -88,8 +86,18 @@ const LmPull: React.FC<PropsWithChildren<LmPullProps>> = (props) => {
       });
       return true;
     } catch (error: any) {
-      const errorData = (await error?.json?.()) || error;
-      message.error(`模型“${fields?.model}”下载失败：${errorData?.message}`);
+      let errorData = null;
+      if (error?.name === 'AbortError') {
+        errorData = { message: '请求被终止' };
+      } else {
+        try {
+          errorData = (await error?.json?.()) || error;
+        } catch (e) {
+          errorData = error?.info || error;
+        }
+      }
+      // 处理错误信息并显示在页面上
+      message.error(`模型“${fields?.model}”下载失败：${errorData?.message || errorData?.error || errorData || "未知错误"}`);
       return false;
     } finally {
       setLoading(false);
@@ -102,14 +110,14 @@ const LmPull: React.FC<PropsWithChildren<LmPullProps>> = (props) => {
       disabled={!!loading}
       width={"378px"}
       trigger={
-          <Button
-            title={loading ? String(loading) : '下载模型'}
-            icon={<DownloadOutlined />}
-            type="primary"
-            shape={'circle'}
-            loading={!!loading}
-            disabled={!!loading}
-          />
+        <Button
+          title={loading ? String(loading) : '下载模型'}
+          icon={<DownloadOutlined />}
+          type="primary"
+          shape={'circle'}
+          loading={!!loading}
+          disabled={!!loading}
+        />
       }
       form={form}
       onOpenChange={(open) => {

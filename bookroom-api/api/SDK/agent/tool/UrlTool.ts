@@ -44,7 +44,10 @@ class UrlTool {
     };
 
     constructor(config?: any) {
-        const { description } = config || {}
+        const { name, description } = config || {}
+        if (name) {
+            this.name = `${this.name}_${name}`;
+        }
         if (description) {
             this.description = `${this.description} | ${description}`;
         }
@@ -69,8 +72,8 @@ class UrlTool {
                         fileData = Buffer.from(base64Data, 'base64'); // 解码为二进制数据
                     }
                 }
-                const contentType=mimetype || (file instanceof Blob ? file.type : 'application/octet-stream');
-                
+                const contentType = mimetype || (file instanceof Blob ? file.type : 'application/octet-stream');
+
                 result = await fetch(uploadUrl, {
                     method: 'PUT',
                     body: fileData, // 使用Blob对象或者二进制数据
@@ -84,7 +87,7 @@ class UrlTool {
                     throw new Error(`上传文件失败，状态码: ${result?.status}`);
                 }
                 logger.info(`文件上传成功`);
-                result ="文件上传成功"
+                result = "文件上传成功"
             }
             if (downloadUrl) {
                 result = await fetch(downloadUrl, {
@@ -97,7 +100,7 @@ class UrlTool {
                 }
                 result = await result.text(); // 将响应内容解析为字符串
             }
-            if (!result){
+            if (!result) {
                 throw new Error('Url地址处理失败');
             }
 
@@ -109,7 +112,7 @@ class UrlTool {
             data = {
                 isError: true,
                 code: 500,
-                message: `服务器内部错误：${error?.message || '未知错误'}`,
+                message: `Url请求失败：${error?.message || '未知错误'}`,
             }
         }
 

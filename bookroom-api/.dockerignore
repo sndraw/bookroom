@@ -1,13 +1,8 @@
 node_modules/
 storage/privkeys/*
-
-# Logs
 logs
 *.log*
-
-# jetbrains
 .idea
-
 dist
 .husky
 mock
@@ -15,3 +10,5 @@ mock
 .umi
 .umi-production
 .git
+*.test.ts
+*.test.js

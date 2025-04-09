@@ -375,7 +375,7 @@ class AgentController extends BaseController {
         let responseText: any = '';
 
         try {
-            const { is_stream, query } = newParams;
+            const { is_stream, is_SSE, query } = newParams;
             const agent = await AgentService.getAgentById(agent_id, {
                 userId: ctx.userId,
             })
@@ -391,7 +391,8 @@ class AgentController extends BaseController {
             }
             const think = new Think({
                 is_stream,
-                logLevel
+                logLevel,
+                is_SSE
             }, ctx);
             if (is_stream) {
                 ctx.set('Content-Type', 'text/event-stream');

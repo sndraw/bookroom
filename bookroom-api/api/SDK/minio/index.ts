@@ -216,11 +216,11 @@ class MinioApi {
             const { objectName, bucketName = this.bucketName, expires = 1 * 60 * 60 } = params;
 
             const url = await this.minioClient.presignedGetObject(bucketName, objectName, expires);
-            console.log("预签名URL:", url);
+            console.log("预签名下载地址:", url);
 
             return url;
         } catch (error) {
-            console.error("生成预签名URL失败:", error);
+            console.error("生成预签名下载地址失败:", error);
             throw error;
         }
     };
@@ -237,11 +237,11 @@ class MinioApi {
             const { objectName, bucketName = this.bucketName, expires = 1 * 60 * 60 } = params;
 
             const url = await this.minioClient.presignedPutObject(bucketName, objectName, expires);
-            console.log("预签名URL:", url);
+            console.log("预签名上传地址:", url);
 
             return url;
         } catch (error) {
-            console.error("生成预签名URL失败:", error);
+            console.error("生成预签名上传地址失败:", error);
             throw error;
         }
     };

@@ -36,6 +36,8 @@
   - 用户注册和登录管理
   - 权限控制和角色管理
 
+- ### 开发计划
+  - [待完善功能列表](./docs/devplan.md)
 
 ## 目录结构
 ```text
@@ -48,7 +50,7 @@
 ## 部署文档
 - [/bookroom-api/README.md](./bookroom-api/README.md)
 - [/bookroom-web/README.md](./bookroom-web/README.md)
-
+- [/docker-deploy/README.md](./docker-deploy/README.md)
 
 ## 系统配置示例
 #### 模型平台-接口类型
@@ -92,6 +94,28 @@
 ### 语音识别
 ![语音识别](./docs/assets/语音识别.png)
 
-## 相关文档
+## 📚 相关文档
 ### LightRAG-运行流程
 ![LightRAG-运行流程](./docs/assets/LightRAG-运行流程.jpg)  
+
+
+## ☕ Sponsor
+[Buy Me a Coffee](docs/sponsor.md)
+
+## 📃 License
+[LICENSE](./LICENSE)
+
+## ⭐️ Star History
+[![Star History Chart](https://api.star-history.com/svg?repos=sndraw/bookroom&type=Date)](https://www.star-history.com/#sndraw/bookroom&Date)
+
+
+## 🚀 Contribution
+
+欢迎加入开源社区！
+
+Welcome to Contribute to Open Source!
+
+
+<a href="https://github.com/sndraw/bookroom/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sndraw/bookroom" />
+</a>

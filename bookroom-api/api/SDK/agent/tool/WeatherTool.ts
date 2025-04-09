@@ -36,7 +36,10 @@ class WeatherTool {
     };
 
     constructor(config: any) {
-        const { description } = config || {}
+        const { name, description } = config || {}
+        if (name) {
+            this.name = `${this.name}_${name}`;
+        }
         if (description) {
             this.description = `${this.description} | ${description}`;
         }

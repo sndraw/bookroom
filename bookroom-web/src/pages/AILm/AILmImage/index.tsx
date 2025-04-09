@@ -10,7 +10,6 @@ const AILmImagePage: React.FC = () => {
   const access = useAccess();
   const { platform, model } = useParams();
   const [isStream, setIsStream] = useState<boolean>(true);
-  const [isImages, setIsImages] = useState<boolean>(true);
   const { getPlatformName } = useModel('lmplatformList');
 
   // 模型信息-请求
@@ -61,7 +60,7 @@ const AILmImagePage: React.FC = () => {
     <ChatPanel
       className={styles?.chatContainer}
       disabled={isLoading}
-      // isImages={isImages}
+      isImages={true}
       customRequest={sendMsgRequest}
       onSend={() => { }}
       onStop={() => { }}

@@ -11,8 +11,9 @@ import {
   MarkdownWithHighlighting,
 } from '@/components/Markdown';
 import TextToSpeech from '@/components/Voice/TextToSpeech';
-import { Button, Popconfirm } from 'antd';
+import { Button, Popconfirm, Collapse, Space } from 'antd';
 import styles from './index.less';
+import { useState, useEffect } from 'react';
 
 interface AssistantMessageType {
   msgObj: ChatMessageType;
@@ -22,6 +23,7 @@ interface AssistantMessageType {
   handleDelete?: (id: string) => void; // 删除消息的处理函数
   loading?: boolean; // 是否正在加载中
   className?: string;
+  isCurrentlyStreaming?: boolean; // Define prop
 }
 
 const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
@@ -62,19 +64,23 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
             styles.messageContentAssistant,
           )}
         >
-          <MarkdownWithHighlighting markdownContent={msgObj?.content} />
+          <div
+            className={classNames(styles.messageInnerContent, styles.messageInnerContentAssistant)}
+          >
+            <MarkdownWithHighlighting markdownContent={msgObj?.content} />
+          </div>
           {!loading && (
             <div className={styles.messageFooter}>
               {/* 语音播放 */}
               <TextToSpeech
-                key={msgObj?.id}
+                key={msgObj?.id + '-tts'}
                 speekId={msgObj?.id}
                 content={markdownToText(
-                  getNoTagsContent(msgObj?.content),
+                  getNoTagsContent(msgObj?.content || ''),
                 )}
               />
               {/* 复制 */}
-              <CopyToClipboard content={msgObj?.content} />
+              <CopyToClipboard content={msgObj?.content || ''} />
               {/* 重新生成 */}
               {index === messageList?.length - 1 && handleReAnswer && (
                 <Button

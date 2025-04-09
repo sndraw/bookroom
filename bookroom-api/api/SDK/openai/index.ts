@@ -67,13 +67,6 @@ class OpenAIAPI {
 
     // 获取模型详情
     async getAILmInfo(model: string) {
-        // const where = {
-        //     platformId: this.platformId,
-        //     model: model,
-        // }
-        // const modelInfo = await AILmModel.findOne({
-        //   where
-        // })
         let modelInfo = null
         try {
             // 如果查询单条报错
