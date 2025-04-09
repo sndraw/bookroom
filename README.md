@@ -92,6 +92,15 @@
 ### 语音识别
 ![语音识别](./docs/assets/语音识别.png)
 
-## 相关文档
+## 📚 相关文档
 ### LightRAG-运行流程
 ![LightRAG-运行流程](./docs/assets/LightRAG-运行流程.jpg)  
+
+## ☕ Sponsor
+[Buy Me a Coffee](docs/sponsor.md)
+
+## 📃 License
+[LICENSE](./LICENSE)
+
+## ⭐️ Star History
+[![Star History Chart](https://api.star-history.com/svg?repos=sndraw/bookroom&type=Date)](https://www.star-history.com/#sndraw/bookroom&Date)
