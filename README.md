@@ -36,6 +36,8 @@
   - 用户注册和登录管理
   - 权限控制和角色管理
 
+- ### 开发计划
+  - [待完善功能列表](./devplan.md)
 
 ## 目录结构
 ```text
@@ -48,7 +50,7 @@
 ## 部署文档
 - [/bookroom-api/README.md](./bookroom-api/README.md)
 - [/bookroom-web/README.md](./bookroom-web/README.md)
-
+- [/docker-deploy/README.md](./docker-deploy/README.md)
 
 ## 系统配置示例
 #### 模型平台-接口类型
@@ -95,6 +97,7 @@
 ## 📚 相关文档
 ### LightRAG-运行流程
 ![LightRAG-运行流程](./docs/assets/LightRAG-运行流程.jpg)  
+
 
 ## ☕ Sponsor
 [Buy Me a Coffee](docs/sponsor.md)
