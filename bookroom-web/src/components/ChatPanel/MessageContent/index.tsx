@@ -22,20 +22,19 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
   const [videoList, setVideoList] = useState<any>(null);
   // 转换文件预览列表
   const transformFileList = async (files: any[] | undefined) => {
-    const fileList = [];
     if (files && files?.length > 0) {
-      const imagesBase64 = await Promise.all(
+      const fileList = await Promise.all(
         files.map(async (file) => {
-          // 获取图片的base64编码
+          // 获取base64编码
           const res = await previewFileApi({
             fileId: file,
           });
           return res?.url;
         }),
-      ); // 获取图片的base64编码
-      fileList.push(imagesBase64);
+      ); 
+      return fileList;
     }
-    return fileList;
+    return [];
   };
 
   useEffect(() => {
@@ -67,7 +66,7 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
             return (
               <Image
                 key={index}
-                width={200}
+                width={100}
                 src={image}
                 alt={`user-image-${index}`}
                 className={styles.imagePreview}

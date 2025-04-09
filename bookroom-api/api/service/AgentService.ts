@@ -13,6 +13,8 @@ import AgentTool from '@/SDK/agent/tool/AgentTool';
 import TimeTool from '@/SDK/agent/tool/TimeTool';
 import UrlTool from '@/SDK/agent/tool/UrlTool';
 import FileTool from '@/SDK/agent/tool/FileTool';
+import { SEARCH_API_MAP } from '@/common/search';
+import CustomSearchTool from '@/SDK/agent/tool/CustomSearchTool';
 
 
 class AgentService {
@@ -208,23 +210,41 @@ class AgentService {
                 tools.push(new GraphDBTool(graphDbConfig?.toJSON() || {}, graphConfig?.workspace || ''));
             }
             if (searchEngine) {
-                // 获取搜索引擎配置
-                const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchEngine, {
-                    safe: false
-                });
-                
-                // 确保配置中有engine字段，根据code生成引擎标识
-                const configData = searchEngineConfig?.toJSON();
-                if (configData) {
-                    // 如果没有engine字段，则根据code字段创建，首字母大写
-                    if (configData.code && !configData.engine) {
-                        configData.engine = configData.code.charAt(0).toUpperCase() + configData.code.slice(1);
-                        console.log(`[AgentService] 生成引擎标识: ${configData.engine}`);
+                let searchList: string[] = []
+                // 如果是字符串,则转换成数组
+                if (typeof searchEngine === "string") {
+                    searchList = searchEngine.split(',').map(item => item.trim());
+                }
+                // 是否是数组
+                if (Array.isArray(searchEngine)) {
+                    searchList = [...searchEngine]
+                }
+                // 多个搜索引擎作为输入，需要遍历每个搜索引擎并获取其配置
+                if (searchList.length > 0) {
+                    for (const searchId of searchList) {
+                        // 获取搜索引擎配置
+                        const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchId, {
+                            safe: false
+                        });
+                        // 确保配置中有engine字段，根据code生成引擎标识
+                        const configData = searchEngineConfig?.toJSON();
+                        // 如果搜索引擎配置中code为customSearch，则使用CustomSearchApi
+                        if (configData.code === SEARCH_API_MAP.CustomSearch) {
+                            tools.push(new CustomSearchTool(configData));
+                        } else {
+                            if (configData) {
+                                // 如果没有engine字段，则根据code字段创建，首字母大写
+                                if (configData.code && !configData.engine) {
+                                    configData.engine = configData.code.charAt(0).toUpperCase() + configData.code.slice(1);
+                                    console.log(`[AgentService] 生成引擎标识: ${configData.engine}`);
+                                }
+                            }
+                            // 搜索引擎
+                            tools.push(new SearchTool(configData));
+                        }
+
                     }
                 }
-                
-                // 搜索引擎
-                tools.push(new SearchTool(configData));
             }
             if (weatherEngine) {
                 // 获取天气搜索引擎配置
@@ -251,7 +271,7 @@ class AgentService {
                         const agentSDKConfig: any = await PlatformService.findPlatformByIdOrName(agentId, {
                             safe: false
                         });
-                        // 搜索引擎
+                        // 智能接口
                         tools.push(new AgentTool({
                             ...agentSDKConfig?.toJSON(),
                             userId

@@ -34,14 +34,6 @@ export const getNoTagsContent = (content: string) => {
   return result;
 };
 
-export const getPreviewUrl = async (file: string) => {
-  // 获取图片的base64编码
-  const res = await previewFileApi({
-    fileId: file,
-  });
-  return res?.url;
-}
-
 // 处理标签内容
 export const formatMarkDownContent = (content: string, options?: any) => {
   const {

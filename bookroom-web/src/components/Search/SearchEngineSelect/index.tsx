@@ -10,14 +10,15 @@ type SearchEngineSelectPropsType = {
   title?: string;
   placeholder?: string;
   searchCode?: string;
-  value?: string;
+  mode?: 'multiple' | 'tags';
+  value?: string | string[];
   onChange: (selected: any) => void;
   dataList?: any[];
   // 样式
   className?: string;
 };
 const SearchEngineSelect: React.FC<SearchEngineSelectPropsType> = (props) => {
-  const { title, placeholder, searchCode, value, onChange, dataList, className } = props;
+  const { title, mode = undefined, placeholder, searchCode, value, onChange, dataList, className } = props;
 
   // 模型列表-请求
   const { data, loading, run } = useRequest(
@@ -54,8 +55,9 @@ const SearchEngineSelect: React.FC<SearchEngineSelectPropsType> = (props) => {
           <Divider type="vertical" />
         </>
       }
-      <Select<string>
+      <Select<string | string[]>
         className={styles?.selectElement}
+        mode={mode}
         value={value}
         placeholder={placeholder || "请选择搜索引擎"}
         allowClear

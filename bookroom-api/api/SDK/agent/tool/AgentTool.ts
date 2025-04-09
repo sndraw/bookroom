@@ -36,9 +36,9 @@ class AgentTool {
     };
 
     constructor(config: any) {
-        const { name,description } = config || {}
-        if(name){
-            this.name=`${this.name}_${name}`;
+        const { name, description } = config || {}
+        if (name) {
+            this.name = `${this.name}_${name}`;
         }
         if (description) {
             this.description = `${this.description} | ${description}`;
@@ -47,7 +47,7 @@ class AgentTool {
     }
     async execute(params: AgentInput): Promise<any> {
         const { query, stream, timeout, workspace } = params;
-        const { host, apiKey, code, parameters = {},userId } = this.config;
+        const { host, apiKey, code, parameters = {}, userId } = this.config;
         const queryParams: AgentApiChatType = {
             query: query,// 查询内容，必填项
             stream: stream,// 是否流式返回结果，调用知识图谱时需要指定为true

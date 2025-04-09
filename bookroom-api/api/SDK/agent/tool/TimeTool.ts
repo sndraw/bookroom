@@ -31,19 +31,22 @@ class TimeTool {
     };
 
     constructor(config?: any) {
-        const { description } = config || {}
+        const { name, description } = config || {}
+        if (name) {
+            this.name = `${this.name}_${name}`;
+        }
         if (description) {
             this.description = `${this.description} | ${description}`;
         }
         this.config = config || {};
     }
-    
+
     async execute(params: TimeInput): Promise<any> {
         // 检查是否处于模拟模式
         if (mockHelper.shouldUseMock()) {
             return this.executeMock(params);
         }
-        
+
         const { query } = params;
         const { parameters = {} } = this.config;
         const queryParams = {
@@ -53,7 +56,7 @@ class TimeTool {
         if (parameters?.params instanceof Object) {
             Object.assign(queryParams, parameters.params);
         }
-        
+
         try {
             // 查询当前时间
             const date = moment().format(queryParams?.format);
@@ -74,7 +77,7 @@ class TimeTool {
             };
         }
     }
-    
+
     /**
      * 在模拟模式下执行工具
      * 返回可预测的固定模拟数据

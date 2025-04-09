@@ -5,11 +5,9 @@ import {
   PauseCircleOutlined,
   SendOutlined,
 } from '@ant-design/icons';
-import { Button, FloatButton, Form, Input, message, Popconfirm, Space } from 'antd';
+import { Button, Divider, Form, Input, message, Popconfirm, Space } from 'antd';
 import classNames from 'classnames';
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-
-import ImageUploadPreview from '../ImageUploadPreview';
 import VoiceChat from '../Voice/VoiceChat';
 import AssistantMessage from './AssistantMessage';
 import styles from './index.less';
@@ -18,6 +16,8 @@ import UserMessage from './UserMessage';
 import { voiceRecognizeTask } from '@/services/common/voice';
 import { getUrlAndUploadFileApi } from '@/services/common/file';
 import { formatSseData, isSseFormat } from '@/utils/format';
+import ImageUpload, { ImageListType } from '../ImageUpload';
+import ImageListPanel from '../ImageListPanel';
 
 type ChatPanelPropsType = {
   // 标题
@@ -71,11 +71,10 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     sendOptions
   } = props;
   const [messageList, setMessageList] = useState<ChatMessageType[]>([]);
-  const [imageList, setImageList] = useState<any[]>([]);
+  const [imageList, setImageList] = useState<ImageListType>();
   const [videoList, setVideoList] = useState<any[]>([]);
 
 
-  const objectIdMapRef = useRef<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(false);
   const [voiceLoading, setVoiceLoading] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(false);
@@ -164,7 +163,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
               if (formattedStr) {
                 responseData += formattedStr;
               }
-            }else{
+            } else {
               responseData += content;
             }
             // Update UI
@@ -298,7 +297,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     if (!msg?.trim() && !voice) {
       return;
     }
-    if (!msg?.trim() && !imageList?.length && !videoList?.length) {
+    if (!msg?.trim() && !imageList?.objectList?.length && !videoList?.length) {
       return;
     }
     form.resetFields();
@@ -308,29 +307,13 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       content: msg?.trim(),
       createdAt: new Date(),
     };
-    if (isImages && imageList?.length > 0) {
-      // 循环获取objectID
-      const objectIds = imageList.map((item) => {
-        const objectID = objectIdMapRef.current.get(item.uid);
-        return objectID;
-      });
-
-      newMessage.images = [...objectIds];
-      setImageList([]);
+    if (isImages && imageList?.objectList?.length) {
+      newMessage.images = imageList?.objectList?.map(imageObj => imageObj.objectId);
+      setImageList(undefined);
     }
     if (voice) {
       newMessage.audios = [voice];
     }
-
-    // if (supportVideos && videoList?.length > 0) {
-    //   // 循环获取objectID
-    //   const objectIds = videoList.map((item) => {
-    //     const objectID = objectIdMapRef.current.get(item.uid);
-    //     return objectID;
-    //   });
-    //   newMessage.videos = [...objectIds];
-    //   setVideoList([]);
-    // }
 
     const newMessageList = [...messageList, newMessage];
     handleSend?.(newMessageList);
@@ -509,7 +492,10 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         disabled={disabled}
       >
         <div className={styles.inputTextAreaWrapper}>
-          <div className={styles.inputTextAreaBtns}>
+          <div className={styles.previewPanel}>
+            <ImageListPanel imageList={imageList} setImageList={setImageList} />
+          </div>
+          <Space wrap size={0} direction={'horizontal'} className={styles.inputTextAreaBtns}>
             <Popconfirm
               className={styles.clearButton}
               disabled={disabled || loading || voiceLoading}
@@ -525,23 +511,22 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
               ></Button>
             </Popconfirm>
             {isImages && (
-              <div className={styles.inputImages}>
-                <ImageUploadPreview
-                  title="上传图片"
-                  fileList={imageList}
-                  setFileList={setImageList}
-                  onSuccess={(uid, objectId) => {
-                    objectIdMapRef.current.set(uid, objectId);
-                  }}
-                />
-                {/* <ImageList fileList={imageList}/>
-          <ImageUploadModal
-            title="上传图片"
-            handleUpload={setImageList}
-          /> */}
-              </div>
+              <>
+                <Divider type="vertical" />
+                <div className={styles.inputImages}>
+                  <ImageUpload
+                    title="上传图片"
+                    listType="text"
+                    multiple={true}
+                    showUploadList={false}
+                    max={5}
+                    imageList={imageList}
+                    setImageList={setImageList}
+                  />
+                </div>
+              </>
             )}
-          </div>
+          </Space>
           <div className={styles.inputTextAreaContainer}>
             {isVoice && (
               <VoiceChat

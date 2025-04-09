@@ -37,6 +37,13 @@ export default class SearchTool implements Tool {
    * @param config 包含各搜索引擎配置的对象
    */
   constructor(config: Record<string, any> = {}) {
+    const { name, description } = config || {}
+    if (name) {
+        this.name = `${this.name}_${name}`;
+    }
+    if (description) {
+        this.description = `${this.description} | ${description}`;
+    }
     this.config = config;
     this.engineAdapters = new Map();
     this.initAdapters();

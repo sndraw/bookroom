@@ -17,7 +17,6 @@ import VoiceRecognizeSelect from '@/components/Voice/VoiceRecognizeSelect';
 
 export interface ParametersType {
   isStream: boolean;
-  isImages: boolean;
   voiceParams?: API.VoiceParametersType;
   temperature: number;
   topK: number;
@@ -31,7 +30,6 @@ export interface ParametersType {
 
 export const defaultParameters: ParametersType = {
   isStream: true,
-  isImages: true,
   voiceParams: null,
   temperature: 0.7,
   topK: 10,
@@ -53,7 +51,6 @@ interface ChatParametersProps {
 const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isStream, setIsStream] = useState<boolean>(true);
-  const [isImages, setIsImages] = useState<boolean>(true);
   const [voiceParams, setVoiceParams] = useState<any>(false);
   const [temperature, setTemperature] = useState<number>(0.7);
   const [topK, setTopK] = useState<number>(10);
@@ -69,7 +66,6 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   useEffect(() => {
     if (parameters) {
       setIsStream(parameters.isStream);
-      setIsImages(parameters.isImages);
       setVoiceParams(parameters.voiceParams);
       setTemperature(parameters.temperature);
       setTopK(parameters.topK);
@@ -85,7 +81,6 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const handleSave = () => {
     const newParameters: ParametersType = {
       isStream,
-      isImages,
       voiceParams,
       temperature,
       topK,
@@ -306,24 +301,6 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
                   setIsStream(false);
                 }
                 setIsStream(checked);
-              }}
-              checkedChildren="启用"
-              unCheckedChildren="禁用"
-            />
-          </Flex>
-          <Flex
-            className={styles.formItem}
-            justify="justifyContent"
-            align="center"
-          >
-            <label className={styles.formLabel}>图片上传：</label>
-            <Switch
-              value={isImages}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setIsImages(false);
-                }
-                setIsImages(checked);
               }}
               checkedChildren="启用"
               unCheckedChildren="禁用"

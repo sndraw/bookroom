@@ -6,7 +6,6 @@ import {
   NetworkError,
   ApiResponseParseError
 } from '../../../common/errors';
-import httpClient from '../../../utils/httpClient';
 
 /**
  * 天气查询适配器
