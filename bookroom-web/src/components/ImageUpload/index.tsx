@@ -2,22 +2,36 @@ import {
   AI_VL_UPLOAD_FILE_SIZE_LIMIT,
   AI_VL_UPLOAD_FILE_TYPE,
 } from '@/common/ai';
-import { PlusOutlined } from '@ant-design/icons';
-import { Image, message, Upload, UploadFile } from 'antd';
+import { getUrlAndUploadFileApi } from '@/services/common/file';
+import { PictureOutlined } from '@ant-design/icons';
+import { Button, Image, Upload, UploadFile } from 'antd';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
+import { UploadListType } from 'antd/es/upload/interface';
 
-// 添加props类型
 interface ImageUploadProps {
   title?: string; // 标题
   max?: number; // 最大文件数限制
+  multiple?: boolean; // 是否支持多选
+  listType?: UploadListType; // 列表类型
+  showUploadList?: boolean; // 是否显示上传列表
+  imageList?: ImageListType; // 图片列表
+  setImageList: React.Dispatch<React.SetStateAction<ImageListType | undefined>>; // 设置图片列表
+  onRemove?: (params: { fileId: string }) => void;
+  onSuccess?: (params: { fileId: string, objectId: string, file: File }) => void;
   className?: string;
-  fileList: UploadFile[];
-  setFileList: (fileList: UploadFile[]) => void; // 设置文件列表的回调函数
 }
 
-export const getFileBase64 = (file: any, vison = true): Promise<string> => {
+export interface ImageListType {
+  objectList: Array<{
+    objectId: string; // 对象ID
+    fileId: string; // 文件ID
+  }>;
+  fileList: UploadFile[];
+}
+
+export const getBase64FormFileObj = (file: any, vison = true): Promise<string> => {
   // 判定file是否文件
   if (!(file instanceof File)) {
     return file;
@@ -41,20 +55,6 @@ export const getFileBase64 = (file: any, vison = true): Promise<string> => {
   });
 };
 
-export const fixFileBase64 = (file: any) => {
-  // 判定file是否base64
-  if (typeof file !== 'string') {
-    return file;
-  }
-  if (file.startsWith('data:image/')) {
-    return file;
-  }
-  if (file.includes(';base64,')) {
-    return file;
-  }
-  const dataUri = `data:image/png;base64,${file}`;
-  return dataUri;
-};
 export const getArrayBuffer = (file: any): Promise<ArrayBuffer> => {
   // 判定file是否文件
   if (!(file instanceof File)) {
@@ -70,12 +70,22 @@ export const getArrayBuffer = (file: any): Promise<ArrayBuffer> => {
 };
 
 const ImageUpload: React.FC<ImageUploadProps> = (props) => {
-  const { title, max = 5, className, fileList, setFileList } = props;
+  const {
+    title = "上传图片",
+    max = 5,
+    listType = "picture-card",
+    showUploadList = true,
+    imageList = [] as any,
+    setImageList,
+    onSuccess,
+    onRemove,
+    className
+  } = props;
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview) {
-      file.preview = await getFileBase64(file.originFileObj, false);
+      file.preview = await getBase64FormFileObj(file.originFileObj, false);
     }
     setPreviewImage(file.url || (file.preview as string));
     setPreviewOpen(true);
@@ -83,53 +93,74 @@ const ImageUpload: React.FC<ImageUploadProps> = (props) => {
 
   const UploadButton = () => {
     return (
-      <button style={{ border: 0, background: 'none' }} type="button">
-        <PlusOutlined />
-        <div style={{ marginTop: 8 }}>{title}</div>
-      </button>
+      <Button icon={<PictureOutlined />} title={title} type="text" />
     );
   };
-
-  useEffect(() => {
-    // 获取当前文件列表
-    const uploadFileList: UploadFile[] = [...fileList];
-    // 计算总体大小
-    const totalSize = uploadFileList.reduce(
-      (acc, curr) => acc + (curr.size || 0),
-      0,
-    );
-    // 跳过超出大小限制的文件
-    if (
-      AI_VL_UPLOAD_FILE_SIZE_LIMIT &&
-      totalSize > AI_VL_UPLOAD_FILE_SIZE_LIMIT
-    ) {
-      message.error(
-        `上传文件大小总计不能超过 ${AI_VL_UPLOAD_FILE_SIZE_LIMIT / 1024 / 1024}MB`,
-      );
-      // 删除最后一个文件，直到总体大小在限制内
-      uploadFileList.pop();
-      setFileList(uploadFileList);
-    }
-  }, [fileList]);
 
   return (
     <>
       <Upload
         className={classNames(styles.imageUpload, className)}
-        listType="picture-card"
+        listType={listType}
         accept={AI_VL_UPLOAD_FILE_TYPE?.join(',')}
         multiple={true}
-        fileList={fileList}
+        showUploadList={showUploadList}
+        fileList={imageList?.fileList}
         maxCount={max}
-        onChange={(info) => {
-          setFileList(info.fileList);
+        onChange={async (info) => {
+          const { file, fileList } = info;
+          const originFile = fileList.find(
+            (item: { uid: any }) => item.uid === file.uid,
+          );
+          // 如果file不在fileList中
+          if (!originFile) {
+            onRemove?.({
+              fileId: file.uid
+            })
+            setImageList({
+              objectList: imageList?.objectList?.filter((item: { fileId: any }) => item.fileId !== file.uid),
+              fileList: imageList?.fileList?.filter((item: { uid: any }) => item.uid !== file.uid),
+            });
+            return;
+          }
+          // 判定file大小
+          if (!file?.size || file?.size > AI_VL_UPLOAD_FILE_SIZE_LIMIT) {
+            return;
+          }
+          if (!originFile?.originFileObj) {
+            return;
+          }
+          const objectId =
+            new Date().getTime() + '_' + originFile.originFileObj.name;
+          // 上传文件
+          const isUploaded = await getUrlAndUploadFileApi(
+            {
+              objectId,
+            },
+            {
+              file: originFile.originFileObj,
+            },
+          );
+          if (!isUploaded) {
+            return;
+          }
+          onSuccess?.({
+            objectId,
+            fileId: file.uid,
+            file: originFile.originFileObj, // 添加文件对象
+          });
+          // 上传成功后，更新imageList
+          setImageList(prevState => ({
+            objectList: [...(prevState?.objectList || []), { fileId: file.uid, objectId }],
+            fileList: [...fileList],
+          }));
         }}
         onPreview={handlePreview}
-        beforeUpload={() => {
+        beforeUpload={(file: UploadFile) => {
           return false;
         }}
       >
-        {fileList?.length >= max ? null : <UploadButton />}
+        {imageList?.objectList?.length >= max ? null : <UploadButton />}
       </Upload>
       {previewImage && (
         <Image

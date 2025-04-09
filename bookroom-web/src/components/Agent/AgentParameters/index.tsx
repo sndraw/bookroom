@@ -23,11 +23,10 @@ import VoiceRecognizeSelect from '@/components/Voice/VoiceRecognizeSelect';
 export interface ParametersType {
   prompt: string;
   isStream: boolean;
-  isImages: boolean;
   voiceParams?: API.VoiceParametersType;
   logLevel: boolean;
   isMemory: boolean;
-  searchEngine?: string;
+  searchEngine?: string | string[];
   weatherEngine?: string;
   modelConfig?: object;
   graphConfig?: object;
@@ -40,7 +39,6 @@ export interface ParametersType {
 export const defaultParameters: ParametersType = {
   prompt: '',
   isStream: true,
-  isImages: true,
   voiceParams: null,
   logLevel: false,
   isMemory: false,
@@ -64,11 +62,10 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [prompt, setPrompt] = useState<string>('');
   const [isStream, setIsStream] = useState<boolean>(true);
-  const [isImages, setIsImages] = useState<boolean>(true);
   const [voiceParams, setVoiceParams] = useState<any>(false);
   const [logLevel, setLogLevel] = useState<boolean>(false);
   const [isMemory, setIsMemory] = useState<boolean>(false);
-  const [searchEngine, setSearchEngine] = useState<string>();
+  const [searchEngine, setSearchEngine] = useState<string | string[]>();
   const [weatherEngine, setWeatherEngine] = useState<string>();
   const [modelConfig, setModelConfig] = useState<object>();
   const [graphConfig, setGraphConfig] = useState<object>();
@@ -83,7 +80,6 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     if (parameters) {
       setPrompt(parameters?.prompt);
       setIsStream(parameters?.isStream);
-      setIsImages(parameters.isImages);
       setVoiceParams(parameters.voiceParams);
       setLogLevel(parameters?.logLevel);
       setIsMemory(parameters?.isMemory);
@@ -102,7 +98,6 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     const newParameters: ParametersType = {
       prompt,
       isStream,
-      isImages,
       voiceParams,
       logLevel,
       isMemory,
@@ -174,8 +169,9 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             <label className={styles.formLabel} >搜索引擎</label>
             <SearchEngineSelect
               className={styles.selectElement}
+              mode={"multiple"}
               value={searchEngine}
-              onChange={(value: string) => setSearchEngine(value)}
+              onChange={(value: string | string[]) => setSearchEngine(value)}
             />
           </Flex>
           <Flex
@@ -204,6 +200,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             </Tooltip></label>
             <AgentSDKSelect
               className={styles.selectElement}
+              mode={"multiple"}
               value={agentSDK}
               onChange={(value: string | string[]) => setAgentSDK(value)}
             />
@@ -257,24 +254,6 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
                   setIsStream(false);
                 }
                 setIsStream(checked);
-              }}
-              checkedChildren="启用"
-              unCheckedChildren="禁用"
-            />
-          </Flex>
-          <Flex
-            className={styles.formItem}
-            justify="justifyContent"
-            align="center"
-          >
-            <label className={styles.formLabel}>图片上传</label>
-            <Switch
-              value={isImages}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setIsImages(false);
-                }
-                setIsImages(checked);
               }}
               checkedChildren="启用"
               unCheckedChildren="禁用"

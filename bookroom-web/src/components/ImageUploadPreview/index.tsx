@@ -7,7 +7,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Image, Upload, UploadFile } from 'antd';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { getFileBase64 } from '../ImageUpload';
+import { getBase64FormFileObj } from '../ImageUpload';
 import styles from './index.less';
 
 interface ImageUploadPreviewProps {
@@ -39,7 +39,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = (props) => {
   const [previewImage, setPreviewImage] = useState('');
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview) {
-      file.preview = await getFileBase64(file.originFileObj, false);
+      file.preview = await getBase64FormFileObj(file.originFileObj, false);
     }
     setPreviewImage(file.url || (file.preview as string));
     setPreviewOpen(true);

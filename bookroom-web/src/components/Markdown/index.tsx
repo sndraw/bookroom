@@ -6,12 +6,11 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { Graphviz } from 'graphviz-react';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { previewFileApi } from '@/services/common/file';
-import MediaPreview from '../MediaPreview';
-import { isMediaObjectId } from '@/utils/file';
 import remarkGfm from 'remark-gfm'
 import rehypeReact from 'rehype-react'
 import remarkMath from 'remark-math'
+import MediaPreview from '../MediaPreview';
+import { isMediaObjectId } from '@/utils/file';
 import styles from './index.less'; // 引入外部样式表
 
 export const markdownToText = (content: string) => {
@@ -33,14 +32,6 @@ export const getNoTagsContent = (content: string) => {
   result = result.replace(regex, '');
   return result;
 };
-
-export const getPreviewUrl = async (file: string) => {
-  // 获取图片的base64编码
-  const res = await previewFileApi({
-    fileId: file,
-  });
-  return res?.url;
-}
 
 // 处理标签内容
 export const formatMarkDownContent = (content: string, options?: any) => {
@@ -91,13 +82,33 @@ export const formatMarkDownContent = (content: string, options?: any) => {
     result
   }
 }
+export const isValidDotCode = (dotCode: string) => {
+  if (typeof dotCode !== 'string') {
+    return false;
+  }
+  // 简单的合法性检查：确保至少包含 digraph 或 graph，并且 {} 括号闭合
+  if (!dotCode.trim()) return false;
 
+  // 检查是否以 digraph 或 graph 开头
+  const hasGraphKeyword = /^(digraph|graph)\s+/.test(dotCode);
+  if (!hasGraphKeyword) return false;
+
+  // 检查 {} 是否闭合
+  const openBraces = (dotCode.match(/{/g) || []).length;
+  const closeBraces = (dotCode.match(/}/g) || []).length;
+  if (!openBraces || !closeBraces) return false;
+
+  // 检查是否包含至少一个节点或边定义
+  const hasNodeOrEdge = /->|[\w]+\s*$.*$/.test(dotCode);
+  if (!hasNodeOrEdge) return false;
+
+  return true;
+};
 export const CodeRenderer = (params: any) => {
   const { node, inline, className, children, ...props } = params || {};
 
   const match = /language-(\w+)/.exec(className || '');
   const isInline = typeof children === 'string' && !children.includes('\n');
-  console.log(match)
   if (match && match[1] === 'csv') {
     if (!children) {
       return null;
@@ -137,17 +148,21 @@ export const CodeRenderer = (params: any) => {
       </table>
     );
   }
-  if (match && match[1] === 'dot') {
+
+  if (match && match[1] === 'dot' && isValidDotCode(children)) {
+    const dotCode = children as string;
     return (
       <div style={{ whiteSpace: 'pre-wrap' }}>
         <Graphviz dot={children} options={
           {
-            height: '100%', // 设置图表高度为父容器的高度
-            width: '100%', // 设置图表宽度为父容器的宽度
-            zoomFactor: 1.5, // 设置缩放因子为 1.5
-            fit: true, // 自动调整图表大小以适应容器
+            width: '100%',
+            height: 'auto',
+            fit: true,
+            scale:1.0,
+            maxScale: 2.0, // 最大缩放比例
+            minScale: 0.5, // 最小缩放比例
           }
-        }/>
+        } />
       </div>
     );
   }
@@ -162,7 +177,7 @@ export const CodeRenderer = (params: any) => {
     </code>
   );
 };
-export const MediaRenderer =  (params: any) => {
+export const MediaRenderer = (params: any) => {
   const { children, ...props } = params || {};
 
   // 判定是否为媒体对象
@@ -170,7 +185,7 @@ export const MediaRenderer =  (params: any) => {
     return <MediaPreview href={props.href} />;
   }
   // 使用组件正常的渲染逻辑
-  return <a {...props} >{children}</a>
+  return <a {...props} target='_blank' rel='noopener noreferrer'>{children}</a>
 };
 
 export const MarkdownWithHighlighting = ({

@@ -13,7 +13,7 @@ import AgentTool from '@/SDK/agent/tool/AgentTool';
 import TimeTool from '@/SDK/agent/tool/TimeTool';
 import UrlTool from '@/SDK/agent/tool/UrlTool';
 import FileTool from '@/SDK/agent/tool/FileTool';
-
+import { SEARCH_API_MAP } from '@/common/search';
 
 class AgentService {
 
@@ -208,13 +208,26 @@ class AgentService {
                 tools.push(new GraphDBTool(graphDbConfig?.toJSON() || {}, graphConfig?.workspace || ''));
             }
             if (searchEngine) {
-                // 获取搜索引擎配置
-                const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchEngine, {
-                    safe: false
-                });
-                // 搜索引擎
-                tools.push(new SearchTool(searchEngineConfig?.toJSON()));
-
+                let searchList: string[] = []
+                // 如果是字符串,则转换成数组
+                if (typeof searchEngine === "string") {
+                    searchList = searchEngine.split(',').map(item => item.trim());
+                }
+                // 是否是数组
+                if (Array.isArray(searchEngine)) {
+                    searchList = [...searchEngine]
+                }
+                // 多个搜索引擎作为输入，需要遍历每个搜索引擎并获取其配置
+                if (searchList.length > 0) {
+                    for (const searchId of searchList) {
+                        // 获取搜索引擎配置
+                        const searchEngineConfig: any = await PlatformService.findPlatformByIdOrName(searchId, {
+                            safe: false
+                        });
+                        // 搜索引擎
+                        tools.push(new SearchTool(searchEngineConfig?.toJSON()));
+                    }
+                }
             }
             if (weatherEngine) {
                 // 获取天气搜索引擎配置
@@ -241,7 +254,7 @@ class AgentService {
                         const agentSDKConfig: any = await PlatformService.findPlatformByIdOrName(agentId, {
                             safe: false
                         });
-                        // 搜索引擎
+                        // 智能接口
                         tools.push(new AgentTool({
                             ...agentSDKConfig?.toJSON(),
                             userId

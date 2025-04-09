@@ -27,17 +27,27 @@ class OllamaAPI {
     // 获取模型列表及其运行状态
     async queryAILmAndStatusList(query: any): Promise<any[]> {
         const list = await this.ollama.list();
-        const runningList = await this.ollama.ps();
-        const models = list.models.map((modelItem: any) => {
-            const runningModel = runningList.models.find((item: any) => modelItem.name === item.name);
-            const modelInfo = {
-                ...modelItem,
-                id: MD5(modelItem.name + this.platformId).toString(),
-                status: runningModel ? StatusEnum.ENABLE : StatusEnum.DISABLE
-            };
-            return modelInfo;
-        });
-
+        let models: any[] = [];
+        try {
+            const runningList = await this.ollama.ps();
+            models = list.models.map((modelItem: any) => {
+                const runningModel = runningList.models.find((item: any) => modelItem.name === item.name);
+                const modelInfo = {
+                    ...modelItem,
+                    id: MD5(modelItem.name + this.platformId).toString(),
+                    status: runningModel ? StatusEnum.ENABLE : StatusEnum.DISABLE
+                };
+                return modelInfo;
+            });
+        } catch {
+            models = list.models.map((modelItem: any) => {
+                const modelInfo = {
+                    ...modelItem,
+                    id: MD5(modelItem.name + this.platformId).toString(),
+                };
+                return modelInfo;
+            })
+        }
         const newModels = models.filter((model: any) => {
             if (query?.status === StatusEnum.DISABLE) {
                 return model?.status === StatusEnum.DISABLE;
@@ -52,15 +62,27 @@ class OllamaAPI {
 
     // 获取模型及其运行状态
     async getAILmAndStatusInfo(model: string): Promise<any> {
-        const modelInfo = await this.ollama.show({ model: model });
-        const runningList = await this.ollama.ps();
-        const runningModel = runningList.models.find((item: any) => model === item.name);
+        let modelInfo = null
+        try {
+            modelInfo = await this.ollama.show({ model: model });
+            const runningList = await this.ollama.ps();
+            const runningModel = runningList.models.find((item: any) => model === item.name);
+            modelInfo = {
+                ...modelInfo,
+                status: runningModel ? StatusEnum.ENABLE : StatusEnum.DISABLE
+            }
+        } catch (error) {
+            const list = await this.ollama.list();
+            modelInfo = list.models.find((item: any) => model === item.name);
+        }
+        if (!modelInfo) {
+            return null;
+        }
         return {
             ...modelInfo,
             id: MD5(model + this.platformId).toString(),
             name: model,
             model: model,
-            status: runningModel ? StatusEnum.ENABLE : StatusEnum.DISABLE
         };
     }
 
@@ -105,7 +127,7 @@ class OllamaAPI {
             is_stream = true,
             keep_alive = OLLAMA_CONFIG?.keep_alive,
             temperature = 0.7,
-            top_k = 10, 
+            top_k = 10,
             top_p = 0.9,
             num_predict = 4096,
             repeat_penalty = 1.0,
@@ -151,7 +173,7 @@ class OllamaAPI {
             is_stream,
             keep_alive = OLLAMA_CONFIG?.keep_alive,
             temperature = 0.7,
-            top_k = 10, 
+            top_k = 10,
             top_p = 0.9,
             num_predict = 4096,
             repeat_penalty = 1.0,
@@ -188,9 +210,9 @@ class OllamaAPI {
     async getAILmEmbeddings(params: any): Promise<any> {
         const { model, input, truncate = true, keep_alive, userId } = params;
         const chatParams: EmbedRequest = {
-            model, 
-            input, 
-            truncate, 
+            model,
+            input,
+            truncate,
             keep_alive
         }
         const embeddings = await this.ollama.embed(chatParams);

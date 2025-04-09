@@ -7,13 +7,15 @@ import { queryAgentPlatformList } from '@/services/common/agent';
 
 type AgentSDKSelectPropsType = {
     title?: string;
+    mode?: 'multiple' | 'tags';
+    placeholder?: string;
     value?: string | string[];
-    onChange: (value:string | string[]) => void;
+    onChange: (value: string | string[]) => void;
     // 样式
     className?: string;
 };
 const AgentSDKSelect: React.FC<AgentSDKSelectPropsType> = (props) => {
-    const { title, value, onChange, className } = props;
+    const { title, mode = undefined, placeholder, value, onChange, className } = props;
     // 知识图谱列表-请求
     const { data, loading, run } = useRequest(
         () => {
@@ -37,9 +39,9 @@ const AgentSDKSelect: React.FC<AgentSDKSelectPropsType> = (props) => {
             }
             <Select<string | string[]>
                 className={styles?.selectElement}
-                mode='multiple'
+                mode={mode}
                 value={value}
-                placeholder="请选择智能接口"
+                placeholder={placeholder || "请选择智能接口"}
                 showSearch
                 allowClear
                 loading={loading}
