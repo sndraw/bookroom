@@ -1,6 +1,4 @@
 import moment from 'moment';
-import mockHelper from '../../../../test/mocks/TestMockHelper';
-import { MOCK_TIME_DATA } from '../../../../test/mocks/data/TimeTool.mock';
 
 interface TimeInput {
     query: string;
@@ -42,11 +40,6 @@ class TimeTool {
     }
 
     async execute(params: TimeInput): Promise<any> {
-        // 检查是否处于模拟模式
-        if (mockHelper.shouldUseMock()) {
-            return this.executeMock(params);
-        }
-
         const { query } = params;
         const { parameters = {} } = this.config;
         const queryParams = {
