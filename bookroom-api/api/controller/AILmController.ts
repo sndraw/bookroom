@@ -519,76 +519,6 @@ class AILmController extends BaseController {
           array: "对话列表格式非法"
         },
       },
-      temperature: {
-        type: "number",
-        required: false,
-        min: 0,
-        max: 1,
-        message: {
-          min: "温度不能小于0",
-          max: "温度不能超过1",
-        },
-      },
-      top_p: {
-        type: "number",
-        required: false,
-        min: 0,
-        max: 1,
-        message: {
-          min: "Top P不能小于0",
-          max: "Top P不能超过1",
-        },
-      },
-      top_k: {
-        type: "number",
-        required: false,
-        min: 1,
-        max: 100,
-        message: {
-          min: "Top K不能小于1",
-          max: "Top K不能超过100",
-        },
-      },
-      max_tokens: {
-        type: "number",
-        required: false,
-        min: 1,
-        max: 8192,
-        message: {
-          min: "最大输出长度不能小于1",
-          max: "最大输出长度不能超过8192",
-        },
-      },
-      repeat_penalty: {
-        type: "number",
-        required: false,
-        min: -2.0,
-        max: 2.0,
-        message: {
-          min: "惩罚强度不能小于-2.0",
-          max: "惩罚强度不能超过2.0",
-        },
-      },
-      frequency_penalty: {
-        type: "number",
-        required: false,
-        min: -2.0,
-        max: 2.0,
-        message: {
-          min: "频率惩罚不能小于-2.0",
-          max: "频率惩罚不能超过2.0",
-        },
-      },
-      presence_penalty: {
-        type: "number",
-        required: false,
-        min: -2.0,
-        max: 2.0,
-        message: {
-          min: "存在惩罚不能小于-2.0",
-          max: "存在惩罚不能超过2.0",
-        },
-      }
     }, {
       ...newParams
     })
@@ -708,76 +638,6 @@ class AILmController extends BaseController {
           type: "数组类型错误，请输入字符串数组",
         },
       },
-      temperature: {
-        type: "number",
-        required: false,
-        min: 0,
-        max: 1,
-        message: {
-          min: "温度不能小于0",
-          max: "温度不能超过1",
-        },
-      },
-      top_p: {
-        type: "number",
-        required: false,
-        min: 0,
-        max: 1,
-        message: {
-          min: "Top P不能小于0",
-          max: "Top P不能超过1",
-        },
-      },
-      top_k: {
-        type: "number",
-        required: false,
-        min: 1,
-        max: 100,
-        message: {
-          min: "Top K不能小于1",
-          max: "Top K不能超过100",
-        },
-      },
-      max_tokens: {
-        type: "number",
-        required: false,
-        min: 1,
-        max: 8192,
-        message: {
-          min: "最大输出长度不能小于1",
-          max: "最大输出长度不能超过8192",
-        },
-      },
-      repeat_penalty: {
-        type: "number",
-        required: false,
-        min: -2.0,
-        max: 2.0,
-        message: {
-          min: "惩罚强度不能小于-2.0",
-          max: "惩罚强度不能超过2.0",
-        },
-      },
-      frequency_penalty: {
-        type: "number",
-        required: false,
-        min: -2.0,
-        max: 2.0,
-        message: {
-          min: "频率惩罚不能小于-2.0",
-          max: "频率惩罚不能超过2.0",
-        },
-      },
-      presence_penalty: {
-        type: "number",
-        required: false,
-        min: -2.0,
-        max: 2.0,
-        message: {
-          min: "存在惩罚不能小于-2.0",
-          max: "存在惩罚不能超过2.0",
-        },
-      }
     }, {
       ...newParams
     })
@@ -887,27 +747,6 @@ class AILmController extends BaseController {
           required: "文本列表不能为空",
           array: "文本列表格式非法"
         },
-      },
-      truncate: {
-        type: "boolean",
-        required: false,
-        message: {
-          required: "文本截断不能为空",
-        }
-      },
-      dimensions: {
-        type: "number",
-        required: false,
-        message: {
-          required: "向量维度不能为空",
-        }
-      },
-      encodingFormat: {
-        type: "string",
-        required: false,
-        message: {
-          required: "编码格式不能为空",
-        }
       },
     }, {
       ...newParams

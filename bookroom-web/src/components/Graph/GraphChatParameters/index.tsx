@@ -139,12 +139,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
             <label className={styles.formLabel}>仅需上下文：</label>
             <Switch
               value={onlyNeedContext}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setOnlyNeedPrompt(false);
-                }
-                setOnlyNeedContext(checked);
-              }}
+              onChange={setOnlyNeedContext}
               checkedChildren="开启"
               unCheckedChildren="关闭"
             />
@@ -157,12 +152,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
             <label className={styles.formLabel}>仅需提示词：</label>
             <Switch
               value={onlyNeedPrompt}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setOnlyNeedContext(false);
-                }
-                setOnlyNeedPrompt(checked);
-              }}
+              onChange={setOnlyNeedPrompt}
               checkedChildren="开启"
               unCheckedChildren="关闭"
             />
@@ -175,12 +165,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
             <label className={styles.formLabel}>流式输出：</label>
             <Switch
               value={isStream}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setIsStream(false);
-                }
-                setIsStream(checked);
-              }}
+              onChange={setIsStream}
               checkedChildren="启用"
               unCheckedChildren="禁用"
             />

@@ -2,7 +2,7 @@ import OpenAI from 'openai'
 import { StatusEnum } from '@/constants/DataMap';
 import { createFileClient, getObjectName } from '@/common/file';
 import { VOICE_RECOGNIZE_LANGUAGE_MAP, VOICE_RECOGNIZE_TASK_MAP } from '@/common/voice';
-import { ChatCompletionCreateParams } from 'openai/resources/chat';
+import { ChatCompletionAudioParam, ChatCompletionCreateParams } from 'openai/resources/chat';
 import { convertMessagesToVLModelInput } from './convert';
 import { EmbeddingCreateParams } from 'openai/resources/embeddings';
 
@@ -96,7 +96,7 @@ class OpenAIAPI {
         const {
             model,
             messages,
-            is_stream,
+            is_stream = true,
             temperature = 0.7,
             top_k = 10,
             top_p = 0.8,
@@ -105,8 +105,7 @@ class OpenAIAPI {
             repetition_penalty = 1.0,
             frequency_penalty = 0.0,
             presence_penalty = 0.0,
-            modalities = ["text", "audio"],
-            audio = { "voice": "Chelsie", "format": "wav" },
+            audioParams,
             userId
         } = params
 
@@ -116,6 +115,18 @@ class OpenAIAPI {
                 messages,
                 userId
             });
+
+            const modalities: ("text" | "audio")[] = ["text"];
+            const audio: ChatCompletionAudioParam = { voice: "Chelsie", format: "wav" };
+            if (audioParams?.output) {
+                modalities.push("audio")
+            }
+            if (audioParams?.voice) {
+                audio.voice = audioParams.voice;
+            }
+            if (audioParams?.format) {
+                audio.format = audioParams.format;
+            }
             const chatParams: ChatCompletionCreateParams = {
                 model: model,
                 messages: newMessageList || [],
@@ -130,6 +141,7 @@ class OpenAIAPI {
                 presence_penalty: presence_penalty,
                 user: userId,
             }
+
             if (tools?.length > 0) {
                 chatParams.tool_choice = "auto"; // 让模型自动选择调用哪个工具
                 chatParams.stream_options = is_stream ? { include_usage: true } : undefined;
@@ -146,6 +158,32 @@ class OpenAIAPI {
             throw e;
         }
     }
+
+
+    // 文本向量
+    async getAILmEmbeddings(params: any) {
+        const {
+            model,
+            input,
+            encoding_format = 'float',
+            dimensions = 1024,
+            userId = null,
+        } = params;
+        try {
+            const chatParams: EmbeddingCreateParams = {
+                model,
+                input,
+                encoding_format,
+                dimensions,
+                user: userId,
+            }
+            return await this.openai.embeddings.create(chatParams)
+        } catch (e) {
+            console.log(e)
+            throw e;
+        }
+    }
+
     // 语音识别
     async getVoiceRecognize(params: any) {
         const {
@@ -199,31 +237,6 @@ class OpenAIAPI {
             throw e;
         }
     }
-
-    // 文本向量
-    async getAILmEmbeddings(params: any) {
-        const {
-            model,
-            input,
-            encoding_format = 'float',
-            dimensions = 1024,
-            userId = null,
-        } = params;
-        try {
-            const chatParams: EmbeddingCreateParams = {
-                model,
-                input,
-                encoding_format,
-                dimensions,
-                user: userId,
-            }
-            return await this.openai.embeddings.create(chatParams)
-        } catch (e) {
-            console.log(e)
-            throw e;
-        }
-    }
-
     // 图片生成
     async getAILmImageGenerate(params: any) {
         try {

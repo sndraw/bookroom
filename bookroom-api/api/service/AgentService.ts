@@ -176,14 +176,10 @@ class AgentService {
             if (!parameters) {
                 throw new Error("智能助手参数配置错误");
             }
-            const { prompt, isMemory, limitSteps, limitSeconds, maxTokens, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
+            const { prompt, isMemory, audioParams, storageEngine, limitSteps, limitSeconds, maxTokens, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
             const tools: Tool[] = [
                 // 添加时间工具
                 new TimeTool(),
-                // 添加URL处理工具
-                new UrlTool(),
-                // 添加文件存储工具
-                new FileTool({ userId }),
             ]
             if (!modelConfig || !modelConfig.platform || !modelConfig.model) {
                 throw new Error("模型配置错误")
@@ -261,6 +257,11 @@ class AgentService {
                     }
                 }
             }
+            // 开启存储引擎工具
+            if(storageEngine){
+                tools.push(new FileTool({ userId }));
+                tools.push(new UrlTool());
+            }
             // 工具调用API配置
             const toolcallApiOps = { ...lmPlatformConfig?.toJSON(), limitSeconds }
             // 问题处理参数
@@ -272,6 +273,7 @@ class AgentService {
                 limitSteps,
                 limitSeconds,
                 maxTokens,
+                audioParams,
                 ...params,
             };
             // 工具调用

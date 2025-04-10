@@ -1,7 +1,7 @@
 
 declare namespace API {
     // 语音识别参数
-    type VoiceParametersType = {
+    type VoiceParamsType = {
         apiMode?: boolean; // 是否使用API模式，默认为false
         id?: string;
         language?: string; //默认目标语言， zh: 中文, en: 英文

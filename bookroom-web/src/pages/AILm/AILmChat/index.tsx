@@ -62,14 +62,6 @@ const AILmChatPage: React.FC = () => {
         model: model || '',
         prompt: prompt, // 设置提示信息
         messages: [...newMessages],
-        top_p: parameters?.topP,
-        top_k: parameters?.topK,
-        temperature: parameters?.temperature, // 设置温度
-        max_tokens: parameters?.maxTokens, // 设置最大token数
-        repeat_penalty: parameters?.repeatPenalty, // 设置惩罚强度
-        frequency_penalty: parameters?.frequencyPenalty, // 设置频率惩罚
-        presence_penalty: parameters?.presencePenalty, // 设置存在惩罚
-        limitSeconds: parameters?.limitSeconds, // 设置最大时间限制
       },
       {
         ...(options || {}),
@@ -109,6 +101,7 @@ const AILmChatPage: React.FC = () => {
       defaultMessageList={chatList?.record?.messages}
       isImages={true}
       isVoice={true}
+      audioParams={parameters?.audioParams}
       voiceParams={parameters?.voiceParams}
       customRequest={sendMsgRequest}
       saveAIChat={(messageList: any) => {

@@ -53,10 +53,7 @@ const AILmEmbedPage: React.FC = () => {
       },
       {
         model: model || '',
-        input: [input],
-        truncate: parameters.truncate, // 文本截断
-        dimensions: parameters.dimensions, // 向量维度
-        encoding_format: parameters.encodingFormat, // 编码格式
+        input: [input]
       },
       {
         ...(options || {}),

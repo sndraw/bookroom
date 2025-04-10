@@ -88,12 +88,7 @@ const AILmImagePage: React.FC = () => {
             <label>流式输出：</label>
             <Switch
               value={isStream}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setIsStream(false);
-                }
-                setIsStream(checked);
-              }}
+              onChange={setIsStream}
               checkedChildren="启用"
               unCheckedChildren="禁用"
             />

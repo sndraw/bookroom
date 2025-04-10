@@ -18,6 +18,7 @@ import { getUrlAndUploadFileApi } from '@/services/common/file';
 import { formatSseData, isSseFormat } from '@/utils/format';
 import ImageUpload, { ImageListType } from '../ImageUpload';
 import ImageListPanel from '../ImageListPanel';
+import { AudioParamsType } from '../Voice/AudioParamsSelect';
 
 type ChatPanelPropsType = {
   // 标题
@@ -26,10 +27,12 @@ type ChatPanelPropsType = {
   defaultMessageList?: ChatMessageType[];
   // 是否支持图片上传
   isImages?: boolean;
+  // 音频输出参数
+  audioParams?: AudioParamsType;
   // 是否支持语音识别
   isVoice?: boolean;
   // 语音识别参数
-  voiceParams?: API.VoiceParametersType;
+  voiceParams?: API.VoiceParamsType;
   // 请求方法
   customRequest: (data: any, options: any) => Promise<any>;
   // 保存AI聊天记录
@@ -59,6 +62,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     defaultMessageList,
     isImages,
     isVoice,
+    audioParams,
     voiceParams,
     customRequest,
     saveAIChat,
