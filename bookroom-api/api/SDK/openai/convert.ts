@@ -32,14 +32,35 @@ export const convertImagesToVLModelInput = async (params: {
     }
     return newImages;
 }
+// 过滤内容
+export const filterContent = (content: string, options?: {
+    noSearch?: boolean;
+    noThink?: boolean;
+}) => {
+    const { noSearch = true, noThink = true } = options || {};
+    let regex = null;
+    let result = content;
+    if (noSearch) {
+        // 删除<search>标签和<think>标签包裹的内容
+        regex = /<search>[\s\S]*?<\/search>/g;
+        result = result.replace(regex, '');
+    }
+    if (noThink) {
+        regex = /<think>[\s\S]*?<\/think>/g;
+        result = result.replace(regex, '');
+    }
+    return result;
+};
 
 
 // 转换messages为模型输入格式
 export const convertMessagesToVLModelInput = async (params: {
     messages: any[];
+    noThink?: boolean;
+    noSearch?: boolean;
     userId?: string;
 }): Promise<any> => {
-    const { messages, userId } = params;
+    const { messages, noThink = false, noSearch  = false, userId } = params;
     if (!messages || !Array.isArray(messages)) {
         return null;
     }
@@ -49,7 +70,7 @@ export const convertMessagesToVLModelInput = async (params: {
     for (const message of messages) {
         // 解构message，其他属性
         const { content, images, videos, audios, ...rest } = message;
-        
+
         // 定义新消息列表
         const newMessage: any = {
             ...rest,
@@ -67,7 +88,7 @@ export const convertMessagesToVLModelInput = async (params: {
                 newMessage.content.push(...content);
             }
         }
-        // 如果是user或assistant
+        // 如果是user或assistant或者tool
         if (message.role === "user" || message.role === "assistant" || message.role === "tool") {
             if (images && Array.isArray(images)) {
                 for (const item of images) {
@@ -155,13 +176,37 @@ export const convertMessagesToVLModelInput = async (params: {
                 }
             }
             if (typeof content === "string") {
+                /**  删除所有的search和think标签，减少tokens消耗 */
+                const newText = filterContent(content,{
+                    noThink,
+                    noSearch,
+                })
+                /**  过滤并保存历史聊天记录到文件/数据库并进行向量化，需要的时候可以通过接口读取 */
+                // TODO
                 newMessage.content.push({
                     type: "text",
-                    text: content || ""
+                    text: newText || ""
                 });
             }
             if (Array.isArray(content)) {
-                newMessage.content.push(...content);
+                //    循环获取聊天内容
+                for (const item of content) {
+                    const newContent = {
+                        ...item,
+                    }
+                    // 如果是text，则进行过滤处理
+                    if (item?.type === "text" && item?.text) {
+                        /**  删除所有的search和think标签，减少tokens消耗 */
+                        const newText = filterContent(item?.text,{
+                            noSearch,
+                            noThink,
+                        })
+                        /**  过滤并保存历史聊天记录到文件/数据库并进行向量化，需要的时候可以通过接口读取 */
+                        // TODO
+                        newContent.text = newText || ""
+                    }
+                    newMessage.content.push(newContent);
+                }
             }
         }
         newMessageList.push(newMessage);
