@@ -1,10 +1,8 @@
 import { LoadingOutlined } from '@ant-design/icons';
-import { marked } from 'marked';
 import Papa from 'papaparse';
 import { useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { Graphviz } from 'graphviz-react';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm'
 import rehypeReact from 'rehype-react'
@@ -12,98 +10,10 @@ import remarkMath from 'remark-math'
 import MediaPreview from '../MediaPreview';
 import { isMediaObjectId } from '@/utils/file';
 import styles from './index.less'; // 引入外部样式表
+import DotChart, { isValidGraphDotCode } from './DotChart';
+import { formatMarkDownContent } from './utils';
+import MermaidChart, { isValidGraphMermaidCode } from './MermaidChart';
 
-export const markdownToText = (content: string) => {
-  const html = marked(content, { async: false });
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  const bodyText = doc.body.textContent || '';
-  return bodyText;
-};
-// 获取无标签内容
-export const getNoTagsContent = (content: string) => {
-  let regex = null;
-  let result = content;
-  // 删除<search>标签和<think>标签包裹的内容
-  regex = /<search>[\s\S]*?<\/search>|<think>[\s\S]*?<\/think>/g;
-  result = result.replace(regex, '');
-  // 删除<audio>标签和<video>标签包裹的内容
-  regex = /<audio>[\s\S]*?<\/audio>|<video>[\s\S]*?<\/video>/g;
-  result = result.replace(regex, '');
-  return result;
-};
-
-// 处理标签内容
-export const formatMarkDownContent = (content: string, options?: any) => {
-  const {
-    delimiter = '\n\n',
-    startTag = '<search>',
-    endTag = '</search>',
-    defaulTitle = '回复中...',
-    startTitle = '正在深度搜索...',
-    endTitle = '已完成深度搜索',
-  } = options || {}
-  let result = ''; // 结果
-  let before = ''; // 前面的内容
-  let title = defaulTitle; // 标题
-  let search = ''; // 搜索内容
-  if (content.includes(startTag) || content.includes(endTag)) {
-    let startIndex = 0; // 开始索引
-    let endIndex = 0; // 结束索引
-    // 临时变量
-    let tempResult = content; // 临时结果
-    tempResult = tempResult.replace(`${startTag}${delimiter}${endTag}`, '');
-    // 处理搜索
-    if (tempResult.indexOf(startTag) !== -1) {
-      startIndex = tempResult.indexOf(startTag);
-      endIndex = tempResult.indexOf(endTag, startIndex);
-      before = tempResult.substring(0, startIndex);
-      if (endIndex === -1) {
-        title = startTitle;
-        search = tempResult.substring(startIndex + startTag.length);
-        result = '';
-      } else {
-        title = endTitle;
-        // search值为<search>标签内的内容，不包括`<search>`和`</search>`标签
-        search = tempResult.substring(startIndex + startTag.length, endIndex);
-        // result值为<search>标签外的内容，不包括`<search>`和`</search>`标签
-        result = tempResult.substring(endIndex + endTag.length);
-      }
-    } else {
-      result = tempResult;
-    }
-  } else {
-    result = content;
-  }
-  return {
-    before,
-    title,
-    search,
-    result
-  }
-}
-export const isValidDotCode = (dotCode: string) => {
-  if (typeof dotCode !== 'string') {
-    return false;
-  }
-  // 简单的合法性检查：确保至少包含 digraph 或 graph，并且 {} 括号闭合
-  if (!dotCode.trim()) return false;
-
-  // 检查是否以 digraph 或 graph 开头
-  const hasGraphKeyword = /^(digraph|graph)\s+/.test(dotCode);
-  if (!hasGraphKeyword) return false;
-
-  // 检查 {} 是否闭合
-  const openBraces = (dotCode.match(/{/g) || []).length;
-  const closeBraces = (dotCode.match(/}/g) || []).length;
-  if (!openBraces || !closeBraces) return false;
-
-  // 检查是否包含至少一个节点或边定义
-  const hasNodeOrEdge = /->|[\w]+\s*$.*$/.test(dotCode);
-  if (!hasNodeOrEdge) return false;
-
-  return true;
-};
 export const CodeRenderer = (params: any) => {
   const { node, inline, className, children, ...props } = params || {};
 
@@ -148,22 +58,17 @@ export const CodeRenderer = (params: any) => {
       </table>
     );
   }
-
-  if (match && match[1] === 'dot' && isValidDotCode(children)) {
-    const dotCode = children as string;
+  if (match && match[1] === 'dot' && isValidGraphDotCode(children)) {
+    const chartCode = children as string;
     return (
-      <div style={{ whiteSpace: 'pre-wrap' }}>
-        <Graphviz dot={children} options={
-          {
-            width: '100%',
-            height: 'auto',
-            fit: true,
-            scale:1.0,
-            maxScale: 2.0, // 最大缩放比例
-            minScale: 0.5, // 最小缩放比例
-          }
-        } />
-      </div>
+      <DotChart chart={{ code: chartCode }} />
+    );
+  }
+
+  if (match && match[1] === 'mermaid' && isValidGraphMermaidCode(children)) {
+    const chartCode = children as string;
+    return (
+      <MermaidChart chart={{ code: chartCode }} />
     );
   }
 
