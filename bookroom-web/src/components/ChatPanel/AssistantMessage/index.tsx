@@ -2,18 +2,16 @@ import classNames from 'classnames';
 import React from 'react';
 import { ChatMessageType } from '../types';
 
-import { DeleteOutlined, RedoOutlined, RobotOutlined  } from '@ant-design/icons';
+import { DeleteOutlined, RedoOutlined, RobotOutlined } from '@ant-design/icons';
 
 import CopyToClipboard from '@/components/CopyToClipboard';
 import {
-  getNoTagsContent,
-  markdownToText,
   MarkdownWithHighlighting,
 } from '@/components/Markdown';
 import TextToSpeech from '@/components/Voice/TextToSpeech';
 import { Button, Popconfirm, Collapse, Space } from 'antd';
 import styles from './index.less';
-import { useState, useEffect } from 'react';
+import { getNoTagsContent, markdownToText } from '@/components/Markdown/utils';
 
 interface AssistantMessageType {
   msgObj: ChatMessageType;
@@ -55,7 +53,7 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
               styles.messageRoleTextAssistant,
             )}
           >
-            <RobotOutlined  />
+            <RobotOutlined />
           </div>
         </div>
         <div
