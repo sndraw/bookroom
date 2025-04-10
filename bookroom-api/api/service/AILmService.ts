@@ -7,6 +7,7 @@ import { LLM_FLAG_MAP, LLM_TYPE_MAP } from "@/common/llm";
 import { v4 as uuidv4 } from 'uuid';
 import LlmModel from "@/models/LlmModel";
 import { getOrderArray } from "@/utils/query";
+import AIChatService from "./AIChatService";
 
 
 class AILmService {
@@ -366,15 +367,6 @@ class AILmService {
             model,
             prompt,
             messages,
-            is_stream,
-            temperature,
-            top_k,
-            top_p,
-            max_tokens,
-            repeat_penalty,
-            frequency_penalty,
-            presence_penalty,
-            limitSeconds,
             userId = null
         } = params
         if (!platform) {
@@ -393,43 +385,67 @@ class AILmService {
         if (!platformConfig) {
             throw new Error("平台不存在");
         }
+        const platformConfigObj = platformConfig.toJSON();
+        // 查询是否存在
+        const chat = await AIChatService.findAIChatByParams({
+            platformId: platformConfig.id,
+            model,
+            type: 1,
+            userId
+        });
+
+        const {
+            isStream,
+            temperature,
+            topK,
+            topP,
+            maxTokens,
+            repeatPenalty,
+            frequencyPenalty,
+            presencePenalty,
+            limitSeconds,
+            audioParams,
+        } = chat?.toJSON()?.parameters || {};
+
         // 加到数组顶部
         messages.unshift({
             role: "system",
             content: prompt || "You are a helpful assistant."
         });
         let result: any;
+
         switch (platformConfig?.code) {
             case AI_LM_PLATFORM_MAP.ollama.value:
-                return await new OllamaAPI(platformConfig?.toJSON()).getAILmChat({
+                return await new OllamaAPI(platformConfigObj).getAILmChat({
                     model: model,
                     messages: messages,
-                    temperature: temperature,
-                    top_k: top_k,
-                    top_p: top_p,
-                    num_predict: max_tokens,
-                    repeat_penalty,
-                    frequency_penalty,
-                    presence_penalty,
-                    is_stream,
+                    is_stream:isStream,
+                    temperature,
+                    top_k: topK,
+                    top_p: topP,
+                    num_predict: maxTokens,
+                    repeat_penalty: repeatPenalty,
+                    frequency_penalty: frequencyPenalty,
+                    presence_penalty: presencePenalty,
                     userId
                 });
                 break;
             case AI_LM_PLATFORM_MAP.openai.value:
                 return await new OpenAIAPI({
-                    ...platformConfig?.toJSON(),
+                    ...platformConfigObj,
                     limitSeconds,
                 }).getAILmChat({
                     model: model,
                     messages: messages,
-                    temperature: temperature,
-                    top_k: top_k,
-                    top_p: top_p,
-                    max_tokens: max_tokens,
-                    repetition_penalty: repeat_penalty,
-                    frequency_penalty,
-                    presence_penalty,
-                    is_stream,
+                    is_stream:isStream,
+                    temperature,
+                    top_k: topK,
+                    top_p: topP,
+                    max_tokens: maxTokens,
+                    repetition_penalty: repeatPenalty,
+                    frequency_penalty: frequencyPenalty,
+                    presence_penalty: presencePenalty,
+                    audioParams,
                     userId
                 });
                 break;
@@ -443,7 +459,7 @@ class AILmService {
 
     // 对话补全
     static async generateAILm(params: any) {
-        const { platform, model, prompt, images, is_stream, limitSeconds, userId = null, ...resparams } = params
+        const { platform, model, prompt, images, userId = null } = params
         if (!platform) {
             throw new Error("参数错误");
         }
@@ -457,17 +473,43 @@ class AILmService {
         if (!platformConfig) {
             throw new Error("平台不存在");
         }
+        const platformConfigObj = platformConfig.toJSON();
+        // 查询对话是否存在
+        const chat = await AIChatService.findAIChatByParams({
+            platformId: platformConfig.id,
+            model,
+            type: 2,
+            userId
+        });
+        const {
+            isStream,
+            temperature,
+            topK,
+            topP,
+            maxTokens,
+            repeatPenalty,
+            frequencyPenalty,
+            presencePenalty,
+            limitSeconds,
+            audioParams,
+        } = chat?.toJSON()?.parameters || {};
 
         let result: any;
         switch (platformConfig?.code) {
             case AI_LM_PLATFORM_MAP.ollama.value:
-                return await new OllamaAPI(platformConfig?.toJSON()).getAILmGenerate({
+                return await new OllamaAPI(platformConfigObj).getAILmGenerate({
                     model,
                     prompt,
                     images,
-                    is_stream,
+                    is_stream:isStream,
+                    temperature,
+                    top_k: topK,
+                    top_p: topP,
+                    num_predict: maxTokens,
+                    repeat_penalty: repeatPenalty,
+                    frequency_penalty: frequencyPenalty,
+                    presence_penalty: presencePenalty,
                     userId,
-                    ...resparams
                 });
                 break;
             case AI_LM_PLATFORM_MAP.openai.value:
@@ -484,14 +526,21 @@ class AILmService {
                 ];
 
                 return await new OpenAIAPI({
-                    ...platformConfig?.toJSON(),
+                    ...platformConfigObj,
                     limitSeconds,
                 }).getAILmChat({
                     model,
                     messages,
-                    is_stream,
+                    is_stream:isStream,
+                    temperature,
+                    top_k: topK,
+                    top_p: topP,
+                    max_tokens: maxTokens,
+                    repetition_penalty: repeatPenalty,
+                    frequency_penalty: frequencyPenalty,
+                    presence_penalty: presencePenalty,
+                    audioParams,
                     userId,
-                    ...resparams
                 })
                 break;
             default:
@@ -504,7 +553,7 @@ class AILmService {
 
     // 生成嵌入向量
     static async embeddingVector(params: any) {
-        const { platform, model, input, encoding_format, dimensions, truncate, userId = null } = params
+        const { platform, model, input, userId = null } = params
         if (!platform) {
             throw new Error("参数错误");
         }
@@ -521,11 +570,23 @@ class AILmService {
         if (!platformConfig) {
             throw new Error("平台不存在");
         }
+        const platformConfigObj = platformConfig.toJSON();
+
+        // 查询对话是否存在
+        const chat = await AIChatService.findAIChatByParams({
+            platformId: platformConfig.id,
+            model,
+            type: 3,
+            userId
+        });
+        const {
+            encoding_format, dimensions, truncate,
+        } = chat?.toJSON()?.parameters || {};
 
         let result: any;
         switch (platformConfig?.code) {
             case AI_LM_PLATFORM_MAP.ollama.value:
-                return await new OllamaAPI(platformConfig?.toJSON()).getAILmEmbeddings({
+                return await new OllamaAPI(platformConfigObj).getAILmEmbeddings({
                     model,
                     input,
                     truncate,
@@ -533,7 +594,7 @@ class AILmService {
                 });
                 break;
             case AI_LM_PLATFORM_MAP.openai.value:
-                return await new OpenAIAPI(platformConfig?.toJSON()).getAILmEmbeddings({
+                return await new OpenAIAPI(platformConfigObj).getAILmEmbeddings({
                     model,
                     input,
                     dimensions,
@@ -550,7 +611,7 @@ class AILmService {
 
     // 生成图片
     static async generateImage(params: any) {
-        const { platform, model, prompt, is_stream, quality, response_format, style, size, n, userId = null } = params
+        const { platform, model, prompt, userId = null } = params
 
         if (!platform) {
             throw new Error("参数错误");
@@ -568,6 +629,23 @@ class AILmService {
         if (!platformConfig) {
             throw new Error("平台不存在");
         }
+        const platformConfigObj = platformConfig.toJSON();
+
+        // 查询对话是否存在
+        const chat = await AIChatService.findAIChatByParams({
+            platformId: platformConfig.id,
+            model,
+            type: 4,
+            userId
+        });
+        const {
+            is_stream,
+            quality,
+            response_format,
+            style,
+            size,
+            n,
+        } = chat?.toJSON()?.parameters || {};
 
         let result: any;
         switch (platformConfig?.code) {
@@ -575,7 +653,7 @@ class AILmService {
                 throw new Error("API未实现");
                 break;
             case AI_LM_PLATFORM_MAP.openai.value:
-                return await new OpenAIAPI(platformConfig?.toJSON()).getAILmImageGenerate({
+                return await new OpenAIAPI(platformConfigObj).getAILmImageGenerate({
                     model,
                     prompt,
                     is_stream,

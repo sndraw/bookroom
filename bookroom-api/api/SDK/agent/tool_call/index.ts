@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { createPrompt } from "./../prompt/tool_call";
-import { ChatCompletionCreateParams, ChatCompletionTool } from "openai/resources/chat/completions";
+import { ChatCompletionAudioParam, ChatCompletionCreateParams, ChatCompletionTool } from "openai/resources/chat/completions";
 import { Tool } from "./../tool/typings";
 import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "./../message";
 import Think from "./think";
@@ -31,10 +31,22 @@ class ToolCallApi {
                 temperature = 0.7,
                 top_p = 0.8,
                 maxTokens = 4096,
-                modalities = ["text", "audio"],
-                audio = { "voice": "Chelsie", "format": "wav" },
+                audioParams,
                 userId
             } = params
+
+            const modalities: ("text" | "audio")[] = ["text"];
+            const audio: ChatCompletionAudioParam = { voice: "Chelsie", format: "wav" };
+            if (audioParams?.output) {
+                modalities.push("audio")
+            }
+            if (audioParams?.voice) {
+                audio.voice = audioParams.voice;
+            }
+            if (audioParams?.format) {
+                audio.format = audioParams.format;
+            }
+
             const chatParams: ChatCompletionCreateParams = {
                 model: model,
                 messages: messages || [],
@@ -68,7 +80,7 @@ class ToolCallApi {
             // 调用 OpenAI API 进行对话生成
             this.think.log("开始调用模型：", model, "\n\n");
             const response = await this.openai.chat.completions.create(chatParams);
-            this.think.log('调用模型成功！', "\n\n")
+            this.think.log("调用模型成功：", model, "\n\n")
             return response;
         } catch (error: any) {
             this.think.log("模型调用时出错：", error, "\n\n");
@@ -169,7 +181,9 @@ class ToolCallApi {
                 countObj.finished = true;
                 this.think.output("当前步骤：", countObj.step + 1, "\n\n");
                 this.think.output('步骤超出限制，终止循环。', "\n\n");
-                this.think.output('当前内容：', countObj.content, "\n\n");
+                if (countObj?.content) {
+                    this.think.output('当前内容：', countObj.content, "\n\n");
+                }
                 break;
             }
             countObj.step++;
@@ -282,7 +296,6 @@ class ToolCallApi {
         const {
             prompt,
             query,
-            historyMessages,
             isMemory,
             userId
         } = params
@@ -311,6 +324,7 @@ class ToolCallApi {
                     }
                 ]
             }));
+            const { historyMessages, ...chatParams } = params || {}
             // 如果是记忆模式，添加历史消息到messages数组
             if (isMemory && historyMessages) {
                 let newMessages = [...historyMessages]
@@ -340,8 +354,9 @@ class ToolCallApi {
             this.think.log("\-\-\-", "\n\n")
             this.think.log("用户问题：", "\n\n");
             this.think.log("```JSON\n\n", query, "\n\n", "```\n\n");
+
             // 循环工具调用
-            result = await this.loopToolCalls(params, messages, tools);
+            result = await this.loopToolCalls(chatParams, messages, tools);
             // this.think.log("\-\-\-")
             // this.think.log("Agent回复：", "\n\n")
             // this.think.log(result);
@@ -377,17 +392,15 @@ class ToolCallApi {
         }
         finally {
             const endTime = new Date().getTime();
-            this.think.output("\n\n\-\-\-", "\n\n");
-            this.think.output("\`", `处理时间：${(endTime - startTime) / 1000}s`, "\`", "\n");
-            if (result?.prompt_tokens) {
-                this.think.output("| \`", `Token输入：${result.prompt_tokens}`, "\`", "\n");
-            }
-            if (result?.completion_tokens) {
-                this.think.output("| \`", `Token输出：${result.completion_tokens}`, "\`", "\n");
-            }
-            if (result?.total_tokens) {
-                this.think.output("| \`", `Token总计：${result.total_tokens}`, "\`", "\n");
-            }
+            const usage = {
+                step: result.step,
+                startTime,
+                endTime,
+                prompt_tokens: result.prompt_tokens,
+                completion_tokens: result.completion_tokens,
+                total_tokens: result.total_tokens,
+            };
+            this.think.usage(usage);
             // logger.info(`ToolCallApi: ${JSON.stringify(this.think.getHistory())}`);
             // this.think.log("最终消息列表：")
             // this.think.log(messages);

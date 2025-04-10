@@ -170,7 +170,7 @@ class OllamaAPI {
             model,
             prompt,
             images,
-            is_stream,
+            is_stream = true,
             keep_alive = OLLAMA_CONFIG?.keep_alive,
             temperature = 0.7,
             top_k = 10,

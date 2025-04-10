@@ -19,13 +19,15 @@ import AgentGraphSelect from './AgentGraphSelect/inex';
 import AgentSDKSelect from './AgentSDKSelect/inex';
 import { SEARCH_API_MAP } from '@/common/search';
 import VoiceRecognizeSelect from '@/components/Voice/VoiceRecognizeSelect';
-
+import AudioParamsSelect, { AudioParamsType } from '@/components/Voice/AudioParamsSelect';
 export interface ParametersType {
   prompt: string;
   isStream: boolean;
-  voiceParams?: API.VoiceParametersType;
+  voiceParams?: API.VoiceParamsType;
+  audioParams?: AudioParamsType;
   logLevel: boolean;
   isMemory: boolean;
+  storageEngine: boolean;
   searchEngine?: string | string[];
   weatherEngine?: string;
   modelConfig?: object;
@@ -39,9 +41,11 @@ export interface ParametersType {
 export const defaultParameters: ParametersType = {
   prompt: '',
   isStream: true,
-  voiceParams: null,
-  logLevel: false,
+  logLevel: true,
   isMemory: false,
+  audioParams: undefined,
+  voiceParams: undefined,
+  storageEngine: false,
   searchEngine: undefined,
   weatherEngine: undefined,
   modelConfig: undefined,
@@ -62,9 +66,11 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [prompt, setPrompt] = useState<string>('');
   const [isStream, setIsStream] = useState<boolean>(true);
+  const [audioParams, setAudioParams] = useState<any>(false);
   const [voiceParams, setVoiceParams] = useState<any>(false);
-  const [logLevel, setLogLevel] = useState<boolean>(false);
+  const [logLevel, setLogLevel] = useState<boolean>(true);
   const [isMemory, setIsMemory] = useState<boolean>(false);
+  const [storageEngine, setStorageEngine] = useState<boolean>(false);
   const [searchEngine, setSearchEngine] = useState<string | string[]>();
   const [weatherEngine, setWeatherEngine] = useState<string>();
   const [modelConfig, setModelConfig] = useState<object>();
@@ -80,9 +86,11 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     if (parameters) {
       setPrompt(parameters?.prompt);
       setIsStream(parameters?.isStream);
-      setVoiceParams(parameters.voiceParams);
+      setAudioParams(parameters?.audioParams);
+      setVoiceParams(parameters?.voiceParams);
       setLogLevel(parameters?.logLevel);
       setIsMemory(parameters?.isMemory);
+      setStorageEngine(parameters?.storageEngine);
       setSearchEngine(parameters?.searchEngine);
       setWeatherEngine(parameters?.weatherEngine);
       setModelConfig(parameters?.modelConfig);
@@ -98,9 +106,11 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
     const newParameters: ParametersType = {
       prompt,
       isStream,
+      audioParams,
       voiceParams,
       logLevel,
       isMemory,
+      storageEngine,
       searchEngine,
       weatherEngine,
       modelConfig,
@@ -138,11 +148,12 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="top"
           >
-            <label className={styles.formLabel} >工具模型<Tooltip title={<>平台及模型需要支持工具调用<br />目前仅兼容OpenAI接口类型</>}>
-              <QuestionCircleOutlined
-                style={{ marginLeft: 4, color: token.colorLink }}
-              />
-            </Tooltip></label>
+            <label className={styles.formLabel} >工具模型
+              <Tooltip title={<>平台及模型需要支持工具调用<br />目前仅兼容OpenAI接口类型</>}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip></label>
             <AgentModelSelect
               className={styles.selectElement}
               values={modelConfig}
@@ -193,11 +204,18 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="center"
           >
-            <label className={styles.formLabel} >智能接口<Tooltip title={"通过该接口获取额外的上下文数据及工具"}>
-              <QuestionCircleOutlined
-                style={{ marginLeft: 4, color: token.colorLink }}
-              />
-            </Tooltip></label>
+            <label className={styles.formLabel} >智能接口
+              <Tooltip title={() => {
+                return <span>
+                  通过该接口获取额外的上下文数据、工具，也可配置自定义智能体
+                  <br />当前Agent API接口类型已支持LightRag对话
+                  <br />其他接口类型正在完善中...
+                </span>
+              }}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip></label>
             <AgentSDKSelect
               className={styles.selectElement}
               mode={"multiple"}
@@ -210,15 +228,16 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="center"
           >
-            <label className={styles.formLabel}>日志输出</label>
+            <label className={styles.formLabel}>存储引擎
+              <Tooltip title={"开启后，智能体可以访问文件系统和网络资源，但会消耗额外的计算资源，不需要时建议关闭"}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip>
+            </label>
             <Switch
-              value={logLevel}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setLogLevel(false);
-                }
-                setLogLevel(checked);
-              }}
+              value={storageEngine}
+              onChange={setStorageEngine}
               checkedChildren="启用"
               unCheckedChildren="禁用"
             />
@@ -228,15 +247,36 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="center"
           >
-            <label className={styles.formLabel}>记忆模式</label>
+            <label className={styles.formLabel}>
+              记忆模式
+              <Tooltip title={"开启后，智能体可以访问历史对话，但会消耗额外的计算资源，不需要时建议关闭"}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip>
+            </label>
             <Switch
               value={isMemory}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setIsMemory(false);
-                }
-                setIsMemory(checked);
-              }}
+              onChange={setIsMemory}
+              checkedChildren="启用"
+              unCheckedChildren="禁用"
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>任务日志
+              <Tooltip title={"开启后，智能体将输出任务执行日志，便于调试和监控"}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip>
+            </label>
+            <Switch
+              value={logLevel}
+              onChange={setLogLevel}
               checkedChildren="启用"
               unCheckedChildren="禁用"
             />
@@ -249,14 +289,29 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             <label className={styles.formLabel}>流式输出</label>
             <Switch
               value={isStream}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setIsStream(false);
-                }
-                setIsStream(checked);
-              }}
+              onChange={setIsStream}
               checkedChildren="启用"
               unCheckedChildren="禁用"
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="top"
+          >
+            <label className={styles.formLabel}>音频输出
+              <Tooltip title={"开启后，允许模型输出音频"}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip>
+            </label>
+            <AudioParamsSelect
+              className={styles.formSelect}
+              value={audioParams}
+              onChange={(value: any) => {
+                setAudioParams(value);
+              }}
             />
           </Flex>
           <Flex
@@ -278,37 +333,13 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             justify="justifyContent"
             align="center"
           >
-            <label className={styles.formLabel}>超时设置(秒)</label>
-            <Slider
-              style={{ width: 100 }}
-              min={10}
-              max={3600}
-              onChange={(value: number | null) => {
-                if (value !== null) {
-                  setLimitSeconds(value);
-                }
-              }}
-              value={limitSeconds}
-              tooltip={{ open: false }}
-            />
-            <InputNumber
-              min={10}
-              max={3600}
-              style={{ marginLeft: 8 }}
-              value={limitSeconds}
-              onChange={(value: number | null) => {
-                if (value !== null) {
-                  setLimitSeconds(value);
-                }
-              }}
-            />
-          </Flex>
-          <Flex
-            className={styles.formItem}
-            justify="justifyContent"
-            align="center"
-          >
-            <label className={styles.formLabel}>步骤限制</label>
+            <label className={styles.formLabel}>步骤限制
+              <Tooltip title={"为了防止智能体陷入无限循环，消耗额外的计算资源，建议设置一个合理的步骤限制。"}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip>
+            </label>
             <Slider
               style={{ width: 100 }}
               min={1}
@@ -359,6 +390,36 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
               onChange={(value: number | null) => {
                 if (value !== null) {
                   setMaxTokens(value);
+                }
+              }}
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>超时设置(秒)</label>
+            <Slider
+              style={{ width: 100 }}
+              min={10}
+              max={3600}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setLimitSeconds(value);
+                }
+              }}
+              value={limitSeconds}
+              tooltip={{ open: false }}
+            />
+            <InputNumber
+              min={10}
+              max={3600}
+              style={{ marginLeft: 8 }}
+              value={limitSeconds}
+              onChange={(value: number | null) => {
+                if (value !== null) {
+                  setLimitSeconds(value);
                 }
               }}
             />

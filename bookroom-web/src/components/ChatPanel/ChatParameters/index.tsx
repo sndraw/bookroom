@@ -14,10 +14,12 @@ import {
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
 import VoiceRecognizeSelect from '@/components/Voice/VoiceRecognizeSelect';
+import AudioParamsSelect, { AudioParamsType } from '@/components/Voice/AudioParamsSelect';
 
 export interface ParametersType {
   isStream: boolean;
-  voiceParams?: API.VoiceParametersType;
+  audioParams?: AudioParamsType;
+  voiceParams?: API.VoiceParamsType;
   temperature: number;
   topK: number;
   topP: number;
@@ -30,7 +32,8 @@ export interface ParametersType {
 
 export const defaultParameters: ParametersType = {
   isStream: true,
-  voiceParams: null,
+  audioParams: undefined,
+  voiceParams: undefined,
   temperature: 0.7,
   topK: 10,
   topP: 0.9,
@@ -51,6 +54,7 @@ interface ChatParametersProps {
 const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isStream, setIsStream] = useState<boolean>(true);
+  const [audioParams, setAudioParams] = useState<any>(false);
   const [voiceParams, setVoiceParams] = useState<any>(false);
   const [temperature, setTemperature] = useState<number>(0.7);
   const [topK, setTopK] = useState<number>(10);
@@ -66,6 +70,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   useEffect(() => {
     if (parameters) {
       setIsStream(parameters.isStream);
+      setAudioParams(parameters.audioParams);
       setVoiceParams(parameters.voiceParams);
       setTemperature(parameters.temperature);
       setTopK(parameters.topK);
@@ -81,6 +86,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const handleSave = () => {
     const newParameters: ParametersType = {
       isStream,
+      audioParams,
       voiceParams,
       temperature,
       topK,
@@ -296,14 +302,29 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
             <label className={styles.formLabel}>流式输出：</label>
             <Switch
               value={isStream}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setIsStream(false);
-                }
-                setIsStream(checked);
-              }}
+              onChange={setIsStream}
               checkedChildren="启用"
               unCheckedChildren="禁用"
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="top"
+          >
+            <label className={styles.formLabel}>音频输出
+              <Tooltip title={"开启后，允许模型输出音频"}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip>
+            </label>
+            <AudioParamsSelect
+              className={styles.formSelect}
+              value={audioParams}
+              onChange={(value: any) => {
+                setAudioParams(value);
+              }}
             />
           </Flex>
           <Flex

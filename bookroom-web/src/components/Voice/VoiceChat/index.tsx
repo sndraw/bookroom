@@ -6,7 +6,7 @@ import styles from './index.less';
 import { VOICE_RECOGNIZE_TASK_MAP } from '@/common/voice';
 
 interface VoiceChatProps {
-  voiceParams?: API.VoiceParametersType,
+  voiceParams?: API.VoiceParamsType,
   className?: string;
   onRecordStart?: () => void;
   onRecordStop?: (audioBlobUrl: string | Blob | null) => void;

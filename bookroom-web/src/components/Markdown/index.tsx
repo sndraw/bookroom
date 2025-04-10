@@ -11,7 +11,7 @@ import MediaPreview from '../MediaPreview';
 import { isMediaObjectId } from '@/utils/file';
 import styles from './index.less'; // 引入外部样式表
 import DotChart, { isValidGraphDotCode } from './DotChart';
-import { formatMarkDownContent } from './utils';
+import { formatMarkDownContent, formatUsageTag } from './utils';
 import MermaidChart, { isValidGraphMermaidCode } from './MermaidChart';
 
 export const CodeRenderer = (params: any) => {
@@ -103,10 +103,14 @@ export const MarkdownWithHighlighting = ({
     const list: any[] = [];
 
     let result = markdownContent;
+    // 格式化usage标签
+    result = formatUsageTag(result);
+    // 检查是否有搜索或思考标签
     const hasSearchOrThinkTags = (str?: string): boolean => {
       const searchRegex = /<search>|<\/search>|<think>|<\/think>/g;
       return searchRegex.test(str || '');
     };
+    // 处理搜索和思考标签
     while (result && hasSearchOrThinkTags(result)) {
       // 存储原内容，用于对比，防止无限循环
       const prevResult = result;

@@ -7,8 +7,8 @@ import styles from './index.less';
 import { VOICE_RECOGNIZE_LANGUAGE_MAP, VOICE_RECOGNIZE_TASK_MAP } from '@/common/voice';
 
 type VoiceRecognizeSelectPropsType = {
-  value?: API.VoiceParametersType;
-  onChange: (value: API.VoiceParametersType) => void;
+  value?: API.VoiceParamsType;
+  onChange: (value: API.VoiceParamsType) => void;
   dataList?: any[];
   // 样式
   className?: string;
@@ -44,7 +44,7 @@ const VoiceRecognizeSelect: React.FC<VoiceRecognizeSelectPropsType> = (props) =>
       setLanguage(value?.language || '');
       setTask(value?.task || '');
     }
-  }, [value]);
+  }, []);
 
   useEffect(() => {
     if (!platformId) {
@@ -64,12 +64,7 @@ const VoiceRecognizeSelect: React.FC<VoiceRecognizeSelectPropsType> = (props) =>
       <Switch
         className={styles?.switchElement}
         value={apiMode}
-        onChange={(checked: boolean) => {
-          if (checked) {
-            setApiMode(false);
-          }
-          setApiMode(checked);
-        }}
+        onChange={setApiMode}
         checkedChildren="语音识别"
         unCheckedChildren="语音录制"
       />

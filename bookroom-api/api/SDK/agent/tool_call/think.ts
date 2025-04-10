@@ -47,6 +47,19 @@ class Think {
         }).join('');
         return formattedMessage;
     }
+    formattedUsage(usage: any) {
+        if (!usage) return;
+        const { startTime, endTime, step, prompt_tokens, completion_tokens, total_tokens } = usage || {};
+        const formattedUsage = `\n\n` +
+            `<usage>` +
+            `处理步骤：${step}\n` + 
+            `处理时间：${(endTime - startTime) / 1000}s\n` + 
+            `Token输入：${prompt_tokens}\n` + 
+            `Token输出：${completion_tokens}\n` + 
+            `Token总计：${total_tokens}` + 
+            `</usage>`;
+        return formattedUsage
+    }
     log(...args: any[]) {
         const formattedMessage = this.formattedMessage(args);
         this.history.push(formattedMessage);
@@ -68,6 +81,15 @@ class Think {
         }
         const formattedMessage = this.formattedMessage(args);
         this.push(formattedMessage);
+    }
+
+    usage(usage: any) {
+        if (this.searching) {
+            this.log('</search>', "\n\n");
+            this.searching = false;
+        }
+        const formattedUsage = this.formattedUsage(usage);
+        this.push(formattedUsage);
     }
     push(message: any) {
         if (this.messages instanceof Array) {

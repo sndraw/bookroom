@@ -87,12 +87,7 @@ const EmbedParameters: React.FC<EmbedParametersProps> = (props) => {
               <label className={styles.formLabel}>文本截断：</label>
               <Switch
                 value={truncate}
-                onChange={(checked: boolean) => {
-                  if (checked) {
-                    setTruncate(false);
-                  }
-                  setTruncate(checked);
-                }}
+                onChange={setTruncate}
                 checkedChildren="启用"
                 unCheckedChildren="禁用"
               />
