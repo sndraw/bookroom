@@ -13,7 +13,6 @@ import AgentTool from '@/SDK/agent/tool/AgentTool';
 import TimeTool from '@/SDK/agent/tool/TimeTool';
 import UrlTool from '@/SDK/agent/tool/UrlTool';
 import FileTool from '@/SDK/agent/tool/FileTool';
-import { SEARCH_API_MAP } from '@/common/search';
 
 class AgentService {
 

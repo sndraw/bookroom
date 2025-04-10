@@ -159,16 +159,21 @@ class ToolCallApi {
         const countObj = {
             finished: false,
             step: 0,
-            content: ''
+            content: '',
+            prompt_tokens: 0,
+            completion_tokens: 0,
+            total_tokens: 0,
         };
         while (!countObj.finished) {
             if (countObj.step >= limitSteps) {
                 countObj.finished = true;
                 this.think.output("当前步骤：", countObj.step + 1, "\n\n");
                 this.think.output('步骤超出限制，终止循环。', "\n\n");
+                this.think.output('当前内容：', countObj.content, "\n\n");
                 break;
             }
             countObj.step++;
+            this.think.log('\-\-\-', "\n\n")
             this.think.log('当前步骤：', countObj.step, "\n\n")
             const response = await this.handleChatCompletion(messages, {
                 ...params,
@@ -180,6 +185,12 @@ class ToolCallApi {
             // 如果是流式输出
             if (is_stream && (response?.itr || response?.iterator)) {
                 for await (const chunk of response) {
+                    if (chunk?.usage) {
+                        const { completion_tokens, prompt_tokens, total_tokens } = chunk.usage;
+                        countObj.prompt_tokens += prompt_tokens;
+                        countObj.completion_tokens += completion_tokens;
+                        countObj.total_tokens += total_tokens;
+                    }
                     if (chunk?.choices && chunk?.choices.length > 0) {
                         const message = chunk.choices[0]?.delta;
                         if (message?.tool_calls) {
@@ -207,6 +218,12 @@ class ToolCallApi {
                     }
                 }
             } else {
+                if (response?.usage) {
+                    const { completion_tokens, prompt_tokens, total_tokens } = response.usage;
+                    countObj.prompt_tokens += prompt_tokens;
+                    countObj.completion_tokens += completion_tokens;
+                    countObj.total_tokens += total_tokens;
+                }
                 const message = response?.choices?.[0]?.message;
                 toolCalls = message?.tool_calls;
                 if (message?.tool_calls) {
@@ -251,12 +268,13 @@ class ToolCallApi {
             }
             countObj.content = content;
             // 终止循环
-            if(countObj.finished){
+            if (countObj.finished) {
                 break;
             }
         }
         return countObj
     }
+
 
     // 问题对话
     async questionChat(params: any, options: any = {}) {
@@ -270,8 +288,13 @@ class ToolCallApi {
         } = params
         // 工具和响应解析
         const { tools = [] } = options;
+        // 输出结果
+        let result: any = null;
         // 定义消息列表
         let messages: MessageArray = []
+        // 记录开始时间
+        const startTime = new Date().getTime();
+
         try {
             // 创建格式化的提示信息
             const formattedPrompt = createPrompt({
@@ -290,7 +313,15 @@ class ToolCallApi {
             }));
             // 如果是记忆模式，添加历史消息到messages数组
             if (isMemory && historyMessages) {
-                messages.push(...historyMessages);
+                let newMessages = [...historyMessages]
+                // 查询historyMessages是否包含当前对话id的索引，过滤掉该索引之后的对话
+                if (historyMessages.length > 0) {
+                    const index = historyMessages.findIndex((msg: { id: any; }) => msg.id === query.id);
+                    if (index !== -1) {
+                        newMessages = historyMessages.slice(0, index);
+                    }
+                }
+                messages.push(...newMessages);
             }
             // 添加用户消息到messages数组
             messages.push(createUserMessage({
@@ -299,18 +330,20 @@ class ToolCallApi {
             // 定义新的消息列表
             messages = await convertMessagesToVLModelInput({
                 messages,
-                userId
+                userId,
+                noSearch: true,
+                noThink: true
             });
-            this.think.log("————————————————————————————————————", "\n\n")
+            this.think.log("\-\-\-", "\n\n")
             this.think.log("Agent提示词：", "\n\n");
             this.think.log(formattedPrompt, "\n\n");
-            this.think.log("————————————————————————————————————", "\n\n")
+            this.think.log("\-\-\-", "\n\n")
             this.think.log("用户问题：", "\n\n");
             this.think.log("```JSON\n\n", query, "\n\n", "```\n\n");
             // 循环工具调用
-            const result: any = await this.loopToolCalls(params, messages, tools);
-            // this.think.log("————————————————————————————————————")
-            // this.think.log("Agent回复：")
+            result = await this.loopToolCalls(params, messages, tools);
+            // this.think.log("\-\-\-")
+            // this.think.log("Agent回复：", "\n\n")
             // this.think.log(result);
             // this.think.log(result?.content);
             if (!result?.content) {
@@ -323,6 +356,7 @@ class ToolCallApi {
             messages.push(createAssistantMessage({
                 content: result.content,
             }))
+
             // 返回结果
             return {
                 finished: true,
@@ -342,9 +376,19 @@ class ToolCallApi {
             };
         }
         finally {
-            // 思考历史
+            const endTime = new Date().getTime();
+            this.think.output("\n\n\-\-\-", "\n\n");
+            this.think.output("\`", `处理时间：${(endTime - startTime) / 1000}s`, "\`", "\n");
+            if (result?.prompt_tokens) {
+                this.think.output("| \`", `Token输入：${result.prompt_tokens}`, "\`", "\n");
+            }
+            if (result?.completion_tokens) {
+                this.think.output("| \`", `Token输出：${result.completion_tokens}`, "\`", "\n");
+            }
+            if (result?.total_tokens) {
+                this.think.output("| \`", `Token总计：${result.total_tokens}`, "\`", "\n");
+            }
             // logger.info(`ToolCallApi: ${JSON.stringify(this.think.getHistory())}`);
-            // this.think.log("————————————————————————————————————")
             // this.think.log("最终消息列表：")
             // this.think.log(messages);
         }
