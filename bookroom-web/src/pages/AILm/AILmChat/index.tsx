@@ -1,9 +1,9 @@
-import ChatPanel from '@/components/ChatPanel';
+import ChatPanel from '@/components/Chat/ChatPanel';
 import ChatParameters, {
   defaultParameters,
   ParametersType,
-} from '@/components/ChatPanel/ChatParameters';
-import PromptInput from '@/components/ChatPanel/PromptInput';
+} from '@/components/Chat/ChatPanel/ChatParameters';
+import PromptInput from '@/components/Chat/ChatPanel/PromptInput';
 import Page404 from '@/pages/404';
 import { AILmChat, getAILmInfo } from '@/services/common/ai/lm';
 import { Access, useAccess, useModel, useParams, useRequest } from '@umijs/max';
@@ -11,8 +11,9 @@ import { Divider, Space, Tag } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 import { queryAIChatList, saveAIChat } from '@/services/common/ai/chat';
+import { CHAT_TYPE } from '@/common/chat';
 
-const chatType = 1;
+const chatType = CHAT_TYPE.CHAT;
 
 const AILmChatPage: React.FC = () => {
   const access = useAccess();
@@ -61,7 +62,7 @@ const AILmChatPage: React.FC = () => {
       {
         model: model || '',
         prompt: prompt, // 设置提示信息
-        messages: [...newMessages],
+        query: messages[messages?.length - 1]
       },
       {
         ...(options || {}),
@@ -132,9 +133,10 @@ const AILmChatPage: React.FC = () => {
               <Tag color="default">API：{data?.platformHost}/api/chat</Tag>
             )}
           </Access>
+          <Tag color="default">{parameters?.isMemory ? '记忆模式' : '无记忆模式'}</Tag>
           <ChatParameters
             platform={platform}
-            data={data}
+            chatType={chatType}
             parameters={parameters}
             changeParameters={(newParameters) => {
               // 如果未改变，则不更新参数 */

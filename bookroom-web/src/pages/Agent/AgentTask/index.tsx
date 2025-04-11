@@ -5,7 +5,7 @@ import AgentPanel from '@/components/Agent/AgentPanel';
 import styles from './index.less';
 import { agentChat, getAgentInfo, updateAgent } from '@/services/common/agent';
 import { Alert, Divider, Empty, Space, Spin, Tag } from 'antd';
-import ChatPanel from '@/components/ChatPanel';
+import ChatPanel from '@/components/Chat/ChatPanel';
 import { RobotOutlined } from '@ant-design/icons';
 import AgentParameters, { defaultParameters, ParametersType } from '@/components/Agent/AgentParameters';
 

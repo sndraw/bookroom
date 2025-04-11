@@ -8,7 +8,7 @@ import {
 import { Button, Divider, Form, Input, message, Popconfirm, Space } from 'antd';
 import classNames from 'classnames';
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import VoiceChat from '../Voice/VoiceChat';
+import VoiceChat from '../../Voice/VoiceChat';
 import AssistantMessage from './AssistantMessage';
 import styles from './index.less';
 import { ChatMessageType } from './types';
@@ -16,9 +16,9 @@ import UserMessage from './UserMessage';
 import { voiceRecognizeTask } from '@/services/common/voice';
 import { getUrlAndUploadFileApi } from '@/services/common/file';
 import { formatSseData, isSseFormat } from '@/utils/format';
-import ImageUpload, { ImageListType } from '../ImageUpload';
-import ImageListPanel from '../ImageListPanel';
-import { AudioParamsType } from '../Voice/AudioParamsSelect';
+import ImageUpload, { ImageListType } from '../../Image/ImageUpload';
+import ImageListPanel from '../../Image/ImageListPanel';
+import { AudioParamsType } from '../../Voice/AudioParamsSelect';
 
 type ChatPanelPropsType = {
   // 标题

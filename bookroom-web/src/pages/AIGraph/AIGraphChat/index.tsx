@@ -1,5 +1,5 @@
 import { AI_GRAPH_MODE_ENUM } from '@/common/ai';
-import ChatPanel from '@/components/ChatPanel';
+import ChatPanel from '@/components/Chat/ChatPanel';
 import Page404 from '@/pages/404';
 import { graphChat } from '@/services/common/ai/graph';
 import { useModel, useParams, useRequest } from '@umijs/max';

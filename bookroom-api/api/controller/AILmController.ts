@@ -6,6 +6,7 @@ import AIChatLogService from "@/service/AIChatLogService";
 
 import { handleResponseStream } from "../utils/streamHelper";
 import { StatusEnum } from "@/constants/DataMap";
+import { CHAT_TYPE } from "@/common/chat";
 
 class AILmController extends BaseController {
 
@@ -511,14 +512,14 @@ class AILmController extends BaseController {
           max: "提示词长度不能超过1024",
         }
       },
-      messages: {
-        type: "array",
+      query: {
+        type: "object",
         required: true,
         message: {
-          required: "对话列表不能为空",
-          array: "对话列表格式非法"
-        },
-      },
+            required: "查询内容不能为空",
+            object: "参数格式非法"
+        }
+    }
     }, {
       ...newParams
     })
@@ -558,7 +559,7 @@ class AILmController extends BaseController {
           chat_id: newParams?.chat_id,
           platform,
           model,
-          type: 1,
+          type: CHAT_TYPE.CHAT,
           input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
@@ -678,7 +679,7 @@ class AILmController extends BaseController {
           chat_id: newParams?.chat_id,
           platform,
           model,
-          type: 2,
+          type: CHAT_TYPE.GENERATE,
           input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
@@ -788,7 +789,7 @@ class AILmController extends BaseController {
           chat_id: newParams?.chat_id,
           platform,
           model,
-          type: 3,
+          type: CHAT_TYPE.EMBED,
           input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
@@ -885,7 +886,7 @@ class AILmController extends BaseController {
           chat_id: newParams?.chat_id,
           platform,
           model,
-          type: 4,
+          type: CHAT_TYPE.IMAGE,
           input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID

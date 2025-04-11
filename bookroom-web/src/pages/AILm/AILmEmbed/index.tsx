@@ -1,14 +1,16 @@
-import ChatPanel from '@/components/ChatPanel';
+import ChatPanel from '@/components/Chat/ChatPanel';
 import Page404 from '@/pages/404';
 import { AILmEmbed, getAILmInfo } from '@/services/common/ai/lm';
 import { Access, useAccess, useModel, useParams, useRequest } from '@umijs/max';
 import { Divider, Space, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 import styles from './index.less';
-import EmbedParameters, { defaultParameters, ParametersType } from '@/components/ChatPanel/EmbedParameters';
+import EmbedParameters, { defaultParameters, ParametersType } from '@/components/Chat/ChatPanel/EmbedParameters';
 import { queryAIChatList, saveAIChat } from '@/services/common/ai/chat';
+import { CHAT_TYPE } from '@/common/chat';
 
-const chatType = 3;
+const chatType = CHAT_TYPE.EMBED;
+
 const AILmEmbedPage: React.FC = () => {
   const access = useAccess();
   const { platform, model } = useParams();
@@ -89,6 +91,8 @@ const AILmEmbedPage: React.FC = () => {
       disabled={isLoading}
       defaultMessageList={chatList?.record?.messages}
       customRequest={sendMsgRequest}
+      isImages={true}
+      isVoice={true}
       saveAIChat={(messageList: any) => {
         saveAIChat(
           {

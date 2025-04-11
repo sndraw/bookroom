@@ -1,4 +1,3 @@
-import { AI_LM_PLATFORM_MAP } from '@/common/ai';
 import { QuestionCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { useToken } from '@ant-design/pro-components';
 import { Access } from '@umijs/max';
@@ -15,23 +14,26 @@ import React, { useEffect, useState } from 'react';
 import styles from './index.less';
 import VoiceRecognizeSelect from '@/components/Voice/VoiceRecognizeSelect';
 import AudioParamsSelect, { AudioParamsType } from '@/components/Voice/AudioParamsSelect';
+import { CHAT_TYPE } from '@/common/chat';
 
 export interface ParametersType {
   isStream: boolean;
+  isMemory: boolean;
   audioParams?: AudioParamsType;
   voiceParams?: API.VoiceParamsType;
   temperature: number;
   topK: number;
   topP: number;
-  repeatPenalty?: number;
-  frequencyPenalty?: number;
-  presencePenalty?: number;
+  repeatPenalty: number;
+  frequencyPenalty: number;
+  presencePenalty: number;
   maxTokens: number;
   limitSeconds: number;
 }
 
 export const defaultParameters: ParametersType = {
   isStream: true,
+  isMemory: true,
   audioParams: undefined,
   voiceParams: undefined,
   temperature: 0.7,
@@ -46,14 +48,15 @@ export const defaultParameters: ParametersType = {
 
 interface ChatParametersProps {
   platform: string;
-  data: any;
-  parameters: any;
+  chatType: CHAT_TYPE;
+  parameters: ParametersType;
   changeParameters: (parameters: ParametersType) => void;
 }
 
 const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isStream, setIsStream] = useState<boolean>(true);
+  const [isMemory, setIsMemory] = useState<boolean>(true);
   const [audioParams, setAudioParams] = useState<any>(false);
   const [voiceParams, setVoiceParams] = useState<any>(false);
   const [temperature, setTemperature] = useState<number>(0.7);
@@ -65,11 +68,12 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [maxTokens, setMaxTokens] = useState<number>(4096);
   const [limitSeconds, setLimitSeconds] = useState<number>(30);
   const { token } = useToken();
-  const { platform, data, parameters, changeParameters } = props;
+  const { chatType, parameters, changeParameters } = props;
 
   useEffect(() => {
     if (parameters) {
       setIsStream(parameters.isStream);
+      setIsMemory(parameters.isMemory);
       setAudioParams(parameters.audioParams);
       setVoiceParams(parameters.voiceParams);
       setTemperature(parameters.temperature);
@@ -86,6 +90,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const handleSave = () => {
     const newParameters: ParametersType = {
       isStream,
+      isMemory,
       audioParams,
       voiceParams,
       temperature,
@@ -294,6 +299,30 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
             />
             <span style={{ marginLeft: 8 }}>{presencePenalty}</span>
           </Flex>
+          <Access
+            accessible={chatType === CHAT_TYPE.CHAT}
+          >
+            <Flex
+              className={styles.formItem}
+              justify="justifyContent"
+              align="center"
+            >
+              <label className={styles.formLabel}>
+                记忆模式
+                <Tooltip title={"开启后，模型可以访问历史对话，但会消耗额外的计算资源，不需要时建议关闭"}>
+                  <QuestionCircleOutlined
+                    style={{ marginLeft: 4, color: token.colorLink }}
+                  />
+                </Tooltip>
+              </label>
+              <Switch
+                value={isMemory}
+                onChange={setIsMemory}
+                checkedChildren="启用"
+                unCheckedChildren="禁用"
+              />
+            </Flex>
+          </Access>
           <Flex
             className={styles.formItem}
             justify="justifyContent"
