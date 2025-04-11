@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import LlmModel from "@/models/LlmModel";
 import { getOrderArray } from "@/utils/query";
 import AIChatService from "./AIChatService";
+import { createSystemMessage, createUserMessage, handleHistoryMessages, MessageArray } from "@/SDK/agent/message";
 
 
 class AILmService {
@@ -366,17 +367,17 @@ class AILmService {
             platform,
             model,
             prompt,
-            messages,
+            query,
             userId = null
         } = params
         if (!platform) {
-            throw new Error("参数错误");
+            throw new Error("平台参数错误");
         }
         if (!model) {
-            throw new Error("参数错误");
+            throw new Error("模型参数错误");
         }
-        if (!messages || !Array.isArray(messages)) {
-            throw new Error("参数错误");
+        if (!query || !(query instanceof Object)) {
+            throw new Error("输入参数错误");
         }
         // 获取平台
         const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform, {
@@ -393,9 +394,12 @@ class AILmService {
             type: 1,
             userId
         });
+        const chatObj = chat?.toJSON() || {};
+        const { messages: historyMessages, parameters } = chatObj;
 
         const {
             isStream,
+            isMemory,
             temperature,
             topK,
             topP,
@@ -405,13 +409,25 @@ class AILmService {
             presencePenalty,
             limitSeconds,
             audioParams,
-        } = chat?.toJSON()?.parameters || {};
-
-        // 加到数组顶部
-        messages.unshift({
-            role: "system",
+        } = parameters || {};
+        // 定义消息列表
+        let messages: MessageArray = []
+        // 添加系统消息到messages数组
+        messages.push(createSystemMessage({
             content: prompt || "You are a helpful assistant."
-        });
+        }));
+
+        // 如果是记忆模式，添加历史消息到messages数组
+        if (isMemory && historyMessages?.length > 0) {
+            const newMessages = handleHistoryMessages(historyMessages, {
+                query
+            });
+            messages.push(...newMessages);
+        }
+        // 添加用户消息到messages数组
+        messages.push(createUserMessage({
+            ...query
+        }));
         let result: any;
 
         switch (platformConfig?.code) {
@@ -419,7 +435,7 @@ class AILmService {
                 return await new OllamaAPI(platformConfigObj).getAILmChat({
                     model: model,
                     messages: messages,
-                    is_stream:isStream,
+                    is_stream: isStream,
                     temperature,
                     top_k: topK,
                     top_p: topP,
@@ -437,7 +453,7 @@ class AILmService {
                 }).getAILmChat({
                     model: model,
                     messages: messages,
-                    is_stream:isStream,
+                    is_stream: isStream,
                     temperature,
                     top_k: topK,
                     top_p: topP,
@@ -501,7 +517,7 @@ class AILmService {
                     model,
                     prompt,
                     images,
-                    is_stream:isStream,
+                    is_stream: isStream,
                     temperature,
                     top_k: topK,
                     top_p: topP,
@@ -531,7 +547,7 @@ class AILmService {
                 }).getAILmChat({
                     model,
                     messages,
-                    is_stream:isStream,
+                    is_stream: isStream,
                     temperature,
                     top_k: topK,
                     top_p: topP,

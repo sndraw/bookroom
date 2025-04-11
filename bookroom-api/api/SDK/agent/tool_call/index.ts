@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { createPrompt } from "./../prompt/tool_call";
 import { ChatCompletionAudioParam, ChatCompletionCreateParams, ChatCompletionTool } from "openai/resources/chat/completions";
 import { Tool } from "./../tool/typings";
-import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, MessageArray } from "./../message";
+import { createAssistantMessage, createSystemMessage, createToolMessage, createUserMessage, handleHistoryMessages, MessageArray } from "./../message";
 import Think from "./think";
 import { convertMessagesToVLModelInput } from "@/SDK/openai/convert";
 import { formatAudioData, saveAudioToFile } from "@/utils/streamHelper";
@@ -326,15 +326,8 @@ class ToolCallApi {
             }));
             const { historyMessages, ...chatParams } = params || {}
             // 如果是记忆模式，添加历史消息到messages数组
-            if (isMemory && historyMessages) {
-                let newMessages = [...historyMessages]
-                // 查询historyMessages是否包含当前对话id的索引，过滤掉该索引之后的对话
-                if (historyMessages.length > 0) {
-                    const index = historyMessages.findIndex((msg: { id: any; }) => msg.id === query.id);
-                    if (index !== -1) {
-                        newMessages = historyMessages.slice(0, index);
-                    }
-                }
+            if (isMemory && historyMessages?.length > 0) {
+                const newMessages = handleHistoryMessages(historyMessages, { query });
                 messages.push(...newMessages);
             }
             // 添加用户消息到messages数组
@@ -346,7 +339,8 @@ class ToolCallApi {
                 messages,
                 userId,
                 noSearch: true,
-                noThink: true
+                noThink: true,
+                noUsage:true
             });
             this.think.log("\-\-\-", "\n\n")
             this.think.log("Agent提示词：", "\n\n");

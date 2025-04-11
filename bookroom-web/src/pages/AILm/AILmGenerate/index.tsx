@@ -1,14 +1,15 @@
-import ChatPanel from '@/components/ChatPanel';
+import ChatPanel from '@/components/Chat/ChatPanel';
 import Page404 from '@/pages/404';
 import { AILmGenerate, getAILmInfo } from '@/services/common/ai/lm';
 import { Access, useAccess, useModel, useParams, useRequest } from '@umijs/max';
 import { Divider, Flex, Space, Switch, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 import styles from './index.less';
-import ChatParameters, { defaultParameters, ParametersType } from '@/components/ChatPanel/ChatParameters';
+import ChatParameters, { defaultParameters, ParametersType } from '@/components/Chat/ChatPanel/ChatParameters';
 import { queryAIChatList, saveAIChat } from '@/services/common/ai/chat';
+import { CHAT_TYPE } from '@/common/chat';
 
-const chatType = 2;
+const chatType = CHAT_TYPE.GENERATE;
 
 const AILmGeneratePage: React.FC = () => {
   const access = useAccess();
@@ -92,7 +93,6 @@ const AILmGeneratePage: React.FC = () => {
       disabled={isLoading}
       defaultMessageList={chatList?.record?.messages}
       isImages={true}
-      isVoice={true}
       voiceParams={parameters?.voiceParams}
       customRequest={sendMsgRequest}
       saveAIChat={(messageList: any) => {
@@ -124,7 +124,7 @@ const AILmGeneratePage: React.FC = () => {
           </Access>
           <ChatParameters
             platform={platform}
-            data={data}
+            chatType={chatType}
             parameters={parameters}
             changeParameters={(newParameters) => {
               // 如果未改变，则不更新参数 */

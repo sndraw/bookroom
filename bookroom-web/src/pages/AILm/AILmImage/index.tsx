@@ -1,11 +1,13 @@
-import ChatPanel from '@/components/ChatPanel';
+import ChatPanel from '@/components/Chat/ChatPanel';
 import Page404 from '@/pages/404';
 import { AILmImage, getAILmInfo } from '@/services/common/ai/lm';
 import { Access, useAccess, useModel, useParams, useRequest } from '@umijs/max';
 import { Divider, Flex, Space, Switch, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 import styles from './index.less';
-const chatType = 4;
+import { CHAT_TYPE } from '@/common/chat';
+
+const chatType = CHAT_TYPE.IMAGE;
 const AILmImagePage: React.FC = () => {
   const access = useAccess();
   const { platform, model } = useParams();

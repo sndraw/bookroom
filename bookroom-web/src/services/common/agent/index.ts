@@ -122,7 +122,7 @@ export async function agentChat(
     is_stream?: boolean;
   },
   body: {
-    query: string;
+    query?: any;
   },
   options?: { [key: string]: any },
 ) {

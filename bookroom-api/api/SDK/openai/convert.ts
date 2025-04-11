@@ -36,8 +36,9 @@ export const convertImagesToVLModelInput = async (params: {
 export const filterContent = (content: string, options?: {
     noSearch?: boolean;
     noThink?: boolean;
+    noUsage?: boolean;
 }) => {
-    const { noSearch = true, noThink = true } = options || {};
+    const { noSearch = true, noThink = true, noUsage = true } = options || {};
     let regex = null;
     let result = content;
     if (noSearch) {
@@ -46,9 +47,17 @@ export const filterContent = (content: string, options?: {
         result = result.replace(regex, '');
     }
     if (noThink) {
+        // 删除<think>标签包裹的内容
         regex = /<think>[\s\S]*?<\/think>/g;
         result = result.replace(regex, '');
     }
+
+    if (noUsage) {
+        // 删除<usage>标签包裹的内容
+        regex = /<usage>[\s\S]*?<\/usage>/g;
+        result = result.replace(regex, '');
+    }
+
     return result;
 };
 
@@ -58,9 +67,10 @@ export const convertMessagesToVLModelInput = async (params: {
     messages: any[];
     noThink?: boolean;
     noSearch?: boolean;
+    noUsage?: boolean;
     userId?: string;
 }): Promise<any> => {
-    const { messages, noThink = false, noSearch  = false, userId } = params;
+    const { messages, noThink = true, noSearch = true, noUsage = true, userId } = params;
     if (!messages || !Array.isArray(messages)) {
         return null;
     }
@@ -177,9 +187,10 @@ export const convertMessagesToVLModelInput = async (params: {
             }
             if (typeof content === "string") {
                 /**  删除所有的search和think标签，减少tokens消耗 */
-                const newText = filterContent(content,{
+                const newText = filterContent(content, {
                     noThink,
                     noSearch,
+                    noUsage
                 })
                 /**  过滤并保存历史聊天记录到文件/数据库并进行向量化，需要的时候可以通过接口读取 */
                 // TODO
@@ -197,9 +208,10 @@ export const convertMessagesToVLModelInput = async (params: {
                     // 如果是text，则进行过滤处理
                     if (item?.type === "text" && item?.text) {
                         /**  删除所有的search和think标签，减少tokens消耗 */
-                        const newText = filterContent(item?.text,{
+                        const newText = filterContent(item?.text, {
                             noSearch,
                             noThink,
+                            noUsage,
                         })
                         /**  过滤并保存历史聊天记录到文件/数据库并进行向量化，需要的时候可以通过接口读取 */
                         // TODO

@@ -74,3 +74,18 @@ export const createToolMessage = (params: MessageType): MessageType => {
         content: params.content,
     };
 };
+
+
+export const handleHistoryMessages = (historyMessages: MessageArray, ops?: { query?: any }): MessageArray => {
+    const { query } = ops || {};
+    let newMessages = [...historyMessages]
+    // 查询historyMessages是否包含当前对话id的索引，过滤掉该索引之后的对话
+    if (historyMessages.length > 0 && query?.id) {
+        const index = historyMessages.findIndex((msg: MessageType) => msg.id === query.id);
+        if (index !== -1) {
+            newMessages = historyMessages.slice(0, index);
+        }
+    }
+    return newMessages;
+
+}
