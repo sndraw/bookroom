@@ -5,7 +5,8 @@ import fs from "fs";
 import { UPLOAD_FILE_TYPE } from "@/common/ai";
 import FileLogService from "@/service/FileLogService";
 import { StatusEnum } from "@/constants/DataMap";
-import { createFileClient, getObjectName } from "@/common/file";
+import { createFileClient, getObjectName, getObjectPath } from "@/common/file";
+import path from "path";
 
 /**
  * 文件-接口
@@ -240,6 +241,84 @@ class FileController extends BaseController {
             });
         }
     }
+
+    // 下载文件
+    static async deleteFile(ctx: Context) {
+        const { object_id } = ctx.params;
+        if (!object_id) {
+            throw new Error("缺少文件ID参数");
+        }
+        try {
+            const fileClient = createFileClient();
+            const result = await fileClient.deleteObject({ objectName: getObjectName(object_id, ctx?.userId) });
+            ctx.status = 200;
+            ctx.body = resultSuccess({
+                data: result
+            });
+        } catch (e) {
+            ctx.logger.error("文件删除异常", e); // 记录错误日志
+            ctx.status = 500;
+            const error: any = e;
+            ctx.body = resultError({
+                code: error?.code,
+                message: error?.message || error,
+            });
+        }
+    }
+
+
+    // 获取文件列表
+    static async queryFileList(ctx: Context) {
+        const { req_path = "", nextMarker = "" } = ctx.query;
+        // 初始化文件上传客户端
+        const fileClient = createFileClient();
+        try {
+            const userPath = getObjectPath("", ctx?.userId)?.replaceAll("\\", "/");
+            // 获取对象路径前缀
+            const prefix = getObjectPath(req_path as string || "/", ctx?.userId);
+            // 拼接路径前缀
+            const marker = nextMarker ? path.join("/", userPath, nextMarker as string) : undefined;
+            // 请求文件列表
+            const result = await fileClient.queryObjectList({ prefix: prefix, marker: marker });
+            // 替换实际路径前缀为相对路径前缀
+            if (result?.objects.length > 0) {
+                result.objects = result.objects.map(item => {
+                    const newItem: any = { ...item }
+                    if (item?.prefix) {
+                        newItem.isDir = true
+                        newItem.name = item?.prefix;
+                        delete newItem.prefix;
+                    }
+                    newItem.name = newItem?.name?.replace(userPath, "");
+                    newItem.id = newItem.name;
+                    return newItem
+                })
+            }
+            // 返回用户路径前缀替换后的结果
+            if (result?.nextMarker) {
+                result.nextMarker = result.nextMarker.replace(userPath, "");
+            }
+            ctx.status = 200;
+            ctx.body = resultSuccess({
+                data: {
+                    list: result?.objects || [],
+                    nextMarker: result?.nextMarker,
+                    prefix: req_path,
+                }
+            })
+        }
+        catch (e) {
+            // 异常处理，返回错误信息
+            ctx.logger.error("文件列表查询异常", e); // 记录错误日志
+            ctx.status = 500;
+            const error: any = e;
+            ctx.body = resultError({
+                code: error?.code,
+                message: error?.message || error,
+            });
+        }
+    }
+
 }
 
 export default FileController;

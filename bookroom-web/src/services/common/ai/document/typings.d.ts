@@ -34,6 +34,11 @@ declare namespace API {
     message?: string;
     data?: AIGraphDocumentInfo;
   }
+  interface Result_AIGraphDocumentInfoList_ {
+    code?: number;
+    message?: string;
+    data?: AIGraphDocumentInfo[]
+  }
 
   interface AIGraphDocument_TextType {
     text: string;

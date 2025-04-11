@@ -1,8 +1,18 @@
 import minioConfig from "@/config/minio.conf"
 import MinioApi from "@/SDK/minio";
 import CryptoJS from "crypto-js";
+import path from "path";
 
-export const getObjectName=(object_id: string, salt?: string): string => {
+
+export const getObjectPath = (req_path?: string, salt?: string): string => {
+  const salted = CryptoJS.SHA1(salt || "default").toString();
+  // 如果req_path没有以斜杠结尾，则添加斜杠
+  if (!req_path || !req_path.endsWith("/")) {
+    req_path = `${req_path}/`;
+  }
+  return path.join(salted, req_path).replaceAll(/\\/g, "/");
+}
+export const getObjectName = (object_id: string, salt?: string): string => {
   const salted = CryptoJS.SHA1(salt || "default").toString();
   return `${salted}/${object_id}`;
 }

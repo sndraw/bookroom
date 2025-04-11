@@ -212,6 +212,14 @@ const routes = [
     ]
   },
   {
+    name: '文件管理',
+    path: ROUTE_MAP.FILE,
+    icon: 'FolderOpen',
+    component: './File/FileList/index.tsx',
+    access: 'canSeeUser',
+    wrappers: ['@/wrappers/auth'],
+  },
+  {
     name: '系统配置',
     path: ROUTE_MAP.PLATFORM_LIST,
     icon: 'Apartment',

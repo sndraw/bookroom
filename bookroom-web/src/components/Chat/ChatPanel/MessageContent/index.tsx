@@ -27,7 +27,7 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
         files.map(async (file) => {
           // 获取base64编码
           const res = await previewFileApi({
-            fileId: file,
+            fileId: encodeURIComponent(file),
           });
           return res?.url;
         }),

@@ -17,7 +17,7 @@ import useHeaderHeight from '@/hooks/useHeaderHeight';
 // 添加props类型
 interface DocumentListProps {
   graph: string;
-  dataList: API.AIGraphDocumentInfo[];
+  dataList?: API.AIGraphDocumentInfo[];
   workspace?: string;
   loading?: boolean;
   refresh?: () => void;

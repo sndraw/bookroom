@@ -56,7 +56,7 @@ export async function queryGraphDocumentList(
   options?: { [key: string]: any },
 ) {
   const { graph, workspace } = params;
-  return request<API.Result_AIGraphInfoList_>(
+  return request<API.Result_AIGraphDocumentInfoList_>(
     `/ai/graph/${graph}/workspace/${workspace}/document`,
     {
       method: 'GET',

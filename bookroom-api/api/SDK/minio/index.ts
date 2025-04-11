@@ -6,9 +6,9 @@ import mimeTypes from "mime-types";
 
 class MinioApi {
 
-    private readonly minioClient: any;
-    private readonly parameters: any | null = null;
-    public readonly bucketName: string | null = null;
+    private readonly minioClient: Client;
+    private readonly parameters: any;
+    public readonly bucketName: string = "";
 
     constructor(ops: any) {
         const { apiKey, host, parameters } = ops;
@@ -265,6 +265,30 @@ class MinioApi {
             throw error;
         }
     };
+
+    async queryObjectList(
+        params: {
+            prefix?: string;
+            marker?: string;
+            maxKeys?: number;
+            bucketName?: string;
+        }
+    ) {
+        try {
+            const { prefix, marker = "", maxKeys = 0, bucketName = this.bucketName } = params;
+            const result = await this.minioClient.listObjectsQuery(bucketName, prefix, marker, {
+                Delimiter: "/", // 分隔符，用于分隔目录和文件，例如：/dir/file.txt
+                MaxKeys: maxKeys, // 最大返回的键的数
+                IncludeVersion: true, // 是否包含版本信息
+            });
+            return result;
+        } catch (error) {
+            console.error("查询对象列表失败:", error);
+            throw error;
+        }
+    };
+
+
 }
 
 

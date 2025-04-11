@@ -7,13 +7,13 @@ import Think from "./think";
 import { convertMessagesToVLModelInput } from "@/SDK/openai/convert";
 import { formatAudioData, saveAudioToFile } from "@/utils/streamHelper";
 class ToolCallApi {
-    private readonly openai: any;
+    private readonly openai: OpenAI;
     private readonly think: Think;
 
     constructor(ops: any, think: Think) {
         const { apiKey, host, limitSeconds = 30 } = ops;
         this.think = think;
-        this.think.log("初始化OpenAI客户端", host, "\n\n")
+        this.think.log("初始化智能助手","\n\n")
         this.openai = new OpenAI({
             apiKey: apiKey,
             baseURL: host,
@@ -189,7 +189,7 @@ class ToolCallApi {
             countObj.step++;
             this.think.log('\-\-\-', "\n\n")
             this.think.log('当前步骤：', countObj.step, "\n\n")
-            const response = await this.handleChatCompletion(messages, {
+            const response:any = await this.handleChatCompletion(messages, {
                 ...params,
                 tools: tools
             });
