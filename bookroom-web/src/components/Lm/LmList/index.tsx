@@ -297,26 +297,29 @@ const LmList: React.FC<LmListPropsType> = (props) => {
             setSearchText(value);
           }}
         />
+        <Access
+          accessible={platformInfo?.code === AI_LM_PLATFORM_MAP?.ollama.value}>
+          <Select
+            className={styles.selectElement}
+            value={lmStatus}
+            allowClear
+            placeholder={'运行状态'}
+            onChange={(value) => {
+              setLmStatus(value);
+            }}
+            options={[
+              {
+                label: STATUS_MAP.ENABLE.text,
+                value: STATUS_MAP.ENABLE.value,
+              },
+              {
+                label: STATUS_MAP.DISABLE.text,
+                value: STATUS_MAP.DISABLE.value,
+              }
+            ]}
+          />
+        </Access>
         {/* 运行状态 */}
-        <Select
-          className={styles.selectElement}
-          value={lmStatus}
-          allowClear
-          placeholder={'运行状态'}
-          onChange={(value) => {
-            setLmStatus(value);
-          }}
-          options={[
-            {
-              label: STATUS_MAP.ENABLE.text,
-              value: STATUS_MAP.ENABLE.value,
-            },
-            {
-              label: STATUS_MAP.DISABLE.text,
-              value: STATUS_MAP.DISABLE.value,
-            }
-          ]}
-        />
         <FloatButton.Group key={'addLmGroup'}>
           <Access
             accessible={
