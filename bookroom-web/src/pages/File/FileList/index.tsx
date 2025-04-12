@@ -29,7 +29,6 @@ const FileListPage: React.FC = () => {
                 className={styles.pageContainer}
                 dataList={data?.list ||[] }
                 req_path={req_path}
-                prefix={prefix}
                 loading={loading}
                 refresh={run}
             />
