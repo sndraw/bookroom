@@ -342,7 +342,6 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       newMessage.audios = [...(newMessage.audios || []), voice]
     }
     const newMessageList = [...messageList, newMessage];
-    console.log(newMessageList);
     handleSend?.(newMessageList);
     setTimeout(() => {
       scrollToBottom();

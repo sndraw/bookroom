@@ -119,7 +119,7 @@ class FileController extends BaseController {
                 }
 
                 const objectName = getObjectName(object_id, ctx?.userId);
-                console.log("上传文件中...",objectName)
+                console.log("上传文件中...", objectName)
 
                 try {
                     const result = await fileClient.fPutObject(
