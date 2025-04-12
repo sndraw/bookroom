@@ -189,8 +189,8 @@ const FileList: React.FC<FileListPropsType> = (props) => {
                     xs: 1,
                     sm: 1,
                     md: 2,
-                    lg: 2,
-                    xl: 3,
+                    lg: 3,
+                    xl: 4,
                     xxl: 4,
                 }}
                 metas={{
