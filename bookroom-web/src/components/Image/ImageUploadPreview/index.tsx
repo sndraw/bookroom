@@ -4,11 +4,11 @@ import {
 } from '@/common/ai';
 import { getUrlAndUploadFileApi } from '@/services/common/file';
 import { PlusOutlined } from '@ant-design/icons';
-import { Image, Upload, UploadFile } from 'antd';
+import { Image, message, Upload, UploadFile } from 'antd';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { getBase64FormFileObj } from '../ImageUpload';
 import styles from './index.less';
+import { getBase64FormFileObj } from '@/components/File/FileUpload';
 
 interface ImageUploadPreviewProps {
   title?: string; // 标题
@@ -75,6 +75,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = (props) => {
           }
           // 判定file大小
           if (!file?.size || file?.size > AI_VL_UPLOAD_FILE_SIZE_LIMIT) {
+            message.error(`文件大小超过限制：${AI_VL_UPLOAD_FILE_SIZE_LIMIT / 1024}MB`);
             return;
           }
           if (!originFile?.originFileObj) {

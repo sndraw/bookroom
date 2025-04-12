@@ -94,7 +94,7 @@ const AgentTaskPage: React.FC = () => {
                 }
             }
             defaultMessageList={data?.messages}
-            isImages={true}
+            isFiles={true}
             isVoice={true}
             voiceParams={parameters?.voiceParams}
             customRequest={sendMsgRequest}

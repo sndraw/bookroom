@@ -6,33 +6,65 @@ declare namespace API {
     files?: any;
   }
   interface UploadedFileInfo {
-    filename: string;
+    id?:string;
+    name?: string;
     objectId: string;
-    previewUrl: string;
-    downloadUrl: string;
+    url?:string;
+    previewUrl?: string;
+    downloadUrl?: string;
   }
   // 文件信息
   interface FileInfo {
-    uid: string;
+    id: string;
     // 文件名称
     name: string;
+    // 对象ID
+    objectId: string;
+    // 存储路径
+    path?: string;
+    // 父路径
+    parentPath?: string;
+    // 存储地址
+    url?: string;
+    // 是否文件夹
+    isDir?: boolean;
+    // 文件大小
+    size?: number;
+    // 文件类型
+    mimeType?: string;
     // 上传状态
     status: string;
-    // 存储地址
-    url: string;
     // 缩略图地址
     thumbUrl?: string;
+    // 创建时间
+    createdTime?: string;
+    // 更新时间
+    updatedTime?: string;
+    // 最后修改时间
+    lastModified?:string;
     // 上传人员
     userId?: string;
   }
   // 文件信息-VO
   interface FileInfoVO {
-    // 名称
+    // 文件名称
     name: string;
+    // 对象ID
+    objectId: string;
+    // 存储路径
+    path?: string;
+    // 父路径
+    parentPath?: string;
+    // 存储地址
+    url?: string;
+    // 是否文件夹
+    isDir?: boolean;
+    // 文件大小
+    size?: number;
+    // 文件类型
+    mimeType?: string;
     // 上传状态
     status: string;
-    // 存储地址
-    url: string;
     // 缩略图地址
     thumbUrl?: string;
     // 上传人员
@@ -51,9 +83,11 @@ declare namespace API {
     data?: UploadedFileInfo;
   }
 
-  interface Result_List_UploadedFileInfo_ {
+  interface Result_UploadedFileInfoList_ {
     code?: number;
     message?: string;
-    data?: UploadedFileInfo[];
+    data?: {
+      list: UploadedFileInfo[];
+    }
   }
 }

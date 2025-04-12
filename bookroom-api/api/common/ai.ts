@@ -40,14 +40,3 @@ export const AI_GRAPH_UPLOAD_FILE_TYPE = [
   "application/vnd.openxmlformats-officedocument.presentationml.presentation"
 ];
 
-
-// 上传接口-支持文件上传类型
-export const UPLOAD_FILE_TYPE = [
-  ".txt", ".md", ".pdf", ".docx", ".pptx",
-  "text/plain", "text/markdown", "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  "image/jpeg", "image/png", "image/gif",
-  "audio/mpeg", "audio/wav", "video/mp4", "video/quicktime",
-];
-

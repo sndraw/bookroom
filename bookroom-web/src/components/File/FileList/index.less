@@ -1,0 +1,68 @@
+.container {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    width: 100%;
+    padding: 0 0 10px 0;
+    border-bottom: 1px solid @border-color;
+    position: relative;
+    font-size: 16px;
+    line-height: 32px;
+}
+
+.title {
+    padding: 0;
+}
+
+.cardList {
+    flex: auto;
+    padding: 20px 0 0 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.headerTitle {
+    line-height: 2;
+}
+
+.listItem {
+    position: relative;
+}
+
+.headerBreadcrumb{
+    cursor: default;
+}
+
+.selectBtn {
+    float: left;
+}
+
+.selectedText {
+    margin-left: 15px;
+    vertical-align: bottom;
+}
+
+.downloadBtn {
+    vertical-align: bottom;
+}
+
+.deselectBtn {
+    vertical-align: bottom;
+}
+
+.itemCheckbox {
+    position: absolute;
+    top: 10px;
+    right: 40px;
+    z-index: 100;
+}
+
+.navBarItem {
+    &:hover {
+        cursor: pointer;
+        color: @primary-color;
+    }
+}

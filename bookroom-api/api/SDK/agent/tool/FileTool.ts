@@ -131,7 +131,7 @@ class FileTool {
                     // 判定文件是否存在
                     if (filePath) {
                         // 上传文件
-                        const result = await fileClient.fPutObject(
+                        const result:any = await fileClient.fPutObject(
                             {
                                 objectName: objectName,
                                 filePath: filePath,

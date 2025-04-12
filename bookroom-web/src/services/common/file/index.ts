@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 import { message } from 'antd';
 
-/** GET /file/upload */
+/** GET /file/upload/${objectId}  */
 export async function getUrlAndUploadFileApi(
   params: {
     objectId: string; // 对象ID
@@ -61,7 +61,7 @@ export async function uploadFileApi(
   body: FormData,
   options?: { [key: string]: any },
 ) {
-  return request<API.Result_List_UploadedFileInfo_>('/file/upload', {
+  return request<API.Result_UploadedFileInfoList_>('/file/upload', {
     method: 'POST',
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -71,7 +71,7 @@ export async function uploadFileApi(
   });
 }
 
-/** GET /file/preview  */
+/** GET /file/preview/${fileId}  */
 export async function previewFileApi(
   params: {
     fileId: string;
@@ -86,7 +86,7 @@ export async function previewFileApi(
   });
 }
 
-/** POST /file/download  */
+/** POST /file/download/${fileId}  */
 export async function downloadFileApi(
   params: {
     fileId: string;
@@ -97,6 +97,39 @@ export async function downloadFileApi(
   return request<any>(`/file/download/${fileId}`, {
     method: 'GET',
     skipErrorHandler: true, // 跳过错误处理
+    ...(options || {}),
+  });
+}
+
+/** DELETE /file/${fileId}  */
+export async function deleteFileApi(
+  params: {
+    fileId: string;
+  },
+  options?: { [key: string]: any },
+) {
+  const { fileId } = params;
+  return request<any>(`/file/${fileId}`, {
+    method: 'DELETE',
+    skipErrorHandler: true, // 跳过错误处理
+    ...(options || {}),
+  });
+}
+
+
+
+/** GET /file */
+export async function queryFileList(
+  params?: {
+    req_path?: string;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.Result_UploadedFileInfoList_>(`/file`, {
+    method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }

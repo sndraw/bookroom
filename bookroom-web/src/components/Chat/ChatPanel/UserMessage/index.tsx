@@ -7,6 +7,7 @@ import MessageContent from '../MessageContent';
 
 import { Button, Popconfirm } from 'antd';
 import styles from './index.less';
+import CopyToClipboard from '@/components/CopyToClipboard';
 
 interface UserMessageType {
   msgObj: ChatMessageType;
@@ -40,41 +41,40 @@ const UserMessage: React.FC<UserMessageType> = (props) => {
             styles.messageContentUser,
           )}
         >
-          <MessageContent msgObj={msgObj}/>
-
-          {!loading && index === messageList?.length - 1 && (
-            <div className={styles.messageFooter}>
-              {/* 复制 */}
-              {/* <CopyToClipboard content={msgObj?.content} /> */}
-              {/* 重新生成 */}
-              {handleReAnswer && (
-                <Button
-                  type="link"
-                  size="small"
-                  title="重新生成"
-                  onClick={() => {
-                    handleReAnswer(msgObj?.id);
-                  }}
-                >
-                  <RedoOutlined />
-                </Button>
-              )}
-              {/* 气泡确认删除 */}
-              {handleDelete && (
-                <Popconfirm
-                  title="确定要删除这条消息吗？"
-                  onConfirm={() => handleDelete(msgObj.id)}
-                  cancelText="取消"
-                  okText="确定"
-                >
-                  {/* 删除 */}
-                  <Button type="link" size="small" danger title="删除">
-                    <DeleteOutlined />
+          <MessageContent msgObj={msgObj} />
+          <div className={styles.messageFooter}>
+            {/* 复制 */}
+            <CopyToClipboard content={msgObj?.content} />
+            {!loading && index === messageList?.length - 1 && (
+              <>
+                {handleReAnswer && (
+                  <Button
+                    type="link"
+                    size="small"
+                    title="重新生成"
+                    onClick={() => {
+                      handleReAnswer(msgObj?.id);
+                    }}
+                  >
+                    <RedoOutlined />
                   </Button>
-                </Popconfirm>
-              )}
-            </div>
-          )}
+                )}
+                {handleDelete && (
+                  <Popconfirm
+                    title="确定要删除这条消息吗？"
+                    onConfirm={() => handleDelete(msgObj.id)}
+                    cancelText="取消"
+                    okText="确定"
+                  >
+                    {/* 删除 */}
+                    <Button type="link" size="small" danger title="删除">
+                      <DeleteOutlined />
+                    </Button>
+                  </Popconfirm>
+                )}
+              </>
+            )}
+          </div>
         </div>
         <div className={classNames(styles.messageRole, styles.messageRoleUser)}>
           <div

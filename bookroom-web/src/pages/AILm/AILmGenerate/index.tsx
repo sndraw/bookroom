@@ -92,7 +92,7 @@ const AILmGeneratePage: React.FC = () => {
       className={styles?.chatContainer}
       disabled={isLoading}
       defaultMessageList={chatList?.record?.messages}
-      isImages={true}
+      isFiles={true}
       voiceParams={parameters?.voiceParams}
       customRequest={sendMsgRequest}
       saveAIChat={(messageList: any) => {

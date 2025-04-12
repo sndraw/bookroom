@@ -4,6 +4,12 @@ import routeMap from "@/routers/RouteMap";
 
 const routerList = [
     {
+        path: routeMap.FILE,
+        method: "GET",
+        handler: FileController.queryFileList,
+        auth: [USER_ROLE_ENUM.OPS, USER_ROLE_ENUM.DEV, USER_ROLE_ENUM.USER]
+    },
+    {
         path: routeMap.FILE_UPLOAD_URL,
         method: "GET",
         handler: FileController.getUploadUrl,
@@ -27,6 +33,13 @@ const routerList = [
         handler: FileController.download,
         auth: [USER_ROLE_ENUM.OPS, USER_ROLE_ENUM.DEV, USER_ROLE_ENUM.USER]
     },
+    {
+        path: routeMap.FILE_DETAIL,
+        method: "DELETE",
+        handler: FileController.deleteFile,
+        auth: [USER_ROLE_ENUM.OPS, USER_ROLE_ENUM.DEV, USER_ROLE_ENUM.USER]
+    },
+
 ];
 
 export default routerList;

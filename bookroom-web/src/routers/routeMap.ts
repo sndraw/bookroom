@@ -11,6 +11,7 @@ enum ROUTE_MAP {
   PLATFORM = '/platform',
   PLATFORM_MANAGE = '/platform/manage',
   PLATFORM_LIST = '/platform/list',
+  FILE="/file",
   AI_LM = '/ai/lm',
   AI_LM_LIST = '/ai/lm/:platform',
   AI_LM_CHAT = '/ai/lm/:platform/model/:model/chat',

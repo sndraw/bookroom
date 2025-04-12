@@ -5,6 +5,7 @@ import { ChatMessageType } from '../types';
 
 import { previewFileApi } from '@/services/common/file';
 import styles from './index.less';
+import { MarkdownWithHighlighting } from '@/components/Markdown';
 
 // 定义消息内容组件的props类型
 interface MessageContentType {
@@ -27,7 +28,7 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
         files.map(async (file) => {
           // 获取base64编码
           const res = await previewFileApi({
-            fileId: file,
+            fileId: encodeURIComponent(file),
           });
           return res?.url;
         }),
@@ -58,7 +59,7 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
   return (
     <>
       <div className={classNames(styles.messageContentText, className)}>
-        {msgObj?.content}
+            <MarkdownWithHighlighting markdownContent={msgObj?.content} />
       </div>
       {imageList && (
         <Space className={styles.imagePreviewContainer} wrap>

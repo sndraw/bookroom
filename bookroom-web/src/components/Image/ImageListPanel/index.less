@@ -2,22 +2,29 @@
   padding: 10px 0;
 }
 
-.imageItemWrapper {
-  width: 80px;
-  height: 80px;
-  position: relative;
-}
-
 .imageItem {
   width: 80px !important;
   height: 80px !important;
-  object-fit: contain !important;
   border: 1px solid @border-color;
   border-radius: @border-radius-base * 3 !important;
   box-sizing: border-box;
   background-color: @white;
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
 }
-
+.imageWrapper {
+  width: 80px !important;
+  height: 80px !important;
+  text-align: center;
+  object-fit: contain !important;
+}
 .deleteBtn {
   position: absolute;
   top: 0px;

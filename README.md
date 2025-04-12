@@ -32,6 +32,10 @@
 - ### 智能管家 （智能设备管理、任务调度设置）- 功能架构中
   - [BookRoom Robot](https://github.com/sndraw/bookroom-robot)
 
+- ### 文件管理
+  - 文件上传和下载管理
+  - 多文件类型支持（图片、视频、文档等）
+
 - ### 用户管理
   - 用户注册和登录管理
   - 权限控制和角色管理
@@ -93,7 +97,8 @@
 ![智能助手](./docs/assets/智能助手.png)
 ### 语音识别
 ![语音识别](./docs/assets/语音识别.png)
-
+### 视频识别
+![视频识别](./docs/assets/视频识别.png)
 ## 📚 相关文档
 ### LightRAG-运行流程
 ![LightRAG-运行流程](./docs/assets/LightRAG-运行流程.jpg)  

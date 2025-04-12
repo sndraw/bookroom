@@ -1,0 +1,83 @@
+// 卡片项
+.cardItem {
+  background: #fff;
+  padding: 35px 20px !important;
+  border-radius: @border-radius-base * 3;
+  border: 1px solid @border-color !important;
+  position: relative;
+
+  &:hover {
+    border: 1px solid @primary-color !important;
+  }
+}
+
+//卡片盒子
+.cardItemBox {
+  height: 180px;
+  text-align: center;
+  margin: 10px 0;
+  padding: 15px 15px;
+  cursor: default;
+
+  &:hover {
+    background-color: @bg-color;
+  }
+}
+
+.cardItemFolder {
+  height: 80px;
+  margin: 0 auto;
+  font-size: 50px !important;
+  line-height: 80px !important;
+  text-align: center;
+}
+
+.cardItemFile {
+  width: 100%;
+  max-width: 200px;
+  font-size: 30px !important;
+  line-height: 80px !important;
+  height: 80px !important;
+  margin: 0 auto;
+  text-align: center;
+  object-fit: contain;
+}
+
+// 标题
+.cardItemTitle {
+  padding: 15px 0;
+  white-space: nowrap;
+  word-break: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// 操作工具条
+.cardItemActions {
+  position: absolute;
+  bottom: 10px;
+  right: 20px;
+}
+
+// 按钮
+.cardItemBtn {
+  width: 20px;
+  line-height: 20px;
+  font-size: 20px;
+  display: inline-block;
+
+  &:hover {
+    font-size: 22px;
+    cursor: pointer;
+  }
+}
+
+.cardItemDeleteBtn{
+  position: absolute;
+  top:10px;
+  right:10px;
+}
+.cardItemUpdateTime{
+  opacity: 0.6;
+  font-size: 12px;
+}

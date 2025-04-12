@@ -63,6 +63,8 @@ const AILmImagePage: React.FC = () => {
       className={styles?.chatContainer}
       disabled={isLoading}
       isImages={true}
+      isFiles={true}
+      isVoice={true}
       customRequest={sendMsgRequest}
       onSend={() => { }}
       onStop={() => { }}

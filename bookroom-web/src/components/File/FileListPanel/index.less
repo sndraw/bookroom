@@ -1,0 +1,40 @@
+.fileItem {
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid @border-color;
+  border-radius: @border-radius-base * 3 !important;
+  background-color: @white;
+  text-align: center;
+  vertical-align: middle;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.filemWrapper {
+  max-width: 100px;
+  min-height: 80px;
+  text-align: center;
+  object-fit: contain !important;
+}
+
+.fileItemTitle {
+  width: 100%;
+  max-width: 100px;
+  // 文字超出省略
+  overflow: hidden;
+  /* 确保超出容器的文本会被裁剪 */
+  white-space: nowrap;
+  /* 确保文本在一行内显示 */
+  text-overflow: ellipsis;
+}
+
+.deleteBtn {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}

@@ -2,10 +2,11 @@ import BaseController from "./BaseController";
 import { resultError, resultSuccess } from "@/common/resultFormat";
 import { Context } from "koa";
 import fs from "fs";
-import { UPLOAD_FILE_TYPE } from "@/common/ai";
 import FileLogService from "@/service/FileLogService";
 import { StatusEnum } from "@/constants/DataMap";
-import { createFileClient, getObjectName } from "@/common/file";
+import { createFileClient, getObjectName, getObjectPath } from "@/common/file";
+import path from "path";
+import { UPLOAD_FILE_SIZE_LIMIT, UPLOAD_FILE_TYPE } from "@/config/file.conf";
 
 /**
  * 文件-接口
@@ -63,6 +64,12 @@ class FileController extends BaseController {
 
     // 上传
     static async upload(ctx: Context) {
+        const params: any = ctx.request.body || {};
+        // 是否覆盖文件
+        const autoOverwrite = params?.autoOverwrite === "true" || params?.autoOverwrite === true;
+        // 文件名前缀
+        const prefix = params?.prefix || "";
+
         // 确保 file 是单个文件对象而不是数组
         let files: any;
         if (!ctx.request?.files) {
@@ -95,12 +102,25 @@ class FileController extends BaseController {
                 if (!UPLOAD_FILE_TYPE?.includes(file?.mimetype)) {
                     throw new Error(`不支持的文件类型: ${file?.originalFilename}`);
                 }
+                // 判定file大小
+                if (!file?.size || file?.size > UPLOAD_FILE_SIZE_LIMIT) {
+                    throw new Error(`文件大小超过限制: ${UPLOAD_FILE_SIZE_LIMIT / 1024}MB`);
+                }
                 // 检查文件是否存在
                 if (!file?.filepath || !fs.existsSync(file?.filepath)) {
                     throw new Error("上传的文件不存在");
                 }
-                const object_id = crypto.randomUUID();
+                let object_id = crypto.randomUUID() + path.extname(file?.originalFilename);
+                if (autoOverwrite) {
+                    object_id = file?.originalFilename;
+                }
+                if (prefix) {
+                    object_id = path.join(prefix, object_id).replace(/\\/g, '/');
+                }
+
                 const objectName = getObjectName(object_id, ctx?.userId);
+                console.log("上传文件中...", objectName)
+
                 try {
                     const result = await fileClient.fPutObject(
                         {
@@ -120,25 +140,29 @@ class FileController extends BaseController {
                             mimetype: file.mimetype,
                             userId: ctx.userId
                         })
-
-                        const downloadUrl = await fileClient.presignedGetObject({ objectName });
-
-                        const previewUrl = await fileClient.presignedGetObject({ objectName });
+                        // const downloadUrl = await fileClient.presignedGetObject({ objectName });
+                        // const previewUrl = await fileClient.presignedGetObject({ objectName });
                         resultList.push({
+                            id: object_id,
                             filename: file.originalFilename,
                             objectId: object_id,
-                            downloadUrl,
-                            previewUrl
+                            // downloadUrl,
+                            // previewUrl
                         });
                     }
                 } catch (error) {
-                    console.error('Error uploading  file:', error);
+                    console.error('上传文件失败：', error);
                 }
-
+            }
+            if (!resultList?.length) {
+                throw new Error("文件未能成功上传，请确认文件是否符合要求。");
             }
             ctx.status = 200;
             ctx.body = resultSuccess({
-                data: resultList
+                data: {
+                    list: resultList,
+                    total: resultList?.length,
+                }
             });
 
         } catch (e) {
@@ -240,6 +264,84 @@ class FileController extends BaseController {
             });
         }
     }
+
+    // 下载文件
+    static async deleteFile(ctx: Context) {
+        const { object_id } = ctx.params;
+        if (!object_id) {
+            throw new Error("缺少文件ID参数");
+        }
+        try {
+            const fileClient = createFileClient();
+            const result = await fileClient.deleteObject({ objectName: getObjectName(object_id, ctx?.userId) });
+            ctx.status = 200;
+            ctx.body = resultSuccess({
+                data: result
+            });
+        } catch (e) {
+            ctx.logger.error("文件删除异常", e); // 记录错误日志
+            ctx.status = 500;
+            const error: any = e;
+            ctx.body = resultError({
+                code: error?.code,
+                message: error?.message || error,
+            });
+        }
+    }
+
+
+    // 获取文件列表
+    static async queryFileList(ctx: Context) {
+        const { req_path = "", nextMarker = "" } = ctx.query;
+        // 初始化文件上传客户端
+        const fileClient = createFileClient();
+        try {
+            const userPath = getObjectPath("", ctx?.userId)?.replaceAll("\\", "/");
+            // 获取对象路径前缀
+            const prefix = getObjectPath(req_path as string || "/", ctx?.userId);
+            // 拼接路径前缀
+            const marker = nextMarker ? path.join("/", userPath, nextMarker as string) : undefined;
+            // 请求文件列表
+            const result = await fileClient.queryObjectList({ prefix: prefix, marker: marker });
+            // 替换实际路径前缀为相对路径前缀
+            if (result?.objects.length > 0) {
+                result.objects = result.objects.map(item => {
+                    const newItem: any = { ...item }
+                    if (item?.prefix) {
+                        newItem.isDir = true
+                        newItem.name = item?.prefix;
+                        delete newItem.prefix;
+                    }
+                    newItem.name = newItem?.name?.replace(userPath, "");
+                    newItem.id = newItem.name;
+                    return newItem
+                })
+            }
+            // 返回用户路径前缀替换后的结果
+            if (result?.nextMarker) {
+                result.nextMarker = result.nextMarker.replace(userPath, "");
+            }
+            ctx.status = 200;
+            ctx.body = resultSuccess({
+                data: {
+                    list: result?.objects || [],
+                    nextMarker: result?.nextMarker,
+                    prefix: req_path,
+                }
+            })
+        }
+        catch (e) {
+            // 异常处理，返回错误信息
+            ctx.logger.error("文件列表查询异常", e); // 记录错误日志
+            ctx.status = 500;
+            const error: any = e;
+            ctx.body = resultError({
+                code: error?.code,
+                message: error?.message || error,
+            });
+        }
+    }
+
 }
 
 export default FileController;

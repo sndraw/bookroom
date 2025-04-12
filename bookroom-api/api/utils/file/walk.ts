@@ -48,8 +48,6 @@ async function walk(fullPath: any, reqPath: any) {
         };
         // 如果类型是文件
         if (!isDir) {
-            // fileItem.previewUrl = `${RouteMap?.IMAGE_PREVIEW}?filePath=${fileReqPath}`;
-            // fileItem.downloadUrl = `${RouteMap?.IMAGE_DOWNLOAD}?filePath=${fileReqPath}`;
             const fileMimeType = getFileMimeType(fileName);
 
             if (!fileMimeType) {

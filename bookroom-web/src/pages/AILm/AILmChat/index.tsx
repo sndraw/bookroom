@@ -100,7 +100,7 @@ const AILmChatPage: React.FC = () => {
       className={styles?.chatContainer}
       disabled={isLoading}
       defaultMessageList={chatList?.record?.messages}
-      isImages={true}
+      isFiles={true}
       isVoice={true}
       audioParams={parameters?.audioParams}
       voiceParams={parameters?.voiceParams}

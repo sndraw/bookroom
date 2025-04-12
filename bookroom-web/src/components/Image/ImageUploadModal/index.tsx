@@ -1,7 +1,7 @@
-import { AI_VL_UPLOAD_FILE_TYPE } from '@/common/ai';
+import { AI_VL_UPLOAD_FILE_SIZE_LIMIT, AI_VL_UPLOAD_FILE_TYPE } from '@/common/ai';
 import { uploadFileApi } from '@/services/common/file';
 import { UploadOutlined } from '@ant-design/icons';
-import { ModalForm, ProFormUploadDragger } from '@ant-design/pro-components';
+import { ModalForm, ProFormRadio, ProFormUploadDragger } from '@ant-design/pro-components';
 import { useRequest } from '@umijs/max';
 import { Button, Form, message, UploadFile } from 'antd';
 import classNames from 'classnames';
@@ -34,7 +34,17 @@ const ImageUploadModal: React.FC<ImageUploadModalProps> = (props) => {
           // 将file的blob添加到formData中
           value.forEach((item) => {
             if (item?.originFileObj) {
-              formData.append(key, item.originFileObj, item.originFileObj.name);
+              // 判定file大小
+              if (!item?.size || item?.size > AI_VL_UPLOAD_FILE_SIZE_LIMIT) {
+                message.error(`文件大小超过限制：${AI_VL_UPLOAD_FILE_SIZE_LIMIT / 1024}MB`);
+                // 文件大小超过限制，无法上传。
+                return;
+              }
+              formData.append(
+                key,
+                item.originFileObj,
+                item.originFileObj.name,
+              );
             } else {
               formData.append(key, item as any);
             }
@@ -52,12 +62,12 @@ const ImageUploadModal: React.FC<ImageUploadModalProps> = (props) => {
   );
   return (
     <ModalForm
-      title="上传图片"
+      title={title}
       disabled={disabled || loading}
       loading={loading}
       trigger={
         <Button
-          title="上传图片"
+          title={title}
           className={classNames(className)}
           icon={<UploadOutlined />}
           type="default"
@@ -83,33 +93,11 @@ const ImageUploadModal: React.FC<ImageUploadModalProps> = (props) => {
           message.error('请选择文件');
           return false;
         }
-        const formData = new FormData();
-        // 使用 Object.entries 遍历 values 并处理每个键值对
-        Object.entries(values).forEach(([key, value]) => {
-          // 处理 files 字段
-          if (Array.isArray(value)) {
-            // 将file的blob添加到formData中
-            value.forEach((item) => {
-              if (item?.originFileObj) {
-                formData.append(
-                  key,
-                  item.originFileObj,
-                  item.originFileObj.name,
-                );
-              } else {
-                formData.append(key, item as any);
-              }
-            });
-          } else {
-            // 处理其他字段
-            formData.append(key, value as any);
-          }
-        });
         const result = await run(values);
         if (!result) {
           return false;
         }
-        handleUpload(result);
+        handleUpload(result?.list);
         return true;
       }}
     >
@@ -135,6 +123,16 @@ const ImageUploadModal: React.FC<ImageUploadModalProps> = (props) => {
             return false;
           },
         }}
+      />
+      <ProFormRadio.Group
+        name="autoOverwrite"
+        label="覆盖同名文件"
+        required
+        initialValue={false}
+        options={[
+          { label: '是', value: true },
+          { label: '否', value: false },
+        ]}
       />
     </ModalForm>
   );
