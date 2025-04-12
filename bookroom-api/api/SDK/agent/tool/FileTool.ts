@@ -18,27 +18,27 @@ interface FileInput {
 export const FileActionMap = {
     getObjectData: {
         value: "getObjectData",
-        text: "获取对象数据"
+        text: "直接获取文件接口"
     },
     // getObjectStream: {
     //     value: "getObjectStream",
-    //     text: "获取对象流"
+    //     text: "获取对象流接口"
     // },
     fPutObject: {
         value: "fPutObject",
-        text: "上传对象"
+        text: "直接上传文件接口"
     },
     // putObjectStream: {
     //     value: "putObjectStream",
-    //     text: "上传对象流"
+    //     text: "上传对象流接口"
     // },
     presignedPutObject: {
         value: "presignedPutObject",
-        text: "获取预签名上传地址"
+        text: "获取预签名上传地址接口"
     },
     presignedGetObject: {
         value: "presignedGetObject",
-        text: "获取预签名下载地址"
+        text: "获取预签名下载地址接口"
     }
 }
 export const FileActionArray = Object.values(FileActionMap).map(item => item.value);
@@ -49,26 +49,22 @@ class FileTool {
     public name = "file_tool";
     public version = "1.0";
     public description = `
-    API for file storage  | 文件存储工具 | 可以通过该API与文件存储系统进行交互\n
-    如果需要上传文件，请参考以下示例步骤：\n
-    1. 先根据需求，定义一个带有完整<文件后缀>及<当前时间戳>，该<文件名>将作为接下来步骤中的输入参数，输入时请务必保持一致性。\n
-    2. 文件名格式: <名称>_<当前时间戳>.<文件后缀> \n
-    3. 通过定义的<文件名>作为输入参数调用<文件存储工具>获取<预签名上传地址>。\n
-    4. 然后调用<URL工具>，使用<预签名上传地址>，按照指定格式上传内容。\n
-    5. 如果上传失败，请处理错误信息后，重新获取<预签名上传地址>再次尝试上传，最大重试次数为3次。\n
-    6. 最后调用<URL工具>通过定义的<文件名>作为输入参数获取<预签名下载地址>，获取成功后将<预签名下载地址>进行格式化输出。\n
-    7. 预签名下载地址输出格式：[<文件名>](<预签名下载地址>) \n
-    8. 如果获取<预签名下载地址>失败，请处理错误信息后重新获取，最大重试次数为3次。\n
+    API for file storage  | 存储引擎 | 可以通过该API进行文件上传与下载。\n
+    以下格式请严格遵循，否则可能会导致上传失败或无法访问文件。\n
+    随机文件名格式: <文件名称_当前时间戳>.<文件后缀> \n
+    固定文件名格式：<文件名称>.<文件后缀> \n
+    文件预览输出格式：[<文件名>](<前缀/文件名>) \n
+    预签名下载输出格式：[<文件名>](<预签名下载地址>) \n
     `;
     public parameters = {
         type: "object",
         properties: {
             action: { type: "string", enum: [...FileActionArray], description: `操作类型，可选值为：${JSON.stringify(FileActionMap)}` },
-            objectId: { type: "string", description: "文件名称/ID" },
-            filePath: { type: "string", description: "文件所在地址" },
-            mimetype: { type: "string", description: "文件类型" },
+            objectId: { type: "string", description: "文件名称，必填" },
+            filePath: { type: "string", description: "前缀，非必填" },
+            mimetype: { type: "string", description: "文件类型，非必填" },
             // stream: { type: "boolean", description: "是否流式返回结果" },
-            timeout: { type: "number", description: "超时时间，单位为毫秒" },
+            timeout: { type: "number", description: "超时时间，单位为毫秒，非必填" },
         },
         required: ["action"],
     };
@@ -96,11 +92,11 @@ class FileTool {
     }
     async execute(params: FileInput): Promise<any> {
         const { action, objectId, filePath, mimetype, stream, timeout } = params;
-        const { host, apiKey, code, parameters = {}, userId } = this.config;
+        const { userId } = this.config;
 
         // 初始化文件上传客户端
         const fileClient = createFileClient();
-        logger.log("初始化文件上传客户端");
+        logger.log("初始化文件上传客户端", action, objectId);
         let objectName = null;
         let data: any = null;
         let result: any = null;
@@ -111,11 +107,11 @@ class FileTool {
                         throw new Error("文件内容获取错误：缺少文件名/对象ID参数");
                     }
                     objectName = getObjectName(objectId, userId)
-                    logger.log("文件名称", objectName);
                     // 获取文件内容
                     result = await fileClient.getObjectData({
                         objectName,
-                        encodingType: "base64"
+                        encodingType: "base64",
+                        addFileType: true,
                     });
                     data = {
                         isError: false,
@@ -131,7 +127,7 @@ class FileTool {
                     // 判定文件是否存在
                     if (filePath) {
                         // 上传文件
-                        const result:any = await fileClient.fPutObject(
+                        const result: any = await fileClient.fPutObject(
                             {
                                 objectName: objectName,
                                 filePath: filePath,

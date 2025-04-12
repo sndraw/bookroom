@@ -67,7 +67,7 @@ const MediaPreview: React.FC<Props> = ({ href, className }) => {
     if (isImage(href)) {
         return (
             <Image
-                className={classNames(styles.mediaPreview, className)}
+                className={classNames(styles.mediaPreview, styles.imagePreview,className)}
                 src={previewUrl}
                 key={href}
             />)

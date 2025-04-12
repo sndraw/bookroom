@@ -8,6 +8,7 @@ import MessageContent from '../MessageContent';
 import { Button, Popconfirm } from 'antd';
 import styles from './index.less';
 import CopyToClipboard from '@/components/CopyToClipboard';
+import { formatMessageContent } from '@/components/Markdown';
 
 interface UserMessageType {
   msgObj: ChatMessageType;
@@ -44,7 +45,7 @@ const UserMessage: React.FC<UserMessageType> = (props) => {
           <MessageContent msgObj={msgObj} />
           <div className={styles.messageFooter}>
             {/* 复制 */}
-            <CopyToClipboard content={msgObj?.content} />
+            <CopyToClipboard content={formatMessageContent(msgObj?.content)} />
             {!loading && index === messageList?.length - 1 && (
               <>
                 {handleReAnswer && (

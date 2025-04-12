@@ -13,7 +13,7 @@ class ToolCallApi {
     constructor(ops: any, think: Think) {
         const { apiKey, host, limitSeconds = 30 } = ops;
         this.think = think;
-        this.think.log("初始化智能助手","\n\n")
+        this.think.log("初始化智能助手", "\n\n")
         this.openai = new OpenAI({
             apiKey: apiKey,
             baseURL: host,
@@ -189,7 +189,7 @@ class ToolCallApi {
             countObj.step++;
             this.think.log('\-\-\-', "\n\n")
             this.think.log('当前步骤：', countObj.step, "\n\n")
-            const response:any = await this.handleChatCompletion(messages, {
+            const response: any = await this.handleChatCompletion(messages, {
                 ...params,
                 tools: tools
             });
@@ -334,13 +334,14 @@ class ToolCallApi {
             messages.push(createUserMessage({
                 ...query
             }));
+
             // 定义新的消息列表
             messages = await convertMessagesToVLModelInput({
                 messages,
                 userId,
                 noSearch: true,
                 noThink: true,
-                noUsage:true
+                noUsage: true
             });
             this.think.log("\-\-\-", "\n\n")
             this.think.log("Agent提示词：", "\n\n");
@@ -387,12 +388,12 @@ class ToolCallApi {
         finally {
             const endTime = new Date().getTime();
             const usage = {
-                step: result.step,
+                step: result?.step || "-",
                 startTime,
                 endTime,
-                prompt_tokens: result.prompt_tokens,
-                completion_tokens: result.completion_tokens,
-                total_tokens: result.total_tokens,
+                prompt_tokens: result?.prompt_tokens || "-",
+                completion_tokens: result?.completion_tokens || "-",
+                total_tokens: result?.total_tokens || "-",
             };
             this.think.usage(usage);
             // logger.info(`ToolCallApi: ${JSON.stringify(this.think.getHistory())}`);

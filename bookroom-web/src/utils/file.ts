@@ -11,6 +11,7 @@ export const isAudio = (url: string) => {
     return audioExtensions.some(ext => url.toLowerCase().endsWith(`.${ext}`));
 };
 
+
 export const isUrl = (str: string) => {
     try {
         new URL(str);
@@ -23,5 +24,4 @@ export const isUrl = (str: string) => {
 export const isMediaObjectId = (url: string) => {
     return (isAudio(url) || isVideo(url) || isImage(url)) && !isUrl(url)
 }
-
 

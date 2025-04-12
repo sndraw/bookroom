@@ -94,6 +94,7 @@ const AgentTaskPage: React.FC = () => {
                 }
             }
             defaultMessageList={data?.messages}
+            isConvertFile={parameters?.isConvertFile}
             isFiles={true}
             isVoice={true}
             voiceParams={parameters?.voiceParams}

@@ -19,7 +19,10 @@ class UrlTool {
     private config: any;
     public name = "url_tool";
     public version = "1.0";
-    public description = "API for Url | URL工具 | 可以通过该工具通过给定的URL进行文件的上传和下载";
+    public description = `
+    API for Url | 链接处理工具 | 可以通过该工具通过给定的链接地址进行文件的上传和下载\n
+    请确保链接地址是有效的，并且你有权限访问该链接\n
+    `;
     public parameters = {
         type: "object",
         properties: {
@@ -56,7 +59,8 @@ class UrlTool {
     async execute(params: UrlInput): Promise<any> {
         const { file, mimetype, uploadUrl, downloadUrl, stream, timeout } = params;
         const { host, apiKey, code, parameters = {}, userId } = this.config;
-        logger.info(`执行URL操作，上传地址：${uploadUrl}, 下载地址：${downloadUrl}`);
+        uploadUrl && logger.info(`执行URL操作，上传地址：${uploadUrl }`);
+        downloadUrl && logger.info(`执行URL操作，下载地址：${downloadUrl }`);
         let data: any = null;
         try {
             let result = null;
@@ -80,8 +84,6 @@ class UrlTool {
                     headers: {
                         'Content-Type': contentType,
                     },
-                }).catch((error) => {
-                    logger.error('上传文件失败', error);
                 });
                 if (!result?.ok) {
                     throw new Error(`上传文件失败，状态码: ${result?.status}`);
@@ -92,8 +94,6 @@ class UrlTool {
             if (downloadUrl) {
                 result = await fetch(downloadUrl, {
                     method: 'GET',
-                }).catch((error) => {
-                    logger.error('下载文件失败', error);
                 });
                 if (!result?.ok) {
                     throw new Error(`下载文件失败，状态码: ${result?.status}`);

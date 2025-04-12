@@ -4,9 +4,9 @@ import classNames from "classnames";
 import { deleteFileApi, downloadFileApi } from "@/services/common/file";
 import { Button, List, message, Popconfirm, Space } from "antd";
 import MediaPreview from "@/components/MediaPreview";
-import styles from "./index.less";
 import CopyToClipboard from "@/components/CopyToClipboard";
 import { FileItem } from "../FileListPanel";
+import styles from "./index.less";
 
 export const getFileName = (item?: API.FileInfo | FileItem) => {
     let fileName = item?.name;

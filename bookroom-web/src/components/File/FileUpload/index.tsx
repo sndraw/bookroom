@@ -2,7 +2,7 @@ import { AI_VL_UPLOAD_FILE_TYPE } from '@/common/ai';
 import { UPLOAD_FILE_SIZE_LIMIT, UPLOAD_FILE_TYPE } from '@/config/file.conf';
 import { uploadFileApi } from '@/services/common/file';
 import { UploadOutlined } from '@ant-design/icons';
-import { ModalForm, ProFormRadio, ProFormUploadDragger } from '@ant-design/pro-components';
+import { DrawerForm, ProFormRadio, ProFormUploadDragger } from '@ant-design/pro-components';
 import { useRequest } from '@umijs/max';
 import { Button, Form, message, UploadFile } from 'antd';
 import classNames from 'classnames';
@@ -74,10 +74,11 @@ const FileUploadModal: React.FC<FileUploadModalProps> = (props) => {
         },
     );
     return (
-        <ModalForm
+        <DrawerForm
             title={title}
             disabled={disabled || loading}
             loading={loading}
+            width={"378px"}
             trigger={
                 <Button
                     title={title}
@@ -150,7 +151,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = (props) => {
                 />
             )
             }
-        </ModalForm>
+        </DrawerForm>
     );
 };
 

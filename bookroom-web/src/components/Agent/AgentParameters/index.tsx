@@ -22,6 +22,7 @@ import VoiceRecognizeSelect from '@/components/Voice/VoiceRecognizeSelect';
 import AudioParamsSelect, { AudioParamsType } from '@/components/Voice/AudioParamsSelect';
 export interface ParametersType {
   prompt: string;
+  isConvertFile: boolean;
   isStream: boolean;
   voiceParams?: API.VoiceParamsType;
   audioParams?: AudioParamsType;
@@ -40,6 +41,7 @@ export interface ParametersType {
 
 export const defaultParameters: ParametersType = {
   prompt: '',
+  isConvertFile: true,
   isStream: true,
   logLevel: true,
   isMemory: false,
@@ -65,6 +67,7 @@ interface AgentParametersProps {
 const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [prompt, setPrompt] = useState<string>('');
+  const [isConvertFile, setIsConvertFile] = useState<boolean>(true);
   const [isStream, setIsStream] = useState<boolean>(true);
   const [audioParams, setAudioParams] = useState<any>(false);
   const [voiceParams, setVoiceParams] = useState<any>(false);
@@ -85,6 +88,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   useEffect(() => {
     if (parameters) {
       setPrompt(parameters?.prompt);
+      setIsConvertFile(parameters?.isConvertFile);
       setIsStream(parameters?.isStream);
       setAudioParams(parameters?.audioParams);
       setVoiceParams(parameters?.voiceParams);
@@ -105,6 +109,7 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
   const handleSave = () => {
     const newParameters: ParametersType = {
       prompt,
+      isConvertFile,
       isStream,
       audioParams,
       voiceParams,
@@ -277,6 +282,26 @@ const AgentParameters: React.FC<AgentParametersProps> = (props) => {
             <Switch
               value={logLevel}
               onChange={setLogLevel}
+              checkedChildren="启用"
+              unCheckedChildren="禁用"
+            />
+          </Flex>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>
+              转换文件
+              <Tooltip title={<>开启后，会在后台将文件转换为文件流传给模型，因此会消耗额外的计算资源。<br />建议在智能助手中将该功能关闭，由智能助手调用工具按需转换，以节省计算资源。</>}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip>
+            </label>
+            <Switch
+              value={isConvertFile}
+              onChange={setIsConvertFile}
               checkedChildren="启用"
               unCheckedChildren="禁用"
             />

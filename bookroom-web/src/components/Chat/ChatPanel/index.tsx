@@ -22,13 +22,15 @@ import FileLinkUpload from '@/components/File/FileLinkUpload';
 import styles from './index.less';
 import FileListPanel from '@/components/File/FileListPanel';
 import FileUpload, { FileListType } from '@/components/File/FileUpload';
-import { isAudio, isImage, isVideo } from '@/utils/file';
+import { isAudio, isImage, isMediaObjectId, isVideo } from '@/utils/file';
 
 type ChatPanelPropsType = {
   // 标题
   title?: string;
   // 默认消息列表
   defaultMessageList?: ChatMessageType[];
+  // 是否转换文件，默认为true（如果设置为false，则全部由后端工具处理文件格式）
+  isConvertFile?: boolean;
   // 是否支持文件上传
   isFiles?: boolean;
   // 是否支持图片上传
@@ -66,6 +68,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const {
     title,
     defaultMessageList,
+    isConvertFile = true,
     isFiles = true,
     isImages = false,
     isVoice,
@@ -316,19 +319,50 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     const newMessage: ChatMessageType = {
       id: btoa(Math.random().toString()),
       role: 'user',
-      content: msg?.trim(),
+      content: [
+        {
+          type: 'text',
+          text: msg?.trim(),
+        },
+      ],
       createdAt: new Date(),
     };
     if (isFiles && fileList?.objectList?.length) {
-      newMessage.images = fileList?.objectList?.filter(item => {
-        return isImage(item.objectId)
-      }).map(item => item.objectId);
-      newMessage.audios = fileList?.objectList?.filter(item => {
-        return isAudio(item.objectId)
-      }).map(item => item.objectId);
-      newMessage.videos = fileList?.objectList?.filter(item => {
-        return isVideo(item.objectId)
-      }).map(item => item.objectId);
+      // 如果开启文件转换功能
+      if (isConvertFile) {
+        newMessage.images = fileList?.objectList?.filter(item => {
+          return isImage(item.objectId)
+        }).map(item => item.objectId);
+        newMessage.audios = fileList?.objectList?.filter(item => {
+          return isAudio(item.objectId)
+        }).map(item => item.objectId);
+        newMessage.videos = fileList?.objectList?.filter(item => {
+          return isVideo(item.objectId)
+        }).map(item => item.objectId);
+        newMessage.files = fileList?.objectList?.filter(item => {
+          return !isMediaObjectId(item.objectId)
+        }).map(item => {
+          return {
+            id: item?.id,
+            name: item?.name || item?.id,
+            objectId: item.objectId || item?.id,
+          }
+        });
+      } else {
+        // fileList?.objectList?.forEach(item => {
+        //   newMessage.content.push({
+        //     type: "text",
+        //     text: `[${item?.name || item?.id}](${item?.objectId || item?.id})`
+        //   })
+        // })
+        newMessage.files = fileList?.objectList?.map(item => {
+          return {
+            id: item?.id,
+            name: item?.name || item?.id,
+            objectId: item.objectId || item?.id,
+          }
+        })
+      }
       setFileList(undefined);
     }
     // 如果是图片上传
@@ -574,6 +608,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
                       if (values && values?.objectList?.length > 0) {
                         const newObjectIdList = values?.objectList.map((link: any) => ({
                           id: link?.id,
+                          name: link?.filename,
                           objectId: link?.objectId
                         }));
                         setFileList(prevState => ({
@@ -628,7 +663,6 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
               />
             </Form.Item>
             {/* 发送按钮 */}
-
             {!loading && (
               <Button
                 className={styles.inputTextAreaSendBtn}

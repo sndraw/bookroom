@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { ChatMessageType } from '../types';
 
 import { previewFileApi } from '@/services/common/file';
-import styles from './index.less';
 import { MarkdownWithHighlighting } from '@/components/Markdown';
+import styles from './index.less';
 
 // 定义消息内容组件的props类型
 interface MessageContentType {
@@ -21,10 +21,14 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
   const [audioList, setAudioList] = useState<any>(null);
   // 视频预览
   const [videoList, setVideoList] = useState<any>(null);
-  // 转换文件预览列表
-  const transformFileList = async (files: any[] | undefined) => {
+  // 文件预览
+  const [fileList, setFileList] = useState<any[]>([]);
+
+
+  // 转换base64列表
+  const transformBase64List = async (files: any[] | undefined) => {
     if (files && files?.length > 0) {
-      const fileList = await Promise.all(
+      const base64List = await Promise.all(
         files.map(async (file) => {
           // 获取base64编码
           const res = await previewFileApi({
@@ -32,34 +36,55 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
           });
           return res?.url;
         }),
-      ); 
-      return fileList;
+      );
+      return base64List;
     }
     return [];
   };
 
+  // 转换markdown格式链接列表
+  const transformLinkStrList = async (files: any[] | undefined) => {
+    if (files && files?.length > 0) {
+      const linkList = files.map((file) => {
+        return `[${file?.name || file?.id || file}](${file?.url || file?.id || file})`
+      });
+      return linkList;
+    }
+    return [];
+  };
+
+
   useEffect(() => {
     if (msgObj?.images) {
-      transformFileList(msgObj.images).then((list) => {
-        setImageList(list);
+      transformBase64List(msgObj.images).then((base64List) => {
+        setImageList(base64List);
       });
     }
     if (msgObj?.audios) {
-      transformFileList(msgObj.audios).then((list) => {
-        setAudioList(list);
+      transformBase64List(msgObj.audios).then((base64List) => {
+        setAudioList(base64List);
       });
     }
     if (msgObj?.videos) {
-      transformFileList(msgObj.videos).then((list) => {
-        setVideoList(list);
+      transformBase64List(msgObj.videos).then((base64List) => {
+        setVideoList(base64List);
       });
     }
-  }, [msgObj]);
+    // 如果是文件类型
+    if (msgObj?.files) {
+      // 转换成markdown格式
+      transformLinkStrList(msgObj.files).then((linkStrList) => {
+        setFileList(linkStrList);
+      });
+    }
+
+
+  }, [msgObj])
 
   return (
     <>
       <div className={classNames(styles.messageContentText, className)}>
-            <MarkdownWithHighlighting markdownContent={msgObj?.content} />
+        <MarkdownWithHighlighting markdownContent={msgObj?.content} />
       </div>
       {imageList && (
         <Space className={styles.imagePreviewContainer} wrap>
@@ -96,6 +121,14 @@ const MessageContent: React.FC<MessageContentType> = (props) => {
                 Your browser does not support the video tag.
               </video>
             );
+          })}
+        </Space>
+      )}
+
+      {fileList && (
+        <Space className={styles.filePreviewContainer} wrap>
+          {fileList?.map((item: string | undefined, index: any) => {
+            return <MarkdownWithHighlighting key={index} markdownContent={item || ""} />
           })}
         </Space>
       )}
