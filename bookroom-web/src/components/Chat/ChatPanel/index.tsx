@@ -10,7 +10,6 @@ import classNames from 'classnames';
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import VoiceChat from '../../Voice/VoiceChat';
 import AssistantMessage from './AssistantMessage';
-import styles from './index.less';
 import { ChatMessageType } from './types';
 import UserMessage from './UserMessage';
 import { voiceRecognizeTask } from '@/services/common/voice';
@@ -19,12 +18,19 @@ import { formatSseData, isSseFormat } from '@/utils/format';
 import ImageUpload, { ImageListType } from '../../Image/ImageUpload';
 import ImageListPanel from '../../Image/ImageListPanel';
 import { AudioParamsType } from '../../Voice/AudioParamsSelect';
+import FileLinkUpload from '@/components/File/FileLinkUpload';
+import styles from './index.less';
+import FileListPanel from '@/components/File/FileListPanel';
+import FileUpload, { FileListType } from '@/components/File/FileUpload';
+import { isAudio, isImage, isVideo } from '@/utils/file';
 
 type ChatPanelPropsType = {
   // 标题
   title?: string;
   // 默认消息列表
   defaultMessageList?: ChatMessageType[];
+  // 是否支持文件上传
+  isFiles?: boolean;
   // 是否支持图片上传
   isImages?: boolean;
   // 音频输出参数
@@ -60,7 +66,8 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const {
     title,
     defaultMessageList,
-    isImages,
+    isFiles = true,
+    isImages = false,
     isVoice,
     audioParams,
     voiceParams,
@@ -76,6 +83,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   } = props;
   const [messageList, setMessageList] = useState<ChatMessageType[]>([]);
   const [imageList, setImageList] = useState<ImageListType>();
+  const [fileList, setFileList] = useState<FileListType>();
   const [videoList, setVideoList] = useState<any[]>([]);
 
 
@@ -311,15 +319,30 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       content: msg?.trim(),
       createdAt: new Date(),
     };
+    if (isFiles && fileList?.objectList?.length) {
+      newMessage.images = fileList?.objectList?.filter(item => {
+        return isImage(item.objectId)
+      }).map(item => item.objectId);
+      newMessage.audios = fileList?.objectList?.filter(item => {
+        return isAudio(item.objectId)
+      }).map(item => item.objectId);
+      newMessage.videos = fileList?.objectList?.filter(item => {
+        return isVideo(item.objectId)
+      }).map(item => item.objectId);
+      setFileList(undefined);
+    }
+    // 如果是图片上传
     if (isImages && imageList?.objectList?.length) {
-      newMessage.images = imageList?.objectList?.map(imageObj => imageObj.objectId);
+      const newImageObjList = imageList?.objectList?.map(item => item.objectId) || []
+      newMessage.images = [...(newMessage.images || []), ...newImageObjList]
       setImageList(undefined);
     }
+    // 如果是语音上传
     if (voice) {
-      newMessage.audios = [voice];
+      newMessage.audios = [...(newMessage.audios || []), voice]
     }
-
     const newMessageList = [...messageList, newMessage];
+    console.log(newMessageList);
     handleSend?.(newMessageList);
     setTimeout(() => {
       scrollToBottom();
@@ -353,10 +376,17 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         if (!voiceParams?.apiMode) {
           // 提交消息
           setTimeout(() => {
-            handleSubmit({
-              msg: form.getFieldValue('msg') || '请识别该语音并回复消息',
-              voice: objectId,
-            });
+            setFileList(prevState => ({
+              objectList: [...(prevState?.objectList || []), {
+                id: objectId,
+                objectId,
+              }],
+              fileList: [...(prevState?.fileList || [])]
+            }));
+            // handleSubmit({
+            //   msg: form.getFieldValue('msg') || '请识别该语音并回复消息',
+            //   voice: objectId,
+            // });
           }, 500);
           return;
         }
@@ -499,9 +529,10 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
         disabled={disabled}
       >
         <div className={styles.inputTextAreaWrapper}>
-          <div className={styles.previewPanel}>
-            <ImageListPanel imageList={imageList} setImageList={setImageList} />
-          </div>
+          <Space wrap size={10} direction={'horizontal'} className={styles.previewPanel}>
+            {isImages && (<ImageListPanel dataList={imageList} setDataList={setImageList} />)}
+            <FileListPanel dataList={fileList} setDataList={setFileList} />
+          </Space>
           <Space wrap size={0} direction={'horizontal'} className={styles.inputTextAreaBtns}>
             <Popconfirm
               className={styles.clearButton}
@@ -517,6 +548,45 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
                 size={"large"}
               ></Button>
             </Popconfirm>
+            {isFiles && (
+              <>
+                <Divider type="vertical" />
+                <div className={styles.inputFiles}>
+                  <FileLinkUpload
+                    handleUpload={values => {
+                      if (values && values?.links?.length > 0) {
+                        const newObjectIdList = values?.links.map((link: any) => ({
+                          id: link?.url,
+                          objectId: link?.url
+                        }));
+                        setFileList(prevState => ({
+                          objectList: [...(prevState?.objectList || []), ...newObjectIdList],
+                          fileList: [...(prevState?.fileList || [])]
+                        }));
+                      }
+                    }}
+                  />
+                </div>
+                <Divider type="vertical" />
+                <div className={styles.inputFiles}>
+                  <FileUpload
+                    btnType='text'
+                    handleUpload={values => {
+                      if (values && values?.objectList?.length > 0) {
+                        const newObjectIdList = values?.objectList.map((link: any) => ({
+                          id: link?.id,
+                          objectId: link?.objectId
+                        }));
+                        setFileList(prevState => ({
+                          objectList: [...(prevState?.objectList || []), ...newObjectIdList],
+                          fileList: [...(prevState?.fileList || [])]
+                        }));
+                      }
+                    }}
+                  />
+                </div>
+              </>
+            )}
             {isImages && (
               <>
                 <Divider type="vertical" />
@@ -533,6 +603,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
                 </div>
               </>
             )}
+
           </Space>
           <div className={styles.inputTextAreaContainer}>
             {isVoice && (

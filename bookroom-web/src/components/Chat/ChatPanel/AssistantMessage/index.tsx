@@ -67,7 +67,7 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
           >
             <MarkdownWithHighlighting markdownContent={msgObj?.content} />
           </div>
-          {!loading && (
+          {(!loading || (loading && index !== messageList?.length - 1) ) && (
             <div className={styles.messageFooter}>
               {/* 语音播放 */}
               <TextToSpeech

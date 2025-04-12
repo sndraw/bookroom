@@ -6,10 +6,12 @@ declare namespace API {
     files?: any;
   }
   interface UploadedFileInfo {
-    filename: string;
+    id?:string;
+    name?: string;
     objectId: string;
-    previewUrl: string;
-    downloadUrl: string;
+    url?:string;
+    previewUrl?: string;
+    downloadUrl?: string;
   }
   // 文件信息
   interface FileInfo {

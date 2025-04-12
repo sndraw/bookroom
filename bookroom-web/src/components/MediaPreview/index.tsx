@@ -3,10 +3,8 @@ import { isAudio, isImage, isVideo } from '@/utils/file';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { Image } from 'antd';
-import styles from './index.less';
-import { set } from 'mermaid/dist/diagrams/state/id-cache.js';
 import { FileOutlined } from '@ant-design/icons';
-import { useToken } from '@ant-design/pro-components';
+import styles from './index.less';
 
 interface Props {
     href: string;
@@ -16,8 +14,6 @@ interface Props {
 const MediaPreview: React.FC<Props> = ({ href, className }) => {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    // 主题
-    const { token } = useToken();
 
     useEffect(() => {
         const fetchPreviewUrl = async () => {

@@ -61,3 +61,5 @@ export const AI_VL_UPLOAD_FILE_TYPE = [
 
 // 支持视觉模型-文件上传大小限制(Byte)
 export const AI_VL_UPLOAD_FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB
+
+

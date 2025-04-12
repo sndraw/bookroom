@@ -4,13 +4,14 @@ import React, { useEffect } from 'react';
 import styles from './index.less';
 import { previewFileApi } from '@/services/common/file';
 import { CloseOutlined } from '@ant-design/icons';
-import { getBase64FormFileObj, ImageListType } from '../ImageUpload';
+import { ImageListType } from '../ImageUpload';
+import { getBase64FormFileObj } from '@/components/File/FileUpload';
 
 // 添加props类型
 interface ImageListProps {
   title?: string;
-  imageList?: ImageListType; // 图片列表
-  setImageList: React.Dispatch<React.SetStateAction<ImageListType | undefined>>; // 设置图片列表
+  dataList?: ImageListType; // 图片列表
+  setDataList: React.Dispatch<React.SetStateAction<ImageListType | undefined>>; // 设置图片列表
   className?: string;
 }
 type FileItem = {
@@ -18,17 +19,17 @@ type FileItem = {
   url: string;
 };
 const ImageListPanel: React.FC<ImageListProps> = (props) => {
-  const { title, className, imageList, setImageList } = props;
+  const { title, className, dataList, setDataList } = props;
   const [fileList, setFileList] = React.useState<FileItem[]>([])
 
   // 删除图片的逻辑
   const handleDelete = async (uid: string) => {
     // 查询是否包含该id的file
-    const objectItem = imageList?.objectList.find(item => item.fileId === uid);
+    const objectItem = dataList?.objectList.find(item => item.id === uid);
     if (objectItem) {
-      const newObjectIdList = imageList?.objectList.filter(item => item.objectId !== objectItem.objectId) || [];
-      const newFileList = imageList?.fileList?.filter(item => item.uid !== objectItem.fileId) || [];
-      setImageList({
+      const newObjectIdList = dataList?.objectList.filter(item => item.objectId !== objectItem.objectId) || [];
+      const newFileList = dataList?.fileList?.filter(item => item.uid !== objectItem.id) || [];
+      setDataList({
         objectList: newObjectIdList,
         fileList: newFileList,
       });
@@ -38,8 +39,8 @@ const ImageListPanel: React.FC<ImageListProps> = (props) => {
   useEffect(() => {
     const fetchFiles = async () => {
       const newFileList: FileItem[] = [];
-      if (imageList?.fileList?.length) {
-        for (const item of imageList?.fileList) {
+      if (dataList?.fileList?.length) {
+        for (const item of dataList?.fileList) {
           // 如果有文件，则直接使用该文件的base64数据
           // 否则，调用previewFileApi获取图片的url
           if (item?.originFileObj) {
@@ -50,7 +51,7 @@ const ImageListPanel: React.FC<ImageListProps> = (props) => {
             });
             continue;
           }
-          const objectItem = imageList?.objectList.find(obj => obj.fileId === item.uid);
+          const objectItem = dataList?.objectList.find(obj => obj.id === item.uid);
           if (!objectItem) continue; // 如果没有找到对应的objectItem，则跳过当前文件
           try {
             const res = await previewFileApi({
@@ -69,7 +70,7 @@ const ImageListPanel: React.FC<ImageListProps> = (props) => {
       setFileList(newFileList);
     }
     fetchFiles();
-  }, [imageList?.fileList]);
+  }, [dataList?.fileList]);
 
   if (!fileList || fileList.length === 0) {
     return null;
@@ -78,15 +79,16 @@ const ImageListPanel: React.FC<ImageListProps> = (props) => {
     <Flex gap={16} className={classNames(styles.objectList, className)} wrap>
       <Image.PreviewGroup>
         {fileList?.map((fileObj, index) => (
-          <div key={index} className={classNames(styles.imageItemWrapper)}>
+          <div key={index} className={classNames(styles.imageItem)}>
             <Image
-              key={index}
-              className={styles.imageItem}
+              key={index + "preview"}
+              className={styles.imageWrapper}
               alt={fileObj?.uid}
               src={fileObj?.url}
               preview={false}
             />
             <Button
+              key={index + "delete"}
               type="link"
               title="删除图片"
               icon={<CloseOutlined />}

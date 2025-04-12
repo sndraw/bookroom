@@ -9,10 +9,10 @@ import rehypeReact from 'rehype-react'
 import remarkMath from 'remark-math'
 import MediaPreview from '../MediaPreview';
 import { isMediaObjectId } from '@/utils/file';
-import styles from './index.less'; // 引入外部样式表
 import DotChart, { isValidGraphDotCode } from './DotChart';
 import { formatMarkDownContent, formatUsageTag } from './utils';
 import MermaidChart, { isValidGraphMermaidCode } from './MermaidChart';
+import styles from './index.less'; // 引入外部样式表
 
 export const CodeRenderer = (params: any) => {
   const { node, inline, className, children, ...props } = params || {};
@@ -87,7 +87,7 @@ export const MediaRenderer = (params: any) => {
 
   // 判定是否为媒体对象
   if (isMediaObjectId(props.href)) {
-    return <MediaPreview href={props.href} />;
+    return <MediaPreview className={styles.mediaPreview} href={props.href} />;
   }
   // 使用组件正常的渲染逻辑
   return <a {...props} target='_blank' rel='noopener noreferrer'>{children}</a>

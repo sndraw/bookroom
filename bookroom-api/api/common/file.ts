@@ -14,7 +14,7 @@ export const getObjectPath = (req_path?: string, salt?: string): string => {
 }
 export const getObjectName = (object_id: string, salt?: string): string => {
   const salted = CryptoJS.SHA1(salt || "default").toString();
-  return `${salted}/${object_id}`;
+  return path.join(salted, object_id).replaceAll(/\\/g, "/");
 }
 
 export const createFileClient = (config?: any) => {

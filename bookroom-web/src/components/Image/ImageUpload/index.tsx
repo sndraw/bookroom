@@ -4,11 +4,18 @@ import {
 } from '@/common/ai';
 import { getUrlAndUploadFileApi } from '@/services/common/file';
 import { PictureOutlined } from '@ant-design/icons';
-import { Button, Image, Upload, UploadFile } from 'antd';
+import { Button, Image, message, Upload, UploadFile } from 'antd';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
 import { UploadListType } from 'antd/es/upload/interface';
+import { getBase64FormFileObj } from '@/components/File/FileUpload';
+
+export interface ImageListType {
+  objectList: API.UploadedFileInfo[];
+  fileList: UploadFile[];
+}
+
 
 interface ImageUploadProps {
   title?: string; // 标题
@@ -18,56 +25,11 @@ interface ImageUploadProps {
   showUploadList?: boolean; // 是否显示上传列表
   imageList?: ImageListType; // 图片列表
   setImageList: React.Dispatch<React.SetStateAction<ImageListType | undefined>>; // 设置图片列表
-  onRemove?: (params: { fileId: string }) => void;
-  onSuccess?: (params: { fileId: string, objectId: string, file: File }) => void;
+  onRemove?: (params: { id: string }) => void;
+  onSuccess?: (params: { id: string, objectId: string, file: File }) => void;
   className?: string;
 }
 
-export interface ImageListType {
-  objectList: Array<{
-    objectId: string; // 对象ID
-    fileId: string; // 文件ID
-  }>;
-  fileList: UploadFile[];
-}
-
-export const getBase64FormFileObj = (file: any, vison = true): Promise<string> => {
-  // 判定file是否文件
-  if (!(file instanceof File)) {
-    return file;
-  }
-
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        let base64Data = reader.result as string;
-        if (vison) {
-          base64Data = reader.result.split(',')[1] as string;
-        }
-        resolve(base64Data);
-      } else {
-        reject(new Error('无效的文件读取结果'));
-      }
-    };
-    reader.onerror = (error) => reject(error);
-  });
-};
-
-export const getArrayBuffer = (file: any): Promise<ArrayBuffer> => {
-  // 判定file是否文件
-  if (!(file instanceof File)) {
-    return file;
-  }
-
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(file);
-    reader.onload = () => resolve(reader.result as ArrayBuffer);
-    reader.onerror = (error) => reject(error);
-  });
-};
 
 const ImageUpload: React.FC<ImageUploadProps> = (props) => {
   const {
@@ -115,16 +77,17 @@ const ImageUpload: React.FC<ImageUploadProps> = (props) => {
           // 如果file不在fileList中
           if (!originFile) {
             onRemove?.({
-              fileId: file.uid
+              id: file.uid
             })
             setImageList({
-              objectList: imageList?.objectList?.filter((item: { fileId: any }) => item.fileId !== file.uid),
+              objectList: imageList?.objectList?.filter((item: { id: any }) => item.id !== file.uid),
               fileList: imageList?.fileList?.filter((item: { uid: any }) => item.uid !== file.uid),
             });
             return;
           }
           // 判定file大小
           if (!file?.size || file?.size > AI_VL_UPLOAD_FILE_SIZE_LIMIT) {
+            message.error(`文件大小超过限制：${AI_VL_UPLOAD_FILE_SIZE_LIMIT / 1024}MB`);
             return;
           }
           if (!originFile?.originFileObj) {
@@ -146,12 +109,12 @@ const ImageUpload: React.FC<ImageUploadProps> = (props) => {
           }
           onSuccess?.({
             objectId,
-            fileId: file.uid,
+            id: file.uid,
             file: originFile.originFileObj, // 添加文件对象
           });
           // 上传成功后，更新imageList
           setImageList(prevState => ({
-            objectList: [...(prevState?.objectList || []), { fileId: file.uid, objectId }],
+            objectList: [...(prevState?.objectList || []), { id: file.uid, objectId }],
             fileList: [...fileList],
           }));
         }}

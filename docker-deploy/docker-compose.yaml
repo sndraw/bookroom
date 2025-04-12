@@ -115,6 +115,9 @@ services:
       LOGIN_LOCK_TIME: ${LOGIN_LOCK_TIME:-5}
       USER_TOKEN_KEY: ${USER_TOKEN_KEY:-}
       CRYPTO_SECRETKEY: ${CRYPTO_SECRETKEY:-}
+      SERVER_UPLOAD_PATH: ${SERVER_UPLOAD_PATH:-}
+      SERVER_UPLOAD_FILE_TYPE_ACCEPT: ${SERVER_UPLOAD_FILE_TYPE_ACCEPT:-}
+      SERVER_UPLOAD_FILE_SIZE_LIMIT: ${SERVER_UPLOAD_FILE_SIZE_LIMIT:-102400}
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./init/bookroom-api/pm2.config.js:/app/pm2.config.js:ro
