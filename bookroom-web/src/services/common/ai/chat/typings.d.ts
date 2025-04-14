@@ -8,7 +8,7 @@ declare namespace API {
     platform?: string;
     name?: string;
     model: string;
-    type: number;
+    chat_type?: string;
     parameters?: string | object;
     prompt?: string;
     messages: any[];
@@ -23,7 +23,7 @@ declare namespace API {
     platform?: string;
     name?: string;
     model: string;
-    type?: number;
+    chat_type?: string;
     prompt?: string;
     parameters?: string | object;
     messages?: any[];

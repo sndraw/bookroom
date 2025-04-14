@@ -9,11 +9,11 @@ import ChatParameters, { defaultParameters, ParametersType } from '@/components/
 import { queryAIChatList, saveAIChat } from '@/services/common/ai/chat';
 import { CHAT_TYPE } from '@/common/chat';
 
-const chatType = CHAT_TYPE.GENERATE;
+const chat_type = CHAT_TYPE.GENERATE;
 
 const AILmGeneratePage: React.FC = () => {
   const access = useAccess();
-  const { platform, model } = useParams();
+  const { platform = "", model = "" } = useParams();
   const [parameters, setParameters] = useState<ParametersType>(defaultParameters);
 
   const { getPlatformName } = useModel('lmplatformList');
@@ -22,8 +22,8 @@ const AILmGeneratePage: React.FC = () => {
   const { data, loading, run } = useRequest(
     () =>
       getAILmInfo({
-        platform: platform || '',
-        model: model ? encodeURIComponent(model.trim()) : '',
+        platform: platform,
+        model: encodeURIComponent(model.trim()),
       }),
     {
       manual: true,
@@ -34,9 +34,9 @@ const AILmGeneratePage: React.FC = () => {
     () =>
       queryAIChatList({
         query_mode: 'search',
-        platform: platform || '',
-        model: model || '',
-        type: chatType,
+        platform: platform,
+        model: model,
+        chat_type: chat_type,
       }),
     {
       manual: true,
@@ -45,17 +45,20 @@ const AILmGeneratePage: React.FC = () => {
   // 发送
   const sendMsgRequest = async (data: any, options: any) => {
     const { messages } = data || {};
-    const prompt = messages[messages.length - 1]?.content || '';
+    let prompt = messages[messages.length - 1]?.content;
+    if (Array.isArray(messages[messages.length - 1]?.content)) {
+      prompt = messages[messages.length - 1]?.content?.[0]?.text
+    }
     const images = messages[messages.length - 1]?.images || null;
 
     return await AILmGenerate(
       {
-        platform: platform || '',
-        model: encodeURIComponent(model || ''),
+        platform: platform,
+        model: encodeURIComponent(model),
         is_stream: parameters?.isStream,
       },
       {
-        model: model || '',
+        model: model,
         prompt: prompt,
         images: images
       },
@@ -95,9 +98,7 @@ const AILmGeneratePage: React.FC = () => {
       sendOptions={
         {
           isFiles: false,
-          filePrefix: `${platform}/${model}/chat/${chatType}`,
-          isVoice: true,
-          voiceParams: parameters?.voiceParams,
+          filePrefix: `chat/${chat_type}/${platform}/${model}`,
         }
       }
       customRequest={sendMsgRequest}
@@ -106,7 +107,7 @@ const AILmGeneratePage: React.FC = () => {
           {
             platform,
             model,
-            type: chatType,
+            chat_type: chat_type,
             parameters,
             messages: messageList
           })
@@ -130,7 +131,7 @@ const AILmGeneratePage: React.FC = () => {
           </Access>
           <ChatParameters
             platform={platform}
-            chatType={chatType}
+            chat_type={chat_type}
             parameters={parameters}
             changeParameters={(newParameters) => {
               // 如果未改变，则不更新参数 */
@@ -142,7 +143,7 @@ const AILmGeneratePage: React.FC = () => {
                 platform,
                 model,
                 parameters: newParameters,
-                type: chatType,
+                chat_type: chat_type,
               });
             }}
           />

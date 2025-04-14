@@ -61,7 +61,7 @@ class AIChatLogService {
                 chat_id: params?.chat_id || uuidv4(),
                 platformId: platformConfig?.id,
                 model: model || "",
-                type: params?.type || 1,
+                chat_type: params?.chat_type || "",
                 input: input,
                 output: output,
                 userId: params?.userId || 0,

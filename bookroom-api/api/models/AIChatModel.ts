@@ -9,7 +9,7 @@ class AIChatModel extends Model {
             return false;
         }
         const addWhereArray: { [x: string]: any; }[] = [];
-        const fieldKeys = ["platformId", "model", "type", "userId"];
+        const fieldKeys = ["platformId", "model", "chat_type", "userId"];
         // 筛选唯一项
         Object.keys(data).forEach((key) => {
             if (data[key] && fieldKeys.includes(key)) {
@@ -78,16 +78,16 @@ AIChatModel.init(
                 },
             },
         },
-        // 日志类型，1对话，2补全，3嵌入向量，4图片生成
-        type: {
-            field: "type",
-            type: DataTypes.INTEGER,
+        // 对话类型
+        chat_type: {
+            field: "chat_type",
+            type: DataTypes.STRING(255),
             allowNull: false,
             defaultValue: 1,
             validate: {
-                isInt: {
-                    msg: "类型必须为数字"
-                }
+                notEmpty: {
+                    msg: "请填入对话类型",
+                },
             }
         },
         // 模型参数

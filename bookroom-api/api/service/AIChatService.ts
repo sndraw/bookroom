@@ -78,22 +78,22 @@ class AIChatService {
 
     // 添加AI对话
     static async addAIChat(params: any) {
-        const { chat_id, platformId, model, type } = params
+        const { chat_id, platformId, model, chat_type } = params
         if (!platformId) {
             throw new Error("平台参数错误");
         }
         if (!model) {
             throw new Error("模型参数错误");
         }
-        if (!type) {
-            throw new Error("类型参数错误");
+        if (!chat_type) {
+            throw new Error("对话类型参数错误");
         }
         const data = {
             id: chat_id || uuidv4(),
             name: params?.name || params?.messages?.[0]?.content?.slice(0, 10) || "未知对话",
             platformId,
             model: model,
-            type: Number(type),
+            chat_type: chat_type,
             prompt: params?.prompt || "",
             parameters: params?.parameters || {},
             messages: params?.messages || [],
@@ -110,21 +110,21 @@ class AIChatService {
 
     // 更新AI对话
     static async updateAIChat(params: any) {
-        const { chat_id, platformId, model, type } = params
+        const { chat_id, platformId, model, chat_type } = params
         if (!platformId) {
             throw new Error("平台参数错误");
         }
         if (!model) {
             throw new Error("模型参数错误");
         }
-        if (!type) {
-            throw new Error("类型参数错误");
+        if (!chat_type) {
+            throw new Error("对话类型参数错误");
         }
         const data = {
             platformId,
             name: params?.name || params?.messages?.[0]?.content?.slice(0, 10) || "未知对话",
             model: model,
-            type: Number(type),
+            chat_type: chat_type,
             prompt: params?.prompt || "",
             parameters: params?.parameters || {},
             messages: params?.messages || [],

@@ -93,7 +93,7 @@ const AgentTaskPage: React.FC = () => {
                     sendPlaceholder: '请输入任务指令以启动新任务',
                     isConvertFile: parameters?.isConvertFile,
                     isFiles: true,
-                    filePrefix: `${agent}/task`,
+                    filePrefix: `agent/${agent}/task`,
                     isVoice: true,
                     voiceParams: parameters?.voiceParams,
                 }

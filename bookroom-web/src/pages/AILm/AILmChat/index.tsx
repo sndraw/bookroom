@@ -13,11 +13,11 @@ import styles from './index.less';
 import { queryAIChatList, saveAIChat } from '@/services/common/ai/chat';
 import { CHAT_TYPE } from '@/common/chat';
 
-const chatType = CHAT_TYPE.CHAT;
+const chat_type = CHAT_TYPE.CHAT;
 
 const AILmChatPage: React.FC = () => {
   const access = useAccess();
-  const { platform, model } = useParams();
+  const { platform="", model="" } = useParams();
   const [parameters, setParameters] = useState<ParametersType>(defaultParameters);
   const [prompt, setPrompt] = useState<string>('');
   const { getPlatformName } = useModel('lmplatformList');
@@ -26,8 +26,8 @@ const AILmChatPage: React.FC = () => {
   const { data, loading, run } = useRequest(
     () =>
       getAILmInfo({
-        platform: platform || '',
-        model: model ? encodeURIComponent(model.trim()) : '',
+        platform: platform,
+        model: encodeURIComponent(model.trim()),
       }),
     {
       manual: true,
@@ -38,9 +38,9 @@ const AILmChatPage: React.FC = () => {
     () =>
       queryAIChatList({
         query_mode: 'search',
-        platform: platform || '',
-        model: model || '',
-        type: chatType,
+        platform: platform,
+        model: model ,
+        chat_type: chat_type,
       }),
     {
       manual: true,
@@ -55,12 +55,12 @@ const AILmChatPage: React.FC = () => {
     ];
     return await AILmChat(
       {
-        platform: platform || '',
-        model: encodeURIComponent(model || ''),
+        platform: platform,
+        model: encodeURIComponent(model ),
         is_stream: parameters?.isStream,
       },
       {
-        model: model || '',
+        model: model ,
         prompt: prompt, // 设置提示信息
         query: messages[messages?.length - 1]
       },
@@ -104,7 +104,7 @@ const AILmChatPage: React.FC = () => {
         {
           isConvertFile: parameters?.isConvertFile,
           isFiles: true,
-          filePrefix: `${platform}/${model}/chat/${chatType}`,
+          filePrefix: `chat/${chat_type}/${platform}/${model}`,
           audioParams: parameters?.audioParams,
           isVoice: true,
           voiceParams: parameters?.voiceParams
@@ -116,7 +116,7 @@ const AILmChatPage: React.FC = () => {
           {
             platform,
             model,
-            type: chatType,
+            chat_type: chat_type,
             parameters,
             prompt,
             messages: messageList
@@ -142,7 +142,7 @@ const AILmChatPage: React.FC = () => {
           <Tag color="default">{parameters?.isMemory ? '记忆模式' : '无记忆模式'}</Tag>
           <ChatParameters
             platform={platform}
-            chatType={chatType}
+            chat_type={chat_type}
             parameters={parameters}
             changeParameters={(newParameters) => {
               // 如果未改变，则不更新参数 */
@@ -154,7 +154,7 @@ const AILmChatPage: React.FC = () => {
                 platform,
                 model,
                 parameters: newParameters,
-                type: chatType,
+                chat_type: chat_type,
               });
             }}
           />
