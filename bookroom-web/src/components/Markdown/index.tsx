@@ -92,17 +92,47 @@ export const MediaRenderer = (params: any) => {
   // 使用组件正常的渲染逻辑
   return <a {...props} target='_blank' rel='noopener noreferrer'>{children}</a>
 };
-
+// 转换消息文档为字符串
+export const formatMessageContent = (msgContent: any) => {
+  let content = "";
+  // 如果content是字符串
+  if (typeof msgContent === "string") {
+    content = msgContent;
+  }
+  // 如果content是数组类型
+  if (Array.isArray(msgContent)) {
+    msgContent.forEach((item, index) => {
+      try {
+        if (index) {
+          content += "\n"
+        }
+        // 如果item是字符串
+        if (typeof item === "string") {
+          content += item;
+          return;
+        }
+        // 如果是type类型是文本类型
+        if (item?.type === "text") {
+          content += item?.text;
+          return;
+        }
+        content += JSON.stringify(item);
+      } catch (e) {
+        console.log(e);
+      }
+    });
+  }
+  return content
+}
 export const MarkdownWithHighlighting = ({
   markdownContent,
 }: {
-  markdownContent: string;
+  markdownContent: any;
 }) => {
   // 内容列表
   const contentList = useMemo(() => {
     const list: any[] = [];
-
-    let result = markdownContent;
+    let result = formatMessageContent(markdownContent);
     // 格式化usage标签
     result = formatUsageTag(result);
     // 检查是否有搜索或思考标签

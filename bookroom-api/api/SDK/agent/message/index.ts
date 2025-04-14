@@ -17,6 +17,7 @@ export interface MessageType {
     images?: any[];
     audios?: any[];
     videos?: any[];
+    files?:any[];
     tool_calls?: Array<any>; // 工具调用数组
     tool_call_id?: string; // 工具调用ID
 }
@@ -37,6 +38,9 @@ export const createUserMessage = (params: MessageType): MessageType => {
     }
     if (params?.videos) {
         message.videos = params.videos;
+    }
+    if (params?.files) {
+        message.files = params.files;
     }
 
     return message;

@@ -80,7 +80,7 @@ const AILmGeneratePage: React.FC = () => {
       });
     }
   }, [chatList?.record]);
-  
+
   // 检查参数是否有效
   if (!platform || !model) {
     return <Page404 title={'非法访问'} />;
@@ -92,8 +92,14 @@ const AILmGeneratePage: React.FC = () => {
       className={styles?.chatContainer}
       disabled={isLoading}
       defaultMessageList={chatList?.record?.messages}
-      isFiles={true}
-      voiceParams={parameters?.voiceParams}
+      sendOptions={
+        {
+          isFiles: false,
+          filePrefix: `${platform}/${model}/chat/${chatType}`,
+          isVoice: true,
+          voiceParams: parameters?.voiceParams,
+        }
+      }
       customRequest={sendMsgRequest}
       saveAIChat={(messageList: any) => {
         saveAIChat(

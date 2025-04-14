@@ -6,6 +6,7 @@ import { DeleteOutlined, RedoOutlined, RobotOutlined } from '@ant-design/icons';
 
 import CopyToClipboard from '@/components/CopyToClipboard';
 import {
+  formatMessageContent,
   MarkdownWithHighlighting,
 } from '@/components/Markdown';
 import TextToSpeech from '@/components/Voice/TextToSpeech';
@@ -67,18 +68,18 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
           >
             <MarkdownWithHighlighting markdownContent={msgObj?.content} />
           </div>
-          {(!loading || (loading && index !== messageList?.length - 1) ) && (
+          {(!loading || (loading && index !== messageList?.length - 1)) && (
             <div className={styles.messageFooter}>
               {/* 语音播放 */}
               <TextToSpeech
                 key={msgObj?.id + '-tts'}
                 speekId={msgObj?.id}
                 content={markdownToText(
-                  getNoTagsContent(msgObj?.content || ''),
+                  getNoTagsContent(formatMessageContent(msgObj?.content)),
                 )}
               />
               {/* 复制 */}
-              <CopyToClipboard content={msgObj?.content || ''} />
+              <CopyToClipboard content={formatMessageContent(msgObj?.content)} />
               {/* 重新生成 */}
               {index === messageList?.length - 1 && handleReAnswer && (
                 <Button

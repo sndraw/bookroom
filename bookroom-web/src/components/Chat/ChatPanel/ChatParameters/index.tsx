@@ -19,6 +19,7 @@ import { CHAT_TYPE } from '@/common/chat';
 export interface ParametersType {
   isStream: boolean;
   isMemory: boolean;
+  isConvertFile: boolean;
   audioParams?: AudioParamsType;
   voiceParams?: API.VoiceParamsType;
   temperature: number;
@@ -34,6 +35,7 @@ export interface ParametersType {
 export const defaultParameters: ParametersType = {
   isStream: true,
   isMemory: true,
+  isConvertFile: true,
   audioParams: undefined,
   voiceParams: undefined,
   temperature: 0.7,
@@ -57,6 +59,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isStream, setIsStream] = useState<boolean>(true);
   const [isMemory, setIsMemory] = useState<boolean>(true);
+  const [isConvertFile, setIsConvertFile] = useState<boolean>(true);
   const [audioParams, setAudioParams] = useState<any>(false);
   const [voiceParams, setVoiceParams] = useState<any>(false);
   const [temperature, setTemperature] = useState<number>(0.7);
@@ -74,6 +77,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
     if (parameters) {
       setIsStream(parameters.isStream);
       setIsMemory(parameters.isMemory);
+      setIsConvertFile(parameters.isConvertFile);
       setAudioParams(parameters.audioParams);
       setVoiceParams(parameters.voiceParams);
       setTemperature(parameters.temperature);
@@ -91,6 +95,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
     const newParameters: ParametersType = {
       isStream,
       isMemory,
+      isConvertFile,
       audioParams,
       voiceParams,
       temperature,
@@ -323,6 +328,26 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
               />
             </Flex>
           </Access>
+          <Flex
+            className={styles.formItem}
+            justify="justifyContent"
+            align="center"
+          >
+            <label className={styles.formLabel}>
+              转换文件
+              <Tooltip title={<>开启后，会在后台将文件转换为文件流传给模型，因此会消耗额外的计算资源。<br />建议在智能助手中将该功能关闭，由智能助手调用工具按需转换，以节省计算资源。</>}>
+                <QuestionCircleOutlined
+                  style={{ marginLeft: 4, color: token.colorLink }}
+                />
+              </Tooltip>
+            </label>
+            <Switch
+              value={isConvertFile}
+              onChange={setIsConvertFile}
+              checkedChildren="启用"
+              unCheckedChildren="禁用"
+            />
+          </Flex>
           <Flex
             className={styles.formItem}
             justify="justifyContent"

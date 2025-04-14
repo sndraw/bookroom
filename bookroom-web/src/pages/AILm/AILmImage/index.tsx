@@ -62,13 +62,17 @@ const AILmImagePage: React.FC = () => {
     <ChatPanel
       className={styles?.chatContainer}
       disabled={isLoading}
-      isImages={true}
-      isFiles={true}
-      isVoice={true}
+      sendOptions={
+        {
+          isFiles: true,
+          filePrefix: `${platform}/${model}/chat/${chatType}`,
+          isVoice: true,
+        }
+      }
       customRequest={sendMsgRequest}
       onSend={() => { }}
       onStop={() => { }}
-      onClear={() => {}}
+      onClear={() => { }}
     >
       <div>
         <Space size={0} wrap className={styles.chatTags}>
