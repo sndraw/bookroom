@@ -91,8 +91,13 @@ const AILmEmbedPage: React.FC = () => {
       disabled={isLoading}
       defaultMessageList={chatList?.record?.messages}
       customRequest={sendMsgRequest}
-      isFiles={true}
-      isVoice={true}
+      sendOptions={
+        {
+          isFiles: true,
+          filePrefix: `${platform}/${model}/chat/${chatType}`,
+          isVoice: true,
+        }
+      }
       saveAIChat={(messageList: any) => {
         saveAIChat(
           {

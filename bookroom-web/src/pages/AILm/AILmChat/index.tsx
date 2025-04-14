@@ -100,11 +100,16 @@ const AILmChatPage: React.FC = () => {
       className={styles?.chatContainer}
       disabled={isLoading}
       defaultMessageList={chatList?.record?.messages}
-      isConvertFile={parameters?.isConvertFile}
-      isFiles={true}
-      isVoice={true}
-      audioParams={parameters?.audioParams}
-      voiceParams={parameters?.voiceParams}
+      sendOptions={
+        {
+          isConvertFile: parameters?.isConvertFile,
+          isFiles: true,
+          filePrefix: `${platform}/${model}/chat/${chatType}`,
+          audioParams: parameters?.audioParams,
+          isVoice: true,
+          voiceParams: parameters?.voiceParams
+        }
+      }
       customRequest={sendMsgRequest}
       saveAIChat={(messageList: any) => {
         saveAIChat(

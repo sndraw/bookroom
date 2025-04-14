@@ -90,14 +90,15 @@ const AgentTaskPage: React.FC = () => {
             className={styles?.pageContainer}
             sendOptions={
                 {
-                    placeholder: '请输入任务指令以启动新任务',
+                    sendPlaceholder: '请输入任务指令以启动新任务',
+                    isConvertFile: parameters?.isConvertFile,
+                    isFiles: true,
+                    filePrefix: `${agent}/task`,
+                    isVoice: true,
+                    voiceParams: parameters?.voiceParams,
                 }
             }
             defaultMessageList={data?.messages}
-            isConvertFile={parameters?.isConvertFile}
-            isFiles={true}
-            isVoice={true}
-            voiceParams={parameters?.voiceParams}
             customRequest={sendMsgRequest}
             saveAIChat={(messages) => {
                 updateAgent({

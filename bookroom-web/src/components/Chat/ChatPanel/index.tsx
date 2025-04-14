@@ -29,18 +29,6 @@ type ChatPanelPropsType = {
   title?: string;
   // 默认消息列表
   defaultMessageList?: ChatMessageType[];
-  // 是否转换文件，默认为true（如果设置为false，则全部由后端工具处理文件格式）
-  isConvertFile?: boolean;
-  // 是否支持文件上传
-  isFiles?: boolean;
-  // 是否支持图片上传
-  isImages?: boolean;
-  // 音频输出参数
-  audioParams?: AudioParamsType;
-  // 是否支持语音识别
-  isVoice?: boolean;
-  // 语音识别参数
-  voiceParams?: API.VoiceParamsType;
   // 请求方法
   customRequest: (data: any, options: any) => Promise<any>;
   // 保存AI聊天记录
@@ -62,18 +50,29 @@ type ChatPanelPropsType = {
   // 子组件
   children?: ReactNode;
   // 额外的发送选项
-  sendOptions?: any;
+  sendOptions?: {
+    // 发送消息的占位符
+    sendPlaceholder?: string;
+    // 是否转换文件，默认为true（如果设置为false，则全部由后端工具处理文件格式）
+    isConvertFile?: boolean;
+    // 是否支持文件上传
+    isFiles?: boolean;
+    // 文件上传前缀
+    filePrefix?: string;
+    // 是否支持图片上传
+    isImages?: boolean;
+    // 音频输出参数
+    audioParams?: AudioParamsType;
+    // 是否支持语音识别
+    isVoice?: boolean;
+    // 语音识别参数
+    voiceParams?: API.VoiceParamsType;
+  };
 };
 const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const {
     title,
     defaultMessageList,
-    isConvertFile = true,
-    isFiles = true,
-    isImages = false,
-    isVoice,
-    audioParams,
-    voiceParams,
     customRequest,
     saveAIChat,
     onSend,
@@ -84,6 +83,17 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
     className,
     sendOptions
   } = props;
+  // 额外的参数
+  const {
+    sendPlaceholder = "请发送一条消息...",
+    isConvertFile = true,
+    isFiles = true,
+    filePrefix = '',
+    isImages = false,
+    isVoice = false,
+    audioParams = {},
+    voiceParams
+  } = sendOptions || {};
   const [messageList, setMessageList] = useState<ChatMessageType[]>([]);
   const [imageList, setImageList] = useState<ImageListType>();
   const [fileList, setFileList] = useState<FileListType>();
@@ -604,6 +614,8 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
                 <div className={styles.inputFiles}>
                   <FileUpload
                     btnType='text'
+                    isAutoOverwrite={true}
+                    prefix={`${filePrefix}`}
                     handleUpload={values => {
                       if (values && values?.objectList?.length > 0) {
                         const newObjectIdList = values?.objectList.map((link: any) => ({
@@ -653,7 +665,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
             )}
             <Form.Item name="msg" className={styles.inputTextAreaItem}>
               <Input.TextArea
-                placeholder={sendOptions?.placeholder || "请发送一条消息..."}
+                placeholder={sendPlaceholder}
                 allowClear={false}
                 className={styles.inputTextArea}
                 onKeyDown={handleKeyDown}
