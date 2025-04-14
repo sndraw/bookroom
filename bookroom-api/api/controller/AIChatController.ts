@@ -11,7 +11,7 @@ class AIChatController extends BaseController {
     const { query_mode = "list", ...query } = ctx.query || {}
     try {
       if (query_mode === "search") {
-        const { platform, model, type } = query || {};
+        const { platform, model, chat_type } = query || {};
         if (!platform || !model) {
           throw new Error("参数错误");
         }
@@ -26,7 +26,7 @@ class AIChatController extends BaseController {
         const result = await AIChatService.findAIChatByParams({
           platformId: platformConfig.id,
           model,
-          type: type ? Number(type) : null,
+          chat_type,
           userId: ctx.userId,
         });
         ctx.status = 200;
@@ -136,15 +136,15 @@ class AIChatController extends BaseController {
           max: "模型长度不能超过255",
         }
       },
-      type: {
-        type: "number",
+      chat_type: {
+        type: "string",
         required: true,
         min: 1,
-        max: 10,
+        max: 50,
         message: {
           required: "类型不能为空",
           min: "模型长度不能小于1",
-          max: "模型长度不能超过10",
+          max: "模型长度不能超过50",
         }
       },
       parameters: {
@@ -175,7 +175,7 @@ class AIChatController extends BaseController {
       ...newParams
     })
     try {
-      const { platform, model, type, ...data } = newParams;
+      const { platform, model, chat_type, ...data } = newParams;
       // 获取平台
       const platformConfig: any = await PlatformService.findPlatformByIdOrName(platform as string, {
         safe: false
@@ -187,14 +187,14 @@ class AIChatController extends BaseController {
       const chat = await AIChatService.findAIChatByParams({
         platformId: platformConfig.id,
         model,
-        type: type ? Number(type) : null,
+        chat_type,
         userId: ctx.userId,
       });
       let name = data?.name || "未知对话";
       // 如果对话消息第一条为字符串，截取前10个字符作为对话名称
       if (typeof data?.messages?.[0]?.content === "string") {
         name = data?.messages?.[0]?.content?.slice(0, 10);
-      } 
+      }
       // 如果对话消息第一条为数组
       if (Array.isArray(data?.messages?.[0]?.content) && data?.messages?.[0]?.content[0]?.text) {
         name = data?.messages?.[0]?.content[0]?.text?.slice(0, 10);
@@ -222,8 +222,8 @@ class AIChatController extends BaseController {
 
       const result = await AIChatService.addAIChat({
         ...data,
-        name: name,
-        type,
+        name,
+        chat_type,
         platformId: platformConfig.id,
         model,
         userId: ctx.userId

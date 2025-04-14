@@ -50,7 +50,7 @@ export const defaultParameters: ParametersType = {
 
 interface ChatParametersProps {
   platform: string;
-  chatType: CHAT_TYPE;
+  chat_type: CHAT_TYPE;
   parameters: ParametersType;
   changeParameters: (parameters: ParametersType) => void;
 }
@@ -71,7 +71,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
   const [maxTokens, setMaxTokens] = useState<number>(4096);
   const [limitSeconds, setLimitSeconds] = useState<number>(30);
   const { token } = useToken();
-  const { chatType, parameters, changeParameters } = props;
+  const { chat_type, parameters, changeParameters } = props;
 
   useEffect(() => {
     if (parameters) {
@@ -305,7 +305,7 @@ const ChatParameters: React.FC<ChatParametersProps> = (props) => {
             <span style={{ marginLeft: 8 }}>{presencePenalty}</span>
           </Flex>
           <Access
-            accessible={chatType === CHAT_TYPE.CHAT}
+            accessible={chat_type === CHAT_TYPE.CHAT}
           >
             <Flex
               className={styles.formItem}

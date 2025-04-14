@@ -87,7 +87,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   const {
     sendPlaceholder = "请发送一条消息...",
     isConvertFile = true,
-    isFiles = true,
+    isFiles = false,
     filePrefix = '',
     isImages = false,
     isVoice = false,
@@ -474,7 +474,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
 
   // 监听input的键盘事件，当Ctrl和enter，提交form
   const handleKeyDown = (e: any) => {
-    if (e.ctrlKey && e.key === 'Enter') {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       form.submit();
       return;
     }

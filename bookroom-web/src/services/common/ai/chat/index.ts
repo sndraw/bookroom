@@ -15,7 +15,7 @@ export async function queryAIChatList(
     /** model */
     model?: string;
     /** type */
-    type?: number; // 类型
+    chat_type?:string; // 类型
   },
   options?: { [key: string]: any },
 ) {

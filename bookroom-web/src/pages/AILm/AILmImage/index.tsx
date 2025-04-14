@@ -7,10 +7,10 @@ import { useEffect, useState } from 'react';
 import styles from './index.less';
 import { CHAT_TYPE } from '@/common/chat';
 
-const chatType = CHAT_TYPE.IMAGE;
+const chat_type = CHAT_TYPE.IMAGE;
 const AILmImagePage: React.FC = () => {
   const access = useAccess();
-  const { platform, model } = useParams();
+  const { platform = "", model = "" } = useParams();
   const [isStream, setIsStream] = useState<boolean>(true);
   const { getPlatformName } = useModel('lmplatformList');
 
@@ -18,8 +18,8 @@ const AILmImagePage: React.FC = () => {
   const { data, loading, run } = useRequest(
     () =>
       getAILmInfo({
-        platform: platform || '',
-        model: model ? encodeURIComponent(model.trim()) : '',
+        platform: platform,
+        model: encodeURIComponent(model.trim()),
       }),
     {
       manual: true,
@@ -33,12 +33,12 @@ const AILmImagePage: React.FC = () => {
 
     return await AILmImage(
       {
-        platform: platform || '',
-        model: encodeURIComponent(model || ''),
+        platform: platform,
+        model: encodeURIComponent(model),
         is_stream: isStream,
       },
       {
-        model: model || '',
+        model: model,
         prompt: prompt,
       },
       {
@@ -65,7 +65,7 @@ const AILmImagePage: React.FC = () => {
       sendOptions={
         {
           isFiles: true,
-          filePrefix: `${platform}/${model}/chat/${chatType}`,
+          filePrefix: `chat/${chat_type}/${platform}/${model}`,
           isVoice: true,
         }
       }

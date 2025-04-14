@@ -9,11 +9,11 @@ import EmbedParameters, { defaultParameters, ParametersType } from '@/components
 import { queryAIChatList, saveAIChat } from '@/services/common/ai/chat';
 import { CHAT_TYPE } from '@/common/chat';
 
-const chatType = CHAT_TYPE.EMBED;
+const chat_type: string = CHAT_TYPE.EMBED;
 
 const AILmEmbedPage: React.FC = () => {
   const access = useAccess();
-  const { platform, model } = useParams();
+  const { platform = "", model = "" } = useParams();
   const [parameters, setParameters] = useState<ParametersType>(defaultParameters);
 
   const { getPlatformName } = useModel('lmplatformList');
@@ -22,8 +22,8 @@ const AILmEmbedPage: React.FC = () => {
   const { data, loading, run } = useRequest(
     () =>
       getAILmInfo({
-        platform: platform || '',
-        model: model ? encodeURIComponent(model.trim()) : '',
+        platform: platform,
+        model: encodeURIComponent(model.trim()),
       }),
     {
       manual: true,
@@ -34,9 +34,9 @@ const AILmEmbedPage: React.FC = () => {
     () =>
       queryAIChatList({
         query_mode: 'search',
-        platform: platform || '',
-        model: model || '',
-        type: chatType,
+        platform: platform,
+        model: model,
+        chat_type: chat_type,
       }),
     {
       manual: true,
@@ -45,16 +45,18 @@ const AILmEmbedPage: React.FC = () => {
   // 发送
   const sendMsgRequest = async (data: any, options: any) => {
     const { messages } = data || {};
-    const input = messages[messages.length - 1]?.content || '';
-
+    let input = messages[messages.length - 1]?.content;
+    if (Array.isArray(messages[messages.length - 1]?.content)) {
+      input = messages[messages.length - 1]?.content?.[0]?.text
+    }
     return await AILmEmbed(
       {
-        platform: platform || '',
-        model: encodeURIComponent(model || ''),
+        platform: platform,
+        model: encodeURIComponent(model),
         is_stream: false,
       },
       {
-        model: model || '',
+        model: model,
         input: [input]
       },
       {
@@ -94,7 +96,7 @@ const AILmEmbedPage: React.FC = () => {
       sendOptions={
         {
           isFiles: true,
-          filePrefix: `${platform}/${model}/chat/${chatType}`,
+          filePrefix: `chat/${chat_type}/${platform}/${model}`,
           isVoice: true,
         }
       }
@@ -103,7 +105,7 @@ const AILmEmbedPage: React.FC = () => {
           {
             platform,
             model,
-            type: chatType,
+            chat_type: chat_type,
             parameters,
             messages: messageList
           })
@@ -139,7 +141,7 @@ const AILmEmbedPage: React.FC = () => {
                 platform,
                 model,
                 parameters: newParameters,
-                type: chatType,
+                chat_type: chat_type,
               });
             }}
           />

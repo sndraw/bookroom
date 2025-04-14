@@ -11,6 +11,7 @@ import LightragAPI from "@/SDK/lightrag";
 import { GRAPH_WORKSPACE_RULE } from "@/common/rule";
 import path from "path";
 import { PLATFORM_TYPE_MAP } from "@/common/platform";
+import { CHAT_TYPE } from "@/common/chat";
 
 
 // 多工作空间AI图谱
@@ -1209,7 +1210,7 @@ class AIGraphController extends BaseController {
                 AIChatLogService.addAIChatLog({
                     platform: graph,
                     model: `${PLATFORM_TYPE_MAP.graph.value} | ${workspace}`,
-                    type: 1,
+                    chat_type: CHAT_TYPE.GRAPH,
                     input: JSON.stringify(queryParams, null, 2), // 将请求参数转换为JSON字符串
                     output: responseText || '', // 确保响应文本不为空字符串
                     userId: ctx?.userId, // 假设ctx中包含用户ID

@@ -9,6 +9,7 @@ import LlmModel from "@/models/LlmModel";
 import { getOrderArray } from "@/utils/query";
 import AIChatService from "./AIChatService";
 import { createSystemMessage, createUserMessage, handleHistoryMessages, MessageArray } from "@/SDK/agent/message";
+import { CHAT_TYPE } from "@/common/chat";
 
 
 class AILmService {
@@ -391,7 +392,7 @@ class AILmService {
         const chat = await AIChatService.findAIChatByParams({
             platformId: platformConfig.id,
             model,
-            type: 1,
+            chat_type: CHAT_TYPE.CHAT,
             userId
         });
         const chatObj = chat?.toJSON() || {};
@@ -494,7 +495,7 @@ class AILmService {
         const chat = await AIChatService.findAIChatByParams({
             platformId: platformConfig.id,
             model,
-            type: 2,
+            chat_type: CHAT_TYPE.GENERATE,
             userId
         });
         const {
@@ -592,7 +593,7 @@ class AILmService {
         const chat = await AIChatService.findAIChatByParams({
             platformId: platformConfig.id,
             model,
-            type: 3,
+            chat_type: CHAT_TYPE.EMBED,
             userId
         });
         const {
@@ -651,7 +652,7 @@ class AILmService {
         const chat = await AIChatService.findAIChatByParams({
             platformId: platformConfig.id,
             model,
-            type: 4,
+            chat_type: CHAT_TYPE.IMAGE,
             userId
         });
         const {

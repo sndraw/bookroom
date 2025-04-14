@@ -559,7 +559,7 @@ class AILmController extends BaseController {
           chat_id: newParams?.chat_id,
           platform,
           model,
-          type: CHAT_TYPE.CHAT,
+          chat_type: CHAT_TYPE.CHAT,
           input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
@@ -679,7 +679,7 @@ class AILmController extends BaseController {
           chat_id: newParams?.chat_id,
           platform,
           model,
-          type: CHAT_TYPE.GENERATE,
+          chat_type: CHAT_TYPE.GENERATE,
           input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
@@ -789,7 +789,7 @@ class AILmController extends BaseController {
           chat_id: newParams?.chat_id,
           platform,
           model,
-          type: CHAT_TYPE.EMBED,
+          chat_type: CHAT_TYPE.EMBED,
           input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
@@ -886,7 +886,7 @@ class AILmController extends BaseController {
           chat_id: newParams?.chat_id,
           platform,
           model,
-          type: CHAT_TYPE.IMAGE,
+          chat_type: CHAT_TYPE.IMAGE,
           input: JSON.stringify(params, null, 2), // 将请求参数转换为JSON字符串
           output: responseText || '', // 确保响应文本不为空字符串
           userId: ctx?.userId, // 假设ctx中包含用户ID
