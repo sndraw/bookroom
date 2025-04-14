@@ -190,13 +190,23 @@ class AIChatController extends BaseController {
         type: type ? Number(type) : null,
         userId: ctx.userId,
       });
+      let name = data?.name || "未知对话";
+      // 如果对话消息第一条为字符串，截取前10个字符作为对话名称
+      if (typeof data?.messages?.[0]?.content === "string") {
+        name = data?.messages?.[0]?.content?.slice(0, 10);
+      } 
+      // 如果对话消息第一条为数组
+      if (Array.isArray(data?.messages?.[0]?.content) && data?.messages?.[0]?.content[0]?.text) {
+        name = data?.messages?.[0]?.content[0]?.text?.slice(0, 10);
+      }
       if (chat) {
         if (chat.getDataValue('userId') !== ctx.userId) {
           throw new Error("无权限修改该对话");
         }
+
         chat.setAttributes({
           ...data,
-          name: data?.name || data?.messages?.[0]?.content?.slice(0, 10) || "未知对话",
+          name: name,
           platformId: platformConfig.id,
           model,
           userId: ctx.userId,
@@ -209,8 +219,10 @@ class AIChatController extends BaseController {
         });
         return;
       }
+
       const result = await AIChatService.addAIChat({
         ...data,
+        name: name,
         type,
         platformId: platformConfig.id,
         model,
