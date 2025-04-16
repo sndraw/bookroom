@@ -185,6 +185,29 @@ export const MarkdownWithHighlighting = ({
           endTitle: '已完成深度思考',
         });
       }
+      // 如果都没有搜索或思考的起始标签，证明只有结束标签，则特殊处理
+      if (firstSearchIndex === -1 && firstThinkIndex === -1) {
+        // 如果只有搜索结束标签，则特殊处理
+        const searchRegex = /<\/search>/g;
+        if (searchRegex.test(result)) {
+          formatedObj = formatMarkDownContent(result, {
+            startTag: '<search>',
+            endTag: '</search>',
+            startTitle: '正在深度搜索...',
+            endTitle: '已完成深度搜索',
+          });
+        }
+        const thinkRegex = /<\/think>/g;
+        if (thinkRegex.test(result)) {
+          // 如果只有思考结束标签，则特殊处理
+          formatedObj = formatMarkDownContent(result, {
+            startTag: '<think>',
+            endTag: '</think>',
+            startTitle: '正在深度思考...',
+            endTitle: '已完成深度思考',
+          });
+        }
+      }
       // 如果formatedObj不为空，且有搜索结果
       if (formatedObj && formatedObj?.search) {
         list.push({

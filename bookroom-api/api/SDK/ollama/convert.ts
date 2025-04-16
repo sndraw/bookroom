@@ -44,9 +44,25 @@ export const convertMessagesToVLModelInput = async (params: {
     }
     const newMessages = JSON.parse(JSON.stringify(messages));
     for (const message of newMessages) {
-        if (message.images && Array.isArray(message.images)) {
-            for (let i = 0; i < message.images.length; i++) {
-                const fileId = message.images[i];
+        const { content, images } = message || {};
+        if (Array.isArray(content)) {
+            let newContent = "";
+            //    循环获取聊天内容
+            for (const item of content) {
+            //   如果是字符串，直接添加到newContent中
+               if (typeof item === "string") {
+                    newContent += item;
+                }
+                // 如果是对象，检查是否有text属性，如果有则添加到newContent中
+                else if (item && typeof item === "object" && item.text) {
+                    newContent += item.text;
+                }
+            }
+            message.content = newContent;
+        }
+        if (images && Array.isArray(images)) {
+            for (let i = 0; i < images.length; i++) {
+                const fileId = images[i];
                 if (typeof fileId === "string") {
                     const objectName = getObjectName(fileId, userId);
                     try {
