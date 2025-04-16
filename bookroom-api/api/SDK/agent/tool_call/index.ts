@@ -343,7 +343,6 @@ class ToolCallApi {
                 noThink: true,
                 noUsage: true
             });
-            console.log(JSON.stringify(messages));
             this.think.log("\-\-\-", "\n\n")
             this.think.log("Agent提示词：", "\n\n");
             this.think.log(formattedPrompt, "\n\n");
