@@ -80,7 +80,7 @@ class WeatherTool {
                 data = {
                     ifError: true,
                     code: 404,
-                    message: "API暂不支持。",
+                    message: `${code}接口类型暂不支持`,
                 }
                 break;
         }

@@ -24,10 +24,10 @@ export const FileActionMap = {
     //     value: "getObjectStream",
     //     text: "获取对象流接口"
     // },
-    fPutObject: {
-        value: "fPutObject",
-        text: "直接上传文件接口"
-    },
+    // fPutObject: {
+    //     value: "fPutObject",
+    //     text: "直接上传文件接口"
+    // },
     // putObjectStream: {
     //     value: "putObjectStream",
     //     text: "上传对象流接口"
@@ -49,7 +49,7 @@ class FileTool {
     public name = "file_tool";
     public version = "1.0";
     public description = `
-    API for file storage  | 存储引擎 | 可以通过该API进行文件上传与下载。\n
+    API for file storage  | 文件存储工具 | 可以通过该工具进行文件上传与下载。\n
     以下格式请严格遵循，否则可能会导致上传失败或无法访问文件。\n
     随机文件名格式: <文件名称_当前时间戳>.<文件后缀> \n
     固定文件名格式：<文件名称>.<文件后缀> \n
@@ -119,36 +119,36 @@ class FileTool {
                         fileData: result?.dataStr || "",
                     }
                     break;
-                case FileActionMap.fPutObject.value:
-                    if (!objectId) {
-                        throw new Error("文件上传错误：缺少文件名/对象ID参数");
-                    }
-                    objectName = getObjectName(objectId, userId)
-                    // 判定文件是否存在
-                    if (filePath) {
-                        // 上传文件
-                        const result: any = await fileClient.fPutObject(
-                            {
-                                objectName: objectName,
-                                filePath: filePath,
-                                metaData: {
-                                    'Content-Type': mimetype || "application/octet-stream"
-                                }
-                            }
-                        );
-                        data = {
-                            isError: false,
-                            message: "文件上传成功",
-                            content: result,
-                            objectId: result?.objectId || ""
-                        }
-                    } else {
-                        data = {
-                            isError: true,
-                            message: "文件路径不能为空"
-                        }
-                    }
-                    break;
+                // case FileActionMap.fPutObject.value:
+                //     if (!objectId) {
+                //         throw new Error("文件上传错误：缺少文件名/对象ID参数");
+                //     }
+                //     objectName = getObjectName(objectId, userId)
+                //     // 判定文件是否存在
+                //     if (filePath) {
+                //         // 上传文件
+                //         result = await fileClient.fPutObject(
+                //             {
+                //                 objectName: objectName,
+                //                 filePath: filePath,
+                //                 metaData: {
+                //                     'Content-Type': mimetype || "application/octet-stream"
+                //                 }
+                //             }
+                //         );
+                //         data = {
+                //             isError: false,
+                //             message: "文件上传成功",
+                //             content: result,
+                //             objectId: result?.objectId || ""
+                //         }
+                //     } else {
+                //         data = {
+                //             isError: true,
+                //             message: "文件路径不能为空"
+                //         }
+                //     }
+                //     break;
                 case FileActionMap.presignedGetObject.value:
                     if (!objectId) {
                         throw new Error("预签名下载地址获取错误：缺少文件名/对象ID参数");
@@ -185,7 +185,7 @@ class FileTool {
                     data = {
                         isError: true,
                         code: 404,
-                        message: "API暂不支持。",
+                        message: `${action}操作类型暂不支持`,
                     }
             }
         } catch (error: any) {
