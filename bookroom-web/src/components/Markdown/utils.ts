@@ -63,8 +63,12 @@ export const formatMarkDownContent = (content: string, options?: any) => {
     let tempResult = content; // 临时结果
     tempResult = tempResult.replace(`${startTag}${delimiter}${endTag}`, '');
     // 处理搜索
-    if (tempResult.indexOf(startTag) !== -1) {
-      startIndex = tempResult.indexOf(startTag);
+    startIndex = tempResult.indexOf(startTag);
+    if (startIndex !== -1 || (startIndex === -1 && tempResult.indexOf(endTag) !== -1)) {
+      // 如果只有结束标签，则特殊处理
+      if (tempResult.indexOf(endTag) === -1) {
+        startIndex = 0;
+      }
       endIndex = tempResult.indexOf(endTag, startIndex);
       before = tempResult.substring(0, startIndex);
       if (endIndex === -1) {
