@@ -124,6 +124,21 @@ export const formatMessageContent = (msgContent: any) => {
   }
   return content
 }
+
+const SEARCH_TAG_CONFIG = {
+  startTag: '<search>',
+  endTag: '</search>',
+  startTitle: '正在深度搜索...',
+  endTitle: '已完成深度搜索',
+}
+
+const THINK_TAG_CONFIG = {
+  startTag: '<think>',
+  endTag: '</think>',
+  startTitle: '正在深度思考...',
+  endTitle: '已完成深度思考',
+};
+
 export const MarkdownWithHighlighting = ({
   markdownContent,
 }: {
@@ -142,85 +157,47 @@ export const MarkdownWithHighlighting = ({
     };
     // 处理搜索和思考标签
     while (result && hasSearchOrThinkTags(result)) {
-      // 存储原内容，用于对比，防止无限循环
       const prevResult = result;
-      // 定义格式化内容对象
-      let formatedObj: any = null;
-      // 如果有<search>或<think>标签，则进行处理
-      // <search>或<think>标签的处理逻辑，哪个标签先处理哪个标签
-      const firstSearchIndex = result.indexOf('<search>');
-      const firstThinkIndex = result.indexOf('<think>');
-      if (firstSearchIndex !== -1 && firstThinkIndex !== -1) {
-        if (firstSearchIndex < firstThinkIndex) {
-          formatedObj = formatMarkDownContent(result, {
-            startTag: '<search>',
-            endTag: '</search>',
-            startTitle: '正在深度搜索...',
-            endTitle: '已完成深度搜索',
-          });
-
-        }
-        if (firstSearchIndex > firstThinkIndex) {
-          formatedObj = formatMarkDownContent(result, {
-            startTag: '<think>',
-            endTag: '</think>',
-            startTitle: '正在深度思考...',
-            endTitle: '已完成深度思考',
-          });
-        }
+      
+      // 确定要处理的第一个标签类型
+      const searchStart = result.indexOf('<search>');
+      const thinkStart = result.indexOf('<think>');
+      
+      let config: any = null;
+    
+      if (searchStart !== -1 && thinkStart !== -1) {
+        config = searchStart < thinkStart ? SEARCH_TAG_CONFIG : THINK_TAG_CONFIG;
+      } else if (searchStart !== -1) {
+        config = SEARCH_TAG_CONFIG;
+      } else if (thinkStart !== -1) {
+        config = THINK_TAG_CONFIG;
       }
-      if (firstSearchIndex !== -1 && firstThinkIndex === -1) {
-        formatedObj = formatMarkDownContent(result, {
-          startTag: '<search>',
-          endTag: '</search>',
-          startTitle: '正在深度搜索...',
-          endTitle: '已完成深度搜索',
-        });
+    
+      // 处理无起始标签的情况
+      if (!config && (/<\/search>|<\/think>/).test(result)) {
+        const searchEndMatch = result.match(/<\/search>/);
+        const thinkEndMatch = result.match(/<\/think>/);
+        
+        config = searchEndMatch ? SEARCH_TAG_CONFIG : 
+                 thinkEndMatch ? THINK_TAG_CONFIG : null;
       }
-      if (firstSearchIndex === -1 && firstThinkIndex !== -1) {
-        formatedObj = formatMarkDownContent(result, {
-          startTag: '<think>',
-          endTag: '</think>',
-          startTitle: '正在深度思考...',
-          endTitle: '已完成深度思考',
-        });
-      }
-      // 如果都没有搜索或思考的起始标签，证明只有结束标签，则特殊处理
-      if (firstSearchIndex === -1 && firstThinkIndex === -1) {
-        // 如果只有搜索结束标签，则特殊处理
-        const searchRegex = /<\/search>/g;
-        if (searchRegex.test(result)) {
-          formatedObj = formatMarkDownContent(result, {
-            startTag: '<search>',
-            endTag: '</search>',
-            startTitle: '正在深度搜索...',
-            endTitle: '已完成深度搜索',
+    
+      if (config) {
+        const formattedResult = formatMarkDownContent(result, config);
+        
+        if (formattedResult.search) {
+          list.push({
+            before: formattedResult.before,
+            title: formattedResult.title,
+            search: formattedResult.search,
+            done: !!formattedResult?.result,
           });
-        }
-        const thinkRegex = /<\/think>/g;
-        if (thinkRegex.test(result)) {
-          // 如果只有思考结束标签，则特殊处理
-          formatedObj = formatMarkDownContent(result, {
-            startTag: '<think>',
-            endTag: '</think>',
-            startTitle: '正在深度思考...',
-            endTitle: '已完成深度思考',
-          });
+          result = formattedResult.result || '';
+        } else {
+          result = formattedResult.result || '';
         }
       }
-      // 如果formatedObj不为空，且有搜索结果
-      if (formatedObj && formatedObj?.search) {
-        list.push({
-          before: formatedObj?.before,
-          title: formatedObj?.title,
-          search: formatedObj?.search,
-          done: !!formatedObj?.result,
-        });
-        result = formatedObj?.result || ''
-      } else {
-        result = formatedObj?.result || ''
-      }
-      // 如果内容一致，表明内部逻辑出问题
+    
       if (result === prevResult) {
         break;
       }

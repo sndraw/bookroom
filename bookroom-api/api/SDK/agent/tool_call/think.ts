@@ -68,7 +68,7 @@ class Think {
             return;
         }
         if (!this.searching) {
-            const searchStartTag = "<search>\n\n";
+            const searchStartTag = "\n\n<search>\n\n";
             this.push(searchStartTag);
             this.searching = true;
         }

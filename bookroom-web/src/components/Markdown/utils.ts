@@ -64,11 +64,7 @@ export const formatMarkDownContent = (content: string, options?: any) => {
     tempResult = tempResult.replace(`${startTag}${delimiter}${endTag}`, '');
     // 处理搜索
     startIndex = tempResult.indexOf(startTag);
-    if (startIndex !== -1 || (startIndex === -1 && tempResult.indexOf(endTag) !== -1)) {
-      // 如果只有结束标签，则特殊处理
-      if (tempResult.indexOf(endTag) === -1) {
-        startIndex = 0;
-      }
+    if (startIndex !== -1) {
       endIndex = tempResult.indexOf(endTag, startIndex);
       before = tempResult.substring(0, startIndex);
       if (endIndex === -1) {
@@ -83,6 +79,11 @@ export const formatMarkDownContent = (content: string, options?: any) => {
         result = tempResult.substring(endIndex + endTag.length);
       }
     } else {
+      // 如果只有一个结束标签，则去掉结束标签
+      if (tempResult.includes(endTag)) {
+        tempResult = tempResult.replace(endTag, `\n\n---${endTitle}---\n\n`);
+      }
+
       result = tempResult;
     }
   } else {

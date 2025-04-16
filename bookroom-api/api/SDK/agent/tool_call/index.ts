@@ -179,10 +179,11 @@ class ToolCallApi {
         while (!countObj.finished) {
             if (countObj.step >= limitSteps) {
                 countObj.finished = true;
-                this.think.output("当前步骤：", countObj.step + 1, "\n\n");
+                this.think.output("限制步骤：", limitSteps, " | ", "当前步骤：", countObj.step + 1, "\n\n");
                 this.think.output('步骤超出限制，终止循环。', "\n\n");
                 if (countObj?.content) {
-                    this.think.output('当前内容：', countObj.content, "\n\n");
+                    this.think.output('当前内容：', "\n\n");
+                    this.think.output("\`", countObj.content, "\`\n\n");
                 }
                 break;
             }
