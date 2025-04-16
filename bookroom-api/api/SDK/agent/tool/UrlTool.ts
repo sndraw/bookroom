@@ -59,8 +59,8 @@ class UrlTool {
     async execute(params: UrlInput): Promise<any> {
         const { file, mimetype, uploadUrl, downloadUrl, stream, timeout } = params;
         const { host, apiKey, code, parameters = {}, userId } = this.config;
-        uploadUrl && logger.info(`执行URL操作，上传地址：${uploadUrl }`);
-        downloadUrl && logger.info(`执行URL操作，下载地址：${downloadUrl }`);
+        uploadUrl && logger.info(`执行URL操作，上传地址：${uploadUrl}`);
+        downloadUrl && logger.info(`执行URL操作，下载地址：${downloadUrl}`);
         let data: any = null;
         try {
             let result = null;
@@ -71,9 +71,12 @@ class UrlTool {
                 let fileData: any = file;
                 // 判定文件是否base64编码
                 if (typeof file === 'string') {
-                    const base64Data = file?.split(',')?.[1];
+                    const base64Data = file?.split('base64,')?.[1];
                     if (base64Data) {
                         fileData = Buffer.from(base64Data, 'base64'); // 解码为二进制数据
+                    } else {
+                        //   如果不是base64编码，则转换为Blob对象,utf8编码
+                        fileData = new Blob([file], { type: mimetype || 'application/octet-stream' });
                     }
                 }
                 const contentType = mimetype || (file instanceof Blob ? file.type : 'application/octet-stream');

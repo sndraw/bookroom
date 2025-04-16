@@ -13,6 +13,7 @@ import AgentTool from '@/SDK/agent/tool/AgentTool';
 import TimeTool from '@/SDK/agent/tool/TimeTool';
 import UrlTool from '@/SDK/agent/tool/UrlTool';
 import FileTool from '@/SDK/agent/tool/FileTool';
+import SqliteDBTool from '@/SDK/agent/tool/SqliteDBTool';
 
 class AgentService {
 
@@ -261,6 +262,8 @@ class AgentService {
             if(storageEngine){
                 tools.push(new FileTool({ userId }));
                 tools.push(new UrlTool());
+                tools.push(new SqliteDBTool({ userId }));
+
             }
             // 工具调用API配置
             const toolcallApiOps = { ...lmPlatformConfig?.toJSON(), limitSeconds }
@@ -283,7 +286,7 @@ class AgentService {
             return result;
         } catch (e: any) {
             const errorMsg = `处理问题时出错: ${e.message}`;
-            think.log(errorMsg);
+            think.output(errorMsg);
             // 结束思考
             think.end();
             return errorMsg;
