@@ -12,3 +12,4 @@ mock
 .git
 *.test.ts
 *.test.js
+pnpm-lock.yaml
