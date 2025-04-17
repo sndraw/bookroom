@@ -65,7 +65,7 @@ const AILmImagePage: React.FC = () => {
       sendOptions={
         {
           isFiles: true,
-          filePrefix: `chat/${chat_type}/${platform}/${model}`,
+          filePrefix: `lm/${chat_type}/${platform}/${model}`,
           isVoice: true,
         }
       }

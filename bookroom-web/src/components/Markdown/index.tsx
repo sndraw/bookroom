@@ -8,7 +8,7 @@ import remarkGfm from 'remark-gfm'
 import rehypeReact from 'rehype-react'
 import remarkMath from 'remark-math'
 import MediaPreview from '../MediaPreview';
-import { isMediaObjectId } from '@/utils/file';
+import { isUrl } from '@/utils/file';
 import DotChart, { isValidGraphDotCode } from './DotChart';
 import { formatMarkDownContent, formatUsageTag } from './utils';
 import MermaidChart, { isValidGraphMermaidCode } from './MermaidChart';
@@ -85,11 +85,11 @@ export const CodeRenderer = (params: any) => {
 export const MediaRenderer = (params: any) => {
   const { children, ...props } = params || {};
 
-  // 判定是否为媒体对象
-  if (isMediaObjectId(props.href)) {
-    return <MediaPreview className={styles.mediaPreview} href={props.href} />;
+  // 如果不是完整的url，则使用MediaPreview组件渲染
+  if (!isUrl(props.href)) {
+    return <MediaPreview className={styles.mediaPreview} href={props.href} filePreview={true}/>;
   }
-  // 使用组件正常的渲染逻辑
+  // 默认渲染逻辑
   return <a {...props} target='_blank' rel='noopener noreferrer'>{children}</a>
 };
 // 转换消息文档为字符串
@@ -158,13 +158,13 @@ export const MarkdownWithHighlighting = ({
     // 处理搜索和思考标签
     while (result && hasSearchOrThinkTags(result)) {
       const prevResult = result;
-      
+
       // 确定要处理的第一个标签类型
       const searchStart = result.indexOf('<search>');
       const thinkStart = result.indexOf('<think>');
-      
+
       let config: any = null;
-    
+
       if (searchStart !== -1 && thinkStart !== -1) {
         config = searchStart < thinkStart ? SEARCH_TAG_CONFIG : THINK_TAG_CONFIG;
       } else if (searchStart !== -1) {
@@ -172,19 +172,19 @@ export const MarkdownWithHighlighting = ({
       } else if (thinkStart !== -1) {
         config = THINK_TAG_CONFIG;
       }
-    
+
       // 处理无起始标签的情况
       if (!config && (/<\/search>|<\/think>/).test(result)) {
         const searchEndMatch = result.match(/<\/search>/);
         const thinkEndMatch = result.match(/<\/think>/);
-        
-        config = searchEndMatch ? SEARCH_TAG_CONFIG : 
-                 thinkEndMatch ? THINK_TAG_CONFIG : null;
+
+        config = searchEndMatch ? SEARCH_TAG_CONFIG :
+          thinkEndMatch ? THINK_TAG_CONFIG : null;
       }
-    
+
       if (config) {
         const formattedResult = formatMarkDownContent(result, config);
-        
+
         if (formattedResult.search) {
           list.push({
             before: formattedResult.before,
@@ -197,7 +197,7 @@ export const MarkdownWithHighlighting = ({
           result = formattedResult.result || '';
         }
       }
-    
+
       if (result === prevResult) {
         break;
       }

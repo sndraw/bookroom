@@ -401,6 +401,7 @@ class AILmService {
         const {
             isStream,
             isMemory,
+            isConvertFile,
             temperature,
             topK,
             topP,
@@ -455,6 +456,7 @@ class AILmService {
                     model: model,
                     messages: messages,
                     is_stream: isStream,
+                    isConvertFile,
                     temperature,
                     top_k: topK,
                     top_p: topP,
@@ -500,6 +502,7 @@ class AILmService {
         });
         const {
             isStream,
+            isConvertFile,
             temperature,
             topK,
             topP,
@@ -548,6 +551,7 @@ class AILmService {
                 }).getAILmChat({
                     model,
                     messages,
+                    isConvertFile,
                     is_stream: isStream,
                     temperature,
                     top_k: topK,

@@ -91,7 +91,6 @@ const AgentTaskPage: React.FC = () => {
             sendOptions={
                 {
                     sendPlaceholder: '请输入任务指令以启动新任务',
-                    isConvertFile: parameters?.isConvertFile,
                     isFiles: true,
                     filePrefix: `agent/${agent}/task`,
                     isVoice: true,
