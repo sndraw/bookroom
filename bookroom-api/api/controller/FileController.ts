@@ -98,8 +98,9 @@ class FileController extends BaseController {
                 if (!file) {
                     throw new Error("文件为空");
                 }
-
-                if (!UPLOAD_FILE_TYPE?.includes(file?.mimetype)) {
+                // 获取文件名后缀
+                const fileExtension = path.extname(file.originalFilename).toLowerCase();
+                if (!UPLOAD_FILE_TYPE?.includes(fileExtension)) {
                     throw new Error(`不支持的文件类型: ${file?.originalFilename}`);
                 }
                 // 判定file大小

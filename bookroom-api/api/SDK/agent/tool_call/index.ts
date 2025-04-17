@@ -298,6 +298,7 @@ class ToolCallApi {
             prompt,
             query,
             isMemory,
+            isConvertFile,
             userId
         } = params
         // 工具和响应解析
@@ -340,6 +341,7 @@ class ToolCallApi {
             messages = await convertMessagesToVLModelInput({
                 messages,
                 userId,
+                isConvertFile,
                 noSearch: true,
                 noThink: true,
                 noUsage: true

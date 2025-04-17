@@ -97,6 +97,7 @@ class OpenAIAPI {
             model,
             messages,
             is_stream = true,
+            isConvertFile=true,
             temperature = 0.7,
             top_k = 10,
             top_p = 0.8,
@@ -113,6 +114,7 @@ class OpenAIAPI {
             // 定义新的消息列表
             const newMessageList = await convertMessagesToVLModelInput({
                 messages,
+                isConvertFile,
                 userId
             });
 

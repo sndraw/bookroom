@@ -102,9 +102,8 @@ const AILmChatPage: React.FC = () => {
       defaultMessageList={chatList?.record?.messages}
       sendOptions={
         {
-          isConvertFile: parameters?.isConvertFile,
           isFiles: true,
-          filePrefix: `chat/${chat_type}/${platform}/${model}`,
+          filePrefix: `lm/${chat_type}/${platform}/${model}`,
           audioParams: parameters?.audioParams,
           isVoice: true,
           voiceParams: parameters?.voiceParams

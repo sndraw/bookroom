@@ -53,8 +53,6 @@ type ChatPanelPropsType = {
   sendOptions?: {
     // 发送消息的占位符
     sendPlaceholder?: string;
-    // 是否转换文件，默认为true（如果设置为false，则全部由后端工具处理文件格式）
-    isConvertFile?: boolean;
     // 是否支持文件上传
     isFiles?: boolean;
     // 文件上传前缀
@@ -86,7 +84,6 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
   // 额外的参数
   const {
     sendPlaceholder = "请发送一条消息...",
-    isConvertFile = true,
     isFiles = false,
     filePrefix = '',
     isImages = false,
@@ -338,41 +335,24 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
       createdAt: new Date(),
     };
     if (isFiles && fileList?.objectList?.length) {
-      // 如果开启文件转换功能
-      if (isConvertFile) {
-        newMessage.images = fileList?.objectList?.filter(item => {
-          return isImage(item.objectId)
-        }).map(item => item.objectId);
-        newMessage.audios = fileList?.objectList?.filter(item => {
-          return isAudio(item.objectId)
-        }).map(item => item.objectId);
-        newMessage.videos = fileList?.objectList?.filter(item => {
-          return isVideo(item.objectId)
-        }).map(item => item.objectId);
-        newMessage.files = fileList?.objectList?.filter(item => {
-          return !isMediaObjectId(item.objectId)
-        }).map(item => {
-          return {
-            id: item?.id,
-            name: item?.name || item?.id,
-            objectId: item.objectId || item?.id,
-          }
-        });
-      } else {
-        // fileList?.objectList?.forEach(item => {
-        //   newMessage.content.push({
-        //     type: "text",
-        //     text: `[${item?.name || item?.id}](${item?.objectId || item?.id})`
-        //   })
-        // })
-        newMessage.files = fileList?.objectList?.map(item => {
-          return {
-            id: item?.id,
-            name: item?.name || item?.id,
-            objectId: item.objectId || item?.id,
-          }
-        })
-      }
+      newMessage.images = fileList?.objectList?.filter(item => {
+        return isImage(item.objectId)
+      }).map(item => item.objectId);
+      newMessage.audios = fileList?.objectList?.filter(item => {
+        return isAudio(item.objectId)
+      }).map(item => item.objectId);
+      newMessage.videos = fileList?.objectList?.filter(item => {
+        return isVideo(item.objectId)
+      }).map(item => item.objectId);
+      newMessage.files = fileList?.objectList?.filter(item => {
+        return !isMediaObjectId(item.objectId)
+      }).map(item => {
+        return {
+          id: item?.id,
+          name: item?.name || item?.id,
+          objectId: item.objectId || item?.id,
+        }
+      });
       setFileList(undefined);
     }
     // 如果是图片上传

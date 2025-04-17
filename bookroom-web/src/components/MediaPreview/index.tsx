@@ -9,14 +9,20 @@ import styles from './index.less';
 interface Props {
     href: string;
     className?: string;
+    // 是否预览文件
+    filePreview?: boolean;
 }
 
-const MediaPreview: React.FC<Props> = ({ href, className }) => {
+const MediaPreview: React.FC<Props> = ({ href, className, filePreview }) => {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchPreviewUrl = async () => {
+            // 如果href不是字符串
+            if (typeof href !== 'string') {
+                return;
+            }
             try {
                 setLoading(true);
                 // 如果是https/http开头的链接，直接使用href作为预览地址
@@ -40,7 +46,8 @@ const MediaPreview: React.FC<Props> = ({ href, className }) => {
 
         fetchPreviewUrl();
     }, [href]);
-
+    // 截取文件名
+    const fileName = href?.split('/').pop() || '';
     if (loading) {
         return <div className={classNames(styles.mediaPreview, className)}>Loading...</div>; // 或者显示一个加载中的占位符
     }
@@ -50,7 +57,7 @@ const MediaPreview: React.FC<Props> = ({ href, className }) => {
 
     if (isAudio(href)) {
         return (
-            <audio className={classNames(styles.mediaPreview, className)} controls key={href}>
+            <audio title={fileName} className={classNames(styles.mediaPreview, className)} controls key={href}>
                 <source src={previewUrl} type="audio/mpeg" />
                 Your browser does not support the audio element.
             </audio>
@@ -58,7 +65,7 @@ const MediaPreview: React.FC<Props> = ({ href, className }) => {
     }
     if (isVideo(href)) {
         return (
-            <video className={classNames(styles.mediaPreview, className)} controls key={href}>
+            <video title={fileName} className={classNames(styles.mediaPreview, className)} controls key={href}>
                 <source src={previewUrl} type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
@@ -67,11 +74,25 @@ const MediaPreview: React.FC<Props> = ({ href, className }) => {
     if (isImage(href)) {
         return (
             <Image
-                className={classNames(styles.mediaPreview, styles.imagePreview,className)}
+                title={fileName}
+                className={classNames(styles.mediaPreview, styles.imagePreview, className)}
                 src={previewUrl}
                 key={href}
             />)
     }
+    if (filePreview) {
+        return (
+            <a href={previewUrl}
+                title={fileName}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={classNames(styles.mediaPreview, styles.filePreview, className)}>
+                <FileOutlined className={styles.fileIcon} />
+                <span className={styles.fileName}>{fileName}</span>
+            </a>
+        );
+    }
+
 
     return (
         <FileOutlined className={classNames(styles.mediaPreview, className)} />

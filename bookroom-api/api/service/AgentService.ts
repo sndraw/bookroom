@@ -176,7 +176,20 @@ class AgentService {
             if (!parameters) {
                 throw new Error("智能助手参数配置错误");
             }
-            const { prompt, isMemory, audioParams, storageEngine, limitSteps, limitSeconds, maxTokens, searchEngine, weatherEngine, modelConfig, graphConfig, agentSDK } = parameters;
+            const { prompt,
+                isMemory,
+                isConvertFile,
+                audioParams,
+                storageEngine,
+                limitSteps,
+                limitSeconds,
+                maxTokens,
+                searchEngine,
+                weatherEngine,
+                modelConfig,
+                graphConfig,
+                agentSDK
+            } = parameters;
             const tools: Tool[] = [
                 // 添加时间工具
                 new TimeTool(),
@@ -258,7 +271,7 @@ class AgentService {
                 }
             }
             // 开启存储引擎工具
-            if(storageEngine){
+            if (storageEngine) {
                 tools.push(new FileTool({ userId }));
                 tools.push(new UrlTool());
 
@@ -275,6 +288,7 @@ class AgentService {
                 limitSeconds,
                 maxTokens,
                 audioParams,
+                isConvertFile,
                 ...params,
             };
             // 工具调用

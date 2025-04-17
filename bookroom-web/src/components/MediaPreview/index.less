@@ -1,10 +1,11 @@
 .mediaPreview {
     max-width: 200px;
-    height: 30px;
+    max-height: 200px;
     font-size: 30px;
-    vertical-align: text-top;
+    vertical-align: middle;
     text-align: center;
     display: inline-block;
+    object-fit: contain;
 }
 
 .imagePreview {
@@ -12,4 +13,28 @@
     height: auto;
     background-color: @white;
     object-fit: contain;
+}
+
+.filePreview {
+    max-width: 60px;
+    height: auto;
+    text-align: center;
+    display: inline-block;
+}
+
+.fileIcon {
+    font-size: 20px;
+}
+
+.fileName {
+    width: 100%;
+    font-size: 12px;
+    line-height: 1.5;
+    // 文字超出省略
+    overflow: hidden;
+    /* 确保超出容器的文本会被裁剪 */
+    white-space: nowrap;
+    /* 确保文本在一行内显示 */
+    text-overflow: ellipsis;
+    display: block;
 }

@@ -98,7 +98,7 @@ const AILmGeneratePage: React.FC = () => {
       sendOptions={
         {
           isFiles: false,
-          filePrefix: `chat/${chat_type}/${platform}/${model}`,
+          filePrefix: `lm/${chat_type}/${platform}/${model}`,
         }
       }
       customRequest={sendMsgRequest}
