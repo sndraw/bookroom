@@ -9,7 +9,7 @@
     "start": "nodemon --exec npx ts-node -r tsconfig-paths/register --files api/index.ts",
     "dev": "cross-env DOTENV_MODE=local nodemon --exec npx ts-node -r tsconfig-paths/register --files api/index.ts",
     "build:dev": "cross-env DOTENV_MODE=local  tsc && tsc-alias",
-    "build": "tsc --noEmit --pretty  && tsc-alias ",
+    "build": "tsc  && tsc-alias",
     "deploy:dev": "cross-env DOTENV_MODE=local pm2 startOrRestart pm2.config.js",
     "deploy": "pm2 startOrRestart pm2.config.js",
     "undeploy": "pm2 delete bookroom-api",

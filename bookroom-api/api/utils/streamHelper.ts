@@ -5,6 +5,7 @@ import { createWriteStream } from "fs";
 import { Context } from "koa";
 import { PassThrough } from "stream";
 import { Writer } from 'wav';
+import fs from "fs";
 
 // 将chunk转换为Buffer格式
 export const formatChunkToBuffer = (chunk: any) => {
@@ -150,10 +151,10 @@ export const handleResponseStream = async (dataStream: any, options?: HandleResp
                 if (chunk?.choices?.[0].delta?.audio) {
                     const audioData = formatAudioData(chunk?.choices[0]?.delta?.audio);
                     // 如果是对象
-                    if(audioData?.transcript){
+                    if (audioData?.transcript) {
                         passThroughStream.push(audioData?.transcript, "utf-8")
                     }
-                    if(audioData?.data){
+                    if (audioData?.data) {
                         audioBuffer += audioData.data;
                     }
                 }
@@ -168,7 +169,7 @@ export const handleResponseStream = async (dataStream: any, options?: HandleResp
             });
             if (formatedStr) {
                 passThroughStream.push(Buffer.from(formatedStr), "utf-8");
-            } 
+            }
         }
         // 所有数据推送完毕后，调用 end() 表示流结束
         passThroughStream.end();
@@ -191,14 +192,22 @@ export const saveAudioToFile = async (audioString: string, options: { userId?: s
     const objectId = new Date().getTime() + '_' + 'voice.wav';
     const objectName = getObjectName(objectId, userId);
     const filePath = `${SERVER_UPLOAD_PATH}/${objectId}`
-    await convertAudio(audioString, filePath);
-    const result = await createFileClient().fPutObject({
-        objectName,
-        filePath
-    });
-    let formatedStr = ""
-    if (result) {
-        formatedStr = `[${objectId}](${objectId})`;
+    try {
+        await convertAudio(audioString, filePath);
+        const result = await createFileClient().fPutObject({
+            objectName,
+            filePath
+        });
+        let formatedStr = ""
+        if (result) {
+            formatedStr = `[${objectId}](${objectId})`;
+        }
+        return formatedStr;
+    } finally {
+        try {
+            fs.unlinkSync(filePath);
+        } catch (error) {
+            console.error('Error during file deletion:', error);
+        }
     }
-    return formatedStr;
 };
