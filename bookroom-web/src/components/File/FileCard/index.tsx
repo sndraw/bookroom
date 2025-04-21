@@ -8,7 +8,7 @@ import CopyToClipboard from "@/components/CopyToClipboard";
 import { FileItem } from "../FileListPanel";
 import styles from "./index.less";
 
-export const getFileName = (item?: API.FileInfo | FileItem) => {
+export const getFileOrDirName = (item?: API.FileInfo | FileItem) => {
     let fileName = item?.name;
     // 如果是文件夹，删除尾部斜杠
     if (item?.isDir) {
@@ -39,7 +39,7 @@ const FileCard: React.FC<FileCardPropsType> = (props: FileCardPropsType) => {
 
 
     // 获取文件名
-    const fileName = getFileName(item);
+    const fileName = getFileOrDirName(item);
     // 模型识别代码
     const markdownCode = `[${fileName}](${item?.url || item?.id})`
 

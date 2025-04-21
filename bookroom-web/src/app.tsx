@@ -7,25 +7,29 @@ import HeaderAvatar from '@/components/HeaderAvatar';
 import Page403 from '@/pages/403';
 import Page404 from '@/pages/404';
 import { fetchInitialData } from '@/services/common/initial';
-import { message } from 'antd';
-import Logo from './../public/favicon.png';
+import { message, theme } from 'antd';
 import RequestConfig from './common/request';
 import menu from './config/menu';
 import token from './config/token';
 import { ERROR_CODE_ENUM } from './services/enum';
 import { clearToken } from './utils/authToken';
+import { RuntimeAntdConfig, RunTimeLayoutConfig } from '@umijs/max';
 // request拦截器
 export const request = { ...RequestConfig };
 
-export const layout = (props: any) => {
-  // const { initialState } = props || {};
-  // const { siteInfo } = initialState || {};
+
+export const antd: RuntimeAntdConfig = (memo: any) => {
+  memo.theme ??= {};
+  memo.theme.algorithm = localStorage.getItem('theme') === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm;
+  return memo;
+};
+export const layout: RunTimeLayoutConfig = (props: any) => {
 
   return {
     title:
       (process.env?.UMI_APP_TITLE || 'AI') +
       (process.env.UMI_APP_MOCK ? '-mock环境' : ''),
-    logo: process.env?.UMI_APP_LOGO_URL || Logo,
+    logo: process.env?.UMI_APP_LOGO_URL || "./logo.png",
     layout: 'side',
     // fixSiderbar: true,
     // fixedHeader: true,

@@ -1,5 +1,6 @@
 // import { useModel } from '@umijs/max';
 import classNames from 'classnames';
+import Icon from '@ant-design/icons';
 import styles from './index.less';
 
 type LogoSiteProps = {
@@ -7,12 +8,11 @@ type LogoSiteProps = {
 };
 
 const LogoSite: React.FC<LogoSiteProps> = ({ className }) => {
-  // 主题样式
-  // const { initialState } = useModel('@@initialState');
-  // const { siteInfo } = initialState || {};
+  const logoUrl = process.env?.UMI_APP_LOGO_URL || './logo.png';
+
   return (
     <img
-      src={process.env?.UMI_APP_LOGO_URL || '/favicon.png'}
+      src={logoUrl || ""}
       className={classNames(styles.logo, className)}
       alt="logo"
       data-id="logo"

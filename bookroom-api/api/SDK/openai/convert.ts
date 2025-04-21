@@ -1,8 +1,8 @@
-import ExcelJS from 'exceljs';
-import mammoth from 'mammoth';
-import pdfParse from 'pdf-parse'
+import mimeTypes from "mime-types";
 import { createFileClient, getObjectName } from '@/common/file';
 import { MessageType } from '../agent/message';
+import { parseFileToStr } from '@/utils/file/convert';
+import { isUrl } from '@/utils/file/file';
 
 // 转换图片列表为模型输入格式
 export const convertImagesToVLModelInput = async (params: {
@@ -186,16 +186,11 @@ export const convertFilesToContent = async (message: MessageType, params: Conver
                     url: item,
                 }
             }
-            if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
+            if (typeof item === "string" && !isUrl(item)) {
                 try {
-                    const objectName = getObjectName(item, userId);
-                    const fileObj: any = await createFileClient().getObjectData({
-                        objectName,
-                        encodingType: "base64",
-                        addFileType: true,
-                    })
-                    if (!fileObj?.dataStr) continue;
-                    message.image_url.url = fileObj?.dataStr;
+                    const dataStr = parseFileToStr(item, userId)
+                    if (!dataStr) continue;
+                    message.image_url.url = dataStr;
                 }
                 catch (error) {
                     console.error('获取图片失败:', error);
@@ -214,18 +209,15 @@ export const convertFilesToContent = async (message: MessageType, params: Conver
                     format: "mp3" //默认格式为mp3，实际格式可能需要根据实际情况进行调整
                 }
             }
-            if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
+            if (typeof item === "string" && !isUrl(item)) {
                 try {
-                    const objectName = getObjectName(item, userId);
-                    const audioObj: any = await createFileClient().getObjectData({
-                        objectName,
-                        encodingType: "base64",
-                        addFileType: true,
-                    })
-                    if (!audioObj?.dataStr) continue;
+                    const dataStr = parseFileToStr(item, userId)
+                    if (!dataStr) continue;
+                    const mimeType = mimeTypes.lookup(item);
+                    const fileType = mimeTypes.extension(mimeType || "");
                     message.input_audio = {
-                        data: audioObj?.dataStr,
-                        format: audioObj?.fileType || "mp3",
+                        data: dataStr,
+                        format: fileType || "mp3",
                     }
                 } catch (error) {
                     console.error('获取音频失败:', error);
@@ -243,17 +235,12 @@ export const convertFilesToContent = async (message: MessageType, params: Conver
                     url: item,
                 }
             }
-            if (typeof item === "string" && (!item.startsWith("http") || !item.startsWith("https"))) {
+            if (typeof item === "string" && !isUrl(item)) {
                 try {
-                    const objectName = getObjectName(item, userId);
-                    const audioObj: any = await createFileClient().getObjectData({
-                        objectName,
-                        encodingType: "base64",
-                        addFileType: true,
-                    })
-                    if (!audioObj?.dataStr) continue;
+                    const dataStr = parseFileToStr(item, userId)
+                    if (!dataStr) continue;
                     message.video_url = {
-                        url: audioObj?.dataStr,
+                        url: dataStr,
                     }
                 } catch (error) {
                     console.error('获取视频失败:', error);
@@ -272,8 +259,8 @@ export const convertFilesToContent = async (message: MessageType, params: Conver
                 const fileUrl = item?.objectId || item?.id;
                 const fileName = item?.name || item?.id;
                 const objectName = getObjectName(fileUrl, userId);
-                if (typeof fileUrl === "string" && (!fileUrl.startsWith("http") || !fileUrl.startsWith("https"))) {
-                    text = await parseFiles(fileUrl, userId);
+                if (typeof fileUrl === "string" && !isUrl(fileUrl)) {
+                    text = await parseFileToStr(fileUrl, userId);
                     if (text) {
                         newMessage.content.push({
                             type: "text",
@@ -311,83 +298,3 @@ export const convertFilesToContent = async (message: MessageType, params: Conver
     return newMessage;
 }
 
-export const parseFiles = async (fileUrl: string, userId?: string): Promise<string> => {
-    let text: string = "";
-
-    const objectName = getObjectName(fileUrl, userId);
-    // 如果是excel文件，下载并读取内容
-    if (fileUrl.endsWith(".xlsx") || fileUrl.endsWith(".xls") || fileUrl.endsWith(".xlsm")) {
-        const fileBuffer: any = await createFileClient().getObjectData({ objectName, encodingType: "buffer" });
-        if (!fileBuffer) return text;
-        const res = await processExcelFromBuffer(fileBuffer);
-        // 如果不是字符串,则跳过处理
-        if (typeof res !== "string") {
-            return text;
-        }
-        text = res;
-    }
-    // 如果txt文件，下载并读取内容
-    if (fileUrl.endsWith(".txt") || fileUrl.endsWith(".csv") || fileUrl.endsWith(".md") || fileUrl.endsWith(".json")) {
-        const fileBuffer: any = await createFileClient().getObjectData({ objectName, encodingType: "buffer" });
-        if (!fileBuffer) return text;
-        text = fileBuffer.toString("utf-8");
-    }
-    // 如果是docx文件，下载并读取内容
-    if (fileUrl.endsWith(".docx")) {
-        const fileBuffer: any = await createFileClient().getObjectData({ objectName, encodingType: "buffer" });
-        if (!fileBuffer) return text;
-        text = await mammoth.extractRawText({ buffer: fileBuffer })
-            .then(result => {
-                console.log("Extracted text from .docx:", result.value);
-                return result.value;
-            })
-            .catch(err => {
-                console.error("Error parsing .docx from buffer:", err);
-                return ""
-            });
-    }
-    // 如果是pdf文件，下载并读取内容
-    if (fileUrl.endsWith(".pdf")) {
-        const fileBuffer: any = await createFileClient().getObjectData({ objectName, encodingType: "buffer" });
-        if (!fileBuffer) return text;
-        const pdfResult = await pdfParse(fileBuffer);
-        if (pdfResult && pdfResult?.text) {
-            text = pdfResult.text;
-        }
-    }
-    return text;
-}
-
-
-export const processExcelFromBuffer = async (buffer: ExcelJS.Buffer) => {
-    const workbook = new ExcelJS.Workbook();
-    // 使用 Buffer 加载 Excel 文件
-    return await workbook.xlsx.load(buffer)
-        .then(() => {
-            let textOutput = '';
-            // 遍历每个工作表
-            workbook.eachSheet((worksheet, sheetId) => {
-                textOutput += `Sheet ${sheetId} (${worksheet.name}):\n`;
-
-                // 遍历每一行和单元格
-                worksheet.eachRow((row, rowNumber) => {
-                    row.eachCell((cell, colNumber) => {
-                        if (colNumber === 1) {
-                            textOutput += `Row ${rowNumber}: `;
-                        }
-                        let text = cell.value;
-                        if (typeof cell.value === "object") {
-                            text = JSON.stringify(cell.value, null, 2);
-                        }
-                        textOutput += `${text}\t`;
-                    });
-                });
-
-                textOutput += '\n'; // 添加空行分隔不同工作表
-            });
-            return textOutput;
-        })
-        .catch(err => {
-            console.error("解析 Excel 文件失败:", err);
-        });
-}

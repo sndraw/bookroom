@@ -33,10 +33,11 @@ export enum AI_GRAPH_MODE_ENUM {
 // 支持知识图谱-文件上传类型
 export const AI_GRAPH_UPLOAD_FILE_TYPE = [
   '.txt',
+  '.text',
   '.md',
   '.pdf',
   '.docx',
-  '.pptx',
+  '.csv',
   'text/plain',
   'text/markdown',
   'application/pdf',

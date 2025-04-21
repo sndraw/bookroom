@@ -137,7 +137,7 @@ class MinioApi {
                     resolve({
                         dataStr: dataStr,
                         fileType: mimeTypes.extension(mimeType || ""),
-                        mimeType: mimeTypes.lookup(objectName), // 使用mime-types库自动查找
+                        mimeType: mimeType, // 使用mime-types库自动查找
                     });
                 });
 

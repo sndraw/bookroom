@@ -31,10 +31,10 @@ const DotChart: React.FC<{ chart: DotChartData }> = ({ chart }) => {
         }
     };
     return (
-        <div ref={ref} title="点击进入/退出全屏" style={{ cursor: "pointer" }} onClick={handleToggleFullScreen} className={classNames(styles?.container, className)} >
-            {/* <Button ghost type="primary" onClick={handleToggleFullScreen}>
+        <div ref={ref} className={classNames(styles?.container, className)} >
+            <Button ghost type="primary" onClick={handleToggleFullScreen}>
                 {isFullScreen ? '退出全屏' : '进入全屏'}
-            </Button> */}
+            </Button>
             <Graphviz dot={code} options={
                 {
                     width: '100%',

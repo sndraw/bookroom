@@ -34,7 +34,7 @@ export enum AI_GRAPH_MODE_ENUM {
 
 // 支持知识图谱-文件上传类型
 export const AI_GRAPH_UPLOAD_FILE_TYPE = [
-  ".txt", ".md", ".pdf", ".docx", ".pptx",
+  ".txt", ".text", ".md", '.csv', ".pdf", ".docx",
   "text/plain", "text/markdown", "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.openxmlformats-officedocument.presentationml.presentation"

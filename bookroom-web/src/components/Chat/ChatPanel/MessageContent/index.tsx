@@ -1,12 +1,11 @@
-import { Image, Space } from 'antd';
+import { Space } from 'antd';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { ChatMessageType } from '../types';
 
-import { previewFileApi } from '@/services/common/file';
 import { MarkdownWithHighlighting } from '@/components/Markdown';
-import styles from './index.less';
 import MediaPreview from '@/components/MediaPreview';
+import styles from './index.less';
 
 // 定义消息内容组件的props类型
 interface MessageContentType {
