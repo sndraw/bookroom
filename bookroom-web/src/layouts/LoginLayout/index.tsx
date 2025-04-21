@@ -3,6 +3,7 @@ import { useToken } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import { Card, Layout, Spin } from 'antd';
 import styles from './index.less';
+import ThemeSwitch from '@/components/Theme/ThemeSwitch';
 const { Header, Footer, Content } = Layout;
 
 export type PropsType = {
@@ -24,6 +25,7 @@ const LoginLayout: React.FC<PropsType> = (props: PropsType) => {
       <Layout className={styles.layout}>
         <Header className={styles.header}>
           <LogoSite className={styles.logo} />
+          <ThemeSwitch className={styles.theme} />
         </Header>
         <Content className={styles.content}>
           <Card className={styles.card} title={title}>

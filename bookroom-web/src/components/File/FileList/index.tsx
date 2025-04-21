@@ -1,7 +1,7 @@
 import { ProList } from '@ant-design/pro-components';
 import { Space, Breadcrumb, Divider, Input, FloatButton } from 'antd';
 import { useCallback, useMemo, useState } from 'react';
-import FileCard, { getFileName } from '@/components/File/FileCard';
+import FileCard, { getFileOrDirName } from '@/components/File/FileCard';
 import { useNavigate } from '@umijs/max';
 import ROUTE_MAP from '@/routers/routeMap';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
@@ -38,7 +38,7 @@ const FileList: React.FC<FileListPropsType> = (props) => {
 
         if (!searchText) return newDataList;
         return newDataList?.filter((item: any) => {
-            const fileName = getFileName(item);
+            const fileName = getFileOrDirName(item);
             let flag = true;
             if (searchText) {
                 flag = flag && fileName.includes(searchText)
@@ -176,7 +176,7 @@ const FileList: React.FC<FileListPropsType> = (props) => {
                 </FloatButton.Group>
             </Space>
             <ProList<API.FileInfo>
-                ghost={false}
+                ghost={true}
                 className={styles.cardList}
                 rowSelection={{}}
                 itemCardProps={{

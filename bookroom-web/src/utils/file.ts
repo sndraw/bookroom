@@ -10,7 +10,10 @@ export const isAudio = (url: string) => {
     const audioExtensions = ['mp3', 'wav', 'ogg', 'aac', 'flac', 'opus', 'pcm16'];
     return audioExtensions.some(ext => url.toLowerCase().endsWith(`.${ext}`));
 };
-
+export const isDoc = (url: string) => {
+    const audioExtensions = ['txt', 'text', 'json', 'md', 'pdf', 'docx', 'csv'];
+    return audioExtensions.some(ext => url.toLowerCase().endsWith(`.${ext}`));
+};
 
 export const isUrl = (str: string) => {
     try {

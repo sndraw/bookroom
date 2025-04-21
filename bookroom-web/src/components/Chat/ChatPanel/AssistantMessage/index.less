@@ -17,8 +17,9 @@
 
 .messageContent {
   flex: 1;
-  background: @bg-color;
   border-radius: @border-radius-base * 3;
+  border: 1px solid @border-color-base;
+  // background: @border-color-base;
   padding: 1em;
   margin: 0 10px;
   position: relative;
@@ -26,9 +27,6 @@
   overflow-y: auto;
 }
 
-.messageContentAssistant {
-  background: @bg-gray-color;
-}
 
 .messageRole {
   color: @primary-color;
@@ -44,7 +42,7 @@
   height: 50px;
   font-size: 20px;
   border-radius: 50%;
-  background: @bg-primary-color;
+  // background: @border-color-base;
   box-sizing: content-box;
   display: flex;
   justify-content: center;
@@ -52,7 +50,7 @@
 }
 
 .messageRoleTextAssistant {
-  background-color: @bg-warm-color;
+
 }
 
 .messageFooter {

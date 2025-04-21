@@ -6,6 +6,8 @@ import { LockOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { useToken } from '@ant-design/pro-components';
 import { Link, useModel, useNavigate } from '@umijs/max';
 import { Dropdown } from 'antd';
+import ThemeSwitch from '../Theme/ThemeSwitch';
+// import styles from './index.less';
 
 const HeaderAvatar = () => {
   const { initialState } = useModel('@@initialState');
@@ -33,7 +35,7 @@ const HeaderAvatar = () => {
     src: (
       <UserOutlined
         style={{
-          color: token.Menu?.itemColor,
+          color: token.colorTextDescription,
         }}
       />
     ),
@@ -45,7 +47,7 @@ const HeaderAvatar = () => {
     title: (
       <div
         style={{
-          color: token.Menu?.itemColor,
+          color: token.colorTextDescription,
         }}
       >
         {initialState?.username || '未登录'}
@@ -60,31 +62,34 @@ const HeaderAvatar = () => {
         );
       }
       return (
-        <Dropdown
-          menu={{
-            items: [
-              {
-                key: 'pwdChange',
-                icon: <LockOutlined />,
-                label: '密码修改',
-                onClick: async () => {
-                  navigate(ROUTE_MAP.PWD_CHANGE, { replace: true });
+        <>
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: 'pwdChange',
+                  icon: <LockOutlined />,
+                  label: '密码修改',
+                  onClick: async () => {
+                    navigate(ROUTE_MAP.PWD_CHANGE, { replace: true });
+                  },
                 },
-              },
-              {
-                key: 'logout',
-                icon: <LogoutOutlined />,
-                label: '退出登录',
-                onClick: () => {
-                  // 调用登录接口
-                  logoutHandle();
+                {
+                  key: 'logout',
+                  icon: <LogoutOutlined />,
+                  label: '退出登录',
+                  onClick: () => {
+                    // 调用登录接口
+                    logoutHandle();
+                  },
                 },
-              },
-            ],
-          }}
-        >
-          {dom}
-        </Dropdown>
+              ],
+            }}
+          >
+            {dom}
+          </Dropdown>
+          <ThemeSwitch />
+        </>
       );
     },
   };

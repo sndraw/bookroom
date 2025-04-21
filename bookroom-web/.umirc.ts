@@ -16,6 +16,7 @@ export default defineConfig({
   publicPath:
     process.env?.NODE_ENV === 'development'
       ? '/'
+
       : process.env?.UMI_APP_PUBLIC_PATH || './',
   antd,
   layout,

@@ -12,7 +12,6 @@ const FileListPage: React.FC = () => {
 
     const state = location?.state as any;
     const req_path = state?.req_path || "/";
-    const prefix = state?.prefix || "";
 
     // 文件列表-请求
     const { data, loading, run } = useRequest(() => queryFileList({ req_path }), {
@@ -21,7 +20,7 @@ const FileListPage: React.FC = () => {
 
     useEffect(() => {
         run();
-    }, [req_path, prefix]);
+    }, [req_path]);
 
     return (
         <DefaultLayout>

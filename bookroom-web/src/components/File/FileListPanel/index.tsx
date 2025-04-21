@@ -6,7 +6,7 @@ import { previewFileApi } from '@/services/common/file';
 import { CloseOutlined } from '@ant-design/icons';
 import { FileListType, getBase64FormFileObj } from '../FileUpload';
 import MediaPreview from '@/components/MediaPreview';
-import { getFileName } from '../FileCard';
+import { getFileOrDirName } from '../FileCard';
 
 // 添加props类型
 interface FileLinkListProps {
@@ -102,7 +102,7 @@ const FileListPanel: React.FC<FileLinkListProps> = (props) => {
             key={index + "preview"}
             href={fileObj?.url}
           />
-          <div className={styles.fileItemTitle} title={getFileName(fileObj)}>{getFileName(fileObj)}</div>
+          <div className={styles.fileItemTitle} title={getFileOrDirName(fileObj)}>{getFileOrDirName(fileObj)}</div>
           <Button
             key={index + "delete"}
             type="link"

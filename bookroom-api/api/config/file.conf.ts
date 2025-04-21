@@ -6,17 +6,18 @@ export const UPLOAD_FILE_TYPE = process.env.SERVER_UPLOAD_FILE_TYPE_ACCEPT ? pro
     '.png',
     '.gif',
     '.bmp',
+    '.webp',
     '.svg',
     '.ico',
     // 文档文件类型
     '.txt',
-    ".json",
+    '.text',
+    '.json',
     '.md',
     '.pdf',
     '.docx',
-    '.pptx',
-    // 表格类型
     '.csv',
+    // 表格类型
     '.xlsx',
     '.xls',
     // 音频文件类型

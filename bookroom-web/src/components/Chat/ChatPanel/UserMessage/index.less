@@ -17,8 +17,9 @@
 
 .messageContent {
   flex: 1;
-  background: @bg-color;
   border-radius: @border-radius-base * 3;
+  border: 1px solid @border-color-base;
+  // background: @border-color-base;
   padding: 1em;
   margin: 0 10px;
   position: relative;
@@ -27,12 +28,10 @@
 }
 
 .messageContentUser {
-  background: @bg-primary-color;
   padding: 1em;
 }
 
 .messageRole {
-  color: @primary-color;
   flex: 0;
 }
 
@@ -45,7 +44,7 @@
   height: 50px;
   font-size: 20px;
   border-radius: 50%;
-  background: @bg-primary-color;
+  // background: @border-color-base;
   box-sizing: content-box;
   display: flex;
   justify-content: center;
@@ -53,7 +52,7 @@
 }
 
 .messageRoleTextUser {
-  background-color: @bg-primary-color;
+  padding: 0;
 }
 
 .messageFooter {
