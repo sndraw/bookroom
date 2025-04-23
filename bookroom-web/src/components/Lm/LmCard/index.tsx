@@ -328,10 +328,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
           // target="_blank"
           >
             <Button
-              type="text"
-              style={{
-                color: token.colorLink,
-              }}
+              type="link"
               size="large"
               icon={<CommentOutlined />}
             />
@@ -347,10 +344,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
           // target="_blank"
           >
             <Button
-              type="text"
-              style={{
-                color: token.colorLink,
-              }}
+              type="link"
               size="large"
               icon={<MessageOutlined />}
             />
@@ -366,10 +360,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
           // target="_blank"
           >
             <Button
-              type="text"
-              style={{
-                color: token.colorLink,
-              }}
+              type="link"
               size="large"
               icon={<DatabaseOutlined />}
             />
@@ -388,10 +379,7 @@ const LmCard: React.FC<LmCardPropsType> = (props: LmCardPropsType) => {
             // target="_blank"
             >
               <Button
-                type="text"
-                style={{
-                  color: token.colorLink,
-                }}
+                type="link"
                 size="large"
                 icon={<FileImageOutlined />}
               />

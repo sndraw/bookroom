@@ -83,7 +83,7 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
               {/* 重新生成 */}
               {index === messageList?.length - 1 && handleReAnswer && (
                 <Button
-                  type="link"
+                  type="text"
                   size="small"
                   title="重新生成"
                   onClick={() => {
@@ -102,7 +102,7 @@ const AssistantMessage: React.FC<AssistantMessageType> = (props) => {
                   okText="确定"
                 >
                   {/* 删除 */}
-                  <Button type="link" size="small" danger title="删除">
+                  <Button type="text" size="small" danger title="删除">
                     <DeleteOutlined />
                   </Button>
                 </Popconfirm>

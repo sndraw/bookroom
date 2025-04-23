@@ -568,7 +568,6 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
                 icon={<ClearOutlined />}
                 disabled={disabled || loading || voiceLoading}
                 type={"text"}
-                size={"large"}
               ></Button>
             </Popconfirm>
             {isFiles && (
@@ -576,6 +575,7 @@ const ChatPanel: React.FC<ChatPanelPropsType> = (props) => {
                 <Divider type="vertical" />
                 <div className={styles.inputFiles}>
                   <FileLinkUpload
+                    btnType='text'
                     handleUpload={values => {
                       if (values && values?.links?.length > 0) {
                         const newObjectIdList = values?.links.map((link: any) => ({

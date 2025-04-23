@@ -211,10 +211,7 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
           // target="_blank"
           >
             <Button
-              type="text"
-              style={{
-                color: token.colorLink,
-              }}
+              type="link"
               size="large"
               icon={<MessageOutlined />}
             />
@@ -230,10 +227,7 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
           // target="_blank"
           >
             <Button
-              type="text"
-              style={{
-                color: token.colorLink,
-              }}
+              type="link"
               size="large"
               icon={<FolderOpenOutlined />}
             />
@@ -249,10 +243,7 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
           // target="_blank"
           >
             <Button
-              type="text"
-              style={{
-                color: token.colorLink,
-              }}
+              type="link"
               size="large"
               icon={<TableOutlined />}
             />
@@ -268,10 +259,7 @@ const GraphCard: React.FC<GraphCardPropsType> = (props: GraphCardPropsType) => {
           // target="_blank"
           >
             <Button
-              type="text"
-              style={{
-                color: token.colorLink,
-              }}
+              type="link"
               size="large"
               icon={<NodeIndexOutlined />}
             />

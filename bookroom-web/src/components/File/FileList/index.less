@@ -7,7 +7,7 @@
 .header {
     width: 100%;
     padding: 0 0 10px 0;
-    border-bottom: 1px solid @border-color;
+    border-bottom: 1px solid @border-color-base;
     position: relative;
     font-size: 16px;
     line-height: 32px;
@@ -59,10 +59,9 @@
     right: 40px;
     z-index: 100;
 }
-
 .navBarItem {
     &:hover {
         cursor: pointer;
-        color: @primary-color;
+        color: @color-link-hover;
     }
 }

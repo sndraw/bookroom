@@ -1,8 +1,8 @@
 import { defineConfig } from '@umijs/max';
-import antd from './src/config/antd';
-import layout from './src/config/layout';
+import antdConf from './src/config/antd.conf';
+import layoutConf from './src/config/layout.conf';
 import { getProxyOps } from './src/config/proxy';
-import theme from './src/config/theme';
+import themeConf from './src/config/theme.conf';
 import routes from './src/routers/routes';
 
 export default defineConfig({
@@ -18,9 +18,9 @@ export default defineConfig({
       ? '/'
 
       : process.env?.UMI_APP_PUBLIC_PATH || './',
-  antd,
-  layout,
-  theme,
+  antd:antdConf,
+  layout:layoutConf,
+  theme: themeConf,
   routes,
   request: {},
   access: {},

@@ -77,16 +77,12 @@ const FileList: React.FC<FileListPropsType> = (props) => {
                     return;
                 }
                 const urlPath = navArr.slice(0, index + 1).join("/");
-                const isLeaf = index + 1 === navArr.length;
                 const navObj = {
                     title: item,
-                    className: isLeaf ? "" : styles?.navBarItem,
+                    className: styles?.navBarItem,
                     onClick: (e: MouseEvent) => {
                         e.stopPropagation();
                         e.preventDefault();
-                        if (isLeaf) {
-                            return;
-                        }
                         navigate(ROUTE_MAP.FILE, {
                             state: {
                                 req_path: urlPath,
@@ -146,7 +142,7 @@ const FileList: React.FC<FileListPropsType> = (props) => {
                         if (folderName.endsWith('/')) {
                             folderName = folderName.slice(0, -1);
                         }
-                        console.log(req_path,`${prefix}/${folderName}`);
+                        console.log(req_path, `${prefix}/${folderName}`);
                         navigate(ROUTE_MAP.FILE, {
                             state: {
                                 req_path: `${prefix}/${folderName}`

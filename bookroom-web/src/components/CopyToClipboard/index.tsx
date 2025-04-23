@@ -56,7 +56,7 @@ const CopyToClipboard: React.FC<Props> = (props) => {
   };
   return (
     <Button
-      type="link"
+      type="text"
       size="small"
       title={title}
       color="default"

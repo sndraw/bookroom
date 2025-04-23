@@ -134,7 +134,7 @@ const FileCard: React.FC<FileCardPropsType> = (props: FileCardPropsType) => {
                                     cancelText="否"
                                 >
                                     <Button
-                                        type="link"
+                                        type="text"
                                         title={'删除'}
                                         danger
                                         key={'option-delete-btn'}

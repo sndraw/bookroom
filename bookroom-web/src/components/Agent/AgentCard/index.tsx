@@ -1,4 +1,3 @@
-import CopyToClipboard from '@/components/CopyToClipboard';
 import { MODE_ENUM } from '@/constants/DataMap';
 import ROUTE_MAP from '@/routers/routeMap';
 import {
@@ -7,7 +6,7 @@ import {
   CloseOutlined,
 } from '@ant-design/icons';
 import { useToken } from '@ant-design/pro-components';
-import { generatePath, Link, useAccess, useModel } from '@umijs/max';
+import { generatePath, Link, useAccess } from '@umijs/max';
 import {
   Avatar,
   Button,
@@ -21,9 +20,9 @@ import {
 } from 'antd';
 import classNames from 'classnames';
 import { useState } from 'react';
-import styles from './index.less';
 import { deleteAgent } from '@/services/common/agent';
 import AgentEdit from '../AgentEdit';
+import styles from './index.less';
 
 type AgentCardPropsType = {
   // 模式
@@ -158,10 +157,7 @@ const AgentCard: React.FC<AgentCardPropsType> = (props: AgentCardPropsType) => {
           // target="_blank"
           >
             <Button
-              type="text"
-              style={{
-                color: token.colorLink,
-              }}
+              type="link"
               size="large"
               icon={<PlayCircleOutlined />}
             />

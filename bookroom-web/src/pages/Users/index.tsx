@@ -26,7 +26,7 @@ import {
   message,
 } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
-// import CreateForm from './components/CreateForm';
+import styles from './index.less';
 
 const UsersPage: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();
@@ -309,18 +309,19 @@ const UsersPage: React.FC<unknown> = () => {
       // 右侧固定列
       // @ts-ignore
       fixed: 'right',
-      width: 100,
+      align: 'center',
+      width: 120,
       render: (_: any, row, index, action) => (
         <>
-          <a
+          <Button
+            type="text"
             key={row?.id}
             onClick={() => {
               action?.startEditable(row?.id);
             }}
           >
             编辑
-          </a>
-          <Divider type="vertical" />
+          </Button>
           <Popconfirm
             key="option-delete"
             title={`是否删除该用户?`}
@@ -334,9 +335,8 @@ const UsersPage: React.FC<unknown> = () => {
             cancelText="否"
           >
             <Button
-              type="link"
+              type="text"
               danger
-              style={{ padding: 0 }}
               key={'option-delete-btn'}
             >
               删除
@@ -351,6 +351,7 @@ const UsersPage: React.FC<unknown> = () => {
     <DefaultLayout>
       <>
         <EditableProTable<API.UserInfo>
+          className={styles.container}
           headerTitle="查询表格"
           loading={{
             spinning: Boolean(loading),
