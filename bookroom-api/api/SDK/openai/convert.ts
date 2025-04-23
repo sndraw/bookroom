@@ -188,7 +188,7 @@ export const convertFilesToContent = async (message: MessageType, params: Conver
             }
             if (typeof item === "string" && !isUrl(item)) {
                 try {
-                    const dataStr = parseFileToStr(item, userId)
+                    const dataStr = await parseFileToStr(item, userId)
                     if (!dataStr) continue;
                     message.image_url.url = dataStr;
                 }
@@ -197,6 +197,7 @@ export const convertFilesToContent = async (message: MessageType, params: Conver
                     continue;
                 }
             }
+
             newMessage.content.push(message);
         }
     }
@@ -211,7 +212,7 @@ export const convertFilesToContent = async (message: MessageType, params: Conver
             }
             if (typeof item === "string" && !isUrl(item)) {
                 try {
-                    const dataStr = parseFileToStr(item, userId)
+                    const dataStr = await parseFileToStr(item, userId)
                     if (!dataStr) continue;
                     const mimeType = mimeTypes.lookup(item);
                     const fileType = mimeTypes.extension(mimeType || "");
@@ -237,7 +238,7 @@ export const convertFilesToContent = async (message: MessageType, params: Conver
             }
             if (typeof item === "string" && !isUrl(item)) {
                 try {
-                    const dataStr = parseFileToStr(item, userId)
+                    const dataStr = await parseFileToStr(item, userId)
                     if (!dataStr) continue;
                     message.video_url = {
                         url: dataStr,
