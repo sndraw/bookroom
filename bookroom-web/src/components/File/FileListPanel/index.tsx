@@ -105,7 +105,7 @@ const FileListPanel: React.FC<FileLinkListProps> = (props) => {
           <div className={styles.fileItemTitle} title={getFileOrDirName(fileObj)}>{getFileOrDirName(fileObj)}</div>
           <Button
             key={index + "delete"}
-            type="link"
+            type="text"
             title="删除文件"
             icon={<CloseOutlined />}
             className={styles.deleteBtn}

@@ -9,17 +9,20 @@ import Page404 from '@/pages/404';
 import { fetchInitialData } from '@/services/common/initial';
 import { message, theme } from 'antd';
 import RequestConfig from './common/request';
-import menu from './config/menu';
-import token from './config/token';
+import menuConf from './config/menu.conf';
+import tokenConf from './config/token.conf';
 import { ERROR_CODE_ENUM } from './services/enum';
 import { clearToken } from './utils/authToken';
 import { RuntimeAntdConfig, RunTimeLayoutConfig } from '@umijs/max';
+import antdThemeConf from './config/antd-theme.conf';
 // request拦截器
 export const request = { ...RequestConfig };
 
 
 export const antd: RuntimeAntdConfig = (memo: any) => {
-  memo.theme ??= {};
+  memo.theme ??= {
+    ...antdThemeConf
+  };
   memo.theme.algorithm = localStorage.getItem('theme') === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm;
   return memo;
 };
@@ -36,12 +39,12 @@ export const layout: RunTimeLayoutConfig = (props: any) => {
     // splitMenus: true,
     contentWidth: 'Fluid',
     suppressSiderWhenMenuEmpty: true,
-    menu,
     siderWidth: 208, // 左侧菜单默认展开时的宽度
     contentStyle: {
       padding: 0,
     },
-    token,
+    menu: menuConf,
+    token: tokenConf,
     avatarProps: HeaderAvatar(),
     // menuHeaderRender: () => {
     //   return <LogoSite />;

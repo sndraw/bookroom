@@ -17,16 +17,15 @@ import {
 } from '@ant-design/pro-components';
 import {
   Button,
-  Divider,
   Popconfirm,
   Space,
   Switch,
-  Table,
   message,
 } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
 import useHeaderHeight from '@/hooks/useHeaderHeight';
 import RoleAdd from '@/components/Role/RoleAdd';
+import styles from './index.less';
 
 const RolesPage: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();
@@ -275,18 +274,19 @@ const RolesPage: React.FC<unknown> = () => {
       // 右侧固定列
       // @ts-ignore
       fixed: 'right',
-      width: 100,
+      align: 'center',
+      width: 120,
       render: (_: any, row, index, action) => (
         <>
-          <a
+          <Button
+            type="text"
             key={row?.id}
             onClick={() => {
               action?.startEditable(row?.id);
             }}
           >
             编辑
-          </a>
-          <Divider type="vertical" />
+          </Button>
           <Popconfirm
             key="option-delete"
             title={`是否删除该角色?`}
@@ -300,9 +300,8 @@ const RolesPage: React.FC<unknown> = () => {
             cancelText="否"
           >
             <Button
-              type="link"
+              type="text"
               danger
-              style={{ padding: 0 }}
               key={'option-delete-btn'}
             >
               删除
@@ -317,6 +316,7 @@ const RolesPage: React.FC<unknown> = () => {
     <DefaultLayout>
       <>
         <EditableProTable<API.RoleInfo>
+          className={styles.container}
           headerTitle="查询表格"
           loading={{
             spinning: Boolean(loading),

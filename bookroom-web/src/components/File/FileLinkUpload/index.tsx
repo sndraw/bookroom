@@ -2,7 +2,6 @@ import { CloseOutlined, LinkOutlined, UploadOutlined } from "@ant-design/icons";
 import { DrawerForm } from "@ant-design/pro-components";
 import { Button, Card, Form, Input, Space, UploadFile } from "antd";
 import classNames from "classnames";
-import { useState } from "react";
 import styles from "./index.less";
 
 // 添加props类型
@@ -31,7 +30,7 @@ const FileLinkUpload: React.FC<FileLinkUploadProps> = (props) => {
                     title={title}
                     className={classNames(className)}
                     icon={<LinkOutlined />}
-                    type={btnType || "text"}
+                    type={btnType || "default"}
                     disabled={disabled || loading}
                     loading={loading}
                 />
