@@ -1,10 +1,19 @@
 .container {
-  padding: 0;
+  padding: 10px;
   transition: transform 0.3s ease-in-out;
+  background: @background-color-base-2;
+}
+
+.graph {
+  margin: 10px 0;
+  padding: 10px;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 /* 自定义全屏样式 */
 :fullscreen,
 ::backdrop {
   padding: 0;
+  background: @background-color-base-2;
 }
