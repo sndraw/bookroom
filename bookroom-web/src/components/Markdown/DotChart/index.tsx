@@ -13,9 +13,7 @@ const DotChart: React.FC<{ chart: DotChartData }> = ({ chart }) => {
     const { code = "", className } = chart;
     const ref = useRef<HTMLDivElement | null>(null);
 
-    const [isFullScreen, setIsFullScreen] = useState(false);
     const handleToggleFullScreen = () => {
-        setIsFullScreen(!isFullScreen);
         if (ref.current) {
             if (!document.fullscreenElement) {
                 // 如果当前没有元素处于全屏状态，则尝试进入全屏模式
@@ -31,20 +29,22 @@ const DotChart: React.FC<{ chart: DotChartData }> = ({ chart }) => {
         }
     };
     return (
-        <div ref={ref} className={classNames(styles?.container, className)} >
+        <div className={classNames(styles?.container, className)} >
             <Button ghost type="primary" onClick={handleToggleFullScreen}>
-                {isFullScreen ? '退出全屏' : '进入全屏'}
+                全屏
             </Button>
-            <Graphviz dot={code} options={
-                {
-                    width: '100%',
-                    height: 'auto',
-                    fit: true,
-                    scale: 1.0,
-                    maxScale: 2.0, // 最大缩放比例
-                    minScale: 0.5, // 最小缩放比例
-                }
-            } />
+            <div ref={ref} className={styles?.graph}>
+                <Graphviz dot={code} options={
+                    {
+                        width: '100%',
+                        height: 'auto',
+                        fit: true,
+                        scale: 1.0,
+                        maxScale: 2.0, // 最大缩放比例
+                        minScale: 0.5, // 最小缩放比例
+                    }
+                } />
+            </div>
         </div>
     );
 

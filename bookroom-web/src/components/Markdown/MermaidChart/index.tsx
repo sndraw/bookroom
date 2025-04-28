@@ -3,6 +3,7 @@ import mermaid from 'mermaid';
 import classNames from 'classnames';
 
 import styles from './index.less';
+import { Button } from 'antd';
 
 interface MermaidChartData {
   code: string;
@@ -12,7 +13,6 @@ interface MermaidChartData {
 const MermaidChart: React.FC<{ chart: MermaidChartData }> = ({ chart }) => {
   const { code, className } = chart;
   const ref = useRef<HTMLDivElement | null>(null);
-  const [isFullScreen, setIsFullScreen] = useState(false);
   const mermaidIdRef = useRef<string>('');
 
   useEffect(() => {
@@ -33,7 +33,6 @@ const MermaidChart: React.FC<{ chart: MermaidChartData }> = ({ chart }) => {
 
 
   const handleToggleFullScreen = () => {
-    setIsFullScreen(!isFullScreen);
     if (ref.current) {
       if (!document.fullscreenElement) {
         // 如果当前没有元素处于全屏状态，则尝试进入全屏模式
@@ -82,7 +81,12 @@ const MermaidChart: React.FC<{ chart: MermaidChartData }> = ({ chart }) => {
     renderChart(code);
   }, [code]);
 
-  return <div ref={ref} title="点击进入/退出全屏" style={{cursor:"pointer"}} onClick={handleToggleFullScreen} className={classNames(styles?.container, className)} />;
+  return <div className={classNames(styles?.container, className)} >
+    <Button ghost type="primary" onClick={handleToggleFullScreen}>
+      全屏
+    </Button>
+    <div ref={ref} className={styles?.graph}></div>
+  </div>;
 };
 
 export default MermaidChart;

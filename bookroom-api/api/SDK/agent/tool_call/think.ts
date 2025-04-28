@@ -52,7 +52,7 @@ class Think {
         const { startTime, endTime, step, prompt_tokens, completion_tokens, total_tokens } = usage || {};
         const formattedUsage = `\n\n` +
             `<usage>` +
-            `处理步骤：${step}\n` + 
+            // `处理步骤：${step}\n` + 
             `处理时间：${(endTime - startTime) / 1000}s\n` + 
             `Token输入：${prompt_tokens}\n` + 
             `Token输出：${completion_tokens}\n` + 

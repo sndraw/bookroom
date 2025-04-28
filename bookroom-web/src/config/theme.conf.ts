@@ -4,4 +4,5 @@ export default {
     "border-color-base": "#d9d9d9",
     "border-color-hover": "#ffc53d",
     "background-color-base": "rgba(255,255,255, 0.2)",
+    "background-color-base-2": "#909193",
 }
