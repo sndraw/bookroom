@@ -224,7 +224,7 @@ const routes = [
     path: ROUTE_MAP.PLATFORM_LIST,
     icon: 'Apartment',
     component: './Platform/PlatformList',
-    access: 'canSeeAdmin',
+    access: 'canSeeOps',
     wrappers: ['@/wrappers/auth'],
   },
   {
@@ -232,7 +232,7 @@ const routes = [
     path: ROUTE_MAP.USER_MANAGE,
     icon: 'User',
     component: './Users',
-    access: 'canSeeAdmin',
+    access: 'canSeeOps',
     wrappers: ['@/wrappers/auth'],
   },
   {

@@ -12,37 +12,37 @@ const routerList = [
         path: routeMap.ADMIN_ROLE,
         method: "GET",
         handler: RoleController.queryRoleList,
-        auth: [USER_ROLE_ENUM.OPS]
+        auth: [USER_ROLE_ENUM.ADMIN]
     },
     {
         path: routeMap.ADMIN_ROLE_DETAIL,
         method: "GET",
         handler: RoleController.getRoleDetail,
-        auth: [USER_ROLE_ENUM.OPS]
+        auth: [USER_ROLE_ENUM.ADMIN]
     },
     {
         path: routeMap.ADMIN_ROLE,
         method: "POST",
         handler: RoleController.addRole,
-        auth: [USER_ROLE_ENUM.OPS]
+        auth: [USER_ROLE_ENUM.ADMIN]
     },
     {
         path: routeMap.ADMIN_ROLE_STATUS,
         method: "PUT",
         handler: RoleController.changeRoleStatus,
-        auth: [USER_ROLE_ENUM.OPS]
+        auth: [USER_ROLE_ENUM.ADMIN]
     },
     {
         path: routeMap.ADMIN_ROLE_DETAIL,
         method: "PUT",
         handler: RoleController.changeRoleInfo,
-        auth: [USER_ROLE_ENUM.OPS]
+        auth: [USER_ROLE_ENUM.ADMIN]
     },
     {
         path: routeMap.ADMIN_ROLE_DETAIL,
         method: "DELETE",
         handler: RoleController.deleteRole,
-        auth: [USER_ROLE_ENUM.OPS]
+        auth: [USER_ROLE_ENUM.ADMIN]
     },
 ];
 
