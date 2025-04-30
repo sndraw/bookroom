@@ -127,9 +127,8 @@ class UserController extends BaseController {
       if (!record) {
         throw new Error("用户不存在");
       }
-      // 如果用户是管理员
-      if (record?.role === USER_ROLE_ENUM.ADMIN) {
-        throw new Error("管理员不允许修改");
+      if (!super.authorize(ctx, record)) {
+        throw new Error("无权限操作");
       }
 
       if (record?.status !== params?.status) {
@@ -236,13 +235,9 @@ class UserController extends BaseController {
       }
 
       const roleInfo: any = await RoleService.findRecordById(roleId);
-      // 如果添加的角色是管理员
-      if (roleInfo?.code === USER_ROLE_ENUM.ADMIN) {
-        throw new Error("管理员角色不允许修改");
-      }
-      // 如果用户是管理员
-      if (record?.role === USER_ROLE_ENUM.ADMIN) {
-        throw new Error("管理员不允许修改");
+      
+      if (!super.authorize(ctx, record, { role: roleInfo?.code })) {
+        throw new Error("无权限操作");
       }
 
       const data: any = {}
@@ -313,6 +308,10 @@ class UserController extends BaseController {
         throw new Error("管理员角色不允许删除");
       }
 
+      if (!super.authorize(ctx, record)) {
+        throw new Error("无权限操作");
+      }
+
       await UserService.deleteUserAndRole(id)
       ctx.body = resultSuccess({
         data: "ok"
@@ -328,6 +327,7 @@ class UserController extends BaseController {
       });
     }
   }
+
 
 }
 

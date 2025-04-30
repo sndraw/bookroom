@@ -55,18 +55,18 @@ class TimeTool {
             const date = moment().format(queryParams?.format);
             return {
                 content: [
-                    { type: "text", text: date },
+                    { type: "text", text: `当前时间：${date}`},
                 ],
                 isError: false,
             };
-        } catch (error) {
+        } catch (error: any) {
             console.error('TimeTool执行错误:', error);
             // 返回默认时间格式，避免抛出异常
             return {
                 content: [
-                    { type: "text", text: '2023-05-15 10:30:00 Monday +0800' },
+                    { type: "text", text: `${error?.message || '未知错误'}` },
                 ],
-                isError: false,
+                isError: true,
             };
         }
     }
